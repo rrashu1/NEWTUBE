@@ -133,11 +133,15 @@
         // --- DATABASE AND STATE MANAGEMENT ---
         async function fetchAndUpdateCurrentUser() {
             if (!currentUser?.id) return;
-            const userRef = doc(db, 'users', currentUser.id);
-            const userSnap = await getDoc(userRef);
-            if (userSnap.exists()) {
-                currentUser = { id: userSnap.id, ...userSnap.data() };
-                updateBalanceUI(currentUser.balance);
+            try {
+                const userRef = doc(db, 'users', currentUser.id);
+                const userSnap = await getDoc(userRef);
+                if (userSnap.exists()) {
+                    currentUser = { id: userSnap.id, ...userSnap.data() };
+                    updateBalanceUI(currentUser.balance);
+                }
+            } catch (error) {
+                console.error("Error fetching user data:", error);
             }
         }
         
@@ -153,9 +157,13 @@
             }
 
             if (lastVisitTime < today) {
-                const userRef = doc(db, 'users', currentUser.id);
-                await updateDoc(userRef, { adVisitsToday: 0 });
-                currentUser.adVisitsToday = 0;
+                try {
+                    const userRef = doc(db, 'users', currentUser.id);
+                    await updateDoc(userRef, { adVisitsToday: 0 });
+                    currentUser.adVisitsToday = 0;
+                } catch (error) {
+                    console.error("Error resetting daily limits:", error);
+                }
             }
         }
 
@@ -173,33 +181,39 @@
                 lastAdVisitDate: null
             };
 
-            if (!userSnap.exists()) {
-                const newUser = { ...defaultUserData };
-                if (referrerCode) newUser.referredBy = referrerCode;
-                await setDoc(userRef, newUser);
-                currentUser = { id: tgUser.id, ...newUser };
-            } else {
-                let data = userSnap.data();
-                let updates = {};
-                if (!data.telegramUsername || data.telegramUsername !== tgUser.username) {
-                    updates.telegramUsername = tgUser.username || 'N/A';
+            try {
+                if (!userSnap.exists()) {
+                    const newUser = { ...defaultUserData };
+                    if (referrerCode) newUser.referredBy = referrerCode;
+                    await setDoc(userRef, newUser);
+                    currentUser = { id: tgUser.id, ...newUser };
+                } else {
+                    let data = userSnap.data();
+                    let updates = {};
+                    if (!data.telegramUsername || data.telegramUsername !== tgUser.username) {
+                        updates.telegramUsername = tgUser.username || 'N/A';
+                    }
+                    if (!data.hasOwnProperty('adVisitsToday')) {
+                        updates.adVisitsToday = 0;
+                    }
+                    if (Object.keys(updates).length > 0) {
+                        await updateDoc(userRef, updates);
+                        data = {...data, ...updates};
+                    }
+                    currentUser = { id: userSnap.id, ...data };
                 }
-                if (!data.hasOwnProperty('adVisitsToday')) {
-                    updates.adVisitsToday = 0;
-                }
-                if (Object.keys(updates).length > 0) {
-                    await updateDoc(userRef, updates);
-                    data = {...data, ...updates};
-                }
-                currentUser = { id: userSnap.id, ...data };
+                if (!currentUser.completedTasks) currentUser.completedTasks = [];
+                
+                await checkAndResetDailyLimits();
+                await fetchAndUpdateCurrentUser(); // Ensure latest data after reset
+                
+                generateReferralLink(currentUser.id);
+                // Run this periodically
+                setInterval(processPendingVideoRewards, 60000); // Check every minute
+            } catch (error) {
+                console.error("Initialization failed:", error);
+                document.body.innerHTML = `<div class="card" style="margin-top: 50px;"><h3>Initialization Error</h3><p>Could not load user data. Please try again later.</p></div>`;
             }
-            if (!currentUser.completedTasks) currentUser.completedTasks = [];
-            
-            await checkAndResetDailyLimits();
-            await fetchAndUpdateCurrentUser(); // Ensure latest data after reset
-            
-            generateReferralLink(currentUser.id);
-            processPendingVideoRewards();
         }
         
         function updateBalanceUI(balance) {
@@ -216,7 +230,7 @@
             const copyButton = document.getElementById('copyReferralLinkBtn');
             navigator.clipboard.writeText(copyButton.previousElementSibling.value).then(() => {
                 copyButton.textContent = 'Copied!';
-                if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+                if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
                 setTimeout(() => { copyButton.textContent = 'Copy'; }, 2000);
             });
         });
@@ -236,12 +250,12 @@
                 grid.innerHTML = ''; 
                 if (snapshot.empty) { grid.innerHTML = '<p style="text-align:center;">No content found.</p>'; return; }
                 
-                snapshot.forEach(doc => {
-                    const video = doc.data();
+                snapshot.forEach(docSnap => {
+                    const video = docSnap.data();
                     const item = document.createElement('article');
                     item.className = 'movie-item';
                     item.dataset.youtubeId = video.youtubeId;
-                    item.dataset.videoId = doc.id;
+                    item.dataset.videoId = docSnap.id;
                     item.originalContent = `<div class="thumbnail-container"><img src="${video.thumbnailUrl}" alt="${video.title}" loading="lazy"></div><div class="movie-item-info"><h4>${video.title}</h4><p class="movie-reward">Reward: 15 Points</p></div>`;
                     item.innerHTML = item.originalContent;
                     item.addEventListener('click', handleVideoClick);
@@ -265,32 +279,46 @@
             const youtubeId = clickedItem.dataset.youtubeId;
             const videoId = clickedItem.dataset.videoId;
 
-            const pendingRewardRef = collection(db, 'users', currentUser.id, 'pendingVideoRewards');
-            await addDoc(pendingRewardRef, { videoId, reward: 15, clickTime: serverTimestamp() });
+            try {
+                const pendingRewardRef = collection(db, 'users', currentUser.id, 'pendingVideoRewards');
+                await addDoc(pendingRewardRef, { videoId, reward: 15, clickTime: serverTimestamp() });
 
-            const playerDivId = `player-${youtubeId}-${Date.now()}`;
-            clickedItem.innerHTML = `<div id="${playerDivId}" class="player-container"></div>`;
-            player = new YT.Player(playerDivId, { height: '100%', width: '100%', videoId, playerVars: { 'autoplay': 1, 'controls': 1, 'rel': 0 } });
+                const playerDivId = `player-${youtubeId}-${Date.now()}`;
+                clickedItem.innerHTML = `<div id="${playerDivId}" class="player-container"></div>`;
+                player = new YT.Player(playerDivId, { height: '100%', width: '100%', videoId, playerVars: { 'autoplay': 1, 'controls': 1, 'rel': 0 } });
+            } catch(error) {
+                console.error("Error handling video click:", error);
+            }
         }
 
         async function processPendingVideoRewards() {
             if (!currentUser) return;
-            const pendingRewardsRef = collection(db, 'users', currentUser.id, 'pendingVideoRewards');
-            const oneHourAgo = new Date(Date.now() - 3600 * 1000);
-            
-            const q = query(pendingRewardsRef, where("clickTime", "<=", oneHourAgo));
-            const snapshot = await getDocs(q);
+            try {
+                const pendingRewardsRef = collection(db, 'users', currentUser.id, 'pendingVideoRewards');
+                const oneHourAgo = new Date(Date.now() - 3600 * 1000);
+                
+                const q = query(pendingRewardsRef, where("clickTime", "<=", oneHourAgo));
+                const snapshot = await getDocs(q);
 
-            if (snapshot.empty) return;
+                if (snapshot.empty) return;
 
-            for (const docSnap of snapshot.docs) {
-                await runTransaction(db, async (transaction) => {
+                let totalReward = 0;
+                for (const docSnap of snapshot.docs) {
+                    await runTransaction(db, async (transaction) => {
+                        const rewardData = docSnap.data();
+                        totalReward += rewardData.reward;
+                        transaction.delete(docSnap.ref);
+                    });
+                }
+                
+                if (totalReward > 0) {
                     const userRef = doc(db, 'users', currentUser.id);
-                    transaction.update(userRef, { balance: increment(docSnap.data().reward) });
-                    transaction.delete(docSnap.ref);
-                });
+                    await updateDoc(userRef, { balance: increment(totalReward) });
+                    await fetchAndUpdateCurrentUser();
+                }
+            } catch(error) {
+                console.error("Error processing pending video rewards:", error);
             }
-            await fetchAndUpdateCurrentUser();
         }
         
         // --- ADS TO EARN ---
@@ -326,7 +354,7 @@
 
             if (typeof show_9442539 !== 'function') {
                 alert('Ad service is not available.');
-                setupAdsToEarn(); // Re-render to restore button state
+                setupAdsToEarn();
                 return;
             }
 
@@ -339,26 +367,66 @@
                         adVisitsToday: increment(1),
                         lastAdVisitDate: serverTimestamp()
                     });
-                    await fetchAndUpdateCurrentUser(); // Fetch latest data
-                    setupAdsToEarn(); // Re-render UI with new limit
+                    await fetchAndUpdateCurrentUser();
+                    setupAdsToEarn();
                     alert(`Congratulations! You've earned 40 points.`);
                 } catch (error) {
                     console.error("Ad task reward error:", error);
                     alert("Failed to process reward.");
-                    setupAdsToEarn(); // Re-render to restore button state
+                    setupAdsToEarn();
                 }
             }).catch(err => {
                 console.log("Ad not shown or closed:", err);
                 alert('You need to watch the ad to earn points.');
-                setupAdsToEarn(); // Re-render to restore button state
+                setupAdsToEarn();
             });
         });
 
         // --- TASKS TO EARN ---
         const taskListContainer = document.getElementById('task-list');
-        async function fetchTasks() { /* This function remains unchanged, it was correct */ }
+        async function fetchTasks() {
+            if (!taskListContainer) return;
+            taskListContainer.innerHTML = '<div class="loader"></div>';
+            try {
+                const q = query(collection(db, 'tasks'), orderBy('createdAt', 'desc'));
+                const snapshot = await getDocs(q);
+                taskListContainer.innerHTML = '';
+                if (snapshot.empty) { 
+                    taskListContainer.innerHTML = '<p style="text-align:center;">No tasks available.</p>'; 
+                    return; 
+                }
+
+                let tasksAvailable = false;
+                snapshot.forEach(docSnap => {
+                    const task = { id: docSnap.id, ...docSnap.data() };
+                    if (task.completionCount >= task.limit) return;
+                    
+                    tasksAvailable = true;
+                    const card = document.createElement('div');
+                    card.className = 'task-card';
+                    const isCompleted = currentUser.completedTasks?.includes(task.id);
+                    card.innerHTML = `
+                        <div class="task-card-info">
+                            <h4>${task.title}</h4>
+                            <p>Reward: ${task.reward} Points</p>
+                        </div>
+                        <button class="task-button" data-task-id="${task.id}" data-task-url="${task.url || ''}" data-reward="${task.reward}" data-state="start" ${isCompleted ? 'disabled' : ''}>
+                            ${isCompleted ? 'Done' : 'Go to Task'}
+                        </button>`;
+                    taskListContainer.appendChild(card);
+                });
+
+                if (!tasksAvailable) {
+                    taskListContainer.innerHTML = '<p style="text-align:center;">No tasks available right now.</p>';
+                }
+            } catch (error) {
+                console.error("Error fetching tasks:", error);
+                taskListContainer.innerHTML = '<p>Error loading tasks.</p>';
+            }
+        }
+        
         taskListContainer.addEventListener('click', async (e) => {
-             if (!e.target.matches('.task-button') || e.target.disabled) return;
+            if (!e.target.matches('.task-button') || e.target.disabled) return;
             const button = e.target;
             const { taskId, taskUrl, reward, state } = button.dataset;
 
@@ -368,7 +436,7 @@
                     tg.openLink(taskUrl);
                     button.textContent = 'Claim Reward';
                     button.dataset.state = 'claim';
-                    if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+                    if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
                 } catch (err) { alert('Could not open the link. Use the Telegram app.'); }
             } else if (state === 'claim') {
                 button.disabled = true;
@@ -378,6 +446,7 @@
                         const userRef = doc(db, 'users', currentUser.id);
                         const taskRef = doc(db, 'tasks', taskId);
                         const [userDoc, taskDoc] = await Promise.all([transaction.get(userRef), transaction.get(taskRef)]);
+                        
                         if (!userDoc.exists() || !taskDoc.exists()) throw "User or Task not found.";
                         if (userDoc.data().completedTasks?.includes(taskId)) throw "ALREADY_COMPLETED";
                         if (taskDoc.data().completionCount >= taskDoc.data().limit) throw "TASK_LIMIT_REACHED";
@@ -385,15 +454,21 @@
                         transaction.update(userRef, { balance: increment(Number(reward)), completedTasks: arrayUnion(taskId) });
                         transaction.update(taskRef, { completionCount: increment(1) });
                     });
+                    
                     await fetchAndUpdateCurrentUser();
+                    
                     alert(`Reward of ${reward} points claimed!`);
-                    if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+                    if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
                     button.textContent = 'Done';
                 } catch (error) {
                     const message = { "ALREADY_COMPLETED": "You have already completed this task.", "TASK_LIMIT_REACHED": "This task has reached its completion limit." }[error] || 'Failed to claim reward. Please try again.';
                     alert(message);
                     button.textContent = (error === "ALREADY_COMPLETED" || error === "TASK_LIMIT_REACHED") ? 'Done' : 'Claim Reward';
-                    button.disabled = (error !== 'Failed to claim reward. Please try again.');
+                    if (error !== 'Failed to claim reward. Please try again.') {
+                        button.disabled = true;
+                    } else {
+                        button.disabled = false;
+                    }
                 }
             }
         });
@@ -401,15 +476,37 @@
         // --- WITHDRAWAL ---
         function showSuccessModal() {
             document.getElementById('successModalOverlay').classList.add('show');
-            if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+            if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
             setTimeout(() => {
                 document.getElementById('successModalOverlay').classList.remove('show');
                 document.querySelector('.nav-link[data-tab-target="#history-content"]').click();
             }, 3000);
         }
 
-        function checkWithdrawalEligibility() { /* This function remains unchanged, it was correct */ }
-        document.getElementById('withdrawalMethod').addEventListener('change', (e) => { /* This function remains unchanged */ });
+        function checkWithdrawalEligibility() {
+            const form = document.getElementById('withdrawalForm');
+            const cooldownMessage = document.getElementById('withdrawalCooldownMessage');
+            if (!currentUser || !currentUser.lastWithdrawalRequestAt) { form.style.display = 'block'; cooldownMessage.style.display = 'none'; return true; }
+            const sevenDaysInMillis = 7 * 24 * 60 * 60 * 1000;
+            const timeSinceLastRequest = new Date().getTime() - currentUser.lastWithdrawalRequestAt.toDate().getTime();
+            if (timeSinceLastRequest < sevenDaysInMillis) {
+                form.style.display = 'none';
+                cooldownMessage.style.display = 'block';
+                const timeLeft = sevenDaysInMillis - timeSinceLastRequest;
+                const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                cooldownMessage.querySelector('p').innerHTML = `You can request withdrawal once every 7 days.<br>Time remaining: ${days}d ${hours}h`;
+                return false;
+            }
+            form.style.display = 'block';
+            cooldownMessage.style.display = 'none';
+            return true;
+        }
+
+        document.getElementById('withdrawalMethod').addEventListener('change', (e) => {
+            document.getElementById('accountDetails').placeholder = e.target.value === 'Bkash' ? 'Your Bkash Number' : 'Your Binance Wallet Address (Optimism)';
+        });
+        
         document.getElementById('withdrawalForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const submitButton = e.target.querySelector('button[type="submit"]');
@@ -512,21 +609,25 @@
         }
 
         function init() {
-            if (!tg.initDataUnsafe?.user) {
-                document.body.innerHTML = `<div class="card" style="margin-top: 50px;"><h3>Error</h3><p>This application can only be launched from Telegram.</p></div>`;
-                return;
-            }
-            tg.ready();
-            tg.expand();
-            
-            initializeUser(tg.initDataUnsafe.user, tg.initDataUnsafe.start_param).then(() => {
-                document.querySelector('.nav-link[data-tab-target="#home-content"]').click();
-                initializeAdexium();
-            });
+            try {
+                if (!tg.initDataUnsafe?.user) {
+                    throw new Error("Application can only be launched from Telegram.");
+                }
+                tg.ready();
+                tg.expand();
+                
+                initializeUser(tg.initDataUnsafe.user, tg.initDataUnsafe.start_param).then(() => {
+                    document.querySelector('.nav-link[data-tab-target="#home-content"]').click();
+                    initializeAdexium();
+                });
 
-            const menuToggleBtn = document.getElementById('menu-toggle-button'), closeMenuBtn = document.getElementById('close-menu-btn'), sideMenu = document.getElementById('side-menu'), menuOverlay = document.getElementById('menu-overlay');
-            const toggleMenu = () => { sideMenu.classList.toggle('is-open'); menuOverlay.classList.toggle('is-open'); };
-            [menuToggleBtn, closeMenuBtn, menuOverlay].forEach(el => el.addEventListener('click', toggleMenu));
+                const menuToggleBtn = document.getElementById('menu-toggle-button'), closeMenuBtn = document.getElementById('close-menu-btn'), sideMenu = document.getElementById('side-menu'), menuOverlay = document.getElementById('menu-overlay');
+                const toggleMenu = () => { sideMenu.classList.toggle('is-open'); menuOverlay.classList.toggle('is-open'); };
+                [menuToggleBtn, closeMenuBtn, menuOverlay].forEach(el => el.addEventListener('click', toggleMenu));
+            } catch (error) {
+                console.error("Initialization Error:", error);
+                document.body.innerHTML = `<div class="card" style="margin-top: 50px;"><h3>Error</h3><p>${error.message}</p></div>`;
+            }
         }
         
         init();
