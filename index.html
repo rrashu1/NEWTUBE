@@ -68,19 +68,12 @@
         .success-modal-icon { width: 70px; height: 70px; border-radius: 50%; background-color: var(--success-color); display: flex; justify-content: center; align-items: center; font-size: 40px; font-weight: bold; color: white; margin: 0 auto 20px; animation: icon-pop-in 0.5s 0.2s backwards; }
         .success-modal h3 { margin: 0 0 10px; font-size: 1.6em; }
         .success-modal p { margin: 0; color: var(--text-muted); font-size: 1em;}
-        .loader-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--dark-bg); z-index: 9999; display: none; justify-content: center; align-items: center; }
-        .loader-overlay.is-active { display: flex; }
-        .loader-overlay .loader { margin: 0; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         @keyframes modal-pop-in { to { transform: scale(1); opacity: 1; } }
         @keyframes icon-pop-in { 0% { transform: scale(0); } 70% { transform: scale(1.1); } 100% { transform: scale(1); } }
     </style>
 </head>
 <body>
-
-    <div id="global-loader-overlay" class="loader-overlay is-active">
-        <div class="loader"></div>
-    </div>
 
     <header class="main-header">
         <h1 class="site-title">Movie for Viral</h1>
@@ -641,23 +634,15 @@
         }
 
         async function init() {
-            // Global loader is shown by default via HTML/CSS
             if (!tg.initDataUnsafe?.user) {
-                document.getElementById('global-loader-overlay').classList.remove('is-active');
                 document.body.innerHTML = `<div class="card" style="margin-top: 50px;"><h3>Error</h3><p>This application can only be launched from Telegram.</p></div>`;
                 return;
             }
             tg.ready();
             tg.expand();
             
-            // Perform essential data loading while the user sees the loader.
             await initializeUser(tg.initDataUnsafe.user, tg.initDataUnsafe.start_param);
             await claimPendingVideoRewards(); // Claim any rewards from previous sessions
-            
-            // Hide loader now that essential data is ready
-            document.getElementById('global-loader-overlay').classList.remove('is-active');
-
-            // Now display the initial content and set up other functionalities
             document.querySelector('.nav-link[data-tab-target="#home-content"]').click();
             initializeAdexium();
 
