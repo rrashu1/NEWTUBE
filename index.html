@@ -107,7 +107,7 @@
     <div id="successModalOverlay" class="success-modal-overlay"><div class="success-modal"><div class="success-modal-icon">✓</div><h3>Successfully Sent!</h3><p>Your withdrawal request is pending. ✅</p></div></div>
     
     <script type="text/javascript" src="https://cdn.tgads.space/assets/js/adexium-widget.min.js"></script>
-    <script src="https://www.youtube.com/iframe_api"></script>
+    <script src="https://www.youtube.com/iframe_api" async></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
         import { getFirestore, collection, getDocs, query, where, orderBy, limit, addDoc, serverTimestamp, doc, getDoc, setDoc, updateDoc, runTransaction, increment, arrayUnion, deleteDoc } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
@@ -167,7 +167,7 @@
                 balance: 0, 
                 createdAt: serverTimestamp(), 
                 completedTasks: [],
-                watchedVideos: [], // Added for video reward tracking
+                watchedVideos: [],
                 lastWithdrawalRequestAt: null,
                 telegramUsername: tgUser.username || 'N/A',
                 adVisitsToday: 0,
@@ -188,7 +188,7 @@
                 if (!data.hasOwnProperty('adVisitsToday')) {
                     updates.adVisitsToday = 0;
                 }
-                if (!data.watchedVideos) { // Ensure existing users have this field
+                if (!data.watchedVideos) {
                     updates.watchedVideos = [];
                 }
                 if (Object.keys(updates).length > 0) {
@@ -198,10 +198,12 @@
                 currentUser = { id: userSnap.id, ...data };
             }
             if (!currentUser.completedTasks) currentUser.completedTasks = [];
-            if (!currentUser.watchedVideos) currentUser.watchedVideos = []; // Safety check
+            if (!currentUser.watchedVideos) currentUser.watchedVideos = [];
             
-            await checkAndResetDailyLimits();
-            await fetchAndUpdateCurrentUser(); // Ensure latest data after reset
+            await checkAndResetDailyLimits(); // Checks/resets daily limits and updates local user object
+            
+            // **PERFORMANCE FIX**: Update UI directly after initialization, avoiding another database read.
+            updateBalanceUI(currentUser.balance);
             
             generateReferralLink(currentUser.id);
         }
@@ -259,34 +261,51 @@
             } catch (error) { console.error("Error fetching content:", error); grid.innerHTML = '<p>Error loading content.</p>'; }
         }
 
+        // **VIDEO LOGIC FIX**: This function now allows re-watching videos but only gives the reward once.
         async function handleVideoClick(event) {
-            if (!currentUser) { alert("User data not loaded yet."); return; }
-            const clickedItem = event.currentTarget;
-            const videoId = clickedItem.dataset.videoId;
-
-            if (currentUser.watchedVideos?.includes(videoId)) {
-                alert("You have already claimed the reward for this video.");
+            if (!currentUser) {
+                alert("User data not loaded yet. Please wait a moment.");
                 return;
             }
+            const clickedItem = event.currentTarget;
+            const videoId = clickedItem.dataset.videoId;
+            const youtubeId = clickedItem.dataset.youtubeId;
 
+            // If user clicks the video that is already playing, do nothing.
             if (currentPlayingItem === clickedItem) return;
 
+            // If another video was playing, destroy its player and restore the thumbnail.
             if (currentPlayingItem) {
                 currentPlayingItem.innerHTML = currentPlayingItem.originalContent;
-                if (player) player.destroy();
-                player = null;
+                if (player) {
+                    player.destroy();
+                    player = null;
+                }
             }
             
             currentPlayingItem = clickedItem;
-            const youtubeId = clickedItem.dataset.youtubeId;
-            
-            // Add a pending reward. It will be processed when the user navigates away.
-            const pendingRewardRef = collection(db, 'users', currentUser.id, 'pendingVideoRewards');
-            await addDoc(pendingRewardRef, { videoId, reward: 15, clickTime: serverTimestamp() });
 
+            // Check if the user has already been rewarded for this video.
+            const isWatched = currentUser.watchedVideos?.includes(videoId);
+
+            // If NOT watched, add a pending reward. This will be claimed when the user navigates away.
+            if (!isWatched) {
+                const pendingRewardRef = collection(db, 'users', currentUser.id, 'pendingVideoRewards');
+                await addDoc(pendingRewardRef, { videoId, reward: 15, clickTime: serverTimestamp() });
+            }
+
+            // Always create the YouTube player and start playback, regardless of watched status.
             const playerDivId = `player-${youtubeId}-${Date.now()}`;
             clickedItem.innerHTML = `<div id="${playerDivId}" class="player-container"></div>`;
-            player = new YT.Player(playerDivId, { height: '100%', width: '100%', videoId, playerVars: { 'autoplay': 1, 'controls': 1, 'rel': 0 } });
+            player = new YT.Player(playerDivId, {
+                height: '100%',
+                width: '100%',
+                videoId: youtubeId,
+                playerVars: { 'autoplay': 1, 'controls': 1, 'rel': 0 },
+                events: {
+                    'onReady': (e) => e.target.playVideo()
+                }
+            });
         }
 
         async function claimPendingVideoRewards() {
