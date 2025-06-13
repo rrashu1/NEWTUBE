@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>MOVIE FOR VIRAL - Watch & Earn</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- Telegram Ads Library -->
-    <script type="text/javascript" src="https://cdn.tgads.space/assets/js/adexium-widget.min.js"></script>
+    <!-- Monetag Ads Library -->
+    <script src='//libtl.com/sdk.js' data-zone='9442539' data-sdk='show_9442539'></script>
     <style>
         :root {
             --primary-accent-color: #FF4500; --primary-accent-hover-color: #E03D00; --dark-bg: #000000;
@@ -113,7 +113,7 @@
                 <svg class="card-icon" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
                 <h3>Withdrawal</h3>
                 <p>Your current balance: <strong><span id="withdrawalBalance">0</span> Points</strong></p>
-                <div class="conversion-info">Conversion: 1000 Points = $0.02 USD<br>Minimum withdrawal: 100,000 Points ($2.00)</div>
+                <div class="conversion-info">Conversion: 1000 Points = $0.02 USD<br>Minimum withdrawal: 15,000 Points ($0.30)</div>
                 <form id="withdrawalForm" style="margin-top: 20px;">
                     <div class="form-group">
                         <label for="withdrawalMethod">Payment Method</label>
@@ -125,7 +125,7 @@
                     </div>
                     <div class="form-group">
                         <label for="withdrawalAmount">Amount (Points)</label>
-                        <input type="number" id="withdrawalAmount" placeholder="e.g., 100000" required step="1" min="100000">
+                        <input type="number" id="withdrawalAmount" placeholder="e.g., 15000" required step="1" min="15000">
                     </div>
                     <button type="submit" class="form-button">Request Withdrawal</button>
                 </form>
@@ -144,7 +144,7 @@
     <script src="https://www.youtube.com/iframe_api"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
-        import { getFirestore, collection, getDocs, query, where, orderBy, limit, addDoc, serverTimestamp, doc, getDoc, setDoc, runTransaction, increment, arrayUnion, deleteDoc } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, query, where, orderBy, limit, addDoc, serverTimestamp, doc, getDoc, setDoc, updateDoc, runTransaction, increment, arrayUnion, deleteDoc } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
         
         const firebaseConfig = {
             apiKey: "AIzaSyCKMa4NdIowD_8NioUbrn4L7g5M9y5Tts0",
@@ -162,20 +162,20 @@
         let currentUser = null;
         let player;
         let currentPlayingItem = null;
-        let adexiumWidget; // Make ad widget globally accessible
 
         // --- User Initialization ---
         async function initializeUser(tgUser, referrerCode) {
             const userRef = doc(db, 'users', String(tgUser.id));
-            const userSnap = await getDoc(userRef);
+            let userSnap = await getDoc(userRef);
             
             const defaultUserData = {
                 balance: 0, 
                 createdAt: serverTimestamp(), 
                 completedTasks: [],
-                lastAdTask1Claim: null,
-                lastAdTask2Claim: null,
-                lastDailyBonusClaim: null
+                adPack1Progress: 0,
+                adPack2Progress: 0,
+                lastAdPack1Watch: null,
+                lastAdPack2Watch: null
             };
 
             if (!userSnap.exists()) {
@@ -185,18 +185,52 @@
                 currentUser = { id: tgUser.id, ...newUser };
             } else {
                 currentUser = { id: userSnap.id, ...userSnap.data() };
-                // Ensure all fields exist for older users
+                // Ensure all new fields exist for older users
+                let needsUpdate = false;
+                const updates = {};
                 for (const key in defaultUserData) {
                     if (!currentUser.hasOwnProperty(key)) {
                         currentUser[key] = defaultUserData[key];
+                        updates[key] = defaultUserData[key];
+                        needsUpdate = true;
                     }
                 }
+                if(needsUpdate) await updateDoc(userRef, updates);
             }
             if (!currentUser.completedTasks) currentUser.completedTasks = [];
+
+            await checkAndResetDailyCounters();
+            userSnap = await getDoc(userRef); // Re-fetch user data after potential reset
+            currentUser = { id: userSnap.id, ...userSnap.data() };
             
             updateBalanceUI(currentUser.balance);
             generateReferralLink(currentUser.id);
-            processPendingVideoRewards(); // Check for rewards on startup
+            processPendingVideoRewards();
+        }
+
+        async function checkAndResetDailyCounters() {
+            if (!currentUser) return;
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+            const updates = {};
+            const userRef = doc(db, 'users', currentUser.id);
+
+            if (currentUser.lastAdPack1Watch) {
+                const lastWatchDate = new Date(currentUser.lastAdPack1Watch.toDate().getFullYear(), currentUser.lastAdPack1Watch.toDate().getMonth(), currentUser.lastAdPack1Watch.toDate().getDate()).getTime();
+                if (lastWatchDate < today) {
+                    updates.adPack1Progress = 0;
+                }
+            }
+            if (currentUser.lastAdPack2Watch) {
+                const lastWatchDate = new Date(currentUser.lastAdPack2Watch.toDate().getFullYear(), currentUser.lastAdPack2Watch.toDate().getMonth(), currentUser.lastAdPack2Watch.toDate().getDate()).getTime();
+                if (lastWatchDate < today) {
+                    updates.adPack2Progress = 0;
+                }
+            }
+
+            if (Object.keys(updates).length > 0) {
+                await updateDoc(userRef, updates);
+            }
         }
         
         function updateBalanceUI(balance) {
@@ -250,7 +284,6 @@
             } catch (error) { console.error("Error fetching content:", error); grid.innerHTML = '<p>Error loading content.</p>'; }
         }
 
-        // --- NEW: Delayed Video Reward System ---
         async function handleVideoClick(event) {
             if (!currentUser) { alert("User data not loaded yet."); return; }
             const clickedItem = event.currentTarget;
@@ -265,11 +298,10 @@
             const youtubeId = clickedItem.dataset.youtubeId;
             const videoId = clickedItem.dataset.videoId;
 
-            // Add a pending reward instead of giving it instantly
             const pendingRewardRef = collection(db, 'users', currentUser.id, 'pendingVideoRewards');
             await addDoc(pendingRewardRef, {
                 videoId: videoId,
-                reward: 10, // Fixed 10 points
+                reward: 10,
                 clickTime: serverTimestamp()
             });
 
@@ -299,10 +331,8 @@
                                 const commission = rewardData.reward * 0.001;
                                 transaction.update(referrerRef, { balance: increment(commission) });
                             }
-                            // Delete the pending reward doc inside the transaction
                             transaction.delete(docSnap.ref);
                         });
-                        // Optimistically update local balance
                         currentUser.balance += rewardData.reward;
                         updateBalanceUI(currentUser.balance);
                     } catch (e) {
@@ -313,25 +343,31 @@
         }
 
 
-        // --- NEW: Ads to Earn Logic ---
+        // --- NEW Monetag Ads to Earn Logic ---
         function setupAdsToEarn() {
             const adTaskListContainer = document.getElementById('ad-task-list');
+            adTaskListContainer.innerHTML = '';
+            
             const adTasks = [
-                { id: 'adTask1', title: 'Daily Ad Pack 1', reward: 800, description: 'Watch 40 Ads' },
-                { id: 'adTask2', title: 'Daily Ad Pack 2', reward: 1000, description: 'Watch 40 Ads' },
-                { id: 'dailyBonus', title: 'Daily Bonus', reward: 150, description: 'Claim Once Daily' }
+                { id: 'adTask1', title: 'Daily Ad Pack 1', reward: 1000, limit: 50, progressField: 'adPack1Progress' },
+                { id: 'adTask2', title: 'Daily Ad Pack 2', reward: 1200, limit: 50, progressField: 'adPack2Progress' }
             ];
 
-            adTaskListContainer.innerHTML = '';
             adTasks.forEach(task => {
+                const progress = currentUser[task.progressField] || 0;
+                const isCompleted = progress >= task.limit;
+
                 const card = document.createElement('div');
                 card.className = 'ad-task-card';
+                card.id = task.id; // Assign an ID to the card for easy updating
                 card.innerHTML = `
                     <div class="ad-task-card-info">
                         <h4>${task.title}</h4>
                         <p>Reward: ${task.reward} Points</p>
                     </div>
-                    <button class="ad-task-button" data-task-id="${task.id}" data-reward="${task.reward}">Claim Reward</button>`;
+                    <button class="ad-task-button" data-task-id="${task.id}" data-reward="${task.reward}" data-limit="${task.limit}" data-progress-field="${task.progressField}" ${isCompleted ? 'disabled' : ''}>
+                        ${isCompleted ? 'Completed Today' : `Watch Ad (${progress}/${task.limit})`}
+                    </button>`;
                 adTaskListContainer.appendChild(card);
             });
         }
@@ -342,55 +378,77 @@
             const button = e.target;
             const taskId = button.dataset.taskId;
             const reward = parseInt(button.dataset.reward);
-            const lastClaimField = `last${taskId.charAt(0).toUpperCase() + taskId.slice(1)}Claim`;
+            const limit = parseInt(button.dataset.limit);
+            const progressField = button.dataset.progressField;
+            const lastWatchField = `last${taskId.slice(2, -1)}Watch`; // e.g., lastAdPack1Watch
             
             button.disabled = true;
-            button.textContent = 'Checking...';
+            button.textContent = 'Loading Ad...';
 
-            // Check if claimable
-            const lastClaimTimestamp = currentUser[lastClaimField];
-            if (lastClaimTimestamp) {
-                const lastClaimDate = lastClaimTimestamp.toDate();
-                const now = new Date();
-                if (lastClaimDate.getFullYear() === now.getFullYear() &&
-                    lastClaimDate.getMonth() === now.getMonth() &&
-                    lastClaimDate.getDate() === now.getDate()) {
-                    alert("You have already claimed this today. Come back tomorrow!");
-                    button.textContent = 'Claimed Today';
-                    return;
-                }
-            }
-            
-            // Show ad
-            if (adexiumWidget) {
-                try { adexiumWidget.show(); } catch(err) { console.error("Ad failed to show", err); }
-            }
-
-            button.textContent = 'Processing...';
-
-            try {
-                await runTransaction(db, async (transaction) => {
-                    const userRef = doc(db, 'users', currentUser.id);
-                    const updateData = { balance: increment(reward) };
-                    updateData[lastClaimField] = serverTimestamp(); // Update the claim time
-                    transaction.update(userRef, updateData);
-                });
-
-                if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-                alert(`Successfully claimed ${reward} points!`);
-                
-                // Update local user object and UI
-                const updatedUser = await getDoc(doc(db, 'users', currentUser.id));
-                currentUser = {id: updatedUser.id, ...updatedUser.data()};
-                updateBalanceUI(currentUser.balance);
-                button.textContent = 'Claimed Today';
-
-            } catch (error) {
-                alert("Failed to claim reward. Please try again.");
-                console.error("Ad task claim error:", error);
-                button.textContent = 'Claim Reward';
+            if (typeof show_9442539 !== 'function') {
+                alert('Ad service is not available. Please try again later.');
                 button.disabled = false;
+                setupAdsToEarn(); // Re-render to restore button state
+                return;
             }
+
+            show_9442539().then(async () => {
+                if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+                button.textContent = 'Processing...';
+
+                try {
+                    const userRef = doc(db, 'users', currentUser.id);
+                    await runTransaction(db, async (transaction) => {
+                        const userDoc = await transaction.get(userRef);
+                        if (!userDoc.exists()) throw "User does not exist!";
+                        
+                        const currentProgress = userDoc.data()[progressField] || 0;
+                        if (currentProgress >= limit) {
+                            // This is a safeguard in case the button was clicked before UI updated
+                            alert("You have already completed this task for today.");
+                            return;
+                        }
+
+                        const newProgress = currentProgress + 1;
+                        const updateData = {};
+                        updateData[progressField] = newProgress;
+                        updateData[lastWatchField] = serverTimestamp();
+
+                        if (newProgress === limit) {
+                            updateData.balance = increment(reward);
+                        }
+                        
+                        transaction.update(userRef, updateData);
+                    });
+
+                    // Update local state and UI after successful transaction
+                    const updatedUserSnap = await getDoc(userRef);
+                    currentUser = { id: updatedUserSnap.id, ...updatedUserSnap.data() };
+                    updateBalanceUI(currentUser.balance);
+                    
+                    // Update the specific card
+                    const newProgress = currentUser[progressField];
+                    if (newProgress >= limit) {
+                        button.textContent = 'Completed Today';
+                        alert(`Task completed! You earned ${reward} points.`);
+                    } else {
+                        button.textContent = `Watch Ad (${newProgress}/${limit})`;
+                        button.disabled = false;
+                    }
+
+                } catch (error) {
+                    console.error("Ad task reward error:", error);
+                    alert("Failed to process reward. Please try again.");
+                    button.disabled = false;
+                    button.textContent = `Watch Ad (${currentUser[progressField]}/${limit})`;
+                }
+            }).catch(err => {
+                console.log("Ad not shown or closed by user:", err);
+                alert('You need to watch the ad to make progress.');
+                button.disabled = false; // Re-enable the button
+                const currentProgress = currentUser[progressField] || 0;
+                button.textContent = `Watch Ad (${currentProgress}/${limit})`;
+            });
         });
 
 
@@ -415,7 +473,7 @@
                 if (currentUser.completedTasks.includes(task.id)) { button.textContent = 'Done'; button.disabled = true; }
             });
         }
-        taskListContainer.addEventListener('click', async (e) => { /* Original task logic remains same, just uses points now */ });
+        taskListContainer.addEventListener('click', async (e) => { /* Original task logic remains same */ });
 
 
         // --- Withdrawal Form & History Logic ---
@@ -426,7 +484,7 @@
         document.getElementById('withdrawalForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const amount = parseInt(document.getElementById('withdrawalAmount').value, 10);
-            const minWithdrawal = 100000;
+            const minWithdrawal = 15000;
             
             if (amount > currentUser.balance) { alert("Insufficient balance."); return; }
             if (amount < minWithdrawal) { alert(`Minimum withdrawal is ${minWithdrawal} Points.`); return; }
@@ -444,7 +502,7 @@
             
             await addDoc(collection(db, 'withdrawals'), request);
             const userRef = doc(db, 'users', currentUser.id);
-            await runTransaction(db, async (t) => t.update(userRef, { balance: increment(-amount) }));
+            await updateDoc(userRef, { balance: increment(-amount) });
             
             currentUser.balance -= amount;
             updateBalanceUI(currentUser.balance);
@@ -501,15 +559,6 @@
             });
         });
 
-        // --- Ads Setup Logic ---
-        function setupAds() {
-            if (typeof AdexiumWidget === 'undefined') { console.error("Adexium Ad library not loaded."); return; }
-            adexiumWidget = new AdexiumWidget({ wid: '165512cc-372e-4fb0-98d2-552219c72799', adFormat: 'interstitial' });
-            adexiumWidget.init();
-            const showAd = () => { try { adexiumWidget.show(); } catch(e) { console.error("Failed to show ad:", e); } };
-            setTimeout(() => { showAd(); setInterval(showAd, 4 * 60 * 1000); }, 30 * 1000); 
-        }
-
         // --- App Initialization ---
         function init() {
             if (!tg.initDataUnsafe || !tg.initDataUnsafe.user) {
@@ -526,8 +575,6 @@
             const menuToggleBtn = document.getElementById('menu-toggle-button'), closeMenuBtn = document.getElementById('close-menu-btn'), sideMenu = document.getElementById('side-menu'), menuOverlay = document.getElementById('menu-overlay');
             function toggleMenu() { sideMenu.classList.toggle('is-open'); menuOverlay.classList.toggle('is-open'); }
             [menuToggleBtn, closeMenuBtn, menuOverlay].forEach(el => el.addEventListener('click', toggleMenu));
-            
-            setupAds();
         }
         
         init();
