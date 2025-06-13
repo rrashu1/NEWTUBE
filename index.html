@@ -99,7 +99,7 @@
         <section id="videos-content" class="content-section"><h3 class="section-title">Videos</h3><div class="item-grid"></div></section>
         <section id="ads-to-earn-content" class="content-section"><h3 class="section-title">Watch Ads, Earn Points</h3><div id="ad-task-list" class="item-grid"></div></section>
         <section id="task-content" class="content-section"><h3 class="section-title">Complete Tasks</h3><div id="task-list" class="item-grid"></div></section>
-        <section id="referral-content" class="content-section"><div class="card"><svg class="card-icon" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg><h3>Referral Program</h3><p>Invite friends with your unique link. You'll earn a 0.1% commission from their earnings, for life!</p><div class="referral-link-wrapper"><input type="text" id="referralLinkInput" readonly value="Generating link..."><button id="copyReferralLinkBtn" class="form-button">Copy</button></div></div></section>
+        <section id="referral-content" class="content-section"><div class="card"><svg class="card-icon" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg><h3>Referral Program</h3><p>Invite friends with your unique link. You'll earn a 0.3% commission from their earnings, for life!</p><div class="referral-link-wrapper"><input type="text" id="referralLinkInput" readonly value="Generating link..."><button id="copyReferralLinkBtn" class="form-button">Copy</button></div></div></section>
         <section id="withdrawal-content" class="content-section"><div class="card"><svg class="card-icon" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg><h3>Withdrawal</h3><p>Your current balance: <strong><span id="withdrawalBalance">0</span> Points</strong></p><div class="conversion-info">Conversion: 1000 Points = $0.02 USD<br>Minimum withdrawal: 15,000 Points ($0.30)</div><div id="withdrawalCooldownMessage" class="withdrawal-cooldown-message"><p>You can request a withdrawal once every 7 days.<br>Please try again later.</p></div><form id="withdrawalForm" style="margin-top: 20px;"><div class="form-group"><label for="withdrawalMethod">Payment Method</label><select id="withdrawalMethod" required><option value="Bkash">Bkash</option><option value="Binance (Optimism)">Binance (Optimism)</option></select></div><div class="form-group"><label for="accountDetails">Account Details</label><input type="text" id="accountDetails" placeholder="Your Bkash Number" required></div><div class="form-group"><label for="withdrawalAmount">Amount (Points)</label><input type="number" id="withdrawalAmount" placeholder="15000 - 100000" required step="1" min="15000" max="100000"></div><button type="submit" class="form-button">Request Withdrawal</button></form></div></section>
         <section id="history-content" class="content-section"><h3 class="section-title">Withdrawal History</h3><div id="history-list"></div></section>
     </main>
@@ -128,7 +128,7 @@
         let currentUser = null;
         let player;
         let currentPlayingItem = null;
-        const AD_VISIT_LIMIT = 40;
+        const AD_VISIT_LIMIT = 10;
 
         // --- DATABASE AND STATE MANAGEMENT ---
         async function fetchAndUpdateCurrentUser() {
@@ -336,10 +336,10 @@
                 card.innerHTML = `
                     <div class="ad-task-card-info">
                         <h4>Watch Ad & Earn</h4>
-                        <p>Reward: 40 Points</p>
+                        <p>Reward: 60 Points</p>
                         <p class="ad-visits-left">Today's Visits Left: ${visitsLeft > 0 ? visitsLeft : 0}</p>
                     </div>
-                    <button class="ad-task-button" data-reward="40" ${isLimitReached ? 'disabled' : ''}>
+                    <button class="ad-task-button" data-reward="60" ${isLimitReached ? 'disabled' : ''}>
                         ${isLimitReached ? 'Daily Limit Reached' : 'Watch Ad'}
                     </button>`;
                 adTaskListContainer.appendChild(card);
@@ -364,13 +364,13 @@
                 try {
                     const userRef = doc(db, 'users', currentUser.id);
                     await updateDoc(userRef, { 
-                        balance: increment(40),
+                        balance: increment(60),
                         adVisitsToday: increment(1),
                         lastAdVisitDate: serverTimestamp()
                     });
                     await fetchAndUpdateCurrentUser(); // Fetch latest data
                     setupAdsToEarn(); // Re-render UI with new limit
-                    alert(`Congratulations! You've earned 40 points.`);
+                    alert(`Congratulations! You've earned 60 points.`);
                 } catch (error) {
                     console.error("Ad task reward error:", error);
                     alert("Failed to process reward.");
