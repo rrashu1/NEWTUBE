@@ -404,7 +404,6 @@
                         
                         const currentProgress = userDoc.data()[progressField] || 0;
                         if (currentProgress >= limit) {
-                            // This is a safeguard in case the button was clicked before UI updated
                             alert("You have already completed this task for today.");
                             return;
                         }
@@ -421,12 +420,10 @@
                         transaction.update(userRef, updateData);
                     });
 
-                    // Update local state and UI after successful transaction
                     const updatedUserSnap = await getDoc(userRef);
                     currentUser = { id: updatedUserSnap.id, ...updatedUserSnap.data() };
                     updateBalanceUI(currentUser.balance);
                     
-                    // Update the specific card
                     const newProgress = currentUser[progressField];
                     if (newProgress >= limit) {
                         button.textContent = 'Completed Today';
@@ -445,35 +442,150 @@
             }).catch(err => {
                 console.log("Ad not shown or closed by user:", err);
                 alert('You need to watch the ad to make progress.');
-                button.disabled = false; // Re-enable the button
+                button.disabled = false; 
                 const currentProgress = currentUser[progressField] || 0;
                 button.textContent = `Watch Ad (${currentProgress}/${limit})`;
             });
         });
 
 
-        // --- Task System (Original) ---
+        // --- FIXED Task System ---
         const taskListContainer = document.getElementById('task-list');
+        
         async function fetchTasks() {
             taskListContainer.innerHTML = '<div class="loader"></div>';
-            const q = query(collection(db, 'tasks'), orderBy('createdAt', 'desc'));
-            const snapshot = await getDocs(q);
-            taskListContainer.innerHTML = '';
-            if (snapshot.empty) { taskListContainer.innerHTML = '<p style="text-align:center;">No tasks available.</p>'; return; }
+            try {
+                const q = query(collection(db, 'tasks'), orderBy('createdAt', 'desc'));
+                const snapshot = await getDocs(q);
+                taskListContainer.innerHTML = '';
+                if (snapshot.empty) { 
+                    taskListContainer.innerHTML = '<p style="text-align:center;">No tasks available.</p>'; 
+                    return; 
+                }
 
-            snapshot.forEach(docSnap => {
-                const task = { id: docSnap.id, ...docSnap.data() };
-                if (task.completionCount >= task.limit) return;
-                
-                const card = document.createElement('div');
-                card.className = 'task-card';
-                card.innerHTML = `<div class="task-card-info"><h4>${task.title}</h4><p>Reward: ${task.reward} Points</p></div><button class="task-button" data-task-id="${task.id}">Go to Task</button>`;
-                taskListContainer.appendChild(card);
-                const button = card.querySelector('.task-button');
-                if (currentUser.completedTasks.includes(task.id)) { button.textContent = 'Done'; button.disabled = true; }
-            });
+                let tasksAvailable = false;
+                snapshot.forEach(docSnap => {
+                    const task = { id: docSnap.id, ...docSnap.data() };
+                    if (task.completionCount >= task.limit) return;
+                    
+                    tasksAvailable = true;
+                    const card = document.createElement('div');
+                    card.className = 'task-card';
+
+                    const isCompleted = currentUser.completedTasks && currentUser.completedTasks.includes(task.id);
+
+                    card.innerHTML = `
+                        <div class="task-card-info">
+                            <h4>${task.title}</h4>
+                            <p>Reward: ${task.reward} Points</p>
+                        </div>
+                        <button class="task-button" 
+                                data-task-id="${task.id}" 
+                                data-task-url="${task.url || ''}" 
+                                data-reward="${task.reward}"
+                                data-state="start"
+                                ${isCompleted ? 'disabled' : ''}>
+                            ${isCompleted ? 'Done' : 'Go to Task'}
+                        </button>`;
+                    taskListContainer.appendChild(card);
+                });
+
+                if (!tasksAvailable) {
+                    taskListContainer.innerHTML = '<p style="text-align:center;">No tasks available right now.</p>';
+                }
+            } catch (error) {
+                console.error("Error fetching tasks:", error);
+                taskListContainer.innerHTML = '<p>Error loading tasks.</p>';
+            }
         }
-        taskListContainer.addEventListener('click', async (e) => { /* Original task logic remains same */ });
+
+        taskListContainer.addEventListener('click', async (e) => {
+            if (!e.target.matches('.task-button') || e.target.disabled) return;
+
+            const button = e.target;
+            const taskId = button.dataset.taskId;
+            const taskUrl = button.dataset.taskUrl;
+            const reward = parseInt(button.dataset.reward, 10);
+            const state = button.dataset.state || 'start';
+
+            if (state === 'start') {
+                if (!taskUrl) {
+                    alert('Task URL is missing.');
+                    return;
+                }
+                try {
+                    tg.openLink(taskUrl);
+                    button.textContent = 'Claim Reward';
+                    button.dataset.state = 'claim';
+                    if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+                } catch (err) {
+                    alert('Could not open the link. Make sure you are using the Telegram app.');
+                    console.error("Error opening link:", err);
+                }
+            } else if (state === 'claim') {
+                button.disabled = true;
+                button.textContent = 'Verifying...';
+
+                try {
+                    await runTransaction(db, async (transaction) => {
+                        const userRef = doc(db, 'users', currentUser.id);
+                        const taskRef = doc(db, 'tasks', taskId);
+
+                        const userDoc = await transaction.get(userRef);
+                        const taskDoc = await transaction.get(taskRef);
+
+                        if (!userDoc.exists()) throw "User not found.";
+                        if (!taskDoc.exists()) throw "Task not found.";
+
+                        const userData = userDoc.data();
+                        const taskData = taskDoc.data();
+
+                        if (userData.completedTasks && userData.completedTasks.includes(taskId)) {
+                            throw "ALREADY_COMPLETED"; 
+                        }
+                        
+                        if (taskData.completionCount >= taskData.limit) {
+                            throw "TASK_LIMIT_REACHED";
+                        }
+
+                        transaction.update(userRef, {
+                            balance: increment(reward),
+                            completedTasks: arrayUnion(taskId)
+                        });
+                        transaction.update(taskRef, {
+                            completionCount: increment(1)
+                        });
+                    });
+
+                    alert(`Reward of ${reward} points claimed!`);
+                    if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+
+                    currentUser.balance += reward;
+                    if (!currentUser.completedTasks.includes(taskId)) {
+                        currentUser.completedTasks.push(taskId);
+                    }
+                    updateBalanceUI(currentUser.balance);
+                    button.textContent = 'Done';
+                    button.disabled = true;
+
+                } catch (error) {
+                    if (error === "ALREADY_COMPLETED") {
+                        alert("You have already completed this task.");
+                        button.textContent = 'Done';
+                        button.disabled = true;
+                    } else if (error === "TASK_LIMIT_REACHED") {
+                         alert("This task has reached its completion limit. Try another one.");
+                         button.textContent = 'Limit Reached';
+                         button.disabled = true;
+                    } else {
+                        alert('Failed to claim reward. Please try again.');
+                        console.error("Task claim error:", error);
+                        button.disabled = false;
+                        button.textContent = 'Claim Reward';
+                    }
+                }
+            }
+        });
 
 
         // --- Withdrawal Form & History Logic ---
