@@ -7,9 +7,6 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <!-- Monetag Ads Library -->
     <script src='//libtl.com/sdk.js' data-zone='9442539' data-sdk='show_9442539'></script>
-    <!-- Adexiom & Onclicka Ad Scripts -->
-    <script type="text/javascript" src="https://cdn.tgads.space/assets/js/adexium-widget.min.js"></script>
-    <script src="https://js.onclckmn.com/static/onclicka.js" async></script>
     <style>
         :root {
             --primary-accent-color: #FF4500; --primary-accent-hover-color: #E03D00; --dark-bg: #000000;
@@ -109,6 +106,7 @@
     
     <div id="successModalOverlay" class="success-modal-overlay"><div class="success-modal"><div class="success-modal-icon">✓</div><h3>Successfully Sent!</h3><p>Your withdrawal request is pending. ✅</p></div></div>
     
+    <script type="text/javascript" src="https://cdn.tgads.space/assets/js/adexium-widget.min.js"></script>
     <script src="https://www.youtube.com/iframe_api" async></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
@@ -130,8 +128,7 @@
         let currentUser = null;
         let player;
         let currentPlayingItem = null;
-        const AD_VISIT_LIMIT = 30; // <-- UPDATED: Ad limit changed to 30
-        const AD_REWARD = 50; // <-- UPDATED: Reward changed to 50
+        const AD_VISIT_LIMIT = 10;
 
         // --- DATABASE AND STATE MANAGEMENT ---
         async function fetchAndUpdateCurrentUser() {
@@ -203,8 +200,9 @@
             if (!currentUser.completedTasks) currentUser.completedTasks = [];
             if (!currentUser.watchedVideos) currentUser.watchedVideos = [];
             
-            await checkAndResetDailyLimits();
+            await checkAndResetDailyLimits(); // Checks/resets daily limits and updates local user object
             
+            // **PERFORMANCE FIX**: Update UI directly after initialization, avoiding another database read.
             updateBalanceUI(currentUser.balance);
             
             generateReferralLink(currentUser.id);
@@ -263,6 +261,7 @@
             } catch (error) { console.error("Error fetching content:", error); grid.innerHTML = '<p>Error loading content.</p>'; }
         }
 
+        // **VIDEO LOGIC FIX**: This function now allows re-watching videos but only gives the reward once.
         async function handleVideoClick(event) {
             if (!currentUser) {
                 alert("User data not loaded yet. Please wait a moment.");
@@ -272,8 +271,10 @@
             const videoId = clickedItem.dataset.videoId;
             const youtubeId = clickedItem.dataset.youtubeId;
 
+            // If user clicks the video that is already playing, do nothing.
             if (currentPlayingItem === clickedItem) return;
 
+            // If another video was playing, destroy its player and restore the thumbnail.
             if (currentPlayingItem) {
                 currentPlayingItem.innerHTML = currentPlayingItem.originalContent;
                 if (player) {
@@ -284,13 +285,16 @@
             
             currentPlayingItem = clickedItem;
 
+            // Check if the user has already been rewarded for this video.
             const isWatched = currentUser.watchedVideos?.includes(videoId);
 
+            // If NOT watched, add a pending reward. This will be claimed when the user navigates away.
             if (!isWatched) {
                 const pendingRewardRef = collection(db, 'users', currentUser.id, 'pendingVideoRewards');
                 await addDoc(pendingRewardRef, { videoId, reward: 15, clickTime: serverTimestamp() });
             }
 
+            // Always create the YouTube player and start playback, regardless of watched status.
             const playerDivId = `player-${youtubeId}-${Date.now()}`;
             clickedItem.innerHTML = `<div id="${playerDivId}" class="player-container"></div>`;
             player = new YT.Player(playerDivId, {
@@ -337,7 +341,7 @@
             }
         }
         
-        // --- ADS TO EARN (UPDATED LOGIC) ---
+        // --- ADS TO EARN ---
         function setupAdsToEarn() {
             const adTaskListContainer = document.getElementById('ad-task-list');
             adTaskListContainer.innerHTML = '';
@@ -351,10 +355,10 @@
                 card.innerHTML = `
                     <div class="ad-task-card-info">
                         <h4>Watch Ad & Earn</h4>
-                        <p>Reward: ${AD_REWARD} Points</p>
+                        <p>Reward: 60 Points</p>
                         <p class="ad-visits-left">Today's Visits Left: ${visitsLeft > 0 ? visitsLeft : 0}</p>
                     </div>
-                    <button class="ad-task-button" ${isLimitReached ? 'disabled' : ''}>
+                    <button class="ad-task-button" data-reward="60" ${isLimitReached ? 'disabled' : ''}>
                         ${isLimitReached ? 'Daily Limit Reached' : 'Watch Ad'}
                     </button>`;
                 adTaskListContainer.appendChild(card);
@@ -368,63 +372,32 @@
             button.disabled = true;
             button.textContent = 'Loading Ad...';
 
-            const adProviders = [
-                // 1. Monetag - returns a real promise, very reliable.
-                () => new Promise((resolve, reject) => {
-                    if (typeof show_9442539 !== 'function') return reject('Ad service (M) is not available.');
-                    show_9442539().then(resolve).catch(reject);
-                }),
-                // 2. Adexium - interstitial ad. We trigger it and assume success if no error is thrown.
-                () => new Promise((resolve, reject) => {
-                    if (typeof AdexiumWidget !== 'function') return reject('Ad service (A) is not available.');
-                    try {
-                        new AdexiumWidget({wid: '165512cc-372e-4fb0-98d2-552219c72799', adFormat: 'interstitial'}).init();
-                        resolve('Adexium triggered'); // Resolve to grant reward after triggering
-                    } catch (err) {
-                        reject('Failed to show Adexium ad.');
-                    }
-                }),
-                // 3. Onclicka - pop-under ad. The script works by opening a new tab.
-                () => new Promise((resolve, reject) => {
-                    // We must use a user-initiated action to open a new window.
-                    const adWindow = window.open('about:blank', '_blank');
-                    if (!adWindow || adWindow.closed || typeof adWindow.closed === 'undefined') {
-                        // This is the most common failure point: the browser blocked the pop-up.
-                        return reject('Ad blocked. Please disable your pop-up blocker to earn from this ad.');
-                    }
-                    // Since the script is loaded, it should automatically take over the new window.
-                    // We can't know when the user closes it, so we resolve immediately.
-                    adWindow.blur(); // focus back to the main window
-                    window.focus();
-                    resolve('Onclicka triggered');
-                })
-            ];
-            
-            // Randomly select one of the ad providers
-            const chosenAdFunction = adProviders[Math.floor(Math.random() * adProviders.length)];
+            if (typeof show_9442539 !== 'function') {
+                alert('Ad service is not available.');
+                setupAdsToEarn(); // Re-render to restore button state
+                return;
+            }
 
-            chosenAdFunction().then(async () => {
+            show_9442539().then(async () => {
                 if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
                 try {
                     const userRef = doc(db, 'users', currentUser.id);
                     await updateDoc(userRef, { 
-                        balance: increment(AD_REWARD),
+                        balance: increment(60),
                         adVisitsToday: increment(1),
                         lastAdVisitDate: serverTimestamp()
                     });
-                    await fetchAndUpdateCurrentUser(); 
-                    setupAdsToEarn(); 
-                    alert(`Congratulations! You've earned ${AD_REWARD} points.`);
+                    await fetchAndUpdateCurrentUser(); // Fetch latest data
+                    setupAdsToEarn(); // Re-render UI with new limit
+                    alert(`Congratulations! You've earned 60 points.`);
                 } catch (error) {
                     console.error("Ad task reward error:", error);
                     alert("Failed to process reward.");
                     setupAdsToEarn(); // Re-render to restore button state
                 }
             }).catch(err => {
-                console.log("Ad not shown or error:", err);
-                // Use a more specific error message if available
-                const errorMessage = typeof err === 'string' ? err : 'You need to watch the ad to earn points.';
-                alert(errorMessage);
+                console.log("Ad not shown or closed:", err);
+                alert('You need to watch the ad to earn points.');
                 setupAdsToEarn(); // Re-render to restore button state
             });
         });
@@ -642,6 +615,7 @@
             link.addEventListener('click', async (e) => {
                 e.preventDefault();
                 
+                // If a video was playing, process its reward before navigating away
                 if (currentPlayingItem) {
                     await claimPendingVideoRewards();
                     currentPlayingItem.innerHTML = currentPlayingItem.originalContent;
@@ -669,11 +643,10 @@
         });
 
         function initializeAdexium() {
-            // This function is for the general periodic ad, not the rewarded one.
             const showAd = () => {
                 try {
                     if (typeof AdexiumWidget === 'function') { new AdexiumWidget({wid: '165512cc-372e-4fb0-98d2-552219c72799', adFormat: 'interstitial'}).init(); }
-                } catch (e) { console.error("Periodic Adexium ad error:", e); }
+                } catch (e) { console.error("Adexium ad error:", e); }
             };
             setTimeout(showAd, 10000);
             setInterval(showAd, 300000);
@@ -688,7 +661,7 @@
             tg.expand();
             
             await initializeUser(tg.initDataUnsafe.user, tg.initDataUnsafe.start_param);
-            await claimPendingVideoRewards();
+            await claimPendingVideoRewards(); // Claim any rewards from previous sessions
             document.querySelector('.nav-link[data-tab-target="#home-content"]').click();
             initializeAdexium();
 
