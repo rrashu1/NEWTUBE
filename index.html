@@ -7,6 +7,9 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <!-- Monetag Ads Library -->
     <script src='//libtl.com/sdk.js' data-zone='9442539' data-sdk='show_9442539'></script>
+    <!-- Adexium & GigaPub SDKs -->
+    <script type="text/javascript" src="https://cdn.tgads.space/assets/js/adexium-widget.min.js"></script>
+    <script src="https://ad.gigapub.tech/script?id=846"></script>
     <style>
         :root {
             --primary-accent-color: #FF4500; --primary-accent-hover-color: #E03D00; --dark-bg: #000000;
@@ -132,9 +135,24 @@
         </div>
     </div>
     
-    <script type="text/javascript" src="https://cdn.tgads.space/assets/js/adexium-widget.min.js"></script>
-    <script src="https://ad.gigapub.tech/script?id=846"></script>
     <script src="https://www.youtube.com/iframe_api" async></script>
+    
+    <!-- ADEXIUM WIDGET INITIALIZATION (CORRECT IMPLEMENTATION) -->
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                if (typeof AdexiumWidget === 'function') {
+                    const adexiumWidget = new AdexiumWidget({wid: '165512cc-372e-4fb0-98d2-552219c72799', adFormat: 'interstitial'});
+                    adexiumWidget.init();
+                } else {
+                    console.error("AdexiumWidget class not found.");
+                }
+            } catch(e) {
+                console.error("Failed to initialize Adexium Widget:", e);
+            }
+        });
+    </script>
+    
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
         import { getFirestore, collection, getDocs, query, where, orderBy, limit, addDoc, serverTimestamp, doc, getDoc, setDoc, updateDoc, runTransaction, increment, arrayUnion, deleteDoc, writeBatch } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
@@ -155,7 +173,7 @@
         let currentUser = null;
         let player;
         let currentPlayingItem = null;
-        const AD_VISIT_LIMIT = 20; // UPDATED
+        const AD_VISIT_LIMIT = 20;
 
         // --- DATABASE AND STATE MANAGEMENT ---
         async function fetchAndUpdateCurrentUser() {
@@ -361,7 +379,7 @@
             }
         }
         
-        // --- ADS TO EARN (UPDATED) ---
+        // --- ADS TO EARN (UPDATED & CORRECTED) ---
         const showMonetagAd = () => {
             return new Promise((resolve, reject) => {
                 if (typeof show_9442539 === 'function') {
@@ -382,33 +400,11 @@
             });
         };
 
-        const showAdexiumAd = () => {
-            return new Promise((resolve, reject) => {
-                if (typeof AdexiumWidget !== 'function') return reject('Adexium SDK not available');
-                try {
-                    new AdexiumWidget({wid: '165512cc-372e-4fb0-98d2-552219c72799', adFormat: 'interstitial'}).init();
-                    // Ad providers that open overlays/new tabs often don't have direct callbacks.
-                    // The promise resolves when the user returns focus to the app, indicating the ad is closed.
-                    let resolved = false;
-                    const onFocus = () => {
-                        if (!resolved) {
-                            resolved = true;
-                            window.removeEventListener('focus', onFocus);
-                            resolve('Ad closed');
-                        }
-                    };
-                    window.addEventListener('focus', onFocus);
-                    setTimeout(() => onFocus(), 8000); // Failsafe after 8 seconds
-                } catch (e) {
-                    reject(e);
-                }
-            });
-        };
-
+        // Adexium is initialized automatically and shows ads in the background.
+        // The button will now only trigger Monetag or GigaPub.
         const adProviders = [
             { name: 'Monetag', func: showMonetagAd },
-            { name: 'GigaPub', func: showGigaPubAd },
-            { name: 'Adexium', func: showAdexiumAd }
+            { name: 'GigaPub', func: showGigaPubAd }
         ];
 
         function setupAdsToEarn() {
@@ -441,7 +437,7 @@
             button.disabled = true;
             button.textContent = 'Loading Ad...';
 
-            // Randomly select an ad provider
+            // Randomly select an ad provider from the manually-triggered list
             const provider = adProviders[Math.floor(Math.random() * adProviders.length)];
 
             provider.func().then(async () => {
@@ -449,7 +445,7 @@
                 try {
                     const userRef = doc(db, 'users', currentUser.id);
                     await updateDoc(userRef, { 
-                        balance: increment(50), // UPDATED REWARD
+                        balance: increment(50), 
                         adVisitsToday: increment(1),
                         lastAdVisitDate: serverTimestamp()
                     });
@@ -708,7 +704,6 @@
             }
 
             const batch = writeBatch(db);
-            const unreadMessagesExist = false;
             
             snapshot.forEach(docSnap => {
                 const message = docSnap.data();
@@ -762,16 +757,6 @@
             });
         });
 
-        function initializeAdexium() {
-            const showAd = () => {
-                try {
-                    if (typeof AdexiumWidget === 'function') { new AdexiumWidget({wid: '165512cc-372e-4fb0-98d2-552219c72799', adFormat: 'interstitial'}).init(); }
-                } catch (e) { console.error("Adexium ad error:", e); }
-            };
-            setTimeout(showAd, 10000);
-            setInterval(showAd, 300000);
-        }
-
         async function init() {
             if (!tg.initDataUnsafe?.user) {
                 document.body.innerHTML = `<div class="card" style="margin-top: 50px;"><h3>Error</h3><p>This application can only be launched from Telegram.</p></div>`;
@@ -783,7 +768,6 @@
             await initializeUser(tg.initDataUnsafe.user, tg.initDataUnsafe.start_param);
             await claimPendingVideoRewards(); 
             document.querySelector('.nav-link[data-tab-target="#home-content"]').click();
-            initializeAdexium();
 
             const menuToggleBtn = document.getElementById('menu-toggle-button'), closeMenuBtn = document.getElementById('close-menu-btn'), sideMenu = document.getElementById('side-menu'), menuOverlay = document.getElementById('menu-overlay');
             const toggleMenu = () => { sideMenu.classList.toggle('is-open'); menuOverlay.classList.toggle('is-open'); };
