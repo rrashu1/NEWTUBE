@@ -18,6 +18,10 @@
         .main-header { background-color: var(--header-bg); padding: 10px 15px; border-bottom: 1px solid var(--border-color); position: fixed; top: 0; left: 0; right: 0; z-index: 1000; display: flex; justify-content: space-between; align-items: center; height: 40px; }
         .site-title { font-size: 1.2em; color: var(--primary-accent-color); font-weight: 700; text-transform: uppercase; }
         .header-right { display: flex; align-items: center; gap: 15px; }
+        .inbox-container { position: relative; cursor: pointer; }
+        #inbox-icon { width: 24px; height: 24px; color: var(--text-light); }
+        #inbox-notification-dot { position: absolute; top: -2px; right: -2px; width: 8px; height: 8px; background-color: var(--primary-accent-color); border-radius: 50%; border: 1px solid var(--header-bg); display: none; }
+        #inbox-notification-dot.visible { display: block; }
         .balance-display { background-color: #2a2a2a; color: var(--primary-accent-color); padding: 5px 12px; border-radius: 20px; font-weight: bold; font-size: 0.9em; }
         .menu-toggle-button { background: none; border: none; cursor: pointer; padding: 5px; display: flex; flex-direction: column; gap: 4px; }
         .menu-toggle-button .bar { width: 22px; height: 2px; background-color: var(--text-light); border-radius: 2px; }
@@ -68,6 +72,13 @@
         .success-modal-icon { width: 70px; height: 70px; border-radius: 50%; background-color: var(--success-color); display: flex; justify-content: center; align-items: center; font-size: 40px; font-weight: bold; color: white; margin: 0 auto 20px; animation: icon-pop-in 0.5s 0.2s backwards; }
         .success-modal h3 { margin: 0 0 10px; font-size: 1.6em; }
         .success-modal p { margin: 0; color: var(--text-muted); font-size: 1em;}
+        .inbox-modal { background-color: var(--card-bg); color: var(--text-light); padding: 20px; border-radius: 15px; text-align: left; width: 90%; max-width: 400px; max-height: 80vh; display: flex; flex-direction: column; }
+        .inbox-modal h3 { text-align: center; margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
+        #inbox-message-list { overflow-y: auto; flex-grow: 1; margin-bottom: 15px; }
+        .inbox-message-item { background-color: #2a2a2a; padding: 12px; border-radius: 8px; margin-bottom: 10px; }
+        .inbox-message-item p { margin: 0; line-height: 1.5; }
+        .inbox-message-item small { color: var(--text-muted); font-size: 0.8em; }
+        #closeInboxBtn { padding: 10px; border: none; border-radius: 8px; background-color: var(--primary-accent-color); color: white; cursor: pointer; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         @keyframes modal-pop-in { to { transform: scale(1); opacity: 1; } }
         @keyframes icon-pop-in { 0% { transform: scale(0); } 70% { transform: scale(1.1); } 100% { transform: scale(1); } }
@@ -77,7 +88,14 @@
 
     <header class="main-header">
         <h1 class="site-title">Movie for Viral</h1>
-        <div class="header-right"><div class="balance-display">Points: <span id="userBalanceDisplay">0</span></div><button class="menu-toggle-button" id="menu-toggle-button"><span class="bar"></span><span class="bar"></span><span class="bar"></span></button></div>
+        <div class="header-right">
+             <div class="inbox-container" id="inbox-container">
+                <svg id="inbox-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                <span id="inbox-notification-dot"></span>
+            </div>
+            <div class="balance-display">Points: <span id="userBalanceDisplay">0</span></div>
+            <button class="menu-toggle-button" id="menu-toggle-button"><span class="bar"></span><span class="bar"></span><span class="bar"></span></button>
+        </div>
     </header>
 
     <div class="menu-overlay" id="menu-overlay"></div>
@@ -100,17 +118,26 @@
         <section id="ads-to-earn-content" class="content-section"><h3 class="section-title">Watch Ads, Earn Points</h3><div id="ad-task-list" class="item-grid"></div></section>
         <section id="task-content" class="content-section"><h3 class="section-title">Complete Tasks</h3><div id="task-list" class="item-grid"></div></section>
         <section id="referral-content" class="content-section"><div class="card"><svg class="card-icon" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg><h3>Referral Program</h3><p>Invite friends with your unique link. You'll earn a 0.3% commission from their earnings, for life!</p><div class="referral-link-wrapper"><input type="text" id="referralLinkInput" readonly value="Generating link..."><button id="copyReferralLinkBtn" class="form-button">Copy</button></div></div></section>
-        <section id="withdrawal-content" class="content-section"><div class="card"><svg class="card-icon" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg><h3>Withdrawal</h3><p>Your current balance: <strong><span id="withdrawalBalance">0</span> Points</strong></p><div class="conversion-info">Conversion: 1000 Points = $0.02 USD<br>Minimum withdrawal: 15,000 Points ($0.30)</div><div id="withdrawalCooldownMessage" class="withdrawal-cooldown-message"><p>You can request a withdrawal once every 7 days.<br>Please try again later.</p></div><form id="withdrawalForm" style="margin-top: 20px;"><div class="form-group"><label for="withdrawalMethod">Payment Method</label><select id="withdrawalMethod" required><option value="Bkash">Bkash</option><option value="Binance (Optimism)">Binance (Optimism)</option></select></div><div class="form-group"><label for="accountDetails">Account Details</label><input type="text" id="accountDetails" placeholder="Your Bkash Number" required></div><div class="form-group"><label for="withdrawalAmount">Amount (Points)</label><input type="number" id="withdrawalAmount" placeholder="15000 - 100000" required step="1" min="15000" max="100000"></div><button type="submit" class="form-button">Request Withdrawal</button></form></div></section>
+        <section id="withdrawal-content" class="content-section"><div class="card"><svg class="card-icon" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg><h3>Withdrawal</h3><p>Your current balance: <strong><span id="withdrawalBalance">0</span> Points</strong></p><div class="conversion-info">Conversion: 1000 Points = $0.02 USD<br>Minimums: 10,000 Points (Bkash) / 25,000 Points (Binance)</div><div id="withdrawalCooldownMessage" class="withdrawal-cooldown-message"><p>You can request a withdrawal once every 7 days.<br>Please try again later.</p></div><form id="withdrawalForm" style="margin-top: 20px;"><div class="form-group"><label for="withdrawalMethod">Payment Method</label><select id="withdrawalMethod" required><option value="Bkash">Bkash</option><option value="Binance (Optimism)">Binance (Optimism)</option></select></div><div class="form-group"><label for="accountDetails">Account Details</label><input type="text" id="accountDetails" placeholder="Your Bkash Number" required></div><div class="form-group"><label for="withdrawalAmount">Amount (Points)</label><input type="number" id="withdrawalAmount" placeholder="10000 - 100000" required step="1" min="10000" max="100000"></div><button type="submit" class="form-button">Request Withdrawal</button></form></div></section>
         <section id="history-content" class="content-section"><h3 class="section-title">Withdrawal History</h3><div id="history-list"></div></section>
     </main>
     
     <div id="successModalOverlay" class="success-modal-overlay"><div class="success-modal"><div class="success-modal-icon">✓</div><h3>Successfully Sent!</h3><p>Your withdrawal request is pending. ✅</p></div></div>
     
+    <div id="inboxModalOverlay" class="success-modal-overlay">
+        <div class="inbox-modal">
+            <h3>Inbox</h3>
+            <div id="inbox-message-list"><div class="loader"></div></div>
+            <button id="closeInboxBtn" class="form-button" style="margin-top: 15px;">Close</button>
+        </div>
+    </div>
+    
     <script type="text/javascript" src="https://cdn.tgads.space/assets/js/adexium-widget.min.js"></script>
+    <script src="https://ad.gigapub.tech/script?id=846"></script>
     <script src="https://www.youtube.com/iframe_api" async></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
-        import { getFirestore, collection, getDocs, query, where, orderBy, limit, addDoc, serverTimestamp, doc, getDoc, setDoc, updateDoc, runTransaction, increment, arrayUnion, deleteDoc } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, query, where, orderBy, limit, addDoc, serverTimestamp, doc, getDoc, setDoc, updateDoc, runTransaction, increment, arrayUnion, deleteDoc, writeBatch } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
         
         const firebaseConfig = {
             apiKey: "AIzaSyCKMa4NdIowD_8NioUbrn4L7g5M9y5Tts0",
@@ -128,7 +155,7 @@
         let currentUser = null;
         let player;
         let currentPlayingItem = null;
-        const AD_VISIT_LIMIT = 10;
+        const AD_VISIT_LIMIT = 20; // UPDATED
 
         // --- DATABASE AND STATE MANAGEMENT ---
         async function fetchAndUpdateCurrentUser() {
@@ -200,12 +227,11 @@
             if (!currentUser.completedTasks) currentUser.completedTasks = [];
             if (!currentUser.watchedVideos) currentUser.watchedVideos = [];
             
-            await checkAndResetDailyLimits(); // Checks/resets daily limits and updates local user object
+            await checkAndResetDailyLimits(); 
             
-            // **PERFORMANCE FIX**: Update UI directly after initialization, avoiding another database read.
             updateBalanceUI(currentUser.balance);
-            
             generateReferralLink(currentUser.id);
+            checkForUnreadMessages();
         }
         
         function updateBalanceUI(balance) {
@@ -261,7 +287,6 @@
             } catch (error) { console.error("Error fetching content:", error); grid.innerHTML = '<p>Error loading content.</p>'; }
         }
 
-        // **VIDEO LOGIC FIX**: This function now allows re-watching videos but only gives the reward once.
         async function handleVideoClick(event) {
             if (!currentUser) {
                 alert("User data not loaded yet. Please wait a moment.");
@@ -271,10 +296,8 @@
             const videoId = clickedItem.dataset.videoId;
             const youtubeId = clickedItem.dataset.youtubeId;
 
-            // If user clicks the video that is already playing, do nothing.
             if (currentPlayingItem === clickedItem) return;
 
-            // If another video was playing, destroy its player and restore the thumbnail.
             if (currentPlayingItem) {
                 currentPlayingItem.innerHTML = currentPlayingItem.originalContent;
                 if (player) {
@@ -285,16 +308,13 @@
             
             currentPlayingItem = clickedItem;
 
-            // Check if the user has already been rewarded for this video.
             const isWatched = currentUser.watchedVideos?.includes(videoId);
 
-            // If NOT watched, add a pending reward. This will be claimed when the user navigates away.
             if (!isWatched) {
                 const pendingRewardRef = collection(db, 'users', currentUser.id, 'pendingVideoRewards');
                 await addDoc(pendingRewardRef, { videoId, reward: 15, clickTime: serverTimestamp() });
             }
 
-            // Always create the YouTube player and start playback, regardless of watched status.
             const playerDivId = `player-${youtubeId}-${Date.now()}`;
             clickedItem.innerHTML = `<div id="${playerDivId}" class="player-container"></div>`;
             player = new YT.Player(playerDivId, {
@@ -341,7 +361,56 @@
             }
         }
         
-        // --- ADS TO EARN ---
+        // --- ADS TO EARN (UPDATED) ---
+        const showMonetagAd = () => {
+            return new Promise((resolve, reject) => {
+                if (typeof show_9442539 === 'function') {
+                    show_9442539().then(resolve).catch(reject);
+                } else {
+                    reject('Monetag SDK not available');
+                }
+            });
+        };
+
+        const showGigaPubAd = () => {
+            return new Promise((resolve, reject) => {
+                if (typeof window.showGiga === 'function') {
+                    window.showGiga().then(resolve).catch(reject);
+                } else {
+                    reject('GigaPub SDK not available');
+                }
+            });
+        };
+
+        const showAdexiumAd = () => {
+            return new Promise((resolve, reject) => {
+                if (typeof AdexiumWidget !== 'function') return reject('Adexium SDK not available');
+                try {
+                    new AdexiumWidget({wid: '165512cc-372e-4fb0-98d2-552219c72799', adFormat: 'interstitial'}).init();
+                    // Ad providers that open overlays/new tabs often don't have direct callbacks.
+                    // The promise resolves when the user returns focus to the app, indicating the ad is closed.
+                    let resolved = false;
+                    const onFocus = () => {
+                        if (!resolved) {
+                            resolved = true;
+                            window.removeEventListener('focus', onFocus);
+                            resolve('Ad closed');
+                        }
+                    };
+                    window.addEventListener('focus', onFocus);
+                    setTimeout(() => onFocus(), 8000); // Failsafe after 8 seconds
+                } catch (e) {
+                    reject(e);
+                }
+            });
+        };
+
+        const adProviders = [
+            { name: 'Monetag', func: showMonetagAd },
+            { name: 'GigaPub', func: showGigaPubAd },
+            { name: 'Adexium', func: showAdexiumAd }
+        ];
+
         function setupAdsToEarn() {
             const adTaskListContainer = document.getElementById('ad-task-list');
             adTaskListContainer.innerHTML = '';
@@ -355,10 +424,10 @@
                 card.innerHTML = `
                     <div class="ad-task-card-info">
                         <h4>Watch Ad & Earn</h4>
-                        <p>Reward: 60 Points</p>
+                        <p>Reward: 50 Points</p>
                         <p class="ad-visits-left">Today's Visits Left: ${visitsLeft > 0 ? visitsLeft : 0}</p>
                     </div>
-                    <button class="ad-task-button" data-reward="60" ${isLimitReached ? 'disabled' : ''}>
+                    <button class="ad-task-button" data-reward="50" ${isLimitReached ? 'disabled' : ''}>
                         ${isLimitReached ? 'Daily Limit Reached' : 'Watch Ad'}
                     </button>`;
                 adTaskListContainer.appendChild(card);
@@ -372,33 +441,30 @@
             button.disabled = true;
             button.textContent = 'Loading Ad...';
 
-            if (typeof show_9442539 !== 'function') {
-                alert('Ad service is not available.');
-                setupAdsToEarn(); // Re-render to restore button state
-                return;
-            }
+            // Randomly select an ad provider
+            const provider = adProviders[Math.floor(Math.random() * adProviders.length)];
 
-            show_9442539().then(async () => {
+            provider.func().then(async () => {
                 if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
                 try {
                     const userRef = doc(db, 'users', currentUser.id);
                     await updateDoc(userRef, { 
-                        balance: increment(60),
+                        balance: increment(50), // UPDATED REWARD
                         adVisitsToday: increment(1),
                         lastAdVisitDate: serverTimestamp()
                     });
-                    await fetchAndUpdateCurrentUser(); // Fetch latest data
-                    setupAdsToEarn(); // Re-render UI with new limit
-                    alert(`Congratulations! You've earned 60 points.`);
+                    await fetchAndUpdateCurrentUser();
+                    setupAdsToEarn(); 
+                    alert(`Congratulations! You've earned 50 points.`);
                 } catch (error) {
                     console.error("Ad task reward error:", error);
                     alert("Failed to process reward.");
-                    setupAdsToEarn(); // Re-render to restore button state
+                    setupAdsToEarn();
                 }
             }).catch(err => {
-                console.log("Ad not shown or closed:", err);
+                console.log(`Ad from ${provider.name} not shown or closed:`, err);
                 alert('You need to watch the ad to earn points.');
-                setupAdsToEarn(); // Re-render to restore button state
+                setupAdsToEarn(); 
             });
         });
 
@@ -416,9 +482,7 @@
                     return;
                 }
 
-                let tasksFound = false;
                 snapshot.forEach(docSnap => {
-                    tasksFound = true;
                     const task = docSnap.data();
                     const taskId = docSnap.id;
                     const card = document.createElement('div');
@@ -427,9 +491,9 @@
                     const isCompleted = currentUser.completedTasks?.includes(taskId);
                     const isLimitReached = (task.limit > 0) && (task.completionCount >= task.limit);
 
-                    let buttonState = 'start';
                     let buttonText = 'Start Task';
                     let buttonDisabled = false;
+                    let buttonState = 'start';
 
                     if (isCompleted) {
                         buttonText = 'Done';
@@ -457,10 +521,6 @@
                     `;
                     taskListContainer.appendChild(card);
                 });
-                
-                if (!tasksFound) {
-                     taskListContainer.innerHTML = '<p style="text-align:center;">No tasks available right now. Check back later!</p>';
-                }
 
             } catch (error) {
                 console.error("Error fetching tasks:", error);
@@ -475,12 +535,10 @@
 
             if (state === 'start') {
                 if (!taskUrl) { alert('Task URL is missing.'); return; }
-                try {
-                    tg.openLink(taskUrl);
-                    button.textContent = 'Claim Reward';
-                    button.dataset.state = 'claim';
-                    if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
-                } catch (err) { alert('Could not open the link. Use the Telegram app.'); }
+                tg.openLink(taskUrl);
+                button.textContent = 'Claim Reward';
+                button.dataset.state = 'claim';
+                if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
             } else if (state === 'claim') {
                 button.disabled = true;
                 button.textContent = 'Verifying...';
@@ -510,7 +568,7 @@
             }
         });
 
-        // --- WITHDRAWAL ---
+        // --- WITHDRAWAL (UPDATED) ---
         function showSuccessModal() {
             document.getElementById('successModalOverlay').classList.add('show');
             if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
@@ -540,17 +598,31 @@
         }
         document.getElementById('withdrawalMethod').addEventListener('change', (e) => {
             const detailsInput = document.getElementById('accountDetails');
+            const amountInput = document.getElementById('withdrawalAmount');
             if (e.target.value === 'Bkash') {
                 detailsInput.placeholder = 'Your Bkash Number';
-            } else {
+                amountInput.min = '10000';
+                amountInput.placeholder = '10000 - 100000';
+            } else { // Binance (Optimism)
                 detailsInput.placeholder = 'Your Binance (Optimism) Address';
+                amountInput.min = '25000';
+                amountInput.placeholder = '25000 - 100000';
             }
         });
+
         document.getElementById('withdrawalForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const submitButton = e.target.querySelector('button[type="submit"]');
             if (!checkWithdrawalEligibility()) { alert("You have already made a withdrawal request this week."); return; }
+            
+            const method = document.getElementById('withdrawalMethod').value;
             const amount = parseInt(document.getElementById('withdrawalAmount').value, 10);
+            const minAmount = (method === 'Bkash') ? 10000 : 25000;
+
+            if (amount < minAmount) {
+                alert(`Minimum withdrawal for ${method} is ${minAmount} points.`);
+                return;
+            }
             if (amount > currentUser.balance) { alert("Insufficient balance."); return; }
             
             submitButton.disabled = true;
@@ -560,7 +632,7 @@
             const requestData = { 
                 userId: currentUser.id, telegramUsername: currentUser.telegramUsername,
                 pointsAmount: amount, usdAmount: usdAmount.toFixed(2),
-                method: document.getElementById('withdrawalMethod').value, 
+                method: method, 
                 details: document.getElementById('accountDetails').value, 
                 status: 'pending', createdAt: serverTimestamp() 
             };
@@ -606,16 +678,64 @@
                 });
             } catch (error) {
                 console.error("Error fetching withdrawal history:", error);
-                historyContainer.innerHTML = '<p style="color:red;">Error loading history. Please ensure Firebase Index is created.</p>';
+                historyContainer.innerHTML = '<p style="color:red;">Error loading history.</p>';
             }
         }
+        
+        // --- INBOX/MESSAGING (NEW) ---
+        async function checkForUnreadMessages() {
+            if (!currentUser?.id) return;
+            const messagesRef = collection(db, 'userMessages');
+            const q = query(messagesRef, where("userId", "==", currentUser.id), where("isRead", "==", false), limit(1));
+            const snapshot = await getDocs(q);
+            document.getElementById('inbox-notification-dot').classList.toggle('visible', !snapshot.empty);
+        }
+
+        document.getElementById('inbox-container').addEventListener('click', async () => {
+            const modal = document.getElementById('inboxModalOverlay');
+            const list = document.getElementById('inbox-message-list');
+            modal.classList.add('show');
+            list.innerHTML = '<div class="loader"></div>';
+
+            const messagesRef = collection(db, 'userMessages');
+            const q = query(messagesRef, where("userId", "==", currentUser.id), orderBy("createdAt", "desc"));
+            const snapshot = await getDocs(q);
+
+            list.innerHTML = '';
+            if (snapshot.empty) {
+                list.innerHTML = '<p style="text-align:center;">You have no messages.</p>';
+                return;
+            }
+
+            const batch = writeBatch(db);
+            const unreadMessagesExist = false;
+            
+            snapshot.forEach(docSnap => {
+                const message = docSnap.data();
+                const item = document.createElement('div');
+                item.className = 'inbox-message-item';
+                const date = message.createdAt?.toDate().toLocaleString() || '...';
+                item.innerHTML = `<p>${message.message}</p><small>${date}</small>`;
+                list.appendChild(item);
+
+                if (!message.isRead) {
+                    batch.update(docSnap.ref, { isRead: true });
+                }
+            });
+            
+            await batch.commit();
+            document.getElementById('inbox-notification-dot').classList.remove('visible');
+        });
+
+        document.getElementById('closeInboxBtn').addEventListener('click', () => {
+            document.getElementById('inboxModalOverlay').classList.remove('show');
+        });
 
         // --- NAVIGATION AND INITIALIZATION ---
         document.querySelectorAll('.nav-link').forEach(link => {
             link.addEventListener('click', async (e) => {
                 e.preventDefault();
                 
-                // If a video was playing, process its reward before navigating away
                 if (currentPlayingItem) {
                     await claimPendingVideoRewards();
                     currentPlayingItem.innerHTML = currentPlayingItem.originalContent;
@@ -661,7 +781,7 @@
             tg.expand();
             
             await initializeUser(tg.initDataUnsafe.user, tg.initDataUnsafe.start_param);
-            await claimPendingVideoRewards(); // Claim any rewards from previous sessions
+            await claimPendingVideoRewards(); 
             document.querySelector('.nav-link[data-tab-target="#home-content"]').click();
             initializeAdexium();
 
