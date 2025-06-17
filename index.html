@@ -120,7 +120,21 @@
         <section id="videos-content" class="content-section"><h3 class="section-title">Videos</h3><div class="item-grid"></div></section>
         <section id="ads-to-earn-content" class="content-section"><h3 class="section-title">Watch Ads, Earn Points</h3><div id="ad-task-list" class="item-grid"></div></section>
         <section id="task-content" class="content-section"><h3 class="section-title">Complete Tasks</h3><div id="task-list" class="item-grid"></div></section>
-        <section id="referral-content" class="content-section"><div class="card"><svg class="card-icon" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg><h3>Referral Program</h3><p>Invite friends with your unique link. You'll earn a 0.3% commission from their earnings, for life!</p><div class="referral-link-wrapper"><input type="text" id="referralLinkInput" readonly value="Generating link..."><button id="copyReferralLinkBtn" class="form-button">Copy</button></div></div></section>
+        
+        <!-- UPDATED REFERRAL SECTION -->
+        <section id="referral-content" class="content-section">
+            <div class="card">
+                <svg class="card-icon" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+                <h3>Referral Program</h3>
+                <p>Invite friends with your unique link. You'll earn a 0.3% commission from their earnings, for life!</p>
+                <p style="margin-top: 20px; font-size: 1.1em;">Total Commission Earned: <strong style="color: var(--success-color);"><span id="totalCommissionDisplay">0</span> Points</strong></p>
+                <div class="referral-link-wrapper">
+                    <input type="text" id="referralLinkInput" readonly value="Generating link...">
+                    <button id="copyReferralLinkBtn" class="form-button">Copy</button>
+                </div>
+            </div>
+        </section>
+
         <section id="withdrawal-content" class="content-section"><div class="card"><svg class="card-icon" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg><h3>Withdrawal</h3><p>Your current balance: <strong><span id="withdrawalBalance">0</span> Points</strong></p><div class="conversion-info">Conversion: 1000 Points = $0.02 USD<br>Minimums: 10,000 Points (Bkash) / 25,000 Points (Binance)</div><div id="withdrawalCooldownMessage" class="withdrawal-cooldown-message"><p>You can request a withdrawal once every 7 days.<br>Please try again later.</p></div><form id="withdrawalForm" style="margin-top: 20px;"><div class="form-group"><label for="withdrawalMethod">Payment Method</label><select id="withdrawalMethod" required><option value="Bkash">Bkash</option><option value="Binance (Optimism)">Binance (Optimism)</option></select></div><div class="form-group"><label for="accountDetails">Account Details</label><input type="text" id="accountDetails" placeholder="Your Bkash Number" required></div><div class="form-group"><label for="withdrawalAmount">Amount (Points)</label><input type="number" id="withdrawalAmount" placeholder="10000 - 100000" required step="1" min="10000" max="100000"></div><button type="submit" class="form-button">Request Withdrawal</button></form></div></section>
         <section id="history-content" class="content-section"><h3 class="section-title">Withdrawal History</h3><div id="history-list"></div></section>
     </main>
@@ -173,35 +187,27 @@
         let currentPlayingItem = null;
         const AD_VISIT_LIMIT = 20;
 
-        // --- NEW: REFERRAL COMMISSION LOGIC ---
-        async function processReferralCommission(referredUserId, earnedAmount) {
-            if (!referredUserId || earnedAmount <= 0) return;
+        // --- REFERRAL COMMISSION LOGIC (UPDATED) ---
+        async function processReferralCommission(earnedAmount) {
+            if (!currentUser || !currentUser.referredBy || earnedAmount <= 0) {
+                return; // Exit if no referrer or no earnings
+            }
 
             try {
-                // No need to get the full user object again, we have `currentUser`
                 const referrerId = currentUser.referredBy;
+                const commissionRate = 0.003; // 0.3%
+                const commissionAmount = Math.floor(earnedAmount * commissionRate);
 
-                if (referrerId) {
-                    const commissionRate = 0.003; // 0.3%
-                    const commissionAmount = Math.floor(earnedAmount * commissionRate);
+                if (commissionAmount > 0) {
+                    const referrerRef = doc(db, 'users', referrerId);
+                    
+                    // Update referrer's balance and total commission earned
+                    await updateDoc(referrerRef, {
+                        balance: increment(commissionAmount),
+                        totalCommissionEarned: increment(commissionAmount)
+                    });
 
-                    if (commissionAmount > 0) {
-                        const referrerRef = doc(db, 'users', referrerId);
-                        
-                        await updateDoc(referrerRef, {
-                            balance: increment(commissionAmount)
-                        });
-
-                        // Optional: Log commission for tracking
-                        await addDoc(collection(db, 'commissionHistory'), {
-                            referrerId: referrerId,
-                            referredUserId: referredUserId,
-                            originalEarnedAmount: earnedAmount,
-                            commissionEarned: commissionAmount,
-                            createdAt: serverTimestamp()
-                        });
-                        console.log(`Referral commission of ${commissionAmount} points awarded to ${referrerId}.`);
-                    }
+                    console.log(`Referral commission of ${commissionAmount} points awarded to ${referrerId}.`);
                 }
             } catch (error) {
                 console.error("Error processing referral commission:", error);
@@ -215,7 +221,7 @@
             const userSnap = await getDoc(userRef);
             if (userSnap.exists()) {
                 currentUser = { id: userSnap.id, ...userSnap.data() };
-                updateBalanceUI(currentUser.balance);
+                updateAllUI(currentUser);
             }
         }
         
@@ -249,13 +255,14 @@
                 lastWithdrawalRequestAt: null,
                 telegramUsername: tgUser.username || 'N/A',
                 adVisitsToday: 0,
-                lastAdVisitDate: null
+                lastAdVisitDate: null,
+                totalCommissionEarned: 0 // ADDED: Field to track commission
             };
 
             if (!userSnap.exists()) {
                 const newUser = { ...defaultUserData };
                 if (referrerCode) {
-                    newUser.referredBy = referrerCode; // Save referrer's ID
+                    newUser.referredBy = referrerCode;
                 }
                 await setDoc(userRef, newUser);
                 currentUser = { id: tgUser.id, ...newUser };
@@ -265,16 +272,14 @@
                 if (!data.telegramUsername || data.telegramUsername !== tgUser.username) {
                     updates.telegramUsername = tgUser.username || 'N/A';
                 }
-                if (!data.hasOwnProperty('adVisitsToday')) {
-                    updates.adVisitsToday = 0;
+                // ADDED: Initialize new fields for existing users
+                if (!data.hasOwnProperty('totalCommissionEarned')) {
+                    updates.totalCommissionEarned = 0;
                 }
-                if (!data.watchedVideos) {
-                    updates.watchedVideos = [];
-                }
-                // Add referredBy field if it's missing and a referrer code is provided now
                 if (!data.referredBy && referrerCode) {
                     updates.referredBy = referrerCode;
                 }
+                
                 if (Object.keys(updates).length > 0) {
                     await updateDoc(userRef, updates);
                     data = {...data, ...updates};
@@ -286,15 +291,22 @@
             
             await checkAndResetDailyLimits(); 
             
-            updateBalanceUI(currentUser.balance);
+            updateAllUI(currentUser);
             generateReferralLink(currentUser.id);
             checkForUnreadMessages();
         }
         
-        function updateBalanceUI(balance) {
-            const points = Math.floor(balance || 0);
+        // --- UI UPDATE FUNCTIONS (CONSOLIDATED) ---
+        function updateAllUI(user) {
+            if (!user) return;
+            // Update header and withdrawal balance
+            const points = Math.floor(user.balance || 0);
             document.getElementById('userBalanceDisplay').textContent = points;
             document.getElementById('withdrawalBalance').textContent = points;
+
+            // Update referral commission display
+            const commissionPoints = Math.floor(user.totalCommissionEarned || 0);
+            document.getElementById('totalCommissionDisplay').textContent = commissionPoints;
         }
 
         function generateReferralLink(userId) {
@@ -356,6 +368,7 @@
             if (currentPlayingItem === clickedItem) return;
 
             if (currentPlayingItem) {
+                await claimPendingVideoRewards(); // Claim reward before switching video
                 currentPlayingItem.innerHTML = currentPlayingItem.originalContent;
                 if (player) {
                     player.destroy();
@@ -412,11 +425,10 @@
                         });
                     }
                 });
-                await fetchAndUpdateCurrentUser();
-
-                // ADDED: Process referral commission after earning points
+                
                 if (totalReward > 0) {
-                    await processReferralCommission(currentUser.id, totalReward);
+                    await fetchAndUpdateCurrentUser();
+                    await processReferralCommission(totalReward);
                 }
 
             } catch (e) {
@@ -453,7 +465,7 @@
         function setupAdsToEarn() {
             const adTaskListContainer = document.getElementById('ad-task-list');
             adTaskListContainer.innerHTML = '';
-            const visitsToday = currentUser.adVisitsToday || 0;
+            const visitsToday = currentUser?.adVisitsToday || 0;
             const visitsLeft = AD_VISIT_LIMIT - visitsToday;
             const isLimitReached = visitsLeft <= 0;
 
@@ -492,12 +504,12 @@
                         adVisitsToday: increment(1),
                         lastAdVisitDate: serverTimestamp()
                     });
+                    
                     await fetchAndUpdateCurrentUser();
                     setupAdsToEarn(); 
                     alert(`Congratulations! You've earned ${rewardAmount} points.`);
                     
-                    // ADDED: Process referral commission after earning points
-                    await processReferralCommission(currentUser.id, rewardAmount);
+                    await processReferralCommission(rewardAmount);
 
                 } catch (error) {
                     console.error("Ad task reward error:", error);
@@ -599,13 +611,13 @@
                         transaction.update(userRef, { balance: increment(rewardAmount), completedTasks: arrayUnion(taskId) });
                         transaction.update(taskRef, { completionCount: increment(1) });
                     });
+                    
                     await fetchAndUpdateCurrentUser();
                     alert(`Reward of ${rewardAmount} points claimed!`);
                     if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
                     button.textContent = 'Done';
                     
-                    // ADDED: Process referral commission after earning points
-                    await processReferralCommission(currentUser.id, rewardAmount);
+                    await processReferralCommission(rewardAmount);
 
                 } catch (error) {
                     const message = { "ALREADY_COMPLETED": "You have already completed this task.", "TASK_LIMIT_REACHED": "This task has reached its completion limit." }[error] || 'Failed to claim reward. Please try again.';
@@ -671,7 +683,7 @@
                 alert(`Minimum withdrawal for ${method} is ${minAmount} points.`);
                 return;
             }
-            if (amount > currentUser.balance) { alert("Insufficient balance."); return; }
+            if (currentUser.balance < amount) { alert("Insufficient balance."); return; }
             
             submitButton.disabled = true;
             submitButton.textContent = 'Processing...';
@@ -721,7 +733,8 @@
                     const item = document.createElement('div');
                     item.className = 'history-item';
                     const date = data.createdAt?.toDate().toLocaleDateString() || 'N/A';
-                    item.innerHTML = `<div><strong>${data.pointsAmount} Points</strong><br><small>${data.method} - ${date}</small></div><strong class="status-${data.status}">${data.status.charAt(0).toUpperCase() + data.status.slice(1)}</strong>`;
+                    const amountDisplay = data.pointsAmount ? `${data.pointsAmount} Points` : `$${data.usdAmount}`;
+                    item.innerHTML = `<div><strong>${amountDisplay}</strong><br><small>${data.method} - ${date}</small></div><strong class="status-${data.status}">${data.status.charAt(0).toUpperCase() + data.status.slice(1)}</strong>`;
                     historyContainer.appendChild(item);
                 });
             } catch (error) {
@@ -783,8 +796,9 @@
             link.addEventListener('click', async (e) => {
                 e.preventDefault();
                 
+                await claimPendingVideoRewards();
+
                 if (currentPlayingItem) {
-                    await claimPendingVideoRewards();
                     currentPlayingItem.innerHTML = currentPlayingItem.originalContent;
                     if (player) player.destroy();
                     currentPlayingItem = player = null;
@@ -797,8 +811,8 @@
                 if(target) target.classList.add('active');
 
                 switch(targetId) {
-                    case '#home-content': fetchContent(targetId, 'Home'); break;
-                    case '#videos-content': fetchContent(targetId, 'Videos'); break;
+                    case '#home-content': fetchContent('#home-content .item-grid', 'Home'); break;
+                    case '#videos-content': fetchContent('#videos-content .item-grid', 'Videos'); break;
                     case '#ads-to-earn-content': setupAdsToEarn(); break;
                     case '#task-content': fetchTasks(); break;
                     case '#withdrawal-content': checkWithdrawalEligibility(); break;
