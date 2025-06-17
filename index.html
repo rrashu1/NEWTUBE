@@ -137,15 +137,13 @@
     
     <script src="https://www.youtube.com/iframe_api" async></script>
     
-    <!-- ADEXIUM WIDGET INITIALIZATION (CORRECT IMPLEMENTATION) -->
+    <!-- ADEXIUM WIDGET INITIALIZATION -->
     <script type="text/javascript">
         document.addEventListener('DOMContentLoaded', () => {
             try {
                 if (typeof AdexiumWidget === 'function') {
                     const adexiumWidget = new AdexiumWidget({wid: '165512cc-372e-4fb0-98d2-552219c72799', adFormat: 'interstitial'});
                     adexiumWidget.init();
-                } else {
-                    console.error("AdexiumWidget class not found.");
                 }
             } catch(e) {
                 console.error("Failed to initialize Adexium Widget:", e);
@@ -174,6 +172,41 @@
         let player;
         let currentPlayingItem = null;
         const AD_VISIT_LIMIT = 20;
+
+        // --- NEW: REFERRAL COMMISSION LOGIC ---
+        async function processReferralCommission(referredUserId, earnedAmount) {
+            if (!referredUserId || earnedAmount <= 0) return;
+
+            try {
+                // No need to get the full user object again, we have `currentUser`
+                const referrerId = currentUser.referredBy;
+
+                if (referrerId) {
+                    const commissionRate = 0.003; // 0.3%
+                    const commissionAmount = Math.floor(earnedAmount * commissionRate);
+
+                    if (commissionAmount > 0) {
+                        const referrerRef = doc(db, 'users', referrerId);
+                        
+                        await updateDoc(referrerRef, {
+                            balance: increment(commissionAmount)
+                        });
+
+                        // Optional: Log commission for tracking
+                        await addDoc(collection(db, 'commissionHistory'), {
+                            referrerId: referrerId,
+                            referredUserId: referredUserId,
+                            originalEarnedAmount: earnedAmount,
+                            commissionEarned: commissionAmount,
+                            createdAt: serverTimestamp()
+                        });
+                        console.log(`Referral commission of ${commissionAmount} points awarded to ${referrerId}.`);
+                    }
+                }
+            } catch (error) {
+                console.error("Error processing referral commission:", error);
+            }
+        }
 
         // --- DATABASE AND STATE MANAGEMENT ---
         async function fetchAndUpdateCurrentUser() {
@@ -221,7 +254,9 @@
 
             if (!userSnap.exists()) {
                 const newUser = { ...defaultUserData };
-                if (referrerCode) newUser.referredBy = referrerCode;
+                if (referrerCode) {
+                    newUser.referredBy = referrerCode; // Save referrer's ID
+                }
                 await setDoc(userRef, newUser);
                 currentUser = { id: tgUser.id, ...newUser };
             } else {
@@ -235,6 +270,10 @@
                 }
                 if (!data.watchedVideos) {
                     updates.watchedVideos = [];
+                }
+                // Add referredBy field if it's missing and a referrer code is provided now
+                if (!data.referredBy && referrerCode) {
+                    updates.referredBy = referrerCode;
                 }
                 if (Object.keys(updates).length > 0) {
                     await updateDoc(userRef, updates);
@@ -353,10 +392,10 @@
 
             if (snapshot.empty) return;
 
+            let totalReward = 0;
             try {
                 await runTransaction(db, async (transaction) => {
                     const userRef = doc(db, 'users', currentUser.id);
-                    let totalReward = 0;
                     let videoIdsToMarkAsWatched = [];
 
                     snapshot.forEach(docSnap => {
@@ -374,12 +413,18 @@
                     }
                 });
                 await fetchAndUpdateCurrentUser();
+
+                // ADDED: Process referral commission after earning points
+                if (totalReward > 0) {
+                    await processReferralCommission(currentUser.id, totalReward);
+                }
+
             } catch (e) {
                 console.error("Error claiming video rewards:", e);
             }
         }
         
-        // --- ADS TO EARN (UPDATED & CORRECTED) ---
+        // --- ADS TO EARN ---
         const showMonetagAd = () => {
             return new Promise((resolve, reject) => {
                 if (typeof show_9442539 === 'function') {
@@ -400,8 +445,6 @@
             });
         };
 
-        // Adexium is initialized automatically and shows ads in the background.
-        // The button will now only trigger Monetag or GigaPub.
         const adProviders = [
             { name: 'Monetag', func: showMonetagAd },
             { name: 'GigaPub', func: showGigaPubAd }
@@ -437,21 +480,25 @@
             button.disabled = true;
             button.textContent = 'Loading Ad...';
 
-            // Randomly select an ad provider from the manually-triggered list
             const provider = adProviders[Math.floor(Math.random() * adProviders.length)];
+            const rewardAmount = 50;
 
             provider.func().then(async () => {
                 if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
                 try {
                     const userRef = doc(db, 'users', currentUser.id);
                     await updateDoc(userRef, { 
-                        balance: increment(50), 
+                        balance: increment(rewardAmount), 
                         adVisitsToday: increment(1),
                         lastAdVisitDate: serverTimestamp()
                     });
                     await fetchAndUpdateCurrentUser();
                     setupAdsToEarn(); 
-                    alert(`Congratulations! You've earned 50 points.`);
+                    alert(`Congratulations! You've earned ${rewardAmount} points.`);
+                    
+                    // ADDED: Process referral commission after earning points
+                    await processReferralCommission(currentUser.id, rewardAmount);
+
                 } catch (error) {
                     console.error("Ad task reward error:", error);
                     alert("Failed to process reward.");
@@ -528,6 +575,7 @@
              if (!e.target.matches('.task-button') || e.target.disabled) return;
             const button = e.target;
             const { taskId, taskUrl, reward, state } = button.dataset;
+            const rewardAmount = Number(reward);
 
             if (state === 'start') {
                 if (!taskUrl) { alert('Task URL is missing.'); return; }
@@ -548,13 +596,17 @@
                         if (userDoc.data().completedTasks?.includes(taskId)) throw "ALREADY_COMPLETED";
                         if ((taskData.limit > 0) && (taskData.completionCount >= taskData.limit)) throw "TASK_LIMIT_REACHED";
                         
-                        transaction.update(userRef, { balance: increment(Number(reward)), completedTasks: arrayUnion(taskId) });
+                        transaction.update(userRef, { balance: increment(rewardAmount), completedTasks: arrayUnion(taskId) });
                         transaction.update(taskRef, { completionCount: increment(1) });
                     });
                     await fetchAndUpdateCurrentUser();
-                    alert(`Reward of ${reward} points claimed!`);
+                    alert(`Reward of ${rewardAmount} points claimed!`);
                     if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
                     button.textContent = 'Done';
+                    
+                    // ADDED: Process referral commission after earning points
+                    await processReferralCommission(currentUser.id, rewardAmount);
+
                 } catch (error) {
                     const message = { "ALREADY_COMPLETED": "You have already completed this task.", "TASK_LIMIT_REACHED": "This task has reached its completion limit." }[error] || 'Failed to claim reward. Please try again.';
                     alert(message);
@@ -564,7 +616,7 @@
             }
         });
 
-        // --- WITHDRAWAL (UPDATED) ---
+        // --- WITHDRAWAL ---
         function showSuccessModal() {
             document.getElementById('successModalOverlay').classList.add('show');
             if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
@@ -678,7 +730,7 @@
             }
         }
         
-        // --- INBOX/MESSAGING (NEW) ---
+        // --- INBOX/MESSAGING ---
         async function checkForUnreadMessages() {
             if (!currentUser?.id) return;
             const messagesRef = collection(db, 'userMessages');
