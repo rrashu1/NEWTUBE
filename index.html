@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>MOVIE FOR VIRAL - Watch & Earn</title>
+    <title>NEWTUBE - Watch & Earn</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <!-- Monetag Ads Library -->
     <script src='//libtl.com/sdk.js' data-zone='9442539' data-sdk='show_9442539'></script>
@@ -94,7 +94,7 @@
 <body>
 
     <header class="main-header">
-        <h1 class="site-title">Movie for Viral</h1>
+        <h1 class="site-title">NEWTUBE</h1>
         <div class="header-right">
              <div class="inbox-container" id="inbox-container">
                 <svg id="inbox-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg>
@@ -110,7 +110,6 @@
         <div class="side-menu-header"><h3>Menu</h3><button class="close-menu-btn" id="close-menu-btn">&times;</button></div>
         <ul class="side-menu-nav">
             <li><a href="#" class="nav-link active" data-tab-target="#home-content">Home</a></li>
-            <li><a href="#" class="nav-link" data-tab-target="#videos-content">Videos</a></li>
             <li><a href="#" class="nav-link" data-tab-target="#ads-to-earn-content">Ads to Earn</a></li>
             <li><a href="#" class="nav-link" data-tab-target="#task-content">Task to Earn</a></li>
             <li><a href="#" class="nav-link" data-tab-target="#referral-content">Referral Program</a></li>
@@ -121,8 +120,7 @@
     </aside>
 
     <main class="container">
-        <section id="home-content" class="content-section active"><h3 class="section-title">Trending</h3><div class="item-grid"></div></section>
-        <section id="videos-content" class="content-section"><h3 class="section-title">Videos</h3><div class="item-grid"></div></section>
+        <section id="home-content" class="content-section active"><h3 class="section-title">Trending Videos</h3><div class="item-grid"></div></section>
         <section id="ads-to-earn-content" class="content-section"><h3 class="section-title">Watch Ads, Earn Points</h3><div id="ad-task-list" class="item-grid"></div></section>
         <section id="task-content" class="content-section"><h3 class="section-title">Complete Tasks</h3><div id="task-list" class="item-grid"></div></section>
         <section id="referral-content" class="content-section">
@@ -201,14 +199,17 @@
         let currentPlayingItem = null;
         let videoPlaybackInterval = null;
         const AD_VISIT_LIMIT = 20;
-        const DAILY_VIDEO_POINT_LIMIT = 725;
+        // UPDATED: Daily video point limit recalculated
+        const DAILY_VIDEO_POINT_LIMIT = 540;
 
+        // UPDATED: New video reward tiers and ad timing logic
         const videoRewardTiers = [
-            { time: 30, points: 15, ad: null },
-            { time: 60, points: 30, ad: null },
-            { time: 300, points: 80, ad: 'Monetag' },
-            { time: 600, points: 200, ad: 'GigaPub' },
-            { time: 1200, points: 400, ad: 'any' }
+            { time: 30,  points: 10, ad: null,     adTiming: null },
+            { time: 60,  points: 20, ad: null,     adTiming: null },
+            { time: 120, points: 40, ad: null,     adTiming: null },
+            { time: 300, points: 70, ad: 'Monetag', adTiming: 'after' },
+            { time: 600, points: 150, ad: 'GigaPub', adTiming: 'before' },
+            { time: 1200, points: 250, ad: 'Monetag', adTiming: 'before' }
         ];
 
         async function fetchAndUpdateCurrentUser() {
@@ -391,35 +392,31 @@
              }
         }
         
-        async function fetchContent(targetId, category) {
-            const grid = document.querySelector(`${targetId} .item-grid`);
+        async function fetchContent() {
+            const grid = document.querySelector('#home-content .item-grid');
             if (!grid) return;
             grid.innerHTML = '<div class="loader"></div>';
             try {
                 const videosCollection = collection(db, 'videos');
-                const q = query(videosCollection, orderBy('createdAt', 'desc'), category === 'Home' ? limit(20) : null).withConverter({
-                    fromFirestore: (snapshot, options) => {
-                        const data = snapshot.data(options);
-                        return { ...data, id: snapshot.id };
-                    }
-                });
+                const q = query(videosCollection, orderBy('createdAt', 'desc'), limit(20));
                 
                 const snapshot = await getDocs(q);
                 grid.innerHTML = ''; 
-                if (snapshot.empty) { grid.innerHTML = '<p style="text-align:center;">No content found.</p>'; return; }
+                if (snapshot.empty) { grid.innerHTML = '<p style="text-align:center;">No videos found.</p>'; return; }
                 
                 const progressPromises = snapshot.docs.map(docSnap => getDoc(doc(db, 'users', currentUser.id, 'videoProgress', docSnap.id)));
                 const progressSnaps = await Promise.all(progressPromises);
                 
                 snapshot.docs.forEach((docSnap, index) => {
                     const video = docSnap.data();
+                    const videoId = docSnap.id;
                     const progressSnap = progressSnaps[index];
                     const progress = progressSnap.exists() ? progressSnap.data() : { totalPoints: 0 };
                     
                     const item = document.createElement('article');
                     item.className = 'movie-item';
                     item.dataset.youtubeId = video.youtubeId;
-                    item.dataset.videoId = video.id;
+                    item.dataset.videoId = videoId;
 
                     const earnedPoints = progress.totalPoints || 0;
                     const earnedText = `Earned: ${earnedPoints} / ${DAILY_VIDEO_POINT_LIMIT}`;
@@ -495,26 +492,45 @@
                 
                 for (const tier of videoRewardTiers) {
                     if (currentTime >= tier.time && !(progress.claimedTiers || []).includes(tier.time)) {
-                        const pointsGranted = await grantPoints(tier.points, 'video');
                         
-                        if (pointsGranted > 0) {
-                            if(tier.ad === 'Monetag') showMonetagAd().catch(console.error);
-                            if(tier.ad === 'GigaPub') showGigaPubAd().catch(console.error);
-                            if(tier.ad === 'any') [showMonetagAd, showGigaPubAd, showAdexiumAd][Math.floor(Math.random()*3)]().catch(console.error);
+                        const processReward = async () => {
+                            const pointsGranted = await grantPoints(tier.points, 'video');
+                            if (pointsGranted > 0) {
+                                const newTotalPoints = (progress.totalPoints || 0) + pointsGranted;
+                                const newClaimedTiers = [...(progress.claimedTiers || []), tier.time];
+                                await setDoc(progressRef, { totalPoints: newTotalPoints, claimedTiers: newClaimedTiers }, { merge: true });
+                                
+                                showSuccessModal("Reward Claimed!", `Congratulations! You have earned ${pointsGranted} points.`);
+                                if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
 
-                            const newTotalPoints = (progress.totalPoints || 0) + pointsGranted;
-                            const newClaimedTiers = [...(progress.claimedTiers || []), tier.time];
-                            await setDoc(progressRef, { totalPoints: newTotalPoints, claimedTiers: newClaimedTiers }, { merge: true });
-                            
-                            // UPDATED: Show success modal on point claim
-                            showSuccessModal("Reward Claimed!", `Congratulations! You have earned ${pointsGranted} points.`);
-                            if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+                                const progressBar = currentPlayingItem?.querySelector('.video-progress-bar');
+                                const rewardText = currentPlayingItem?.querySelector('.movie-reward');
+                                if(progressBar) progressBar.style.width = `${(newTotalPoints / DAILY_VIDEO_POINT_LIMIT) * 100}%`;
+                                if(rewardText) rewardText.textContent = `Earned: ${newTotalPoints} / ${DAILY_VIDEO_POINT_LIMIT}`;
+                            }
+                        };
 
-                            const progressBar = currentPlayingItem?.querySelector('.video-progress-bar');
-                            const rewardText = currentPlayingItem?.querySelector('.movie-reward');
-                            if(progressBar) progressBar.style.width = `${(newTotalPoints / DAILY_VIDEO_POINT_LIMIT) * 100}%`;
-                            if(rewardText) rewardText.textContent = `Earned: ${newTotalPoints} / ${DAILY_VIDEO_POINT_LIMIT}`;
+                        const adFunctions = {
+                            'Monetag': showMonetagAd,
+                            'GigaPub': showGigaPubAd
+                        };
+                        
+                        if (tier.adTiming === 'before') {
+                            const adFunc = adFunctions[tier.ad];
+                            if (adFunc) {
+                                adFunc().then(processReward).catch(err => {
+                                    console.log("Ad failed or was closed:", err);
+                                    alert("You must watch the ad to claim the reward.");
+                                });
+                            }
+                        } else {
+                            await processReward();
+                            if (tier.adTiming === 'after') {
+                                const adFunc = adFunctions[tier.ad];
+                                if(adFunc) adFunc().catch(console.error);
+                            }
                         }
+                        
                         break; 
                     }
                 }
@@ -538,8 +554,7 @@
 
         const showMonetagAd = () => new Promise((res, rej) => typeof show_9442539 === 'function' ? show_9442539().then(res).catch(rej) : rej('SDK missing'));
         const showGigaPubAd = () => new Promise((res, rej) => typeof window.showGiga === 'function' ? window.showGiga().then(res).catch(rej) : rej('SDK missing'));
-        const showAdexiumAd = () => new Promise((res, rej) => { try { new AdexiumWidget({wid: '165512cc-372e-4fb0-98d2-552219c72799', adFormat: 'interstitial'}).init(); setTimeout(res, 3000); } catch(e){rej(e);} });
-
+        
         function setupAdsToEarn() {
             const adTaskListContainer = document.getElementById('ad-task-list');
             adTaskListContainer.innerHTML = '';
@@ -857,8 +872,7 @@
                 if(target) target.classList.add('active');
 
                 switch(targetId) {
-                    case '#home-content': fetchContent(targetId, 'Home'); break;
-                    case '#videos-content': fetchContent(targetId, 'Videos'); break;
+                    case '#home-content': fetchContent(); break;
                     case '#ads-to-earn-content': setupAdsToEarn(); break;
                     case '#task-content': fetchTasks(); break;
                     case '#leaderboard-content': fetchLeaderboard(); break;
