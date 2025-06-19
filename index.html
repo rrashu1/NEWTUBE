@@ -36,6 +36,11 @@
         .menu-overlay.is-open { display: block; }
         .content-section { display: none; padding-top: 25px; } .content-section.active { display: block; }
         .section-title { font-size: 1.5em; margin-bottom: 20px; padding-bottom: 10px; color: var(--text-light); border-bottom: 2px solid var(--border-color); }
+        /* NEW: Search Container Styles */
+        .search-container { display: flex; gap: 10px; margin-bottom: 20px; }
+        .search-container input { flex-grow: 1; padding: 10px; box-sizing: border-box; border-radius: 8px; border: 1px solid var(--border-color); background-color: #000; color: var(--text-light); font-size: 1em; }
+        .search-container button { padding: 10px 15px; border: none; border-radius: 8px; background-color: var(--primary-accent-color); color: var(--text-light); font-weight: bold; cursor: pointer; }
+        .search-container button#clearSearchBtn { background-color: #444; }
         .item-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
         .movie-item, .task-card, .ad-task-card, .contact-item { background-color: var(--card-bg); border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; }
         .movie-item { cursor: pointer; transition: transform 0.2s; } .movie-item:hover{ transform: scale(1.03); }
@@ -123,7 +128,16 @@
     </aside>
 
     <main class="container">
-        <section id="home-content" class="content-section active"><h3 class="section-title">Trending Videos</h3><div class="item-grid"></div></section>
+        <!-- UPDATED: Added search bar to home content -->
+        <section id="home-content" class="content-section active">
+            <h3 class="section-title">Trending Videos</h3>
+            <div class="search-container">
+                <input type="search" id="videoSearchInput" placeholder="Search for videos...">
+                <button id="videoSearchBtn">Search</button>
+                <button id="clearSearchBtn" style="display:none;">Clear</button>
+            </div>
+            <div class="item-grid" id="video-grid"></div>
+        </section>
         <section id="ads-to-earn-content" class="content-section"><h3 class="section-title">Watch Ads, Earn Points</h3><div id="ad-task-list" class="item-grid"></div></section>
         <section id="task-content" class="content-section"><h3 class="section-title">Complete Tasks</h3><div id="task-list" class="item-grid"></div></section>
         <section id="referral-content" class="content-section">
@@ -160,7 +174,7 @@
         <section id="contact-us-content" class="content-section">
             <h3 class="section-title">Contact Us</h3>
             <div class="card">
-                <p>For any inquiries, sponsorship, or promotion, please reach out to us through ઉત્પાદક the following channels:</p>
+                <p>For any inquiries, sponsorship, or promotion, please reach out to us through the following channels:</p>
                 <div class="item-grid" style="grid-template-columns: 1fr; margin-top:20px;">
                     <a href="https://www.facebook.com/Rashuxansi" target="_blank" class="contact-item">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3l-.5 3h-2.5v6.8c4.56-.93 8-4.96 8-9.8z"/></svg>
@@ -270,13 +284,11 @@
             }
         }
 
-        // UPDATED: New and improved initializeUser function for referral
         async function initializeUser(tgUser, referrerCode) {
             const userId = String(tgUser.id);
             const userRef = doc(db, 'users', userId);
             let userSnap = await getDoc(userRef);
 
-            // 1. Create user if they don't exist
             if (!userSnap.exists()) {
                 const defaultUserData = {
                     balance: 0,
@@ -293,12 +305,11 @@
                     lastVideoPointsReset: serverTimestamp()
                 };
                 await setDoc(userRef, defaultUserData);
-                userSnap = await getDoc(userRef); // Re-fetch the new document
+                userSnap = await getDoc(userRef);
             }
 
             const userData = userSnap.data();
 
-            // 2. Handle Referral Logic: only apply if there is a referrer and the user has NOT been referred before
             if (referrerCode && referrerCode !== userId && !userData.referredBy) {
                 console.log(`Applying referral. User: ${userId}, Referrer: ${referrerCode}`);
                 try {
@@ -306,9 +317,7 @@
                     const referrerSnap = await getDoc(referrerRef);
                     if (referrerSnap.exists()) {
                          await runTransaction(db, async (transaction) => {
-                            // Set the referredBy field for the current user
                             transaction.update(userRef, { referredBy: referrerCode });
-                            // Increment referralCount for the referrer
                             transaction.update(referrerRef, { referralCount: increment(1) });
                         });
                         console.log("Referral transaction successful.");
@@ -320,7 +329,6 @@
                 }
             }
             
-            // 3. Finalize current user object and ensure all fields are present for older users
             const finalUserSnap = await getDoc(userRef);
             currentUser = { id: finalUserSnap.id, ...finalUserSnap.data() };
             
@@ -332,7 +340,7 @@
             for (const [key, value] of Object.entries(fieldsToEnsure)) {
                 if (!currentUser.hasOwnProperty(key)) {
                     updatesForOldUsers[key] = value;
-                    currentUser[key] = value; // Update local object immediately
+                    currentUser[key] = value;
                 }
             }
             if (currentUser.telegramUsername !== (tgUser.username || 'N/A')) {
@@ -354,10 +362,9 @@
             document.getElementById('withdrawalBalance').textContent = points;
         }
 
-        // UPDATED: New referral link generation
         function generateReferralLink(userId) {
             const botUsername = "NewTube12_bot";
-            const webAppShortName = "newtubecash"; // The short name you created in BotFather
+            const webAppShortName = "newtubecash";
             const referralLink = `https://t.me/${botUsername}/${webAppShortName}?startapp=${userId}`;
             document.getElementById('referralLinkInput').value = referralLink;
         }
@@ -373,10 +380,8 @@
 
         async function grantPoints(amount, source) {
             if (!currentUser || amount <= 0) return 0;
-
             let pointsToGrant = amount;
             let updates = {};
-
             if (source === 'video') {
                 const currentVideoPoints = currentUser.dailyVideoPointsEarned || 0;
                 if (currentVideoPoints >= DAILY_VIDEO_POINT_LIMIT) {
@@ -389,19 +394,14 @@
                 if(pointsToGrant <= 0) return 0;
                 updates.dailyVideoPointsEarned = increment(pointsToGrant);
             }
-            
             updates.balance = increment(pointsToGrant);
             updates.lifetimePointsEarned = increment(pointsToGrant);
-
             const userRef = doc(db, 'users', currentUser.id);
             await updateDoc(userRef, updates);
-            
-            // Check for referral bonus after updating points
             const newLifetimePoints = (currentUser.lifetimePointsEarned || 0) + pointsToGrant;
             if (currentUser.referredBy && !currentUser.referralBonusPaidOut && newLifetimePoints >= 500) {
                 await awardReferralBonus();
             }
-
             await fetchAndUpdateCurrentUser();
             return pointsToGrant;
         }
@@ -409,88 +409,114 @@
         async function awardReferralBonus() {
              const userRef = doc(db, 'users', currentUser.id);
              const referrerRef = doc(db, 'users', currentUser.referredBy);
-             
              try {
                 await runTransaction(db, async (transaction) => {
                     const userSnap = await transaction.get(userRef);
-                    if (!userSnap.exists() || userSnap.data().referralBonusPaidOut) {
-                        return; // Already paid out or user doesn't exist
-                    }
-                    
+                    if (!userSnap.exists() || userSnap.data().referralBonusPaidOut) return;
                     transaction.update(referrerRef, { balance: increment(1000) });
                     transaction.update(userRef, { referralBonusPaidOut: true });
                 });
                 console.log("1000 point referral bonus awarded to " + currentUser.referredBy);
-             } catch (e) {
-                console.error("Failed to award referral bonus:", e);
-             }
+             } catch (e) { console.error("Failed to award referral bonus:", e); }
         }
         
+        // NEW: Function to render videos in the grid to avoid code duplication
+        async function renderVideos(snapshot) {
+            const grid = document.getElementById('video-grid');
+            grid.innerHTML = ''; 
+            if (snapshot.empty) {
+                grid.innerHTML = '<p style="text-align:center; grid-column: 1 / -1;">No videos found.</p>';
+                return;
+            }
+
+            const progressPromises = snapshot.docs.map(docSnap => getDoc(doc(db, 'users', currentUser.id, 'videoProgress', docSnap.id)));
+            const progressSnaps = await Promise.all(progressPromises);
+            
+            snapshot.docs.forEach((docSnap, index) => {
+                const video = docSnap.data();
+                const videoId = docSnap.id;
+                const progressSnap = progressSnaps[index];
+                const progress = progressSnap.exists() ? progressSnap.data() : { totalPoints: 0 };
+                
+                const item = document.createElement('article');
+                item.className = 'movie-item';
+                item.dataset.youtubeId = video.youtubeId;
+                item.dataset.videoId = videoId;
+
+                const earnedPoints = progress.totalPoints || 0;
+                const earnedText = `Earned: ${earnedPoints} / ${DAILY_VIDEO_POINT_LIMIT}`;
+
+                item.originalContent = `
+                    <div class="thumbnail-container">
+                        <img src="${video.thumbnailUrl}" alt="${video.title}" loading="lazy">
+                        <div class="video-progress-bar-container">
+                            <div class="video-progress-bar" style="width: ${(earnedPoints / DAILY_VIDEO_POINT_LIMIT) * 100}%"></div>
+                        </div>
+                    </div>
+                    <div class="movie-item-info">
+                        <h4>${video.title}</h4>
+                        <p class="movie-reward">${earnedText}</p>
+                    </div>`;
+                item.innerHTML = item.originalContent;
+                item.addEventListener('click', handleVideoClick);
+                grid.appendChild(item);
+            });
+        }
+
+        // UPDATED: fetchContent now fetches default trending videos
         async function fetchContent() {
-            const grid = document.querySelector('#home-content .item-grid');
-            if (!grid) return;
+            const grid = document.getElementById('video-grid');
             grid.innerHTML = '<div class="loader"></div>';
             try {
                 const videosCollection = collection(db, 'videos');
                 const q = query(videosCollection, orderBy('createdAt', 'desc'), limit(20));
-                
                 const snapshot = await getDocs(q);
-                grid.innerHTML = ''; 
-                if (snapshot.empty) { grid.innerHTML = '<p style="text-align:center;">No videos found.</p>'; return; }
-                
-                const progressPromises = snapshot.docs.map(docSnap => getDoc(doc(db, 'users', currentUser.id, 'videoProgress', docSnap.id)));
-                const progressSnaps = await Promise.all(progressPromises);
-                
-                snapshot.docs.forEach((docSnap, index) => {
-                    const video = docSnap.data();
-                    const videoId = docSnap.id;
-                    const progressSnap = progressSnaps[index];
-                    const progress = progressSnap.exists() ? progressSnap.data() : { totalPoints: 0 };
-                    
-                    const item = document.createElement('article');
-                    item.className = 'movie-item';
-                    item.dataset.youtubeId = video.youtubeId;
-                    item.dataset.videoId = videoId;
-
-                    const earnedPoints = progress.totalPoints || 0;
-                    const earnedText = `Earned: ${earnedPoints} / ${DAILY_VIDEO_POINT_LIMIT}`;
-
-                    item.originalContent = `
-                        <div class="thumbnail-container">
-                            <img src="${video.thumbnailUrl}" alt="${video.title}" loading="lazy">
-                            <div class="video-progress-bar-container">
-                                <div class="video-progress-bar" style="width: ${(earnedPoints / DAILY_VIDEO_POINT_LIMIT) * 100}%"></div>
-                            </div>
-                        </div>
-                        <div class="movie-item-info">
-                            <h4>${video.title}</h4>
-                            <p class="movie-reward">${earnedText}</p>
-                        </div>`;
-                    item.innerHTML = item.originalContent;
-                    item.addEventListener('click', handleVideoClick);
-                    grid.appendChild(item);
-                });
-            } catch (error) { console.error("Error fetching content:", error); grid.innerHTML = '<p>Error loading content.</p>'; }
+                await renderVideos(snapshot);
+            } catch (error) { 
+                console.error("Error fetching content:", error); 
+                grid.innerHTML = '<p style="grid-column: 1 / -1;">Error loading content.</p>'; 
+            }
+        }
+        
+        // NEW: Function to search for videos
+        async function searchVideos(searchTerm) {
+            if (!searchTerm) {
+                fetchContent(); // If search is empty, show trending
+                return;
+            }
+            const grid = document.getElementById('video-grid');
+            grid.innerHTML = '<div class="loader"></div>';
+            try {
+                const videosCollection = collection(db, 'videos');
+                // NOTE: For this query to work, you must create a `title_lowercase` field 
+                // in your 'videos' documents, containing the lowercase version of the title.
+                // You also need to create a Firestore index for `title_lowercase`.
+                const q = query(videosCollection, 
+                                where('title_lowercase', '>=', searchTerm.toLowerCase()),
+                                where('title_lowercase', '<=', searchTerm.toLowerCase() + '\uf8ff'),
+                                limit(20));
+                const snapshot = await getDocs(q);
+                await renderVideos(snapshot);
+            } catch (error) {
+                console.error("Error searching videos:", error);
+                grid.innerHTML = '<p style="grid-column: 1 / -1;">Error searching videos. Ensure `title_lowercase` index is set up in Firestore.</p>';
+            }
         }
 
         async function handleVideoClick(event) {
             if (!currentUser) { alert("User data not loaded yet."); return; }
-
             if (currentPlayingItem) {
                 clearInterval(videoPlaybackInterval);
                 currentPlayingItem.innerHTML = currentPlayingItem.originalContent;
                 if (player) { player.destroy(); player = null; }
             }
-            
             const clickedItem = event.currentTarget;
             if (currentPlayingItem === clickedItem) {
                 currentPlayingItem = null;
                 return;
             }
-
             currentPlayingItem = clickedItem;
             const { youtubeId, videoId } = clickedItem.dataset;
-
             const playerDivId = `player-${youtubeId}-${Date.now()}`;
             clickedItem.innerHTML = `<div id="${playerDivId}" class="player-container"></div>`;
             player = new YT.Player(playerDivId, {
@@ -523,32 +549,26 @@
                 const progressRef = doc(db, 'users', currentUser.id, 'videoProgress', videoId);
                 const progressSnap = await getDoc(progressRef);
                 const progress = progressSnap.exists() ? progressSnap.data() : { claimedTiers: [], totalPoints: 0 };
-                
                 for (const tier of videoRewardTiers) {
                     if (currentTime >= tier.time && !(progress.claimedTiers || []).includes(tier.time)) {
-                        
                         const processReward = async () => {
                             const pointsGranted = await grantPoints(tier.points, 'video');
                             if (pointsGranted > 0) {
                                 const newTotalPoints = (progress.totalPoints || 0) + pointsGranted;
                                 const newClaimedTiers = [...(progress.claimedTiers || []), tier.time];
                                 await setDoc(progressRef, { totalPoints: newTotalPoints, claimedTiers: newClaimedTiers }, { merge: true });
-                                
                                 showSuccessModal("Reward Claimed!", `Congratulations! You have earned ${pointsGranted} points.`);
                                 if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-
                                 const progressBar = currentPlayingItem?.querySelector('.video-progress-bar');
                                 const rewardText = currentPlayingItem?.querySelector('.movie-reward');
                                 if(progressBar) progressBar.style.width = `${(newTotalPoints / DAILY_VIDEO_POINT_LIMIT) * 100}%`;
                                 if(rewardText) rewardText.textContent = `Earned: ${newTotalPoints} / ${DAILY_VIDEO_POINT_LIMIT}`;
                             }
                         };
-
                         const adFunctions = {
                             'Monetag': showMonetagAd,
                             'GigaPub': showGigaPubAd
                         };
-                        
                         if (tier.adTiming === 'before') {
                             const adFunc = adFunctions[tier.ad];
                             if (adFunc) {
@@ -564,13 +584,10 @@
                                 if(adFunc) adFunc().catch(console.error);
                             }
                         }
-                        
                         break; 
                     }
                 }
-            } catch (error) {
-                console.error("Error checking video tiers:", error);
-            }
+            } catch (error) { console.error("Error checking video tiers:", error); }
         }
         
         function stopAndClearVideo() {
@@ -595,7 +612,6 @@
             const visitsToday = currentUser.adVisitsToday || 0;
             const visitsLeft = AD_VISIT_LIMIT - visitsToday;
             const isLimitReached = visitsLeft <= 0;
-
             [1, 2].forEach(() => {
                 const card = document.createElement('div');
                 card.className = 'ad-task-card';
@@ -609,7 +625,6 @@
             const button = e.target;
             button.disabled = true;
             button.textContent = 'Loading Ad...';
-
             showMonetagAd().then(async () => {
                 if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
                 try {
@@ -623,34 +638,30 @@
             }).catch(err => { console.log('Ad not shown:', err); alert('You need to watch the ad to earn points.'); setupAdsToEarn(); });
         });
 
+        // UPDATED: fetchTasks now checks for visit duration
         async function fetchTasks() {
             const taskListContainer = document.getElementById('task-list');
             taskListContainer.innerHTML = '<div class="loader"></div>';
             try {
                 const tasksRef = collection(db, 'tasks');
                 const snapshot = await getDocs(tasksRef); 
-
                 taskListContainer.innerHTML = '';
                 if (snapshot.empty) {
                     taskListContainer.innerHTML = '<p style="text-align:center;">No tasks available right now. Check back later!</p>';
                     return;
                 }
-
                 snapshot.forEach(docSnap => {
                     const task = docSnap.data();
                     const taskId = docSnap.id;
                     const card = document.createElement('div');
                     card.className = 'task-card';
-
                     const isCompleted = currentUser.completedTasks?.includes(taskId);
                     const completionCount = task.completionCount || 0;
                     const taskLimit = task.limit || 0;
                     const isLimitReached = (taskLimit > 0) && (completionCount >= taskLimit);
-
                     let buttonText = 'Start Task';
                     let buttonDisabled = false;
                     let buttonState = 'start';
-
                     if (isCompleted) {
                         buttonText = 'Done';
                         buttonDisabled = true;
@@ -660,7 +671,6 @@
                         buttonDisabled = true;
                         buttonState = 'limit_reached';
                     }
-
                     card.innerHTML = `
                         <div class="task-card-info">
                             <h4>${task.title}</h4>
@@ -670,6 +680,7 @@
                                 data-task-id="${taskId}" 
                                 data-task-url="${task.url}" 
                                 data-reward="${task.reward}"
+                                data-visit-duration="${task.visitDurationSeconds || 0}"
                                 data-state="${buttonState}"
                                 ${buttonDisabled ? 'disabled' : ''}>
                             ${buttonText}
@@ -677,24 +688,44 @@
                     `;
                     taskListContainer.appendChild(card);
                 });
-
             } catch (error) {
                 console.error("Error fetching tasks:", error);
                 taskListContainer.innerHTML = '<p style="color:red; text-align:center;">Could not load tasks. Please try again later.</p>';
             }
         }
         
+        // UPDATED: Task click listener now handles timed visits
         document.getElementById('task-list').addEventListener('click', async (e) => {
             if (!e.target.matches('.task-button') || e.target.disabled) return;
             const button = e.target;
             const { taskId, taskUrl, reward, state } = button.dataset;
+            const visitDuration = parseInt(button.dataset.visitDuration, 10);
 
             if (state === 'start') {
                 if (!taskUrl) { alert('Task URL is missing.'); return; }
                 tg.openLink(taskUrl);
-                button.textContent = 'Claim Reward';
-                button.dataset.state = 'claim';
-                if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+
+                if (visitDuration > 0) {
+                    // It's a timed task
+                    button.disabled = true;
+                    let countdown = visitDuration;
+                    const intervalId = setInterval(() => {
+                        countdown--;
+                        button.textContent = `Wait ${countdown}s...`;
+                        if (countdown <= 0) {
+                            clearInterval(intervalId);
+                            button.disabled = false;
+                            button.textContent = 'Claim Reward';
+                            button.dataset.state = 'claim';
+                            if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('warning');
+                        }
+                    }, 1000);
+                } else {
+                    // It's a regular task
+                    button.textContent = 'Claim Reward';
+                    button.dataset.state = 'claim';
+                    if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+                }
             } else if (state === 'claim') {
                 button.disabled = true;
                 button.textContent = 'Verifying...';
@@ -702,21 +733,15 @@
                     await runTransaction(db, async (transaction) => {
                         const userRef = doc(db, 'users', currentUser.id);
                         const taskRef = doc(db, 'tasks', taskId);
-                        
                         const userDoc = await transaction.get(userRef);
                         const taskDoc = await transaction.get(taskRef);
-
                         if (!userDoc.exists() || !taskDoc.exists()) throw "USER_OR_TASK_NOT_FOUND";
-                        
                         const userData = userDoc.data();
                         const taskData = taskDoc.data();
-
                         if (userData.completedTasks?.includes(taskId)) throw "ALREADY_COMPLETED";
-                        
                         const completionCount = taskData.completionCount || 0;
                         const taskLimit = taskData.limit || 0;
                         if ((taskLimit > 0) && (completionCount >= taskLimit)) throw "TASK_LIMIT_REACHED";
-                        
                         const pointsToGrant = Number(reward);
                         transaction.update(userRef, { 
                             balance: increment(pointsToGrant), 
@@ -761,15 +786,11 @@
             const method = document.getElementById('withdrawalMethod').value;
             const amount = parseInt(document.getElementById('withdrawalAmount').value, 10);
             const minAmount = (method === 'Bkash') ? 10000 : 25000;
-
             if (isNaN(amount) || amount < minAmount) { alert(`Minimum withdrawal for ${method} is ${minAmount} points.`); return; }
             if (amount > currentUser.balance) { alert("Insufficient balance."); return; }
-            
             submitButton.disabled = true; submitButton.textContent = 'Processing...';
-            
             const usdAmount = (amount / 1000) * 0.02;
             const requestData = { userId: currentUser.id, telegramUsername: currentUser.telegramUsername, pointsAmount: amount, usdAmount: usdAmount.toFixed(4), method, details: document.getElementById('accountDetails').value, status: 'pending', createdAt: serverTimestamp() };
-            
             try {
                 await runTransaction(db, async (transaction) => {
                     const userRef = doc(db, 'users', currentUser.id);
@@ -778,7 +799,6 @@
                     transaction.set(doc(collection(db, 'withdrawals')), requestData);
                     transaction.update(userRef, { balance: increment(-amount), lastWithdrawalRequestAt: serverTimestamp() });
                 });
-                
                 await fetchAndUpdateCurrentUser();
                 e.target.reset();
                 showSuccessModal("Successfully Sent!", "Your withdrawal request is pending. You can check its status in the History tab.");
@@ -819,7 +839,6 @@
                 const snapshot = await getDocs(q);
                 historyContainer.innerHTML = '';
                 if (snapshot.empty) { historyContainer.innerHTML = '<p style="text-align:center;">No withdrawal history found.</p>'; return; }
-                
                 snapshot.forEach(docSnap => {
                     try {
                         const data = docSnap.data();
@@ -829,9 +848,7 @@
                         const status = data.status || 'pending';
                         item.innerHTML = `<div><strong>${data.pointsAmount} Points</strong><br><small>${data.method} - ${date}</small></div><strong class="status-${status}">${status.charAt(0).toUpperCase() + status.slice(1)}</strong>`;
                         historyContainer.appendChild(item);
-                    } catch (e) {
-                        console.error("Error rendering history item:", e);
-                    }
+                    } catch (e) { console.error("Error rendering history item:", e); }
                 });
             } catch (error) {
                 console.error("Error fetching withdrawal history:", error);
@@ -844,9 +861,7 @@
             const myReferralsContainer = document.getElementById('my-referrals-list');
             listContainer.innerHTML = '<div class="loader"></div>';
             myReferralsContainer.innerHTML = '<div class="loader"></div>';
-
             try {
-                // Fetch top 20 referrers
                 const topReferrersQuery = query(collection(db, "users"), where("referralCount", ">", 0), orderBy("referralCount", "desc"), limit(20));
                 const topSnapshot = await getDocs(topReferrersQuery);
                 listContainer.innerHTML = '';
@@ -867,9 +882,7 @@
                 console.error("Error fetching leaderboard:", error);
                 listContainer.innerHTML = '<p style="color:red; text-align:center;">Could not load leaderboard.</p>';
             }
-            
             try {
-                // Fetch current user's referrals
                 const myReferralsQuery = query(collection(db, "users"), where("referredBy", "==", currentUser.id));
                 const myReferralsSnapshot = await getDocs(myReferralsQuery);
                 myReferralsContainer.innerHTML = '';
@@ -885,7 +898,6 @@
                         myReferralsContainer.appendChild(item);
                     });
                 }
-
             } catch(error) {
                 console.error("Error fetching your referrals:", error);
                 myReferralsContainer.innerHTML = '<p style="color:red; text-align:center;">Could not load your referrals.</p>';
@@ -900,13 +912,11 @@
             link.addEventListener('click', async (e) => {
                 e.preventDefault();
                 stopAndClearVideo();
-
                 document.querySelectorAll('.nav-link, .content-section').forEach(el => el.classList.remove('active'));
                 link.classList.add('active');
                 const targetId = link.dataset.tabTarget;
                 const target = document.querySelector(targetId);
                 if(target) target.classList.add('active');
-
                 switch(targetId) {
                     case '#home-content': fetchContent(); break;
                     case '#ads-to-earn-content': setupAdsToEarn(); break;
@@ -916,7 +926,7 @@
                     case '#history-content': displayWithdrawalHistory(); break;
                     case '#contact-us-content': /* No action needed */ break;
                 }
-                document.getElementById('side-menu').classList.remove('is-open');
+                document.getElementById('side-menu').classList.remove('is--open');
                 document.getElementById('menu-overlay').classList.remove('is-open');
             });
         });
@@ -927,7 +937,6 @@
             setInterval(showAd, 300000);
         }
 
-        // UPDATED: New init function to prevent startup errors
         async function main() {
             try {
                 if (!tg.initDataUnsafe?.user) {
@@ -937,11 +946,9 @@
                 tg.ready();
                 tg.expand();
                 
-                // 1. Initialize user data and referral logic first
                 await initializeUser(tg.initDataUnsafe.user, tg.initDataUnsafe.start_param);
                 
-                // 2. Once user is initialized, setup the rest of the app
-                document.querySelector('.nav-link[data-tab-target="#home-content"]').click(); // This will trigger fetchContent()
+                document.querySelector('.nav-link[data-tab-target="#home-content"]').click();
                 initializeAdexium();
 
                 const menuToggleBtn = document.getElementById('menu-toggle-button');
@@ -953,8 +960,30 @@
                     sideMenu.classList.toggle('is-open');
                     menuOverlay.classList.toggle('is-open');
                 };
-
                 [menuToggleBtn, closeMenuBtn, menuOverlay].forEach(el => el.addEventListener('click', toggleMenu));
+
+                // NEW: Event listeners for video search
+                const searchInput = document.getElementById('videoSearchInput');
+                const searchBtn = document.getElementById('videoSearchBtn');
+                const clearBtn = document.getElementById('clearSearchBtn');
+
+                const performSearch = () => {
+                    const searchTerm = searchInput.value.trim();
+                    searchVideos(searchTerm);
+                    clearBtn.style.display = searchTerm ? 'inline-block' : 'none';
+                };
+
+                searchBtn.addEventListener('click', performSearch);
+                searchInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        performSearch();
+                    }
+                });
+                clearBtn.addEventListener('click', () => {
+                    searchInput.value = '';
+                    fetchContent();
+                    clearBtn.style.display = 'none';
+                });
 
             } catch (error) {
                 console.error("Initialization failed:", error);
