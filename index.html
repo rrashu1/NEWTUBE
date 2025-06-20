@@ -166,8 +166,6 @@
                 <h3>Withdrawal</h3>
                 <p>Your current balance: <strong><span id="withdrawalBalance">0</span> Points</strong></p>
                 <div class="conversion-info">Conversion: 1000 Points = $0.02 USD<br>Minimums: 10,000 Points (Bkash) / 25,000 Points (Binance)</div>
-                <!-- UPDATED: Cooldown message changed from 7 to 5 days -->
-                <div id="withdrawalCooldownMessage" style="display: none;"><p>You can request a withdrawal once every 5 days.<br>Please try again later.</p></div>
                 <form id="withdrawalForm" style="margin-top: 20px;"><div class="form-group"><label for="withdrawalMethod">Payment Method</label><select id="withdrawalMethod" required><option value="Bkash">Bkash</option><option value="Binance (Optimism)">Binance (Optimism)</option></select></div><div class="form-group"><label for="accountDetails">Account Details</label><input type="text" id="accountDetails" placeholder="Your Bkash Number" required></div><div class="form-group"><label for="withdrawalAmount">Amount (Points)</label><input type="number" id="withdrawalAmount" placeholder="10000 - 100000" required step="1" min="10000" max="100000"></div><button type="submit" class="form-button">Request Withdrawal</button></form>
             </div>
         </section>
@@ -548,8 +546,20 @@
             videoPlaybackInterval = null;
         }
 
-        const showMonetagAd = () => new Promise((res, rej) => typeof show_9442539 === 'function' ? show_9442539().then(res).catch(rej) : rej('SDK missing'));
-        const showGigaPubAd = () => new Promise((res, rej) => typeof window.showGiga === 'function' ? window.showGiga().then(res).catch(rej) : rej('SDK missing'));
+        const showMonetagAd = () => new Promise((res, rej) => typeof show_9442539 === 'function' ? show_9442539().then(res).catch(rej) : rej('Monetag SDK missing'));
+        // UPDATED: GigaPub ad function now uses "main" as requested
+        const showGigaPubAd = () => new Promise((res, rej) => typeof window.showGiga === 'function' ? window.showGiga("main").then(res).catch(rej) : rej('GigaPub SDK missing'));
+
+        // NEW: Function to randomly show an ad
+        function showRandomAd() {
+            if (Math.random() < 0.5) { // 50% chance for Monetag
+                console.log("Showing Monetag Ad");
+                return showMonetagAd();
+            } else { // 50% chance for GigaPub
+                console.log("Showing GigaPub Ad");
+                return showGigaPubAd();
+            }
+        }
         
         function setupAdsToEarn() {
             const adTaskListContainer = document.getElementById('ad-task-list');
@@ -565,11 +575,13 @@
             });
         }
 
+        // UPDATED: Event listener now calls showRandomAd()
         document.getElementById('ad-task-list').addEventListener('click', async (e) => {
             if (!e.target.matches('.ad-task-button') || e.target.disabled) return;
             const button = e.target;
             button.disabled = true; button.textContent = 'Loading Ad...';
-            showMonetagAd().then(async () => {
+            
+            showRandomAd().then(async () => {
                 if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
                 try {
                     await grantPoints(50, 'ad');
@@ -578,8 +590,15 @@
                     await fetchAndUpdateCurrentUser();
                     setupAdsToEarn(); 
                     showSuccessModal("Congratulations!", "You've earned 50 points.");
-                } catch (error) { console.error("Ad task reward error:", error); setupAdsToEarn(); }
-            }).catch(err => { console.log('Ad not shown:', err); alert('You need to watch the ad to earn points.'); setupAdsToEarn(); });
+                } catch (error) { 
+                    console.error("Ad task reward error:", error); 
+                    setupAdsToEarn(); 
+                }
+            }).catch(err => { 
+                console.log('Ad not shown:', err); 
+                alert('You need to watch the ad to earn points.'); 
+                setupAdsToEarn(); 
+            });
         });
 
         async function fetchTasks() {
@@ -690,7 +709,6 @@
         document.getElementById('withdrawalForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const submitButton = e.target.querySelector('button[type="submit"]');
-            if (!checkWithdrawalEligibility()) { return; }
             
             const method = document.getElementById('withdrawalMethod').value;
             const amount = parseInt(document.getElementById('withdrawalAmount').value, 10);
@@ -720,27 +738,14 @@
             }
         });
 
-        // UPDATED: Withdrawal cooldown changed from 7 to 5 days
+        // UPDATED: Withdrawal cooldown logic removed. Function now just ensures the form is visible.
         function checkWithdrawalEligibility() { 
             if (!currentUser) return false;
             const form = document.getElementById('withdrawalForm');
-            const cooldownMessage = document.getElementById('withdrawalCooldownMessage');
-            if (!currentUser.lastWithdrawalRequestAt) {
+            if (form) {
                 form.style.display = 'block';
-                cooldownMessage.style.display = 'none';
-                return true;
             }
-            const lastRequestTime = currentUser.lastWithdrawalRequestAt.toDate().getTime();
-            const fiveDaysInMillis = 5 * 24 * 60 * 60 * 1000; // 5 days
-            if (Date.now() - lastRequestTime < fiveDaysInMillis) {
-                form.style.display = 'none';
-                cooldownMessage.style.display = 'block';
-                return false;
-            } else {
-                form.style.display = 'block';
-                cooldownMessage.style.display = 'none';
-                return true;
-            }
+            return true;
         }
 
         async function displayWithdrawalHistory() {
@@ -768,7 +773,6 @@
             }
         }
         
-        // UPDATED: Major update to leaderboard to include claimable bonus button
         async function fetchLeaderboard() {
             const listContainer = document.getElementById('leaderboard-list');
             const myReferralsContainer = document.getElementById('my-referrals-list');
@@ -832,7 +836,6 @@
             }
         }
 
-        // NEW: Function to handle the referral bonus claim
         async function claimReferralBonus(refereeId, button) {
             button.disabled = true;
             button.textContent = '...';
@@ -849,9 +852,7 @@
                     if (refereeData.referralBonusPaidOut === true) { throw new Error("Bonus already paid."); }
                     if ((refereeData.lifetimePointsEarned || 0) < REFERRAL_POINTS_THRESHOLD) { throw new Error("Referee has not reached the threshold."); }
 
-                    // Award bonus to the referrer (current user)
                     transaction.update(referrerRef, { balance: increment(REFERRAL_BONUS_AMOUNT) });
-                    // Mark the bonus as paid out for the referee
                     transaction.update(refereeRef, { referralBonusPaidOut: true });
                 });
 
@@ -868,7 +869,6 @@
             }
         }
         
-        // NEW: Event listener for the claim button on the referral list
         document.getElementById('my-referrals-list').addEventListener('click', async (e) => {
             if (e.target.matches('.claim-referral-btn') && !e.target.disabled) {
                 const refereeId = e.target.dataset.refereeId;
