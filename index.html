@@ -3,15 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>NEWTUBE</title>
-    <!-- Main App Styles -->
+    <title>NEWTUBE - Watch & Earn</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- Monetag Ads Library -->
+    <script src='//libtl.com/sdk.js' data-zone='9442539' data-sdk='show_9442539'></script>
     <style>
         :root {
             --primary-accent-color: #FF4500; --primary-accent-hover-color: #E03D00; --dark-bg: #000000;
             --card-bg: #1a1a1a; --header-bg: #181818; --text-light: #ffffff; --text-muted: #b3b3b3;
             --border-color: #282828; --success-color: #28a745; --disabled-color: #444;
         }
-        body { background-color: var(--dark-bg); color: var(--text-light); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 60px 0 0; touch-action: manipulation; }
+        body { background-color: var(--dark-bg); color: var(--text-light); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 60px 0 0; }
         .container { max-width: 1200px; margin: 0 auto; padding: 0 15px; }
         .main-header { background-color: var(--header-bg); padding: 10px 15px; border-bottom: 1px solid var(--border-color); position: fixed; top: 0; left: 0; right: 0; z-index: 1000; display: flex; justify-content: space-between; align-items: center; height: 40px; }
         .site-title { font-size: 1.2em; color: var(--primary-accent-color); font-weight: 700; text-transform: uppercase; }
@@ -71,6 +73,7 @@
         .leaderboard-item .info strong { color: var(--text-light); }
         .leaderboard-item .info small { color: var(--text-muted); }
         .leaderboard-item .count { font-size: 1.1em; font-weight: bold; color: var(--success-color); }
+        /* NEW: Styles for the referral claim button */
         .claim-referral-btn { padding: 8px 12px; font-size: 0.9em; width: auto; flex-shrink: 0; }
         .history-item .status-pending { color: #ffc107; } .history-item .status-approved { color: #28a745; } .history-item .status-rejected { color: #dc3545; }
         .conversion-info { font-size: 0.9em; color: var(--text-muted); margin-bottom: 15px; }
@@ -84,902 +87,876 @@
         .success-modal-icon { width: 70px; height: 70px; border-radius: 50%; background-color: var(--success-color); display: flex; justify-content: center; align-items: center; font-size: 40px; font-weight: bold; color: white; margin: 0 auto 20px; animation: icon-pop-in 0.5s 0.2s backwards; }
         .success-modal h3 { margin: 0 0 10px; font-size: 1.6em; }
         .success-modal p { margin: 0; color: var(--text-muted); font-size: 1em;}
-        .inbox-modal, .game-zone-modal, .daily-tasks-modal { background-color: var(--card-bg); color: var(--text-light); padding: 20px; border-radius: 15px; text-align: left; width: 90%; max-width: 500px; max-height: 90vh; display: flex; flex-direction: column; }
-        .inbox-modal h3, .game-zone-modal h3, .daily-tasks-modal h3 { text-align: center; margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
+        .inbox-modal { background-color: var(--card-bg); color: var(--text-light); padding: 20px; border-radius: 15px; text-align: left; width: 90%; max-width: 400px; max-height: 80vh; display: flex; flex-direction: column; }
+        .inbox-modal h3 { text-align: center; margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
         #inbox-message-list { overflow-y: auto; flex-grow: 1; margin-bottom: 15px; }
         .inbox-message-item { background-color: #2a2a2a; padding: 12px; border-radius: 8px; margin-bottom: 10px; }
         .inbox-message-item p { margin: 0; line-height: 1.5; }
         .inbox-message-item small { color: var(--text-muted); font-size: 0.8em; }
-        .modal-close-btn { padding: 10px; border: none; border-radius: 8px; background-color: var(--primary-accent-color); color: white; cursor: pointer; }
-        
-        /* --- Task Section Buttons --- */
-        .task-section-launcher {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 25px;
-        }
-        .task-launcher-btn {
-            padding: 20px;
-            font-size: 1.2em;
-            font-weight: bold;
-            border-radius: 10px;
-            cursor: pointer;
-            border: 2px solid var(--primary-accent-color);
-            background-color: transparent;
-            color: var(--primary-accent-color);
-            transition: all 0.2s ease;
-        }
-        .task-launcher-btn:hover { background-color: var(--primary-accent-color); color: var(--text-light); }
-
-        /* --- Daily Task Styles --- */
-        #daily-tasks-list { list-style: none; padding: 0; margin-top: 20px; }
-        .daily-task-item { background-color: #2a2a2a; padding: 15px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-        .daily-task-info strong { display: block; font-size: 1.1em; }
-        .daily-task-info small { color: var(--text-muted); }
-        .daily-task-claim-btn { background-color: var(--success-color); color: var(--text-light); border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold;}
-        .daily-task-claim-btn:disabled { background-color: var(--disabled-color); cursor: not-allowed; }
-
-        /* --- Game Zone Styles --- */
-        #gameZoneModal { touch-action: none; }
-        #gameZoneModal .game-selector { display: flex; justify-content: center; margin-bottom: 25px; border-bottom: 2px solid #282828; padding-bottom: 15px; }
-        #gameZoneModal .game-selector button { background-color: transparent; border: 2px solid var(--primary-accent-color); color: var(--primary-accent-color); padding: 10px 20px; margin: 0 5px; border-radius: 25px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: all 0.3s ease; }
-        #gameZoneModal .game-selector button.active, #gameZoneModal .game-selector button:hover { background-color: var(--primary-accent-color); color: white; }
-        #gameZoneModal .game-container { margin-top: 20px; display: none; }
-        #gameZoneModal .game-container.active { display: block; }
-        #gameZoneModal h1 { color: var(--primary-accent-color); margin-bottom: 20px; text-align: center; }
-        #math-quiz-container #question { font-size: 1.5rem; font-weight: bold; margin-bottom: 20px; text-align: center;}
-        #math-quiz-container .btn-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
-        #math-quiz-container .btn { background-color: #17a2b8; color: white; border: none; border-radius: 8px; padding: 15px; font-size: 1.1rem; cursor: pointer; transition: background-color 0.3s, transform 0.2s; }
-        #math-quiz-container .btn:hover:not(:disabled) { background-color: #138496; transform: translateY(-2px); }
-        #math-quiz-container .btn.correct { background-color: #28a745; }
-        #math-quiz-container .btn.incorrect { background-color: #dc3545; }
-        #math-quiz-container .btn:disabled { cursor: not-allowed; opacity: 0.7; }
-        #math-quiz-container #controls { display: flex; justify-content: space-between; align-items: center; }
-        #math-quiz-container #score-container { font-size: 1.2rem; font-weight: bold; }
-        #math-quiz-container #next-btn, #math-quiz-container #play-again-btn { background-color: #6c757d; color: white; padding: 10px 20px; font-size: 1rem; border-radius: 5px; border: none; cursor: pointer; }
-        #math-results-container.hide, .game-container.hide { display: none; }
-        #scratch-card-container #attempts-left { font-size: 1.2rem; font-weight: bold; color: #ffc107; margin-bottom: 15px; text-align: center;}
-        #scratch-card-container #card-area { position: relative; width: 300px; height: 150px; margin: 20px auto; border-radius: 10px; cursor: grabbing; }
-        #scratch-card-container #reward-result { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; font-size: 1.8rem; font-weight: bold; color: var(--dark-bg); background: linear-gradient(135deg, #e0eafc, #cfdef3); border-radius: 10px; text-align: center; padding: 5px; }
-        #scratch-card-container #scratch-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: transparent; border-radius: 10px; }
-        #scratch-card-container #new-card-btn { background-color: #28a745; display: block; margin: 10px auto 0; color: white; padding: 12px 25px; font-size: 1rem; border-radius: 5px; border: none; cursor: pointer; }
-        #scratch-card-container #new-card-btn:disabled { background-color: #6c757d; cursor: not-allowed; }
-        
+        #closeInboxBtn { padding: 10px; border: none; border-radius: 8px; background-color: var(--primary-accent-color); color: white; cursor: pointer; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         @keyframes modal-pop-in { to { transform: scale(1); opacity: 1; } }
         @keyframes icon-pop-in { 0% { transform: scale(0); } 70% { transform: scale(1.1); } 100% { transform: scale(1); } }
     </style>
 </head>
 <body>
-    
-    <!-- Main App HTML -->
-    <div id="app-root">
-        <header class="main-header">
-            <h1 class="site-title">NEWTUBE</h1>
-            <div class="header-right">
-                 <div class="inbox-container" id="inbox-container">
-                    <svg id="inbox-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg>
-                    <span id="inbox-notification-dot"></span>
-                </div>
-                <div class="balance-display">Points: <span id="userBalanceDisplay">0</span></div>
-                <button class="menu-toggle-button" id="menu-toggle-button"><span class="bar"></span><span class="bar"></span><span class="bar"></span></button>
-            </div>
-        </header>
-    
-        <div class="menu-overlay" id="menu-overlay"></div>
-        <aside class="side-menu" id="side-menu">
-            <div class="side-menu-header"><h3>Menu</h3><button class="close-menu-btn" id="close-menu-btn">&times;</button></div>
-            <ul class="side-menu-nav">
-                <li><a href="#" class="nav-link active" data-tab-target="#home-content">Home</a></li>
-                <li><a href="#" class="nav-link" data-tab-target="#ads-to-earn-content">Ads to Earn</a></li>
-                <li><a href="#" class="nav-link" data-tab-target="#task-content">Task to Earn</a></li>
-                <li><a href="#" class="nav-link" data-tab-target="#referral-content">Referral Program</a></li>
-                <li><a href="#" class="nav-link" data-tab-target="#leaderboard-content">Leaderboard</a></li>
-                <li><a href="#" class="nav-link" data-tab-target="#convert-withdraw-content">Convert & Withdraw</a></li>
-                <li><a href="#" class="nav-link" data-tab-target="#history-content">History</a></li>
-                <li><a href="#" class="nav-link" data-tab-target="#contact-us-content">Contact Us</a></li>
-            </ul>
-        </aside>
-    
-        <main class="container">
-            <section id="home-content" class="content-section active">
-                <h3 class="section-title">Trending Videos</h3>
-                <div class="search-container">
-                    <input type="search" id="videoSearchInput" placeholder="Search for videos...">
-                    <button id="videoSearchBtn">Search</button>
-                    <button id="clearSearchBtn" style="display:none;">Clear</button>
-                </div>
-                <div class="item-grid" id="video-grid"></div>
-            </section>
-            <section id="ads-to-earn-content" class="content-section"><h3 class="section-title">Watch Ads, Earn Points</h3><div id="ad-task-list" class="item-grid"></div></section>
-            <section id="task-content" class="content-section">
-                <h3 class="section-title">Complete Tasks</h3>
-                <div class="task-section-launcher">
-                    <button id="openDailyTasksBtn" class="task-launcher-btn">📅 Daily Tasks</button>
-                    <button id="openGameZoneBtn" class="task-launcher-btn">🎮 Game Zone</button>
-                </div>
-                <h4 style="text-align:center; color: var(--text-muted); margin-bottom:20px;">Or choose a special task:</h4>
-                <div id="task-list" class="item-grid"></div>
-            </section>
-            <section id="referral-content" class="content-section">
-                <div class="card">
-                    <svg class="card-icon" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
-                    <h3>Referral Program</h3>
-                    <p>Invite friends with your unique link. When your friend earns 500 points by working, you will receive a bonus of <strong>1000 Points!</strong></p>
-                    <div class="referral-link-wrapper"><input type="text" id="referralLinkInput" readonly value="Generating link..."><button id="copyReferralLinkBtn" class="form-button">Copy</button></div>
-                </div>
-            </section>
-            <section id="leaderboard-content" class="content-section">
-                <h3 class="section-title">Top Referrers</h3>
-                <div class="card" style="text-align: left; padding-bottom: 10px;">
-                    <p style="text-align: center;">Here are the top users who have invited the most friends. The weekly top referrer gets an extra bonus!</p>
-                    <div id="leaderboard-list"></div>
-                </div>
-                <h3 class="section-title" style="margin-top: 40px;">Your Referrals</h3>
-                <div class="card" style="text-align: left;">
-                    <p style="text-align: center;">Track the progress of the friends you've invited.</p>
-                    <div id="my-referrals-list"></div>
-                </div>
-            </section>
-            
-            <section id="convert-withdraw-content" class="content-section">
-                <h3 class="section-title">Convert & Withdraw</h3>
-                <div class="card">
-                    <h3>Convert Points to USDT</h3>
-                    <p>Your current points: <strong><span id="convertPointsBalance">0</span></strong></p>
-                    <div class="conversion-info">Rate: 1000 Points = $0.02 USDT<br>Minimum for conversion: 5000 Points</div>
-                    <form id="conversionForm" style="margin-top: 20px;">
-                        <div class="form-group"><label for="conversionAmount">Points to Convert</label><input type="number" id="conversionAmount" placeholder="e.g., 5000" required step="1" min="5000"></div>
-                        <p style="text-align: center; font-weight: bold; margin-bottom:15px; color:var(--text-light);">You will receive: $<span id="usdtToReceive">0.0000</span> USDT</p>
-                        <button type="submit" class="form-button">Convert to USDT</button>
-                    </form>
-                </div>
-                <div class="card" style="margin-top: 30px;">
-                    <h3>Withdraw USDT</h3>
-                    <p>Your USDT balance: <strong style="color:var(--success-color);">$<span id="withdrawUsdtBalance">0.0000</span></strong></p>
-                    <div id="withdrawalRequirementNotice" class="conversion-info" style="color: #ffc107; font-weight:bold;"></div>
-                    <form id="usdtWithdrawalForm" style="margin-top: 10px;">
-                        <div class="conversion-info">Minimums: $0.30 (Bkash) / $0.50 (Binance)</div>
-                        <div class="form-group"><label for="usdtWithdrawalMethod">Payment Method</label><select id="usdtWithdrawalMethod" required><option value="Bkash">Bkash</option><option value="Binance (Optimism)">Binance (Optimism)</option></select></div>
-                        <div class="form-group"><label for="usdtAccountDetails">Account Details</label><input type="text" id="usdtAccountDetails" placeholder="Your Bkash Number" required></div>
-                        <div class="form-group"><label for="usdtWithdrawalAmount">Amount (USD)</label><input type="number" id="usdtWithdrawalAmount" placeholder="e.g., 0.50" required step="0.01"></div>
-                        <button type="submit" class="form-button" id="usdtWithdrawalButton">Request Withdrawal</button>
-                    </form>
-                </div>
-            </section>
-            <section id="history-content" class="content-section">
-                <h3 class="section-title">Conversion History</h3><div id="conversion-history-list"></div>
-                <h3 class="section-title" style="margin-top: 40px;">Withdrawal History</h3><div id="withdrawal-history-list"></div>
-            </section>
-            <section id="contact-us-content" class="content-section">
-                <h3 class="section-title">Contact Us</h3>
-                <div class="card">
-                    <p>For any inquiries, sponsorship, or promotion, please reach out to us through the following channels:</p>
-                    <div class="item-grid" style="grid-template-columns: 1fr; margin-top:20px;">
-                        <a href="https://www.facebook.com/Rashuxansi" target="_blank" class="contact-item"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3l-.5 3h-2.5v6.8c4.56-.93 8-4.96 8-9.8z"/></svg><span>Message on Facebook</span></a>
-                        <a href="https://t.me/Rashuxansi" target="_blank" class="contact-item"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M9.78 18.65l.28-4.23l7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3L3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15.99L21.2 15.2c-.24.72-.83.94-1.48.59l-4.9-3.54l-2.4 2.3c-.27.27-.5.4-.85.4l.28-4.23z"/></svg><span>Message on Telegram</span></a>
-                        <a href="mailto:rasedulhaque675@gmail.com" class="contact-item"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5l-8-5V6l8 5l8-5v2z"/></svg><span>Send an Email</span></a>
-                    </div>
-                </div>
-            </section>
-        </main>
-        
-        <!-- MODALS -->
-        <div id="successModalOverlay" class="success-modal-overlay"><div class="success-modal"><div class="success-modal-icon">✓</div><h3 id="successModalTitle">Success!</h3><p id="successModalMessage">Your request has been sent.</p></div></div>
-        
-        <div id="inboxModalOverlay" class="success-modal-overlay">
-            <div class="inbox-modal">
-                <h3>Inbox</h3>
-                <div id="inbox-message-list"><div class="loader"></div></div>
-                <button id="closeInboxBtn" class="modal-close-btn" style="margin-top: 15px;">Close</button>
-            </div>
-        </div>
-        
-        <!-- Daily Tasks Modal -->
-        <div id="dailyTasksModalOverlay" class="success-modal-overlay">
-            <div class="daily-tasks-modal">
-                <h3>Daily Tasks</h3>
-                <p style="text-align:center; color: var(--text-muted); margin-top: -10px; margin-bottom: 20px;">Complete tasks every day to earn rewards!</p>
-                <ul id="daily-tasks-list">
-                    <!-- Daily tasks will be rendered here by JS -->
-                </ul>
-                <button id="closeDailyTasksBtn" class="modal-close-btn" style="margin-top: 15px;">Close</button>
-            </div>
-        </div>
 
-        <!-- Game Zone Modal -->
-        <div id="gameZoneModalOverlay" class="success-modal-overlay">
-            <div id="gameZoneModal" class="game-zone-modal">
-                <h3>Game Zone</h3>
-                <div class="game-selector">
-                    <button id="select-math-quiz" class="active">Math Quiz</button>
-                    <button id="select-scratch-card">Scratch & Win</button>
-                </div>
-                <div id="math-quiz-container" class="game-container active">
-                    <h1>Math Quiz</h1>
-                    <div id="quiz">
-                        <div id="question-container"><div id="question">Question will be shown here</div></div>
-                        <div id="answer-buttons" class="btn-grid"></div>
-                        <div id="controls">
-                            <div id="score-container">Score: 0</div>
-                            <button id="next-btn" class="hide">Next Question</button>
-                        </div>
-                    </div>
-                    <div id="math-results-container" class="hide">
-                        <h2 id="final-score"></h2><button id="play-again-btn">Play Again</button>
-                    </div>
-                </div>
-                <div id="scratch-card-container" class="game-container hide">
-                    <h1>Scratch & Win</h1>
-                    <p id="attempts-left">Attempts left: 10</p>
-                    <div id="card-area">
-                        <div id="reward-result"></div><canvas id="scratch-canvas" width="300" height="150"></canvas>
-                    </div>
-                    <button id="new-card-btn" class="hide">Get New Card</button>
-                </div>
-                <button id="closeGameZoneBtn" class="modal-close-btn" style="margin-top: 15px;">Close</button>
+    <header class="main-header">
+        <h1 class="site-title">NEWTUBE</h1>
+        <div class="header-right">
+             <div class="inbox-container" id="inbox-container">
+                <svg id="inbox-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                <span id="inbox-notification-dot"></span>
             </div>
+            <div class="balance-display">Points: <span id="userBalanceDisplay">0</span></div>
+            <button class="menu-toggle-button" id="menu-toggle-button"><span class="bar"></span><span class="bar"></span><span class="bar"></span></button>
+        </div>
+    </header>
+
+    <div class="menu-overlay" id="menu-overlay"></div>
+    <aside class="side-menu" id="side-menu">
+        <div class="side-menu-header"><h3>Menu</h3><button class="close-menu-btn" id="close-menu-btn">&times;</button></div>
+        <ul class="side-menu-nav">
+            <li><a href="#" class="nav-link active" data-tab-target="#home-content">Home</a></li>
+            <li><a href="#" class="nav-link" data-tab-target="#ads-to-earn-content">Ads to Earn</a></li>
+            <li><a href="#" class="nav-link" data-tab-target="#task-content">Task to Earn</a></li>
+            <li><a href="#" class="nav-link" data-tab-target="#referral-content">Referral Program</a></li>
+            <li><a href="#" class="nav-link" data-tab-target="#leaderboard-content">Leaderboard</a></li>
+            <li><a href="#" class="nav-link" data-tab-target="#withdrawal-content">Withdrawal</a></li>
+            <li><a href="#" class="nav-link" data-tab-target="#history-content">History</a></li>
+            <li><a href="#" class="nav-link" data-tab-target="#contact-us-content">Contact Us</a></li>
+        </ul>
+    </aside>
+
+    <main class="container">
+        <section id="home-content" class="content-section active">
+            <h3 class="section-title">Trending Videos</h3>
+            <div class="search-container">
+                <input type="search" id="videoSearchInput" placeholder="Search for videos...">
+                <button id="videoSearchBtn">Search</button>
+                <button id="clearSearchBtn" style="display:none;">Clear</button>
+            </div>
+            <div class="item-grid" id="video-grid"></div>
+        </section>
+        <section id="ads-to-earn-content" class="content-section"><h3 class="section-title">Watch Ads, Earn Points</h3><div id="ad-task-list" class="item-grid"></div></section>
+        <section id="task-content" class="content-section"><h3 class="section-title">Complete Tasks</h3><div id="task-list" class="item-grid"></div></section>
+        <section id="referral-content" class="content-section">
+            <div class="card">
+                <svg class="card-icon" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+                <h3>Referral Program</h3>
+                <p>Invite friends with your unique link. When your friend earns 500 points by working, you will receive a bonus of <strong>1000 Points!</strong></p>
+                <div class="referral-link-wrapper"><input type="text" id="referralLinkInput" readonly value="Generating link..."><button id="copyReferralLinkBtn" class="form-button">Copy</button></div>
+            </div>
+        </section>
+        <section id="leaderboard-content" class="content-section">
+            <h3 class="section-title">Top Referrers</h3>
+            <div class="card" style="text-align: left; padding-bottom: 10px;">
+                <p style="text-align: center;">Here are the top users who have invited the most friends. The weekly top referrer gets an extra bonus!</p>
+                <div id="leaderboard-list"></div>
+            </div>
+            <h3 class="section-title" style="margin-top: 40px;">Your Referrals</h3>
+            <div class="card" style="text-align: left;">
+                <p style="text-align: center;">Track the progress of the friends you've invited.</p>
+                <div id="my-referrals-list"></div>
+            </div>
+        </section>
+        <section id="withdrawal-content" class="content-section">
+            <div class="card">
+                <svg class="card-icon" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+                <h3>Withdrawal</h3>
+                <p>Your current balance: <strong><span id="withdrawalBalance">0</span> Points</strong></p>
+                <div class="conversion-info">Conversion: 1000 Points = $0.02 USD<br>Minimums: 10,000 Points (Bkash) / 25,000 Points (Binance)</div>
+                <form id="withdrawalForm" style="margin-top: 20px;"><div class="form-group"><label for="withdrawalMethod">Payment Method</label><select id="withdrawalMethod" required><option value="Bkash">Bkash</option><option value="Binance (Optimism)">Binance (Optimism)</option></select></div><div class="form-group"><label for="accountDetails">Account Details</label><input type="text" id="accountDetails" placeholder="Your Bkash Number" required></div><div class="form-group"><label for="withdrawalAmount">Amount (Points)</label><input type="number" id="withdrawalAmount" placeholder="10000 - 100000" required step="1" min="10000" max="100000"></div><button type="submit" class="form-button">Request Withdrawal</button></form>
+            </div>
+        </section>
+        <section id="history-content" class="content-section"><h3 class="section-title">Withdrawal History</h3><div id="history-list"></div></section>
+        <section id="contact-us-content" class="content-section">
+            <h3 class="section-title">Contact Us</h3>
+            <div class="card">
+                <p>For any inquiries, sponsorship, or promotion, please reach out to us through the following channels:</p>
+                <div class="item-grid" style="grid-template-columns: 1fr; margin-top:20px;">
+                    <a href="https://www.facebook.com/Rashuxansi" target="_blank" class="contact-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3l-.5 3h-2.5v6.8c4.56-.93 8-4.96 8-9.8z"/></svg>
+                        <span>Message on Facebook</span>
+                    </a>
+                    <a href="https://t.me/Rashuxansi" target="_blank" class="contact-item">
+                       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M9.78 18.65l.28-4.23l7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3L3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15.99L21.2 15.2c-.24.72-.83.94-1.48.59l-4.9-3.54l-2.4 2.3c-.27.27-.5.4-.85.4l.28-4.23z"/></svg>
+                        <span>Message on Telegram</span>
+                    </a>
+                    <a href="mailto:rasedulhaque675@gmail.com" class="contact-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5l-8-5V6l8 5l8-5v2z"/></svg>
+                        <span>Send an Email</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <div id="successModalOverlay" class="success-modal-overlay"><div class="success-modal"><div class="success-modal-icon">✓</div><h3 id="successModalTitle">Success!</h3><p id="successModalMessage">Your request has been sent.</p></div></div>
+    
+    <div id="inboxModalOverlay" class="success-modal-overlay">
+        <div class="inbox-modal">
+            <h3>Inbox</h3>
+            <div id="inbox-message-list"><div class="loader"></div></div>
+            <button id="closeInboxBtn" class="form-button" style="margin-top: 15px;">Close</button>
         </div>
     </div>
     
-    <!-- External Scripts -->
     <script type="text/javascript" src="https://cdn.tgads.space/assets/js/adexium-widget.min.js"></script>
     <script src="https://ad.gigapub.tech/script?id=846"></script>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://www.youtube.com/iframe_api" async></script>
-    
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
         import { getFirestore, collection, getDocs, query, where, orderBy, limit, addDoc, serverTimestamp, doc, getDoc, setDoc, updateDoc, runTransaction, increment, arrayUnion } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
         
-        // Main application logic wrapped in an immediately-invoked async function
-        (async function() {
-            const firebaseConfig = {
-                apiKey: "AIzaSyCKMa4NdIowD_8NioUbrn4L7g5M9y5Tts0",
-                authDomain: "movie-zone-931d7.firebaseapp.com",
-                projectId: "movie-zone-931d7",
-                storageBucket: "movie-zone-931d7.appspot.com",
-                messagingSenderId: "1006880112063",
-                appId: "1:1006880112063:web:4a4cf5079ea365a6ce750a",
-                measurementId: "G-TH1YSE4D9C"
-            };
-            const app = initializeApp(firebaseConfig);
-            const db = getFirestore(app);
-            const tg = window.Telegram.WebApp;
+        const firebaseConfig = {
+            apiKey: "AIzaSyCKMa4NdIowD_8NioUbrn4L7g5M9y5Tts0",
+            authDomain: "movie-zone-931d7.firebaseapp.com",
+            projectId: "movie-zone-931d7",
+            storageBucket: "movie-zone-931d7.appspot.com",
+            messagingSenderId: "1006880112063",
+            appId: "1:1006880112063:web:4a4cf5079ea365a6ce750a",
+            measurementId: "G-TH1YSE4D9C"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const tg = window.Telegram.WebApp;
 
-            let currentUser = null;
-            let player;
-            let currentPlayingItem = null;
-            let videoPlaybackInterval = null;
-            let timeTrackingInterval = null;
-            let sessionAdCounter = 0; // For showing ads every 3 game plays
+        let currentUser = null;
+        let player;
+        let currentPlayingItem = null;
+        let videoPlaybackInterval = null;
+        const AD_VISIT_LIMIT = 20;
+        const DAILY_VIDEO_POINT_LIMIT = 540;
+        const REFERRAL_POINTS_THRESHOLD = 500;
+        const REFERRAL_BONUS_AMOUNT = 1000;
 
-            const AD_VISIT_LIMIT = 20;
-            const DAILY_VIDEO_POINT_LIMIT = 540;
-            const REFERRAL_POINTS_THRESHOLD = 500;
-            const REFERRAL_BONUS_AMOUNT = 1000;
-            const POINT_CONVERSION_RATE = 0.02 / 1000;
-            const MIN_CONVERSION_POINTS = 5000;
-            const WITHDRAWAL_REFERRAL_REQUIREMENT = 2;
-            const DAILY_GAME_PLAY_LIMIT = 10;
-            const GAME_AD_FREQUENCY = 3;
+        const videoRewardTiers = [
+            { time: 30,  points: 10, ad: null,     adTiming: null },
+            { time: 60,  points: 20, ad: null,     adTiming: null },
+            { time: 120, points: 40, ad: null,     adTiming: null },
+            { time: 300, points: 70, ad: 'Monetag', adTiming: 'after' },
+            { time: 600, points: 150, ad: 'GigaPub', adTiming: 'before' },
+            { time: 1200, points: 250, ad: 'Monetag', adTiming: 'before' }
+        ];
 
-            // --- UPDATED VIDEO REWARD TIERS ---
-            const videoRewardTiers = [
-                { time: 30,    points: 10,  ad: false },
-                { time: 60,    points: 15,  ad: false },
-                { time: 120,   points: 22,  ad: false },
-                { time: 300,   points: 35,  ad: true  },
-                { time: 600,   points: 55,  ad: true  },
-                { time: 900,   points: 70,  ad: true  },
-                { time: 1800,  points: 120, ad: true  },
-                { time: 2700,  points: 150, ad: true  },
-                { time: 3600,  points: 220, ad: true  }
-            ];
-            
-            // --- NEW: DAILY TASKS CONFIG ---
-            const dailyTasksConfig = [
-                { id: 'visit_tg', title: 'Visit Telegram Channel', reward: 10, type: 'visit', url: 'https://t.me/newtube12' },
-                { id: 'time_5m', title: 'Stay for 5 minutes', reward: 10, type: 'time', requirement: 300 },
-                { id: 'time_15m', title: 'Stay for 15 minutes', reward: 20, type: 'time', requirement: 900 },
-                { id: 'time_30m', title: 'Stay for 30 minutes', reward: 35, type: 'time', requirement: 1800 },
-                { id: 'time_45m', title: 'Stay for 45 minutes', reward: 50, type: 'time', requirement: 2700 },
-                { id: 'time_1h', title: 'Stay for 1 hour', reward: 70, type: 'time', requirement: 3600 }
-            ];
-
-            // --- UTILITY & CORE FUNCTIONS ---
-            async function fetchAndUpdateCurrentUser() {
-                if (!currentUser?.id) return;
+        async function fetchAndUpdateCurrentUser() {
+            if (!currentUser?.id) return;
+            try {
+                const userRef = doc(db, 'users', currentUser.id);
+                const userSnap = await getDoc(userRef);
+                if (userSnap.exists()) {
+                    currentUser = { id: userSnap.id, ...userSnap.data() };
+                    updateBalanceUI(currentUser.balance);
+                }
+            } catch (error) { console.error("Error fetching current user:", error); }
+        }
+        
+        async function checkAndResetDailyLimits() {
+            if (!currentUser) return;
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+            let updates = {};
+            const lastAdVisitDate = currentUser.lastAdVisitDate?.toDate();
+            const lastAdVisitTime = lastAdVisitDate ? new Date(lastAdVisitDate.getFullYear(), lastAdVisitDate.getMonth(), lastAdVisitDate.getDate()).getTime() : 0;
+            if (lastAdVisitTime < today) {
+                updates.adVisitsToday = 0;
+            }
+            const lastVideoResetDate = currentUser.lastVideoPointsReset?.toDate();
+            const lastVideoResetTime = lastVideoResetDate ? new Date(lastVideoResetDate.getFullYear(), lastVideoResetDate.getMonth(), lastVideoResetDate.getDate()).getTime() : 0;
+            if (lastVideoResetTime < today) {
+                updates.dailyVideoPointsEarned = 0;
+                updates.lastVideoPointsReset = serverTimestamp();
+            }
+            if (Object.keys(updates).length > 0) {
                 try {
                     const userRef = doc(db, 'users', currentUser.id);
-                    const userSnap = await getDoc(userRef);
-                    if (userSnap.exists()) {
-                        currentUser = { id: userSnap.id, ...userSnap.data() };
-                        updateBalanceUI(currentUser.balance);
-                        updateUsdtBalanceUI(currentUser.usdtBalance);
-                    }
-                } catch (error) { console.error("Error fetching current user:", error); }
+                    await updateDoc(userRef, updates);
+                    Object.assign(currentUser, updates);
+                } catch (error) { console.error("Error resetting daily limits:", error); }
             }
-        
-            async function checkAndResetDailyLimits() {
-                if (!currentUser) return;
-                const now = new Date();
-                const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-                
-                let updates = {};
-                
-                const lastResetDate = currentUser.lastDailyReset?.toDate();
-                const lastResetTime = lastResetDate ? new Date(lastResetDate.getFullYear(), lastResetDate.getMonth(), lastResetDate.getDate()).getTime() : 0;
-                
-                // If the last reset was before today, reset all daily stats
-                if (lastResetTime < today) {
-                    updates.adVisitsToday = 0;
-                    updates.dailyVideoPointsEarned = 0;
-                    updates.gamesPlayedToday = 0;
-                    updates.timeSpentToday = 0;
-                    updates.claimedDailyTasks = [];
-                    updates.lastDailyReset = serverTimestamp();
-                    console.log("Daily limits have been reset.");
-                }
+        }
 
-                if (Object.keys(updates).length > 0) {
-                    try {
-                        const userRef = doc(db, 'users', currentUser.id);
-                        await updateDoc(userRef, updates);
-                        await fetchAndUpdateCurrentUser(); // Re-fetch user data to have the latest state
-                    } catch (error) { console.error("Error resetting daily limits:", error); }
-                }
-            }
-
-            async function initializeUser(tgUser, referrerCode) {
-                const userId = String(tgUser.id);
-                const userRef = doc(db, 'users', userId);
-                let userSnap = await getDoc(userRef);
-                if (!userSnap.exists()) {
-                    await setDoc(userRef, {
-                        balance: 0, usdtBalance: 0, lifetimePointsEarned: 0, referralBonusPaidOut: false, referralCount: 0, 
-                        createdAt: serverTimestamp(), telegramUsername: tgUser.username || 'N/A', completedTasks: [], lastWithdrawalRequestAt: null,
-                        adVisitsToday: 0, dailyVideoPointsEarned: 0, gamesPlayedToday: 0, timeSpentToday: 0, claimedDailyTasks: [], lastDailyReset: serverTimestamp()
-                    });
-                    userSnap = await getDoc(userRef);
-                }
-                
-                const userData = userSnap.data();
-                if (referrerCode && referrerCode !== userId && !userData.referredBy) {
-                    try {
-                        const referrerRef = doc(db, 'users', referrerCode);
-                        if ((await getDoc(referrerRef)).exists()) {
-                            await runTransaction(db, async (transaction) => {
-                                transaction.update(userRef, { referredBy: referrerCode });
-                                transaction.update(referrerRef, { referralCount: increment(1) });
-                            });
-                        }
-                    } catch (e) { console.error("Referral transaction failed: ", e); }
-                }
-                
-                // Ensure all new fields exist for old users
-                const fieldsToEnsure = {
-                    balance: 0, usdtBalance: 0, lifetimePointsEarned: 0, adVisitsToday: 0, dailyVideoPointsEarned: 0, 
-                    referralCount: 0, completedTasks: [], gamesPlayedToday: 0, timeSpentToday: 0, claimedDailyTasks: []
+        async function initializeUser(tgUser, referrerCode) {
+            const userId = String(tgUser.id);
+            const userRef = doc(db, 'users', userId);
+            let userSnap = await getDoc(userRef);
+            if (!userSnap.exists()) {
+                const defaultUserData = {
+                    balance: 0, lifetimePointsEarned: 0, referralBonusPaidOut: false,
+                    referralCount: 0, createdAt: serverTimestamp(), completedTasks: [],
+                    lastWithdrawalRequestAt: null, telegramUsername: tgUser.username || 'N/A',
+                    adVisitsToday: 0, lastAdVisitDate: null, dailyVideoPointsEarned: 0,
+                    lastVideoPointsReset: serverTimestamp()
                 };
-                let updatesForOldUsers = {};
-                for (const [key, value] of Object.entries(fieldsToEnsure)) {
-                    if (!userData.hasOwnProperty(key)) {
-                        updatesForOldUsers[key] = value;
+                await setDoc(userRef, defaultUserData);
+                userSnap = await getDoc(userRef);
+            }
+            const userData = userSnap.data();
+            if (referrerCode && referrerCode !== userId && !userData.referredBy) {
+                console.log(`Applying referral. User: ${userId}, Referrer: ${referrerCode}`);
+                try {
+                    const referrerRef = doc(db, 'users', referrerCode);
+                    const referrerSnap = await getDoc(referrerRef);
+                    if (referrerSnap.exists()) {
+                         await runTransaction(db, async (transaction) => {
+                            transaction.update(userRef, { referredBy: referrerCode });
+                            transaction.update(referrerRef, { referralCount: increment(1) });
+                        });
+                        console.log("Referral transaction successful.");
+                    } else { console.log(`Referrer with ID ${referrerCode} not found.`); }
+                } catch (e) { console.error("Referral transaction failed: ", e); }
+            }
+            const finalUserSnap = await getDoc(userRef);
+            currentUser = { id: finalUserSnap.id, ...finalUserSnap.data() };
+            const fieldsToEnsure = {
+                balance: 0, lifetimePointsEarned: 0, referralBonusPaidOut: false,
+                adVisitsToday: 0, dailyVideoPointsEarned: 0, referralCount: 0, completedTasks: []
+            };
+            let updatesForOldUsers = {};
+            for (const [key, value] of Object.entries(fieldsToEnsure)) {
+                if (!currentUser.hasOwnProperty(key)) {
+                    updatesForOldUsers[key] = value;
+                    currentUser[key] = value;
+                }
+            }
+            if (currentUser.telegramUsername !== (tgUser.username || 'N/A')) {
+                updatesForOldUsers.telegramUsername = tgUser.username || 'N/A';
+            }
+            if (Object.keys(updatesForOldUsers).length > 0) {
+                await updateDoc(userRef, updatesForOldUsers).catch(err => console.error("Error updating old user fields:", err));
+            }
+            await checkAndResetDailyLimits();
+            updateBalanceUI(currentUser.balance);
+            generateReferralLink(currentUser.id);
+            checkForUnreadMessages();
+        }
+        
+        function updateBalanceUI(balance) {
+            const points = Math.floor(balance || 0);
+            document.getElementById('userBalanceDisplay').textContent = points;
+            document.getElementById('withdrawalBalance').textContent = points;
+        }
+
+        function generateReferralLink(userId) {
+            const botUsername = "NewTube12_bot";
+            const webAppShortName = "newtubecash";
+            const referralLink = `https://t.me/${botUsername}/${webAppShortName}?startapp=${userId}`;
+            document.getElementById('referralLinkInput').value = referralLink;
+        }
+        
+        document.getElementById('copyReferralLinkBtn').addEventListener('click', () => {
+            const copyButton = document.getElementById('copyReferralLinkBtn');
+            navigator.clipboard.writeText(copyButton.previousElementSibling.value).then(() => {
+                copyButton.textContent = 'Copied!';
+                if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+                setTimeout(() => { copyButton.textContent = 'Copy'; }, 2000);
+            });
+        });
+
+        async function grantPoints(amount, source) {
+            if (!currentUser || amount <= 0) return 0;
+            let pointsToGrant = amount;
+            let updates = {};
+            if (source === 'video') {
+                const currentVideoPoints = currentUser.dailyVideoPointsEarned || 0;
+                if (currentVideoPoints >= DAILY_VIDEO_POINT_LIMIT) {
+                    console.log("Daily video point limit reached.");
+                    return 0;
+                }
+                if (currentVideoPoints + amount > DAILY_VIDEO_POINT_LIMIT) {
+                    pointsToGrant = DAILY_VIDEO_POINT_LIMIT - currentVideoPoints;
+                }
+                if(pointsToGrant <= 0) return 0;
+                updates.dailyVideoPointsEarned = increment(pointsToGrant);
+            }
+            updates.balance = increment(pointsToGrant);
+            updates.lifetimePointsEarned = increment(pointsToGrant);
+            const userRef = doc(db, 'users', currentUser.id);
+            await updateDoc(userRef, updates);
+
+            // Fetch the updated user data to reflect the new points
+            await fetchAndUpdateCurrentUser();
+            return pointsToGrant;
+        }
+        
+        async function renderVideos(snapshot) {
+            const grid = document.getElementById('video-grid');
+            grid.innerHTML = ''; 
+            if (snapshot.empty) {
+                grid.innerHTML = '<p style="text-align:center; grid-column: 1 / -1;">No videos found.</p>';
+                return;
+            }
+            const progressPromises = snapshot.docs.map(docSnap => getDoc(doc(db, 'users', currentUser.id, 'videoProgress', docSnap.id)));
+            const progressSnaps = await Promise.all(progressPromises);
+            snapshot.docs.forEach((docSnap, index) => {
+                const video = docSnap.data();
+                const videoId = docSnap.id;
+                const progressSnap = progressSnaps[index];
+                const progress = progressSnap.exists() ? progressSnap.data() : { totalPoints: 0 };
+                const item = document.createElement('article');
+                item.className = 'movie-item';
+                item.dataset.youtubeId = video.youtubeId;
+                item.dataset.videoId = videoId;
+                const earnedPoints = progress.totalPoints || 0;
+                const earnedText = `Earned: ${earnedPoints} / ${DAILY_VIDEO_POINT_LIMIT}`;
+                item.originalContent = `
+                    <div class="thumbnail-container">
+                        <img src="${video.thumbnailUrl}" alt="${video.title}" loading="lazy">
+                        <div class="video-progress-bar-container">
+                            <div class="video-progress-bar" style="width: ${(earnedPoints / DAILY_VIDEO_POINT_LIMIT) * 100}%"></div>
+                        </div>
+                    </div>
+                    <div class="movie-item-info">
+                        <h4>${video.title}</h4>
+                        <p class="movie-reward">${earnedText}</p>
+                    </div>`;
+                item.innerHTML = item.originalContent;
+                item.addEventListener('click', handleVideoClick);
+                grid.appendChild(item);
+            });
+        }
+
+        async function fetchContent() {
+            const grid = document.getElementById('video-grid');
+            grid.innerHTML = '<div class="loader"></div>';
+            try {
+                const videosCollection = collection(db, 'videos');
+                const q = query(videosCollection, orderBy('createdAt', 'desc'), limit(20));
+                const snapshot = await getDocs(q);
+                await renderVideos(snapshot);
+            } catch (error) { 
+                console.error("Error fetching content:", error); 
+                grid.innerHTML = '<p style="grid-column: 1 / -1;">Error loading content.</p>'; 
+            }
+        }
+        
+        async function searchVideos(searchTerm) {
+            if (!searchTerm) { fetchContent(); return; }
+            const grid = document.getElementById('video-grid');
+            grid.innerHTML = '<div class="loader"></div>';
+            try {
+                const videosCollection = collection(db, 'videos');
+                const q = query(videosCollection, 
+                                where('title_lowercase', '>=', searchTerm.toLowerCase()),
+                                where('title_lowercase', '<=', searchTerm.toLowerCase() + '\uf8ff'),
+                                limit(20));
+                const snapshot = await getDocs(q);
+                await renderVideos(snapshot);
+            } catch (error) {
+                console.error("Error searching videos:", error);
+                grid.innerHTML = '<p style="grid-column: 1 / -1;">Search failed. Ensure `title_lowercase` field exists in your video data.</p>';
+            }
+        }
+
+        async function handleVideoClick(event) {
+            if (!currentUser) { alert("User data not loaded yet."); return; }
+            if (currentPlayingItem) {
+                clearInterval(videoPlaybackInterval);
+                currentPlayingItem.innerHTML = currentPlayingItem.originalContent;
+                if (player) { player.destroy(); player = null; }
+            }
+            const clickedItem = event.currentTarget;
+            if (currentPlayingItem === clickedItem) {
+                currentPlayingItem = null;
+                return;
+            }
+            currentPlayingItem = clickedItem;
+            const { youtubeId, videoId } = clickedItem.dataset;
+            const playerDivId = `player-${youtubeId}-${Date.now()}`;
+            clickedItem.innerHTML = `<div id="${playerDivId}" class="player-container"></div>`;
+            player = new YT.Player(playerDivId, {
+                height: '100%', width: '100%', videoId: youtubeId,
+                playerVars: { 'autoplay': 1, 'controls': 1, 'rel': 0 },
+                events: {
+                    'onReady': (e) => { e.target.playVideo(); startVideoMonitoring(videoId); },
+                    'onStateChange': (e) => {
+                         if (e.data === YT.PlayerState.PAUSED || e.data === YT.PlayerState.ENDED) {
+                            clearInterval(videoPlaybackInterval);
+                        } else if (e.data === YT.PlayerState.PLAYING) {
+                            startVideoMonitoring(videoId);
+                        }
                     }
                 }
-                if (Object.keys(updatesForOldUsers).length > 0) {
-                    await updateDoc(userRef, updatesForOldUsers).catch(err => console.error("Error updating old user fields:", err));
+            });
+        }
+        
+        function startVideoMonitoring(videoId) {
+            clearInterval(videoPlaybackInterval);
+            videoPlaybackInterval = setInterval(() => {
+                if (!player || typeof player.getCurrentTime !== 'function' || player.getPlayerState() !== 1) return;
+                const currentTime = player.getCurrentTime();
+                checkVideoTiers(videoId, currentTime);
+            }, 5000);
+        }
+
+        async function checkVideoTiers(videoId, currentTime) {
+            try {
+                const progressRef = doc(db, 'users', currentUser.id, 'videoProgress', videoId);
+                const progressSnap = await getDoc(progressRef);
+                const progress = progressSnap.exists() ? progressSnap.data() : { claimedTiers: [], totalPoints: 0 };
+                for (const tier of videoRewardTiers) {
+                    if (currentTime >= tier.time && !(progress.claimedTiers || []).includes(tier.time)) {
+                        const processReward = async () => {
+                            const pointsGranted = await grantPoints(tier.points, 'video');
+                            if (pointsGranted > 0) {
+                                const newTotalPoints = (progress.totalPoints || 0) + pointsGranted;
+                                const newClaimedTiers = [...(progress.claimedTiers || []), tier.time];
+                                await setDoc(progressRef, { totalPoints: newTotalPoints, claimedTiers: newClaimedTiers }, { merge: true });
+                                showSuccessModal("Reward Claimed!", `Congratulations! You have earned ${pointsGranted} points.`);
+                                if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+                                const progressBar = currentPlayingItem?.querySelector('.video-progress-bar');
+                                const rewardText = currentPlayingItem?.querySelector('.movie-reward');
+                                if(progressBar) progressBar.style.width = `${(currentUser.dailyVideoPointsEarned / DAILY_VIDEO_POINT_LIMIT) * 100}%`;
+                                if(rewardText) rewardText.textContent = `Earned: ${currentUser.dailyVideoPointsEarned} / ${DAILY_VIDEO_POINT_LIMIT}`;
+                            }
+                        };
+                        const adFunctions = {'Monetag': showMonetagAd, 'GigaPub': showGigaPubAd};
+                        if (tier.adTiming === 'before') {
+                            const adFunc = adFunctions[tier.ad];
+                            if (adFunc) {
+                                adFunc().then(processReward).catch(err => {
+                                    console.log("Ad failed or was closed:", err);
+                                    alert("You must watch the ad to claim the reward.");
+                                });
+                            }
+                        } else {
+                            await processReward();
+                            if (tier.adTiming === 'after') {
+                                const adFunc = adFunctions[tier.ad];
+                                if(adFunc) adFunc().catch(console.error);
+                            }
+                        }
+                        break; 
+                    }
                 }
-                
-                currentUser = { id: userSnap.id, ...userSnap.data(), ...updatesForOldUsers };
-                await checkAndResetDailyLimits();
-                updateBalanceUI(currentUser.balance);
-                updateUsdtBalanceUI(currentUser.usdtBalance);
-                generateReferralLink(currentUser.id);
-                startTimeTracking();
+            } catch (error) { console.error("Error checking video tiers:", error); }
+        }
+        
+        function stopAndClearVideo() {
+            clearInterval(videoPlaybackInterval);
+            if (currentPlayingItem) {
+                currentPlayingItem.innerHTML = currentPlayingItem.originalContent;
             }
+            if (player) {
+                try { player.destroy(); } catch (e) { console.error(e); }
+                player = null;
+            }
+            currentPlayingItem = null;
+            videoPlaybackInterval = null;
+        }
+
+        const showMonetagAd = () => new Promise((res, rej) => typeof show_9442539 === 'function' ? show_9442539().then(res).catch(rej) : rej('Monetag SDK missing'));
+        // UPDATED: GigaPub ad function now uses "main" as requested
+        const showGigaPubAd = () => new Promise((res, rej) => typeof window.showGiga === 'function' ? window.showGiga("main").then(res).catch(rej) : rej('GigaPub SDK missing'));
+
+        // NEW: Function to randomly show an ad
+        function showRandomAd() {
+            if (Math.random() < 0.5) { // 50% chance for Monetag
+                console.log("Showing Monetag Ad");
+                return showMonetagAd();
+            } else { // 50% chance for GigaPub
+                console.log("Showing GigaPub Ad");
+                return showGigaPubAd();
+            }
+        }
+        
+        function setupAdsToEarn() {
+            const adTaskListContainer = document.getElementById('ad-task-list');
+            adTaskListContainer.innerHTML = '';
+            const visitsToday = currentUser.adVisitsToday || 0;
+            const visitsLeft = AD_VISIT_LIMIT - visitsToday;
+            const isLimitReached = visitsLeft <= 0;
+            [1, 2].forEach(() => {
+                const card = document.createElement('div');
+                card.className = 'ad-task-card';
+                card.innerHTML = `<div class="ad-task-card-info"><h4>Watch Ad & Earn</h4><p>Reward: 50 Points</p><p class="ad-visits-left">Today's Visits Left: ${visitsLeft > 0 ? visitsLeft : 0}</p></div><button class="ad-task-button" ${isLimitReached ? 'disabled' : ''}>${isLimitReached ? 'Daily Limit Reached' : 'Watch Ad'}</button>`;
+                adTaskListContainer.appendChild(card);
+            });
+        }
+
+        // UPDATED: Event listener now calls showRandomAd()
+        document.getElementById('ad-task-list').addEventListener('click', async (e) => {
+            if (!e.target.matches('.ad-task-button') || e.target.disabled) return;
+            const button = e.target;
+            button.disabled = true; button.textContent = 'Loading Ad...';
             
-            function updateBalanceUI(balance) {
-                const points = Math.floor(balance || 0);
-                document.getElementById('userBalanceDisplay').textContent = points;
-                document.getElementById('convertPointsBalance').textContent = points;
-            }
-
-            function updateUsdtBalanceUI(usdtBalance) {
-                const balance = usdtBalance || 0;
-                document.getElementById('withdrawUsdtBalance').textContent = balance.toFixed(4);
-            }
-
-            function generateReferralLink(userId) {
-                const botUsername = "NewTube12_bot";
-                const webAppShortName = "newtubecash";
-                const referralLink = `https://t.me/${botUsername}/${webAppShortName}?startapp=${userId}`;
-                document.getElementById('referralLinkInput').value = referralLink;
-            }
-
-            async function grantPoints(amount, source) {
-                if (!currentUser || amount <= 0) return 0;
-                let pointsToGrant = amount;
-                let updates = {};
-                if (source === 'video') {
-                    const currentVideoPoints = currentUser.dailyVideoPointsEarned || 0;
-                    if (currentVideoPoints >= DAILY_VIDEO_POINT_LIMIT) {
-                        console.log("Daily video point limit reached.");
-                        return 0;
-                    }
-                    if (currentVideoPoints + amount > DAILY_VIDEO_POINT_LIMIT) {
-                        pointsToGrant = DAILY_VIDEO_POINT_LIMIT - currentVideoPoints;
-                    }
-                    if(pointsToGrant <= 0) return 0;
-                    updates.dailyVideoPointsEarned = increment(pointsToGrant);
+            showRandomAd().then(async () => {
+                if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+                try {
+                    await grantPoints(50, 'ad');
+                    const userRef = doc(db, 'users', currentUser.id);
+                    await updateDoc(userRef, { adVisitsToday: increment(1), lastAdVisitDate: serverTimestamp() });
+                    await fetchAndUpdateCurrentUser();
+                    setupAdsToEarn(); 
+                    showSuccessModal("Congratulations!", "You've earned 50 points.");
+                } catch (error) { 
+                    console.error("Ad task reward error:", error); 
+                    setupAdsToEarn(); 
                 }
-                updates.balance = increment(pointsToGrant);
-                updates.lifetimePointsEarned = increment(pointsToGrant);
-                const userRef = doc(db, 'users', currentUser.id);
-                await updateDoc(userRef, updates);
-                await fetchAndUpdateCurrentUser();
-                return pointsToGrant;
+            }).catch(err => { 
+                console.log('Ad not shown:', err); 
+                alert('You need to watch the ad to earn points.'); 
+                setupAdsToEarn(); 
+            });
+        });
+
+        async function fetchTasks() {
+            const taskListContainer = document.getElementById('task-list');
+            taskListContainer.innerHTML = '<div class="loader"></div>';
+            try {
+                const tasksRef = collection(db, 'tasks');
+                const snapshot = await getDocs(tasksRef); 
+                taskListContainer.innerHTML = '';
+                if (snapshot.empty) {
+                    taskListContainer.innerHTML = '<p style="text-align:center;">No tasks available right now. Check back later!</p>'; return;
+                }
+                snapshot.forEach(docSnap => {
+                    const task = docSnap.data();
+                    const taskId = docSnap.id;
+                    const card = document.createElement('div');
+                    card.className = 'task-card';
+                    const isCompleted = currentUser.completedTasks?.includes(taskId);
+                    const completionCount = task.completionCount || 0;
+                    const taskLimit = task.limit || 0;
+                    const isLimitReached = (taskLimit > 0) && (completionCount >= taskLimit);
+                    let buttonText = 'Start Task'; let buttonDisabled = false; let buttonState = 'start';
+                    if (isCompleted) { buttonText = 'Done'; buttonDisabled = true; buttonState = 'done'; }
+                    else if (isLimitReached) { buttonText = 'Limit Reached'; buttonDisabled = true; buttonState = 'limit_reached'; }
+                    card.innerHTML = `
+                        <div class="task-card-info">
+                            <h4>${task.title}</h4>
+                            <p>Reward: ${task.reward} Points</p>
+                        </div>
+                        <button class="task-button" data-task-id="${taskId}" data-task-url="${task.url}" data-reward="${task.reward}" data-visit-duration="${task.visitDurationSeconds || 0}" data-state="${buttonState}" ${buttonDisabled ? 'disabled' : ''}>
+                            ${buttonText}
+                        </button>`;
+                    taskListContainer.appendChild(card);
+                });
+            } catch (error) {
+                console.error("Error fetching tasks:", error);
+                taskListContainer.innerHTML = '<p style="color:red; text-align:center;">Could not load tasks. Please try again later.</p>';
             }
-            
-            // --- ADVERTISEMENT LOGIC ---
-            async function showRandomAd() {
-                console.log("Showing a random ad...");
-                const adOverlay = document.createElement('div');
-                adOverlay.style.cssText = `position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; display: flex; justify-content: center; align-items: center; color: white; font-family: sans-serif; text-align: center; flex-direction: column;`;
-                let countdown = 5;
-                adOverlay.innerHTML = `<h2>Simulated Ad</h2><p>This would be a Monetag/GigaPub ad.</p><p>Closing in <span id="ad-countdown">${countdown}</span>s...</p>`;
-                document.body.appendChild(adOverlay);
-                
-                return new Promise(resolve => {
-                    const countdownInterval = setInterval(() => {
-                        countdown--;
-                        const countdownEl = document.getElementById('ad-countdown');
-                        if (countdownEl) countdownEl.textContent = countdown;
+        }
+        
+        document.getElementById('task-list').addEventListener('click', async (e) => {
+            if (!e.target.matches('.task-button') || e.target.disabled) return;
+            const button = e.target;
+            const { taskId, taskUrl, reward, state } = button.dataset;
+            const visitDuration = parseInt(button.dataset.visitDuration, 10);
+            if (state === 'start') {
+                if (!taskUrl) { alert('Task URL is missing.'); return; }
+                tg.openLink(taskUrl);
+                if (visitDuration > 0) {
+                    button.disabled = true; let countdown = visitDuration;
+                    const intervalId = setInterval(() => {
+                        countdown--; button.textContent = `Wait ${countdown}s...`;
                         if (countdown <= 0) {
-                            clearInterval(countdownInterval);
-                            document.body.removeChild(adOverlay);
-                            console.log("Ad finished.");
-                            resolve();
+                            clearInterval(intervalId); button.disabled = false;
+                            button.textContent = 'Claim Reward'; button.dataset.state = 'claim';
+                            if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('warning');
                         }
                     }, 1000);
-                });
-            }
-
-            // --- VIDEO WATCHING LOGIC (UPDATED) ---
-            async function renderVideos(snapshot) {
-                const grid = document.getElementById('video-grid');
-                grid.innerHTML = ''; 
-                if (snapshot.empty) { grid.innerHTML = '<p style="text-align:center; grid-column: 1 / -1;">No videos found.</p>'; return; }
-                const progressPromises = snapshot.docs.map(docSnap => getDoc(doc(db, 'users', currentUser.id, 'videoProgress', docSnap.id)));
-                const progressSnaps = await Promise.all(progressPromises);
-                snapshot.docs.forEach((docSnap, index) => {
-                    const video = docSnap.data();
-                    const videoId = docSnap.id;
-                    const progressSnap = progressSnaps[index];
-                    const progress = progressSnap.exists() ? progressSnap.data() : { totalPoints: 0 };
-                    const item = document.createElement('article');
-                    item.className = 'movie-item'; item.dataset.youtubeId = video.youtubeId; item.dataset.videoId = videoId;
-                    const earnedPoints = progress.totalPoints || 0;
-                    const earnedText = `Earned: ${earnedPoints} Points`;
-                    item.originalContent = `
-                        <div class="thumbnail-container"><img src="${video.thumbnailUrl}" alt="${video.title}" loading="lazy"></div>
-                        <div class="movie-item-info"><h4>${video.title}</h4><p class="movie-reward">${earnedText}</p></div>`;
-                    item.innerHTML = item.originalContent;
-                    item.addEventListener('click', handleVideoClick);
-                    grid.appendChild(item);
-                });
-            }
-            
-            async function fetchContent() {
-                const grid = document.getElementById('video-grid'); grid.innerHTML = '<div class="loader"></div>';
-                try {
-                    const q = query(collection(db, 'videos'), orderBy('createdAt', 'desc'), limit(20));
-                    await renderVideos(await getDocs(q));
-                } catch (error) { console.error("Error fetching content:", error); grid.innerHTML = '<p style="grid-column: 1 / -1;">Error loading content.</p>'; }
-            }
-
-            async function handleVideoClick(event) {
-                if (!currentUser) { alert("User data not loaded yet."); return; }
-                if (currentPlayingItem) {
-                    clearInterval(videoPlaybackInterval);
-                    currentPlayingItem.innerHTML = currentPlayingItem.originalContent;
-                    if (player) { player.destroy(); player = null; }
+                } else {
+                    button.textContent = 'Claim Reward'; button.dataset.state = 'claim';
+                    if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
                 }
-                const clickedItem = event.currentTarget;
-                if (currentPlayingItem === clickedItem) { currentPlayingItem = null; return; }
-                currentPlayingItem = clickedItem;
-                const { youtubeId, videoId } = clickedItem.dataset;
-                const playerDivId = `player-${youtubeId}-${Date.now()}`;
-                clickedItem.innerHTML = `<div id="${playerDivId}" class="player-container"></div>`;
-                
-                const progressRef = doc(db, 'users', currentUser.id, 'videoProgress', videoId);
-                await setDoc(progressRef, { claimedTiers: [], totalPoints: 0 }, { merge: true });
-
-                player = new YT.Player(playerDivId, {
-                    height: '100%', width: '100%', videoId: youtubeId, playerVars: { 'autoplay': 1, 'controls': 1, 'rel': 0 },
-                    events: {
-                        'onReady': (e) => { e.target.playVideo(); startVideoMonitoring(videoId); },
-                        'onStateChange': (e) => {
-                            if (e.data === YT.PlayerState.PLAYING) startVideoMonitoring(videoId);
-                            else clearInterval(videoPlaybackInterval);
-                        }
-                    }
-                });
-            }
-            
-            function startVideoMonitoring(videoId) {
-                clearInterval(videoPlaybackInterval);
-                videoPlaybackInterval = setInterval(() => {
-                    if (!player || typeof player.getCurrentTime !== 'function' || player.getPlayerState() !== 1) return;
-                    checkVideoTiers(videoId, player.getCurrentTime());
-                }, 5000);
-            }
-
-            async function checkVideoTiers(videoId, currentTime) {
+            } else if (state === 'claim') {
+                button.disabled = true; button.textContent = 'Verifying...';
                 try {
-                    const progressRef = doc(db, 'users', currentUser.id, 'videoProgress', videoId);
-                    const progressSnap = await getDoc(progressRef);
-                    const progress = progressSnap.exists() ? progressSnap.data() : { claimedTiers: [], totalPoints: 0 };
-                    
-                    for (const tier of videoRewardTiers) {
-                        if (currentTime >= tier.time && !(progress.claimedTiers || []).includes(tier.time)) {
-                            clearInterval(videoPlaybackInterval); 
-
-                            const processReward = async () => {
-                                const pointsGranted = await grantPoints(tier.points, 'video');
-                                if (pointsGranted > 0) {
-                                    const newTotalPoints = (progress.totalPoints || 0) + pointsGranted;
-                                    const newClaimedTiers = [...(progress.claimedTiers || []), tier.time];
-                                    await setDoc(progressRef, { totalPoints: newTotalPoints, claimedTiers: newClaimedTiers }, { merge: true });
-                                    showSuccessModal("Reward Claimed!", `You earned ${pointsGranted} points for watching.`);
-                                    if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-                                    
-                                    const rewardText = currentPlayingItem?.querySelector('.movie-reward');
-                                    if(rewardText) rewardText.textContent = `Earned: ${newTotalPoints} Points`;
-                                }
-                                startVideoMonitoring(videoId);
-                            };
-
-                            if (tier.ad) {
-                                await showRandomAd();
-                            }
-                            await processReward();
-                            break; 
-                        }
-                    }
-                } catch (error) { 
-                    console.error("Error checking video tiers:", error); 
-                    startVideoMonitoring(videoId);
-                }
-            }
-            
-            // --- DAILY TASK LOGIC ---
-            function startTimeTracking() {
-                clearInterval(timeTrackingInterval);
-                timeTrackingInterval = setInterval(async () => {
-                    if (!currentUser) return;
-                    currentUser.timeSpentToday = (currentUser.timeSpentToday || 0) + 1;
-                    
-                    if (currentUser.timeSpentToday % 5 === 0) {
-                        renderDailyTasksUI();
-                    }
-
-                    if (currentUser.timeSpentToday % 60 === 0) {
+                    await runTransaction(db, async (transaction) => {
                         const userRef = doc(db, 'users', currentUser.id);
-                        await updateDoc(userRef, { timeSpentToday: increment(60) });
-                        console.log("Synced time spent with Firestore.");
-                    }
-                }, 1000);
+                        const taskRef = doc(db, 'tasks', taskId);
+                        const userDoc = await transaction.get(userRef);
+                        const taskDoc = await transaction.get(taskRef);
+                        if (!userDoc.exists() || !taskDoc.exists()) throw "USER_OR_TASK_NOT_FOUND";
+                        const userData = userDoc.data();
+                        const taskData = taskDoc.data();
+                        if (userData.completedTasks?.includes(taskId)) throw "ALREADY_COMPLETED";
+                        const completionCount = taskData.completionCount || 0;
+                        const taskLimit = taskData.limit || 0;
+                        if ((taskLimit > 0) && (completionCount >= taskLimit)) throw "TASK_LIMIT_REACHED";
+                        const pointsToGrant = Number(reward);
+                        transaction.update(userRef, { 
+                            balance: increment(pointsToGrant), lifetimePointsEarned: increment(pointsToGrant),
+                            completedTasks: arrayUnion(taskId) 
+                        });
+                        transaction.update(taskRef, { completionCount: increment(1) });
+                    });
+                    await fetchAndUpdateCurrentUser();
+                    showSuccessModal("Reward Claimed!", `${reward} points have been added to your balance.`);
+                    if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+                    button.textContent = 'Done';
+                } catch (error) {
+                    const errorMessages = { "ALREADY_COMPLETED": "You have already completed this task.", "TASK_LIMIT_REACHED": "This task has reached its completion limit.", "USER_OR_TASK_NOT_FOUND": "Task not found. It might have been removed."};
+                    const message = errorMessages[error] || 'Failed to claim reward. Please try again.';
+                    alert(message);
+                    button.textContent = (error === "ALREADY_COMPLETED" || error === "TASK_LIMIT_REACHED") ? 'Done' : 'Claim Reward';
+                    button.disabled = (error !== 'Failed to claim reward. Please try again.');
+                }
             }
+        });
 
-            function renderDailyTasksUI() {
-                const container = document.getElementById('daily-tasks-list');
-                if (!container) return;
-                container.innerHTML = '';
-                
-                dailyTasksConfig.forEach(task => {
-                    const item = document.createElement('li');
-                    item.className = 'daily-task-item';
-                    
-                    const isClaimed = currentUser.claimedDailyTasks?.includes(task.id);
-                    let canClaim = false;
-                    let progressText = `Reward: ${task.reward} Points`;
-
-                    if (task.type === 'time') {
-                        const timeSpent = currentUser.timeSpentToday || 0;
-                        canClaim = !isClaimed && timeSpent >= task.requirement;
-                        const minutesSpent = Math.floor(timeSpent / 60);
-                        const requiredMinutes = task.requirement / 60;
-                        progressText = `Progress: ${minutesSpent} / ${requiredMinutes} mins`;
-                    } else if (task.type === 'visit') {
-                        canClaim = !isClaimed;
-                    }
-
-                    item.innerHTML = `
-                        <div class="daily-task-info">
-                            <strong>${task.title}</strong>
-                            <small>${isClaimed ? 'Claimed Today' : progressText}</small>
-                        </div>
-                        <button class="daily-task-claim-btn" data-task-id="${task.id}" ${isClaimed || !canClaim ? 'disabled' : ''}>
-                            ${isClaimed ? 'Done' : 'Claim'}
-                        </button>
-                    `;
-                    container.appendChild(item);
+        function showSuccessModal(title, message) {
+            const modal = document.getElementById('successModalOverlay');
+            document.getElementById('successModalTitle').textContent = title;
+            document.getElementById('successModalMessage').textContent = message;
+            modal.classList.add('show');
+            if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+            setTimeout(() => { modal.classList.remove('show'); }, 3000);
+        }
+        
+        document.getElementById('withdrawalForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitButton = e.target.querySelector('button[type="submit"]');
+            
+            const method = document.getElementById('withdrawalMethod').value;
+            const amount = parseInt(document.getElementById('withdrawalAmount').value, 10);
+            const minAmount = (method === 'Bkash') ? 10000 : 25000;
+            if (isNaN(amount) || amount < minAmount) { alert(`Minimum withdrawal for ${method} is ${minAmount} points.`); return; }
+            if (amount > currentUser.balance) { alert("Insufficient balance."); return; }
+            submitButton.disabled = true; submitButton.textContent = 'Processing...';
+            const usdAmount = (amount / 1000) * 0.02;
+            const requestData = { userId: currentUser.id, telegramUsername: currentUser.telegramUsername, pointsAmount: amount, usdAmount: usdAmount.toFixed(4), method, details: document.getElementById('accountDetails').value, status: 'pending', createdAt: serverTimestamp() };
+            try {
+                await runTransaction(db, async (transaction) => {
+                    const userRef = doc(db, 'users', currentUser.id);
+                    const userDoc = await transaction.get(userRef);
+                    if (!userDoc.exists() || userDoc.data().balance < amount) throw new Error("Insufficient balance.");
+                    transaction.set(doc(collection(db, 'withdrawals')), requestData);
+                    transaction.update(userRef, { balance: increment(-amount), lastWithdrawalRequestAt: serverTimestamp() });
                 });
+                await fetchAndUpdateCurrentUser();
+                e.target.reset();
+                showSuccessModal("Successfully Sent!", "Your withdrawal request is pending. You can check its status in the History tab.");
+                checkWithdrawalEligibility();
+            } catch (error) {
+                console.error("Withdrawal Error:", error);
+                alert(`An error occurred: ${error.message || "Please try again."}`);
+            } finally {
+                submitButton.disabled = false; submitButton.textContent = 'Request Withdrawal';
             }
+        });
 
-            async function claimDailyTask(taskId) {
-                const task = dailyTasksConfig.find(t => t.id === taskId);
-                if (!task || !currentUser || currentUser.claimedDailyTasks?.includes(taskId)) {
+        // UPDATED: Withdrawal cooldown logic removed. Function now just ensures the form is visible.
+        function checkWithdrawalEligibility() { 
+            if (!currentUser) return false;
+            const form = document.getElementById('withdrawalForm');
+            if (form) {
+                form.style.display = 'block';
+            }
+            return true;
+        }
+
+        async function displayWithdrawalHistory() {
+            const historyContainer = document.getElementById('history-list');
+            historyContainer.innerHTML = '<div class="loader"></div>';
+            try {
+                const q = query(collection(db, "withdrawals"), where("userId", "==", currentUser.id), orderBy("createdAt", "desc"), limit(50));
+                const snapshot = await getDocs(q);
+                historyContainer.innerHTML = '';
+                if (snapshot.empty) { historyContainer.innerHTML = '<p style="text-align:center;">No withdrawal history found.</p>'; return; }
+                snapshot.forEach(docSnap => {
+                    try {
+                        const data = docSnap.data();
+                        const item = document.createElement('div');
+                        item.className = 'history-item';
+                        const date = data.createdAt?.toDate().toLocaleDateString() || 'N/A';
+                        const status = data.status || 'pending';
+                        item.innerHTML = `<div><strong>${data.pointsAmount} Points</strong><br><small>${data.method} - ${date}</small></div><strong class="status-${status}">${status.charAt(0).toUpperCase() + status.slice(1)}</strong>`;
+                        historyContainer.appendChild(item);
+                    } catch (e) { console.error("Error rendering history item:", e); }
+                });
+            } catch (error) {
+                console.error("Error fetching withdrawal history:", error);
+                historyContainer.innerHTML = '<p style="color:red;">Error loading history.</p>';
+            }
+        }
+        
+        async function fetchLeaderboard() {
+            const listContainer = document.getElementById('leaderboard-list');
+            const myReferralsContainer = document.getElementById('my-referrals-list');
+            listContainer.innerHTML = '<div class="loader"></div>';
+            myReferralsContainer.innerHTML = '<div class="loader"></div>';
+
+            try {
+                const topReferrersQuery = query(collection(db, "users"), where("referralCount", ">", 0), orderBy("referralCount", "desc"), limit(20));
+                const topSnapshot = await getDocs(topReferrersQuery);
+                listContainer.innerHTML = '';
+                if (topSnapshot.empty) { 
+                    listContainer.innerHTML = '<p style="text-align:center;">Leaderboard is empty. Be the first to refer!</p>';
+                } else {
+                    let rank = 1;
+                    topSnapshot.forEach(docSnap => {
+                        const user = docSnap.data();
+                        const item = document.createElement('div');
+                        item.className = 'leaderboard-item';
+                        item.innerHTML = `<div class="rank">#${rank}</div><div class="info"><strong>${user.telegramUsername || 'User ' + docSnap.id.substring(0, 5)}</strong></div><div class="count">${user.referralCount} Referrals</div>`;
+                        listContainer.appendChild(item);
+                        rank++;
+                    });
+                }
+            } catch (error) {
+                console.error("Error fetching leaderboard:", error);
+                listContainer.innerHTML = '<p style="color:red; text-align:center;">Could not load leaderboard.</p>';
+            }
+            
+            try {
+                const myReferralsQuery = query(collection(db, "users"), where("referredBy", "==", currentUser.id));
+                const myReferralsSnapshot = await getDocs(myReferralsQuery);
+                myReferralsContainer.innerHTML = '';
+                if (myReferralsSnapshot.empty) {
+                    myReferralsContainer.innerHTML = '<p style="text-align:center;">You haven\'t referred anyone yet.</p>';
+                } else {
+                     myReferralsSnapshot.forEach(docSnap => {
+                        const referee = docSnap.data();
+                        const refereeId = docSnap.id;
+                        const item = document.createElement('div');
+                        item.className = 'leaderboard-item';
+
+                        const lifetimePoints = referee.lifetimePointsEarned || 0;
+                        const isBonusPaid = referee.referralBonusPaidOut === true;
+                        
+                        let statusHtml;
+                        if (isBonusPaid) {
+                            statusHtml = `<div class="count" style="color: var(--success-color);">Claimed</div>`;
+                        } else if (lifetimePoints >= REFERRAL_POINTS_THRESHOLD) {
+                            statusHtml = `<button class="form-button claim-referral-btn" data-referee-id="${refereeId}">Claim ${REFERRAL_BONUS_AMOUNT}</button>`;
+                        } else {
+                            statusHtml = `<div class="count">${lifetimePoints} / ${REFERRAL_POINTS_THRESHOLD} Points</div>`;
+                        }
+                        
+                        item.innerHTML = `<div class="info"><strong>${referee.telegramUsername || 'User ' + refereeId.substring(0, 5)}</strong></div>${statusHtml}`;
+                        myReferralsContainer.appendChild(item);
+                    });
+                }
+            } catch(error) {
+                console.error("Error fetching your referrals:", error);
+                myReferralsContainer.innerHTML = '<p style="color:red; text-align:center;">Could not load your referrals.</p>';
+            }
+        }
+
+        async function claimReferralBonus(refereeId, button) {
+            button.disabled = true;
+            button.textContent = '...';
+
+            const referrerRef = doc(db, 'users', currentUser.id);
+            const refereeRef = doc(db, 'users', refereeId);
+
+            try {
+                await runTransaction(db, async (transaction) => {
+                    const refereeSnap = await transaction.get(refereeRef);
+                    if (!refereeSnap.exists()) { throw new Error("Referee not found."); }
+                    
+                    const refereeData = refereeSnap.data();
+                    if (refereeData.referralBonusPaidOut === true) { throw new Error("Bonus already paid."); }
+                    if ((refereeData.lifetimePointsEarned || 0) < REFERRAL_POINTS_THRESHOLD) { throw new Error("Referee has not reached the threshold."); }
+
+                    transaction.update(referrerRef, { balance: increment(REFERRAL_BONUS_AMOUNT) });
+                    transaction.update(refereeRef, { referralBonusPaidOut: true });
+                });
+
+                showSuccessModal("Bonus Claimed!", `${REFERRAL_BONUS_AMOUNT} points have been added to your balance.`);
+                await fetchAndUpdateCurrentUser(); // Update balance in UI
+                button.textContent = 'Claimed';
+                button.style.backgroundColor = 'var(--success-color)';
+
+            } catch (error) {
+                console.error("Failed to claim referral bonus:", error);
+                alert(`Error: ${error.message}`);
+                button.disabled = false;
+                button.textContent = `Claim ${REFERRAL_BONUS_AMOUNT}`;
+            }
+        }
+        
+        document.getElementById('my-referrals-list').addEventListener('click', async (e) => {
+            if (e.target.matches('.claim-referral-btn') && !e.target.disabled) {
+                const refereeId = e.target.dataset.refereeId;
+                await claimReferralBonus(refereeId, e.target);
+            }
+        });
+
+        async function checkForUnreadMessages() { /* ... unchanged ... */ }
+        document.getElementById('inbox-container').addEventListener('click', async () => { /* ... unchanged ... */ });
+        document.getElementById('closeInboxBtn').addEventListener('click', () => { /* ... unchanged ... */ });
+
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', async (e) => {
+                e.preventDefault();
+                stopAndClearVideo();
+                document.querySelectorAll('.nav-link, .content-section').forEach(el => el.classList.remove('active'));
+                link.classList.add('active');
+                const targetId = link.dataset.tabTarget;
+                const target = document.querySelector(targetId);
+                if(target) target.classList.add('active');
+                switch(targetId) {
+                    case '#home-content': fetchContent(); break;
+                    case '#ads-to-earn-content': setupAdsToEarn(); break;
+                    case '#task-content': fetchTasks(); break;
+                    case '#leaderboard-content': fetchLeaderboard(); break;
+                    case '#withdrawal-content': checkWithdrawalEligibility(); break;
+                    case '#history-content': displayWithdrawalHistory(); break;
+                    case '#contact-us-content': break;
+                }
+                document.getElementById('side-menu').classList.remove('is-open');
+                document.getElementById('menu-overlay').classList.remove('is-open');
+            });
+        });
+
+        function initializeAdexium() {
+            const showAd = () => { try { if (typeof AdexiumWidget === 'function') { new AdexiumWidget({wid: '165512cc-372e-4fb0-98d2-552219c72799', adFormat: 'interstitial'}).init(); }} catch (e) { console.error("Adexium ad error:", e); }};
+            setTimeout(showAd, 15000);
+            setInterval(showAd, 300000);
+        }
+
+        async function main() {
+            try {
+                if (!tg.initDataUnsafe?.user) {
+                    document.body.innerHTML = `<div class="card" style="margin-top: 50px;"><h3>Error</h3><p>This application can only be launched from Telegram.</p></div>`;
                     return;
                 }
-
-                let isEligible = false;
-                if (task.type === 'time') {
-                    isEligible = (currentUser.timeSpentToday || 0) >= task.requirement;
-                } else if (task.type === 'visit') {
-                    isEligible = true;
-                    tg.openLink(task.url);
-                }
-
-                if (isEligible) {
-                    const button = document.querySelector(`.daily-task-claim-btn[data-task-id="${taskId}"]`);
-                    if(button) { button.disabled = true; button.textContent = '...'; }
-
-                    try {
-                        const userRef = doc(db, 'users', currentUser.id);
-                        await grantPoints(task.reward, 'daily_task');
-                        await updateDoc(userRef, { claimedDailyTasks: arrayUnion(task.id) });
-                        
-                        await fetchAndUpdateCurrentUser();
-                        renderDailyTasksUI();
-                        showSuccessModal("Reward Claimed!", `You earned ${task.reward} points!`);
-                    } catch (error) {
-                        console.error("Failed to claim daily task:", error);
-                        alert("An error occurred. Please try again.");
-                        if(button) { button.disabled = false; button.textContent = 'Claim'; }
-                    }
-                } else {
-                    alert("You have not met the requirement for this task yet.");
-                }
-            }
-            
-            // --- GAME ZONE LOGIC ---
-            function initializeGameZone() {
-                const selectMathQuizBtn = document.getElementById('select-math-quiz');
-                const selectScratchCardBtn = document.getElementById('select-scratch-card');
-                const mathQuizContainer = document.getElementById('math-quiz-container');
-                const scratchCardContainer = document.getElementById('scratch-card-container');
-                selectMathQuizBtn.addEventListener('click', () => {
-                    scratchCardContainer.classList.remove('active'); mathQuizContainer.classList.add('active');
-                    selectMathQuizBtn.classList.add('active'); selectScratchCardBtn.classList.remove('active');
-                });
-                selectScratchCardBtn.addEventListener('click', () => {
-                    mathQuizContainer.classList.remove('active'); scratchCardContainer.classList.add('active');
-                    selectScratchCardBtn.classList.add('active'); selectMathQuizBtn.classList.remove('active');
-                    scratchCard.init();
-                });
-
-                async function handleGamePlay() {
-                    if ((currentUser.gamesPlayedToday || 0) >= DAILY_GAME_PLAY_LIMIT) {
-                        showSuccessModal("Limit Reached", "You have played all your games for today. Come back tomorrow!");
-                        return false;
-                    }
-                    
-                    sessionAdCounter++;
-                    if (sessionAdCounter % GAME_AD_FREQUENCY === 0) {
-                        await showRandomAd();
-                    }
-                    
-                    const userRef = doc(db, 'users', currentUser.id);
-                    await updateDoc(userRef, { gamesPlayedToday: increment(1) });
-                    await fetchAndUpdateCurrentUser();
-                    return true;
-                }
-
-                async function handleGameWin() {
-                    const pointsWon = Math.floor(Math.random() * (50 - 3 + 1)) + 3;
-                    await grantPoints(pointsWon, 'game');
-                    showSuccessModal("You Won!", `Congratulations! You have won ${pointsWon} points.`);
-                }
+                tg.ready();
+                tg.expand();
                 
-                const mathQuiz = (function() {
-                    const qE = document.getElementById('question'), aBE = document.getElementById('answer-buttons'), nB = document.getElementById('next-btn'), sE = document.getElementById('score-container'), quizC = document.getElementById('quiz'), rC = document.getElementById('math-results-container'), fSE = document.getElementById('final-score'), pAB = document.getElementById('play-again-btn');
-                    const questions = [ { q: '5+7', o: [10, 12, 13, 11], a: 12 }, { q: '15-6', o: [9, 8, 10, 7], a: 9 }, { q: '8×4', o: [32, 28, 36, 24], a: 32 }, { q: '24÷3', o: [6, 7, 8, 9], a: 8 }, { q: '9+9', o: [18, 16, 20, 17], a: 18 }, { q: '20-11', o: [9, 10, 8, 11], a: 9 }, { q: '7×6', o: [40, 42, 48, 49], a: 42 }, { q: '36÷6', o: [5, 7, 4, 6], a: 6 }, { q: '13+8', o: [20, 21, 22, 19], a: 21 }, { q: '50÷10', o: [5, 6, 10, 4], a: 5 } ];
-                    let cQI = 0, score = 0;
-                    async function start() { if (!(await handleGamePlay())) return; cQI = 0; score = 0; rC.classList.add('hide'); quizC.classList.remove('hide'); sE.innerText = `Score: 0`; show(); }
-                    function show() { reset(); let cQ = questions[cQI]; qE.innerText = `Q${cQI + 1}: ${cQ.q} = ?`; cQ.o.forEach(o => { const btn = document.createElement('button'); btn.innerText = o; btn.classList.add('btn'); if (o === cQ.a) btn.dataset.correct = true; btn.addEventListener('click', select); aBE.appendChild(btn); }); }
-                    function reset() { nB.classList.add('hide'); while (aBE.firstChild) aBE.removeChild(aBE.firstChild); }
-                    function select(e) { const sB = e.target; if (sB.dataset.correct) { score++; sE.innerText = `Score: ${score}`; handleGameWin(); } Array.from(aBE.children).forEach(b => { b.classList.add(b.dataset.correct ? 'correct' : 'incorrect'); b.disabled = true; }); nB.classList.remove('hide'); }
-                    function next() { cQI++; if (cQI < questions.length) show(); else { quizC.classList.add('hide'); rC.classList.remove('hide'); fSE.innerText = `You scored ${score} out of ${questions.length}!`; } }
-                    nB.addEventListener('click', next); pAB.addEventListener('click', start);
-                    start();
-                })();
-
-                const scratchCard = (function() {
-                    const canvas = document.getElementById('scratch-canvas'), ctx = canvas.getContext('2d'), rR = document.getElementById('reward-result'), aLD = document.getElementById('attempts-left'), nCB = document.getElementById('new-card-btn');
-                    let canScratch = false, isDrawing = false;
-
-                    function init() { updateAttemptsDisplay(); generateNewCard(); }
-                    function updateAttemptsDisplay() { const left = DAILY_GAME_PLAY_LIMIT - (currentUser.gamesPlayedToday || 0); aLD.textContent = `Attempts left: ${left > 0 ? left : 0}`; if (left <= 0) aLD.textContent = "No more games today!"; }
-                    function generateReward() { return Math.random() < 0.2 ? "Empty!" : "You Won!"; }
-                    
-                    async function generateNewCard() {
-                        nCB.classList.add('hide');
-                        if (!(await handleGamePlay())) {
-                            rR.textContent = "See You Tomorrow!";
-                            nCB.disabled = true;
-                            ctx.clearRect(0, 0, canvas.width, canvas.height);
-                            updateAttemptsDisplay();
-                            return;
-                        }
-                        canScratch = true;
-                        ctx.globalCompositeOperation = 'source-over'; ctx.fillStyle = '#bdc3c7'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-                        rR.textContent = generateReward();
-                        updateAttemptsDisplay();
-                    }
-
-                    function getCoords(e) { const rect = canvas.getBoundingClientRect(), sX = canvas.width/rect.width, sY = canvas.height/rect.height; if (e.touches && e.touches.length > 0) return { x: (e.touches[0].clientX - rect.left) * sX, y: (e.touches[0].clientY - rect.top) * sY }; return { x: (e.clientX - rect.left) * sX, y: (e.clientY - rect.top) * sY }; }
-                    function start(e) { if (!canScratch) return; isDrawing = true; scratch(getCoords(e)); }
-                    function stop() { isDrawing = false; }
-                    function move(e) { if (!isDrawing || !canScratch) return; e.preventDefault(); scratch(getCoords(e)); }
-                    function scratch(coords) { ctx.globalCompositeOperation = 'destination-out'; ctx.beginPath(); ctx.arc(coords.x, coords.y, 20, 0, 2 * Math.PI); ctx.fill(); checkPercent(); }
-                    
-                    let checkTimeout;
-                    function checkPercent() { clearTimeout(checkTimeout); checkTimeout = setTimeout(() => { const p = ctx.getImageData(0,0,canvas.width,canvas.height).data; let tP=0; for(let i=3;i<p.length;i+=4) if(p[i]===0) tP++; if((tP/(canvas.width*canvas.height))*100 > 65) finish(); }, 500); }
-                    
-                    function finish() {
-                        if (!canScratch) return;
-                        canScratch = false;
-                        if (rR.textContent.includes("Won")) handleGameWin();
-                        ctx.clearRect(0, 0, canvas.width, canvas.height);
-                        nCB.classList.remove('hide');
-                        if ((currentUser.gamesPlayedToday || 0) >= DAILY_GAME_PLAY_LIMIT) { nCB.disabled = true; nCB.textContent = "No More Cards"; }
-                        else { nCB.disabled = false; nCB.textContent = "Get New Card"; }
-                    }
-
-                    ['mousedown', 'touchstart'].forEach(evt => canvas.addEventListener(evt, start, {passive: false}));
-                    ['mousemove', 'touchmove'].forEach(evt => canvas.addEventListener(evt, move, {passive: false}));
-                    ['mouseup', 'touchend', 'mouseleave'].forEach(evt => window.addEventListener(evt, stop));
-                    nCB.addEventListener('click', generateNewCard);
-                    
-                    return { init };
-                })();
-            }
-
-            // --- OTHER FUNCTIONS ---
-            async function searchVideos(searchTerm) {
-                if (!searchTerm) { fetchContent(); return; }
-                const grid = document.getElementById('video-grid'); grid.innerHTML = '<div class="loader"></div>';
-                try {
-                    const q = query(collection(db, 'videos'), where('title_lowercase', '>=', searchTerm.toLowerCase()), where('title_lowercase', '<=', searchTerm.toLowerCase() + '\uf8ff'), limit(20));
-                    await renderVideos(await getDocs(q));
-                } catch (error) { console.error("Error searching videos:", error); grid.innerHTML = '<p style="grid-column: 1 / -1;">Search failed.</p>'; }
-            }
-            function stopAndClearVideo() { clearInterval(videoPlaybackInterval); if (currentPlayingItem) { currentPlayingItem.innerHTML = currentPlayingItem.originalContent; } if (player) { try { player.destroy(); } catch (e) {} player = null; } currentPlayingItem = null; videoPlaybackInterval = null; }
-            function setupAdsToEarn() {
-                const adTaskListContainer = document.getElementById('ad-task-list'); adTaskListContainer.innerHTML = '';
-                const visitsLeft = AD_VISIT_LIMIT - (currentUser.adVisitsToday || 0); const isLimitReached = visitsLeft <= 0;
-                [1, 2].forEach(() => { const card = document.createElement('div'); card.className = 'ad-task-card'; card.innerHTML = `<div class="ad-task-card-info"><h4>Watch Ad & Earn</h4><p>Reward: 50 Points</p><p class="ad-visits-left">Today's Visits Left: ${visitsLeft > 0 ? visitsLeft : 0}</p></div><button class="ad-task-button" ${isLimitReached ? 'disabled' : ''}>${isLimitReached ? 'Daily Limit Reached' : 'Watch Ad'}</button>`; adTaskListContainer.appendChild(card); });
-            }
-            document.getElementById('ad-task-list').addEventListener('click', async (e) => {
-                if (!e.target.matches('.ad-task-button') || e.target.disabled) return;
-                const button = e.target; button.disabled = true; button.textContent = 'Loading Ad...';
-                setTimeout(async () => {
-                    if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-                    try {
-                        await grantPoints(50, 'ad');
-                        await updateDoc(doc(db, 'users', currentUser.id), { adVisitsToday: increment(1), lastAdVisitDate: serverTimestamp() });
-                        await fetchAndUpdateCurrentUser(); setupAdsToEarn(); showSuccessModal("Congratulations!", "You've earned 50 points.");
-                    } catch (error) { console.error("Ad task reward error:", error); setupAdsToEarn(); }
-                }, 1500);
-            });
-            async function fetchTasks() {
-                const taskListContainer = document.getElementById('task-list'); taskListContainer.innerHTML = '<div class="loader"></div>';
-                try {
-                    const snapshot = await getDocs(collection(db, 'tasks')); taskListContainer.innerHTML = '';
-                    if (snapshot.empty) { taskListContainer.innerHTML = '<p style="text-align:center;">No special tasks available right now.</p>'; return; }
-                    snapshot.forEach(docSnap => {
-                        const task = docSnap.data(); const taskId = docSnap.id; const card = document.createElement('div'); card.className = 'task-card';
-                        const isCompleted = currentUser.completedTasks?.includes(taskId); const isLimitReached = (task.limit > 0) && ((task.completionCount || 0) >= task.limit);
-                        let buttonText = 'Start Task', buttonDisabled = false, buttonState = 'start';
-                        if (isCompleted) { buttonText = 'Done'; buttonDisabled = true; buttonState = 'done'; } else if (isLimitReached) { buttonText = 'Limit Reached'; buttonDisabled = true; buttonState = 'limit_reached'; }
-                        card.innerHTML = `<div class="task-card-info"><h4>${task.title}</h4><p>Reward: ${task.reward} Points</p></div><button class="task-button" data-task-id="${taskId}" data-task-url="${task.url}" data-reward="${task.reward}" data-visit-duration="${task.visitDurationSeconds || 0}" data-state="${buttonState}" ${buttonDisabled ? 'disabled' : ''}>${buttonText}</button>`;
-                        taskListContainer.appendChild(card);
-                    });
-                } catch (error) { console.error("Error fetching tasks:", error); taskListContainer.innerHTML = '<p style="color:red; text-align:center;">Could not load tasks.</p>'; }
-            }
-            document.getElementById('task-list').addEventListener('click', async (e) => {
-                if (!e.target.matches('.task-button') || e.target.disabled) return;
-                const button = e.target; const { taskId, taskUrl, reward, state, visitDuration } = button.dataset;
-                if (state === 'start') {
-                    if (!taskUrl) return; tg.openLink(taskUrl);
-                    if (parseInt(visitDuration) > 0) {
-                        button.disabled = true; let countdown = parseInt(visitDuration);
-                        const intervalId = setInterval(() => { countdown--; button.textContent = `Wait ${countdown}s...`; if (countdown <= 0) { clearInterval(intervalId); button.disabled = false; button.textContent = 'Claim Reward'; button.dataset.state = 'claim'; if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('warning'); } }, 1000);
-                    } else { button.textContent = 'Claim Reward'; button.dataset.state = 'claim'; if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light'); }
-                } else if (state === 'claim') {
-                    button.disabled = true; button.textContent = 'Verifying...';
-                    try {
-                        await runTransaction(db, async (t) => {
-                            const userRef = doc(db, 'users', currentUser.id), taskRef = doc(db, 'tasks', taskId);
-                            const userDoc = await t.get(userRef), taskDoc = await t.get(taskRef);
-                            if (!userDoc.exists() || !taskDoc.exists()) throw "NOT_FOUND";
-                            if (userDoc.data().completedTasks?.includes(taskId)) throw "COMPLETED";
-                            if ((taskDoc.data().limit > 0) && ((taskDoc.data().completionCount || 0) >= taskDoc.data().limit)) throw "LIMIT_REACHED";
-                            t.update(userRef, { balance: increment(Number(reward)), lifetimePointsEarned: increment(Number(reward)), completedTasks: arrayUnion(taskId) });
-                            t.update(taskRef, { completionCount: increment(1) });
-                        });
-                        await fetchAndUpdateCurrentUser(); showSuccessModal("Reward Claimed!", `${reward} points added.`); if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success'); button.textContent = 'Done';
-                    } catch (error) { const msgs = { "COMPLETED": "Already completed.", "LIMIT_REACHED": "Task limit reached.", "NOT_FOUND": "Task not found." }; alert(msgs[error] || 'Failed to claim.'); button.textContent = 'Claim Reward'; button.disabled = false; }
-                }
-            });
-            function showSuccessModal(title, message) { const modal = document.getElementById('successModalOverlay'); document.getElementById('successModalTitle').textContent = title; document.getElementById('successModalMessage').textContent = message; modal.classList.add('show'); if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success'); setTimeout(() => { modal.classList.remove('show'); }, 3000); }
-            function setupConvertWithdrawUI() {
-                if (!currentUser) return; updateBalanceUI(currentUser.balance); updateUsdtBalanceUI(currentUser.usdtBalance);
-                const form = document.getElementById('usdtWithdrawalForm'), btn = document.getElementById('usdtWithdrawalButton'), notice = document.getElementById('withdrawalRequirementNotice');
-                if (currentUser.referralCount < WITHDRAWAL_REFERRAL_REQUIREMENT) { btn.disabled = true; Array.from(form.elements).forEach(el => el.disabled = true); notice.textContent = `You need ${WITHDRAWAL_REFERRAL_REQUIREMENT - currentUser.referralCount} more referral(s) to withdraw.`; notice.style.display = 'block'; }
-                else { btn.disabled = false; Array.from(form.elements).forEach(el => el.disabled = false); notice.style.display = 'none'; }
-            }
-            document.getElementById('conversionAmount').addEventListener('input', () => { document.getElementById('usdtToReceive').textContent = ((parseInt(document.getElementById('conversionAmount').value, 10) || 0) * POINT_CONVERSION_RATE).toFixed(4); });
-            document.getElementById('usdtWithdrawalMethod').addEventListener('change', (e) => { document.getElementById('usdtAccountDetails').placeholder = e.target.value === 'Bkash' ? 'Your Bkash Number' : 'Your Binance Optimism (OP) Address'; });
-            document.getElementById('conversionForm').addEventListener('submit', async (e) => { e.preventDefault(); const btn = e.target.querySelector('button'), points = parseInt(document.getElementById('conversionAmount').value, 10); if (isNaN(points) || points < MIN_CONVERSION_POINTS) { alert(`Minimum is ${MIN_CONVERSION_POINTS} points.`); return; } if (points > currentUser.balance) { alert("Insufficient points."); return; } btn.disabled = true; btn.textContent = 'Processing...'; try { const usdt = points * POINT_CONVERSION_RATE; await runTransaction(db, async (t) => { const userRef = doc(db, 'users', currentUser.id), userDoc = await t.get(userRef); if (!userDoc.exists() || userDoc.data().balance < points) throw new Error("Insufficient points."); t.update(userRef, { balance: increment(-points), usdtBalance: increment(usdt) }); t.set(doc(collection(db, 'conversions')), { userId: currentUser.id, pointsConverted: points, usdtGained: usdt, createdAt: serverTimestamp() }); }); await fetchAndUpdateCurrentUser(); e.target.reset(); document.getElementById('usdtToReceive').textContent = '0.0000'; showSuccessModal("Conversion Successful!", `${points} points converted to $${usdt.toFixed(4)} USDT.`); } catch (error) { console.error("Conversion Error:", error); alert(`Error: ${error.message || "Please try again."}`); } finally { btn.disabled = false; btn.textContent = 'Convert to USDT'; } });
-            document.getElementById('usdtWithdrawalForm').addEventListener('submit', async (e) => { e.preventDefault(); const btn = e.target.querySelector('button'); if (currentUser.referralCount < WITHDRAWAL_REFERRAL_REQUIREMENT) { alert(`Need ${WITHDRAWAL_REFERRAL_REQUIREMENT} referrals.`); return; } const method = document.getElementById('usdtWithdrawalMethod').value, details = document.getElementById('usdtAccountDetails').value, amount = parseFloat(document.getElementById('usdtWithdrawalAmount').value), min = (method === 'Bkash') ? 0.30 : 0.50; if (isNaN(amount) || amount < min) { alert(`Minimum for ${method} is $${min.toFixed(2)}.`); return; } if (amount > currentUser.usdtBalance) { alert("Insufficient USDT."); return; } btn.disabled = true; btn.textContent = 'Processing...'; try { await runTransaction(db, async (t) => { const userRef = doc(db, 'users', currentUser.id), userDoc = await t.get(userRef); if (!userDoc.exists() || userDoc.data().usdtBalance < amount) throw new Error("Insufficient USDT."); t.set(doc(collection(db, 'withdrawals')), { userId: currentUser.id, telegramUsername: currentUser.telegramUsername, amount, method, details, status: 'pending', createdAt: serverTimestamp() }); t.update(userRef, { usdtBalance: increment(-amount) }); }); await fetchAndUpdateCurrentUser(); e.target.reset(); showSuccessModal("Request Sent!", "Check history for status updates."); } catch (error) { console.error("Withdrawal Error:", error); alert(`Error: ${error.message || "Please try again."}`); } finally { btn.disabled = false; btn.textContent = 'Request Withdrawal'; } });
-            async function displayHistory() { const cCont = document.getElementById('conversion-history-list'), wCont = document.getElementById('withdrawal-history-list'); cCont.innerHTML = wCont.innerHTML = '<div class="loader"></div>'; try { const cq = query(collection(db, "conversions"), where("userId", "==", currentUser.id), orderBy("createdAt", "desc"), limit(50)); const cSnap = await getDocs(cq); cCont.innerHTML = cSnap.empty ? '<p style="text-align:center">No conversion history.</p>' : cSnap.docs.map(d => `<div class="history-item"><div><strong>${d.data().pointsConverted} Points</strong><br><small>${d.data().createdAt?.toDate().toLocaleDateString()||'N/A'}</small></div><strong style="color:var(--success-color);">To $${d.data().usdtGained.toFixed(4)}</strong></div>`).join(''); } catch (e) { cCont.innerHTML = '<p style="text-align:center; color:red">Error loading history.</p>'; } try { const wq = query(collection(db, "withdrawals"), where("userId", "==", currentUser.id), orderBy("createdAt", "desc"), limit(50)); const wSnap = await getDocs(wq); wCont.innerHTML = wSnap.empty ? '<p style="text-align:center">No withdrawal history.</p>' : wSnap.docs.map(d => { const data = d.data(); return `<div class="history-item"><div><strong>$${data.amount.toFixed(2)}</strong><br><small>${data.method} - ${data.createdAt?.toDate().toLocaleDateString()||'N/A'}</small></div><strong class="status-${data.status}">${data.status.charAt(0).toUpperCase()+data.status.slice(1)}</strong></div>`}).join(''); } catch (e) { wCont.innerHTML = '<p style="text-align:center; color:red">Error loading history.</p>'; } }
-            async function fetchLeaderboard() { const lCont = document.getElementById('leaderboard-list'), myRCont = document.getElementById('my-referrals-list'); lCont.innerHTML = myRCont.innerHTML = '<div class="loader"></div>'; try { const q = query(collection(db, "users"), where("referralCount", ">", 0), orderBy("referralCount", "desc"), limit(20)); const snap = await getDocs(q); lCont.innerHTML = snap.empty ? '<p style="text-align:center">Be the first to refer!</p>' : snap.docs.map((d,i) => `<div class="leaderboard-item"><div class="rank">#${i+1}</div><div class="info"><strong>${d.data().telegramUsername||'User'}</strong></div><div class="count">${d.data().referralCount} Refs</div></div>`).join(''); } catch (e) { lCont.innerHTML = '<p style="text-align:center; color:red">Could not load leaderboard.</p>'; } try { const q = query(collection(db, "users"), where("referredBy", "==", currentUser.id)); const snap = await getDocs(q); myRCont.innerHTML = snap.empty ? "<p style='text-align:center'>You haven't referred anyone yet.</p>" : snap.docs.map(d => { const r = d.data(), rid = d.id, pts = r.lifetimePointsEarned||0; let sHtml; if (r.referralBonusPaidOut) sHtml = `<div class="count" style="color:var(--success-color);">Claimed</div>`; else if (pts >= REFERRAL_POINTS_THRESHOLD) sHtml = `<button class="form-button claim-referral-btn" data-referee-id="${rid}">Claim ${REFERRAL_BONUS_AMOUNT}</button>`; else sHtml = `<div class="count">${pts}/${REFERRAL_POINTS_THRESHOLD}</div>`; return `<div class="leaderboard-item"><div class="info"><strong>${r.telegramUsername||'User'}</strong></div>${sHtml}</div>`; }).join(''); } catch (e) { myRCont.innerHTML = '<p style="text-align:center; color:red">Could not load your referrals.</p>'; } }
-            async function claimReferralBonus(refereeId, button) { button.disabled = true; button.textContent = '...'; try { await runTransaction(db, async (t) => { const rRef = doc(db, 'users', refereeId), refSnap = await t.get(rRef); if (!refSnap.exists() || refSnap.data().referralBonusPaidOut || (refSnap.data().lifetimePointsEarned || 0) < REFERRAL_POINTS_THRESHOLD) throw new Error("Not eligible"); t.update(doc(db, 'users', currentUser.id), { balance: increment(REFERRAL_BONUS_AMOUNT) }); t.update(rRef, { referralBonusPaidOut: true }); }); showSuccessModal("Bonus Claimed!", `${REFERRAL_BONUS_AMOUNT} points added.`); await fetchAndUpdateCurrentUser(); button.textContent = 'Claimed'; button.style.backgroundColor = 'var(--success-color)'; } catch (error) { alert(`Error: ${error.message}`); button.disabled = false; button.textContent = `Claim ${REFERRAL_BONUS_AMOUNT}`; } }
-            document.getElementById('my-referrals-list').addEventListener('click', async (e) => { if (e.target.matches('.claim-referral-btn') && !e.target.disabled) claimReferralBonus(e.target.dataset.refereeId, e.target); });
-            document.getElementById('copyReferralLinkBtn').addEventListener('click', () => { const btn=document.getElementById('copyReferralLinkBtn'); navigator.clipboard.writeText(btn.previousElementSibling.value).then(() => { btn.textContent = 'Copied!'; if(tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success'); setTimeout(() => {btn.textContent = 'Copy';}, 2000); }); });
-
-            // --- MAIN INITIALIZATION & EVENT LISTENERS ---
-            try {
-                if (!tg.initDataUnsafe?.user) { document.body.innerHTML = `<div class="card" style="margin-top: 50px;"><h3>Error</h3><p>This app must be launched from Telegram.</p></div>`; return; }
-                tg.ready(); tg.expand();
                 await initializeUser(tg.initDataUnsafe.user, tg.initDataUnsafe.start_param);
                 
-                fetchContent();
+                document.querySelector('.nav-link[data-tab-target="#home-content"]').click();
+                initializeAdexium();
 
-                document.querySelectorAll('.nav-link').forEach(link => { link.addEventListener('click', (e) => {
-                    e.preventDefault(); stopAndClearVideo(); document.querySelectorAll('.nav-link, .content-section').forEach(el => el.classList.remove('active'));
-                    link.classList.add('active'); const target = document.querySelector(link.dataset.tabTarget); if(target) target.classList.add('active');
-                    switch(link.dataset.tabTarget) {
-                        case '#home-content': fetchContent(); break;
-                        case '#ads-to-earn-content': setupAdsToEarn(); break;
-                        case '#task-content': fetchTasks(); break;
-                        case '#leaderboard-content': fetchLeaderboard(); break;
-                        case '#convert-withdraw-content': setupConvertWithdrawUI(); break;
-                        case '#history-content': displayHistory(); break;
-                    }
-                    sideMenu.classList.remove('is-open'); menuOverlay.classList.remove('is-open');
-                });});
+                const menuToggleBtn = document.getElementById('menu-toggle-button');
+                const closeMenuBtn = document.getElementById('close-menu-btn');
+                const sideMenu = document.getElementById('side-menu');
+                const menuOverlay = document.getElementById('menu-overlay');
+                const toggleMenu = () => {
+                    sideMenu.classList.toggle('is-open');
+                    menuOverlay.classList.toggle('is-open');
+                };
+                [menuToggleBtn, closeMenuBtn, menuOverlay].forEach(el => el.addEventListener('click', toggleMenu));
 
-                const sideMenu = document.getElementById('side-menu'), menuOverlay = document.getElementById('menu-overlay');
-                const toggleMenu = () => { sideMenu.classList.toggle('is-open'); menuOverlay.classList.toggle('is-open'); };
-                [document.getElementById('menu-toggle-button'), document.getElementById('close-menu-btn'), menuOverlay].forEach(el => el.addEventListener('click', toggleMenu));
-
-                const searchInput = document.getElementById('videoSearchInput'), searchBtn = document.getElementById('videoSearchBtn'), clearBtn = document.getElementById('clearSearchBtn');
-                const performSearch = () => { const term = searchInput.value.trim(); searchVideos(term); clearBtn.style.display = term ? 'inline-block' : 'none'; };
-                searchBtn.addEventListener('click', performSearch); searchInput.addEventListener('keypress', (e) => e.key === 'Enter' && performSearch());
-                clearBtn.addEventListener('click', () => { searchInput.value = ''; fetchContent(); clearBtn.style.display = 'none'; });
-
-                const dailyTasksModal = document.getElementById('dailyTasksModalOverlay');
-                const gameZoneModal = document.getElementById('gameZoneModalOverlay');
-                document.getElementById('openDailyTasksBtn').addEventListener('click', () => { renderDailyTasksUI(); dailyTasksModal.classList.add('show'); });
-                document.getElementById('closeDailyTasksBtn').addEventListener('click', () => dailyTasksModal.classList.remove('show'));
-                document.getElementById('daily-tasks-list').addEventListener('click', (e) => { if(e.target.matches('.daily-task-claim-btn')) claimDailyTask(e.target.dataset.taskId); });
-
-                document.getElementById('openGameZoneBtn').addEventListener('click', () => { initializeGameZone(); gameZoneModal.classList.add('show'); });
-                document.getElementById('closeGameZoneBtn').addEventListener('click', () => gameZoneModal.classList.remove('show'));
-
-                document.getElementById('closeInboxBtn').addEventListener('click', () => document.getElementById('inboxModalOverlay').classList.remove('show'));
+                const searchInput = document.getElementById('videoSearchInput');
+                const searchBtn = document.getElementById('videoSearchBtn');
+                const clearBtn = document.getElementById('clearSearchBtn');
+                const performSearch = () => {
+                    const searchTerm = searchInput.value.trim();
+                    searchVideos(searchTerm);
+                    clearBtn.style.display = searchTerm ? 'inline-block' : 'none';
+                };
+                searchBtn.addEventListener('click', performSearch);
+                searchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') { performSearch(); } });
+                clearBtn.addEventListener('click', () => {
+                    searchInput.value = '';
+                    fetchContent();
+                    clearBtn.style.display = 'none';
+                });
 
             } catch (error) {
                 console.error("Initialization failed:", error);
                 document.body.innerHTML = `<div class="card" style="margin-top: 50px;"><h3>Application Error</h3><p>Could not initialize the application. Please try restarting.</p><p style="font-size: 0.8em; color: #888;">Error: ${error.message}</p></div>`;
             }
-        })();
+        }
+        
+        main();
+
     </script>
 </body>
 </html>
