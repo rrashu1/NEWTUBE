@@ -436,8 +436,13 @@
 
                 // If a referrer exists, increment their referralCount
                 if (referrerCode && referrerCode !== userId) {
-                    const referrerRef = doc(db, 'users', referrerCode);
-                    await updateDoc(referrerRef, { referralCount: increment(1) }).catch(e => console.error("Could not update referrer count", e));
+                    try {
+                        const referrerRef = doc(db, 'users', referrerCode);
+                        const referrerSnap = await getDoc(referrerRef);
+                        if (referrerSnap.exists()) {
+                            await updateDoc(referrerRef, { referralCount: increment(1) });
+                        }
+                    } catch (e) { console.error("Could not update referrer count", e); }
                 }
                 userSnap = await getDoc(userRef);
             }
@@ -446,12 +451,14 @@
             let updatesForOldUsers = {};
 
             if (!userData.referredBy && referrerCode && referrerCode !== userId) {
-                const referrerRef = doc(db, 'users', referrerCode);
-                const referrerSnap = await getDoc(referrerRef);
-                if (referrerSnap.exists()) {
-                    updatesForOldUsers.referredBy = referrerCode;
-                    await updateDoc(referrerRef, { referralCount: increment(1) }).catch(e => console.error("Could not update referrer count for existing user", e));
-                }
+                 try {
+                    const referrerRef = doc(db, 'users', referrerCode);
+                    const referrerSnap = await getDoc(referrerRef);
+                    if (referrerSnap.exists()) {
+                        updatesForOldUsers.referredBy = referrerCode;
+                        await updateDoc(referrerRef, { referralCount: increment(1) });
+                    }
+                } catch(e) { console.error("Could not update referrer count for existing user", e); }
             }
             
             // This is a more robust way to ensure nested objects exist
@@ -571,7 +578,7 @@
             }
         }
         
-        async function searchVideos(searchTerm) { /* ... unchanged from previous working version ... */ }
+        async function searchVideos(searchTerm) { /* ... unchanged ... */ }
 
         async function handleVideoClick(event) {
             if (!currentUser) { alert("User data not loaded yet."); return; }
@@ -729,13 +736,18 @@
             }).catch(err => { console.log('Ad not shown:', err); alert('You need to watch the ad to earn points.'); setupAdsToEarn(); });
         });
 
-        // --- NEW IMPLEMENTATION: Task Section ---
+        // --- UPDATED: Task Section ---
         async function fetchTasks() {
             const taskListContainer = document.getElementById('task-list');
             taskListContainer.innerHTML = '<div class="loader"></div>';
             try {
+                // This query requires a single-field index on 'createdAt' (descending) in your Firestore 'tasks' collection.
+                // If it's not working, please check your Firebase console for an error message with a link to create the index.
                 const q = query(collection(db, "tasks"), orderBy("createdAt", "desc"));
                 const snapshot = await getDocs(q);
+                
+                console.log(`[DEBUG] Found ${snapshot.size} tasks.`);
+
                 taskListContainer.innerHTML = '';
                 if (snapshot.empty) {
                     taskListContainer.innerHTML = '<p style="text-align: center; grid-column: 1 / -1;">No tasks available right now.</p>';
@@ -762,11 +774,11 @@
                 });
             } catch (error) {
                 console.error("Error fetching tasks:", error);
-                taskListContainer.innerHTML = '<p style="color:red; text-align:center; grid-column: 1 / -1;">Error loading tasks.</p>';
+                // This error often happens if the required Firestore index is missing.
+                taskListContainer.innerHTML = '<p style="color:red; text-align:center; grid-column: 1 / -1;">Error loading tasks. Please check console for details.</p>';
             }
         }
 
-        // --- NEW IMPLEMENTATION: Task Click Handler ---
         document.getElementById('task-list').addEventListener('click', async (e) => {
             if (!e.target.matches('.task-button') || e.target.disabled) return;
             const button = e.target;
@@ -935,17 +947,22 @@
             } catch (error) { console.error("Error fetching withdrawal history:", error); historyContainer.innerHTML = '<p style="color:red;">Error loading history.</p>'; }
         }
         
-        // --- NEW IMPLEMENTATION: Leaderboard & Referrals ---
+        // --- UPDATED: Leaderboard & Referrals ---
         async function fetchLeaderboard() {
             const leaderboardList = document.getElementById('leaderboard-list');
             const myReferralsList = document.getElementById('my-referrals-list');
             leaderboardList.innerHTML = '<div class="loader"></div>';
             myReferralsList.innerHTML = '<div class="loader"></div>';
 
+            // Fetch Top Referrers
             try {
-                // Fetch top 10 referrers
+                // IMPORTANT: This query requires a Firestore index on 'referralCount' (descending).
+                // Check your browser's developer console for an error message with a link to create it if this list doesn't load.
                 const topReferrersQuery = query(collection(db, 'users'), orderBy('referralCount', 'desc'), limit(10));
                 const topReferrersSnap = await getDocs(topReferrersQuery);
+                
+                console.log(`[DEBUG] Found ${topReferrersSnap.size} top referrers.`);
+
                 leaderboardList.innerHTML = '';
                 if (topReferrersSnap.empty) {
                     leaderboardList.innerHTML = '<p style="text-align:center;">No referrers yet. Be the first!</p>';
@@ -966,13 +983,17 @@
                 }
             } catch (error) {
                 console.error("Error fetching top referrers:", error);
-                leaderboardList.innerHTML = '<p style="color:red; text-align:center;">Error loading leaderboard.</p>';
+                leaderboardList.innerHTML = '<p style="color:red; text-align:center;">Error loading leaderboard. Check console for index errors.</p>';
             }
 
+            // Fetch Current User's Referrals
             try {
-                // Fetch current user's referrals
+                // This query requires a Firestore index on 'referredBy'. Firestore usually creates this automatically.
                 const myReferralsQuery = query(collection(db, 'users'), where('referredBy', '==', currentUser.id));
                 const myReferralsSnap = await getDocs(myReferralsQuery);
+
+                console.log(`[DEBUG] Found ${myReferralsSnap.size} of your referrals.`);
+
                 myReferralsList.innerHTML = '';
                 if (myReferralsSnap.empty) {
                     myReferralsList.innerHTML = "<p style='text-align:center;'>You haven't referred anyone yet.</p>";
@@ -1001,7 +1022,7 @@
                 }
             } catch (error) {
                 console.error("Error fetching your referrals:", error);
-                myReferralsList.innerHTML = '<p style="color:red; text-align:center;">Error loading your referrals.</p>';
+                myReferralsList.innerHTML = '<p style="color:red; text-align:center;">Error loading your referrals. Check console.</p>';
             }
         }
 
