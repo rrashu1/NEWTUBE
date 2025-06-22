@@ -417,12 +417,12 @@
             let userSnap = await getDoc(userRef);
 
             const fieldsToEnsure = {
-                balance: 0, usdtBalance: 0, lifetimePointsEarned: 0, referralBonusPaidOut: false,
+                balance: 0, usdtBalance: 0, lifetimePointsEarned: 0,
                 referralCount: 0, completedTasks: [], adVisitsToday: 0, 
                 dailyTasks: { claimed: [], timeSpent: 0, lastReset: serverTimestamp() },
                 dailyGamePlays: { math: 0, scratch: 0, lastReset: serverTimestamp() }
             };
-
+            
             if (!userSnap.exists()) {
                 const defaultUserData = {
                     ...fieldsToEnsure,
@@ -461,16 +461,19 @@
                 } catch(e) { console.error("Could not update referrer count for existing user", e); }
             }
             
-            // This is a more robust way to ensure nested objects exist
+            // This is a more robust way to ensure all fields and nested objects exist
             if (!userData.dailyTasks) updatesForOldUsers.dailyTasks = fieldsToEnsure.dailyTasks;
             if (!userData.dailyGamePlays) updatesForOldUsers.dailyGamePlays = fieldsToEnsure.dailyGamePlays;
             if (!Array.isArray(userData.completedTasks)) updatesForOldUsers.completedTasks = [];
-
 
             for (const key of ['balance', 'usdtBalance', 'lifetimePointsEarned', 'referralCount', 'adVisitsToday']) {
                 if (!userData.hasOwnProperty(key)) {
                     updatesForOldUsers[key] = fieldsToEnsure[key];
                 }
+            }
+            
+             if (!userData.hasOwnProperty('referralBonusPaidOut')) { // This field was in new.html but not index.html
+                updatesForOldUsers.referralBonusPaidOut = false;
             }
 
             if (userData.telegramUsername !== (tgUser.username || 'N/A')) {
@@ -641,7 +644,6 @@
                         showSuccessModal("Reward Claimed!", `You earned ${tierToClaim.points} points.`);
                         if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
                         
-                        // Update UI immediately after claim
                         const nextTier = videoRewardTiers.find(t => !newClaimedTiers.includes(t.time));
                         const rewardText = nextTier ? `Next: ${nextTier.points} Pts at ${Math.floor(nextTier.time/60)} min` : "All rewards claimed!";
                         const totalPoints = videoRewardTiers.reduce((acc, tier) => acc + tier.points, 0);
@@ -652,7 +654,7 @@
                            if(barEl) barEl.style.width = `${(newTotalPoints / totalPoints) * 100}%`;
                         }
 
-                        startVideoMonitoring(videoId); // Resume checking
+                        startVideoMonitoring(videoId); 
                     };
 
                     if (tierToClaim.ad) {
@@ -662,7 +664,7 @@
                         } catch (err) {
                             console.log("Ad failed or was closed:", err);
                             alert("You must watch the ad to claim this reward.");
-                            startVideoMonitoring(videoId); // Resume checking even if ad fails
+                            startVideoMonitoring(videoId); 
                         }
                     } else {
                         await processReward();
@@ -670,14 +672,14 @@
                 }
             } catch (error) { 
                 console.error("Error checking video tiers:", error); 
-                startVideoMonitoring(videoId); // Resume on error
+                startVideoMonitoring(videoId); 
             }
         }
         
         function stopAndClearVideo() {
             clearInterval(videoPlaybackInterval);
             if (currentPlayingItem) {
-                 const originalContent = currentPlayingItem.originalContent;
+                const originalContent = currentPlayingItem.originalContent;
                 if(originalContent) currentPlayingItem.innerHTML = originalContent;
             }
             if (player) {
@@ -709,7 +711,6 @@
             const visitsToday = currentUser.adVisitsToday || 0;
             const visitsLeft = AD_VISIT_LIMIT - visitsToday;
             const isLimitReached = visitsLeft <= 0;
-            // Create two identical cards
             [1, 2].forEach(() => {
                 const card = document.createElement('div');
                 card.className = 'ad-task-card';
@@ -736,83 +737,106 @@
             }).catch(err => { console.log('Ad not shown:', err); alert('You need to watch the ad to earn points.'); setupAdsToEarn(); });
         });
 
-        // --- UPDATED: Task Section ---
+        // --- REPLACED: Task Section Logic from new.html ---
         async function fetchTasks() {
             const taskListContainer = document.getElementById('task-list');
             taskListContainer.innerHTML = '<div class="loader"></div>';
             try {
-                // This query requires a single-field index on 'createdAt' (descending) in your Firestore 'tasks' collection.
-                // If it's not working, please check your Firebase console for an error message with a link to create the index.
-                const q = query(collection(db, "tasks"), orderBy("createdAt", "desc"));
-                const snapshot = await getDocs(q);
-                
-                console.log(`[DEBUG] Found ${snapshot.size} tasks.`);
-
+                const tasksRef = collection(db, 'tasks');
+                const snapshot = await getDocs(query(tasksRef, orderBy("createdAt", "desc")));
                 taskListContainer.innerHTML = '';
                 if (snapshot.empty) {
-                    taskListContainer.innerHTML = '<p style="text-align: center; grid-column: 1 / -1;">No tasks available right now.</p>';
-                    return;
+                    taskListContainer.innerHTML = '<p style="text-align:center; grid-column: 1 / -1;">No tasks available right now. Check back later!</p>'; return;
                 }
-                const completedTasks = currentUser.completedTasks || [];
                 snapshot.forEach(docSnap => {
                     const task = docSnap.data();
                     const taskId = docSnap.id;
-                    const isCompleted = completedTasks.includes(taskId);
-
                     const card = document.createElement('div');
                     card.className = 'task-card';
+                    const isCompleted = currentUser.completedTasks?.includes(taskId);
+                    const completionCount = task.completionCount || 0;
+                    const taskLimit = task.limit || 0;
+                    const isLimitReached = (taskLimit > 0) && (completionCount >= taskLimit);
+                    let buttonText = 'Start Task'; let buttonDisabled = false; let buttonState = 'start';
+                    if (isCompleted) { buttonText = 'Done'; buttonDisabled = true; buttonState = 'done'; }
+                    else if (isLimitReached) { buttonText = 'Limit Reached'; buttonDisabled = true; buttonState = 'limit_reached'; }
                     card.innerHTML = `
                         <div class="task-card-info">
                             <h4>${task.title}</h4>
                             <p>Reward: ${task.reward} Points</p>
                         </div>
-                        <button class="task-button" data-task-id="${taskId}" data-task-url="${task.url}" data-reward="${task.reward}" ${isCompleted ? 'disabled' : ''}>
-                            ${isCompleted ? 'Completed' : 'Complete Task'}
-                        </button>
-                    `;
+                        <button class="task-button" data-task-id="${taskId}" data-task-url="${task.url}" data-reward="${task.reward}" data-visit-duration="${task.visitDurationSeconds || 0}" data-state="${buttonState}" ${buttonDisabled ? 'disabled' : ''}>
+                            ${buttonText}
+                        </button>`;
                     taskListContainer.appendChild(card);
                 });
             } catch (error) {
                 console.error("Error fetching tasks:", error);
-                // This error often happens if the required Firestore index is missing.
-                taskListContainer.innerHTML = '<p style="color:red; text-align:center; grid-column: 1 / -1;">Error loading tasks. Please check console for details.</p>';
+                taskListContainer.innerHTML = '<p style="color:red; text-align:center; grid-column: 1 / -1;">Could not load tasks. Please try again later.</p>';
             }
         }
-
+        
+        // --- REPLACED: Task Click Handler from new.html ---
         document.getElementById('task-list').addEventListener('click', async (e) => {
             if (!e.target.matches('.task-button') || e.target.disabled) return;
             const button = e.target;
-            const { taskId, taskUrl, reward } = button.dataset;
-
-            if (!taskUrl) {
-                alert("Task URL is missing.");
-                return;
-            }
-
-            // Open link first
-            tg.openLink(taskUrl);
-
-            button.disabled = true;
-            button.textContent = 'Processing...';
-
-            try {
-                // Grant points and mark as completed
-                await grantPoints(Number(reward), 'task_completion');
-                const userRef = doc(db, 'users', currentUser.id);
-                await updateDoc(userRef, {
-                    completedTasks: arrayUnion(taskId)
-                });
-                
-                await fetchAndUpdateCurrentUser();
-                showSuccessModal("Task Complete!", `You've earned ${reward} points.`);
-                button.textContent = 'Completed';
-            } catch (error) {
-                console.error("Error completing task:", error);
-                alert("An error occurred while completing the task. Please try again.");
-                button.disabled = false; // Re-enable if something went wrong
-                button.textContent = 'Complete Task';
+            const { taskId, taskUrl, reward, state } = button.dataset;
+            const visitDuration = parseInt(button.dataset.visitDuration, 10);
+            if (state === 'start') {
+                if (!taskUrl) { alert('Task URL is missing.'); return; }
+                tg.openLink(taskUrl);
+                if (visitDuration > 0) {
+                    button.disabled = true; let countdown = visitDuration;
+                    const intervalId = setInterval(() => {
+                        countdown--; button.textContent = `Wait ${countdown}s...`;
+                        if (countdown <= 0) {
+                            clearInterval(intervalId); button.disabled = false;
+                            button.textContent = 'Claim Reward'; button.dataset.state = 'claim';
+                            if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('warning');
+                        }
+                    }, 1000);
+                } else {
+                    button.textContent = 'Claim Reward'; button.dataset.state = 'claim';
+                    if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+                }
+            } else if (state === 'claim') {
+                button.disabled = true; button.textContent = 'Verifying...';
+                try {
+                    await runTransaction(db, async (transaction) => {
+                        const userRef = doc(db, 'users', currentUser.id);
+                        const taskRef = doc(db, 'tasks', taskId);
+                        const userDoc = await transaction.get(userRef);
+                        const taskDoc = await transaction.get(taskRef);
+                        if (!userDoc.exists() || !taskDoc.exists()) throw "USER_OR_TASK_NOT_FOUND";
+                        const userData = userDoc.data();
+                        const taskData = taskDoc.data();
+                        if (userData.completedTasks?.includes(taskId)) throw "ALREADY_COMPLETED";
+                        const completionCount = taskData.completionCount || 0;
+                        const taskLimit = taskData.limit || 0;
+                        if ((taskLimit > 0) && (completionCount >= taskLimit)) throw "TASK_LIMIT_REACHED";
+                        
+                        // Use the existing grantPoints function to handle rewards
+                        transaction.update(userRef, { 
+                            completedTasks: arrayUnion(taskId) 
+                        });
+                        transaction.update(taskRef, { completionCount: increment(1) });
+                    });
+                    // Grant points outside the transaction to avoid contention, but after transaction succeeds
+                    await grantPoints(Number(reward), 'task');
+                    
+                    showSuccessModal("Reward Claimed!", `${reward} points have been added to your balance.`);
+                    if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+                    button.textContent = 'Done';
+                } catch (error) {
+                    const errorMessages = { "ALREADY_COMPLETED": "You have already completed this task.", "TASK_LIMIT_REACHED": "This task has reached its completion limit.", "USER_OR_TASK_NOT_FOUND": "Task not found. It might have been removed."};
+                    const message = errorMessages[error] || 'Failed to claim reward. Please try again.';
+                    alert(message);
+                    button.textContent = (error === "ALREADY_COMPLETED" || error === "TASK_LIMIT_REACHED") ? 'Done' : 'Claim Reward';
+                    button.disabled = (error !== 'Failed to claim reward. Please try again.');
+                }
             }
         });
+
 
         function showSuccessModal(title, message) {
             const modal = document.getElementById('successModalOverlay');
@@ -947,132 +971,113 @@
             } catch (error) { console.error("Error fetching withdrawal history:", error); historyContainer.innerHTML = '<p style="color:red;">Error loading history.</p>'; }
         }
         
-        // --- UPDATED: Leaderboard & Referrals ---
+        // --- REPLACED: Leaderboard Logic from new.html ---
         async function fetchLeaderboard() {
-            const leaderboardList = document.getElementById('leaderboard-list');
-            const myReferralsList = document.getElementById('my-referrals-list');
-            leaderboardList.innerHTML = '<div class="loader"></div>';
-            myReferralsList.innerHTML = '<div class="loader"></div>';
+            const listContainer = document.getElementById('leaderboard-list');
+            const myReferralsContainer = document.getElementById('my-referrals-list');
+            listContainer.innerHTML = '<div class="loader"></div>';
+            myReferralsContainer.innerHTML = '<div class="loader"></div>';
 
-            // Fetch Top Referrers
             try {
-                // IMPORTANT: This query requires a Firestore index on 'referralCount' (descending).
-                // Check your browser's developer console for an error message with a link to create it if this list doesn't load.
-                const topReferrersQuery = query(collection(db, 'users'), orderBy('referralCount', 'desc'), limit(10));
-                const topReferrersSnap = await getDocs(topReferrersQuery);
-                
-                console.log(`[DEBUG] Found ${topReferrersSnap.size} top referrers.`);
-
-                leaderboardList.innerHTML = '';
-                if (topReferrersSnap.empty) {
-                    leaderboardList.innerHTML = '<p style="text-align:center;">No referrers yet. Be the first!</p>';
+                const topReferrersQuery = query(collection(db, "users"), where("referralCount", ">", 0), orderBy("referralCount", "desc"), limit(20));
+                const topSnapshot = await getDocs(topReferrersQuery);
+                listContainer.innerHTML = '';
+                if (topSnapshot.empty) { 
+                    listContainer.innerHTML = '<p style="text-align:center;">Leaderboard is empty. Be the first to refer!</p>';
                 } else {
-                    topReferrersSnap.docs.forEach((docSnap, index) => {
+                    let rank = 1;
+                    topSnapshot.forEach(docSnap => {
                         const user = docSnap.data();
                         const item = document.createElement('div');
                         item.className = 'leaderboard-item';
-                        item.innerHTML = `
-                            <div class="rank">#${index + 1}</div>
-                            <div class="info">
-                                <strong>${user.telegramUsername || 'Anonymous'}</strong>
-                            </div>
-                            <div class="count">${user.referralCount || 0} Refs</div>
-                        `;
-                        leaderboardList.appendChild(item);
+                        item.innerHTML = `<div class="rank">#${rank}</div><div class="info"><strong>${user.telegramUsername || 'User ' + docSnap.id.substring(0, 5)}</strong></div><div class="count">${user.referralCount} Referrals</div>`;
+                        listContainer.appendChild(item);
+                        rank++;
                     });
                 }
             } catch (error) {
-                console.error("Error fetching top referrers:", error);
-                leaderboardList.innerHTML = '<p style="color:red; text-align:center;">Error loading leaderboard. Check console for index errors.</p>';
+                console.error("Error fetching leaderboard:", error);
+                listContainer.innerHTML = '<p style="color:red; text-align:center;">Could not load leaderboard.</p>';
             }
-
-            // Fetch Current User's Referrals
+            
             try {
-                // This query requires a Firestore index on 'referredBy'. Firestore usually creates this automatically.
-                const myReferralsQuery = query(collection(db, 'users'), where('referredBy', '==', currentUser.id));
-                const myReferralsSnap = await getDocs(myReferralsQuery);
-
-                console.log(`[DEBUG] Found ${myReferralsSnap.size} of your referrals.`);
-
-                myReferralsList.innerHTML = '';
-                if (myReferralsSnap.empty) {
-                    myReferralsList.innerHTML = "<p style='text-align:center;'>You haven't referred anyone yet.</p>";
+                const myReferralsQuery = query(collection(db, "users"), where("referredBy", "==", currentUser.id));
+                const myReferralsSnapshot = await getDocs(myReferralsQuery);
+                myReferralsContainer.innerHTML = '';
+                if (myReferralsSnapshot.empty) {
+                    myReferralsContainer.innerHTML = '<p style="text-align:center;">You haven\'t referred anyone yet.</p>';
                 } else {
-                    myReferralsSnap.docs.forEach(docSnap => {
+                     myReferralsSnapshot.forEach(docSnap => {
                         const referee = docSnap.data();
                         const refereeId = docSnap.id;
-                        const pointsEarned = referee.lifetimePointsEarned || 0;
-                        const bonusPaidOut = referee.referralBonusPaidOut || false;
-                        const canClaim = pointsEarned >= REFERRAL_POINTS_THRESHOLD && !bonusPaidOut;
-
                         const item = document.createElement('div');
                         item.className = 'leaderboard-item';
-                        item.innerHTML = `
-                            <div class="info" style="margin-left:0;">
-                                <strong>${referee.telegramUsername || 'Anonymous'}</strong>
-                                <br>
-                                <small>Points Earned: ${pointsEarned} / ${REFERRAL_POINTS_THRESHOLD}</small>
-                            </div>
-                            <button class="form-button claim-referral-btn" data-referee-id="${refereeId}" ${!canClaim ? 'disabled' : ''}>
-                                ${bonusPaidOut ? 'Claimed' : (canClaim ? 'Claim 1000' : 'Pending')}
-                            </button>
-                        `;
-                        myReferralsList.appendChild(item);
+
+                        const lifetimePoints = referee.lifetimePointsEarned || 0;
+                        const isBonusPaid = referee.referralBonusPaidOut === true;
+                        
+                        let statusHtml;
+                        if (isBonusPaid) {
+                            statusHtml = `<div class="count" style="color: var(--success-color);">Claimed</div>`;
+                        } else if (lifetimePoints >= REFERRAL_POINTS_THRESHOLD) {
+                            statusHtml = `<button class="form-button claim-referral-btn" data-referee-id="${refereeId}">Claim ${REFERRAL_BONUS_AMOUNT}</button>`;
+                        } else {
+                            statusHtml = `<div class="count" style="color: var(--text-muted);">${lifetimePoints} / ${REFERRAL_POINTS_THRESHOLD}</div>`;
+                        }
+                        
+                        item.innerHTML = `<div class="info" style="margin-left:0;"><strong>${referee.telegramUsername || 'User ' + refereeId.substring(0, 5)}</strong><br><small>Points Earned: ${lifetimePoints}</small></div>${statusHtml}`;
+                        myReferralsContainer.appendChild(item);
                     });
                 }
-            } catch (error) {
+            } catch(error) {
                 console.error("Error fetching your referrals:", error);
-                myReferralsList.innerHTML = '<p style="color:red; text-align:center;">Error loading your referrals. Check console.</p>';
+                myReferralsContainer.innerHTML = '<p style="color:red; text-align:center;">Could not load your referrals.</p>';
             }
         }
 
+        // --- REPLACED: Referral Claim Logic from new.html ---
         async function claimReferralBonus(refereeId, button) {
             button.disabled = true;
             button.textContent = '...';
+
+            const referrerRef = doc(db, 'users', currentUser.id);
+            const refereeRef = doc(db, 'users', refereeId);
+
             try {
-                const referrerRef = doc(db, 'users', currentUser.id);
-                const refereeRef = doc(db, 'users', refereeId);
-
                 await runTransaction(db, async (transaction) => {
-                    const refereeDoc = await transaction.get(refereeRef);
-                    if (!refereeDoc.exists()) throw new Error("Referee not found.");
+                    const refereeSnap = await transaction.get(refereeRef);
+                    if (!refereeSnap.exists()) { throw new Error("Referee not found."); }
+                    
+                    const refereeData = refereeSnap.data();
+                    if (refereeData.referralBonusPaidOut === true) { throw new Error("Bonus already paid."); }
+                    if ((refereeData.lifetimePointsEarned || 0) < REFERRAL_POINTS_THRESHOLD) { throw new Error("Referee has not reached the threshold."); }
 
-                    const refereeData = refereeDoc.data();
-                    if ((refereeData.lifetimePointsEarned || 0) < REFERRAL_POINTS_THRESHOLD) {
-                        throw new Error("Referee has not reached the threshold.");
-                    }
-                    if (refereeData.referralBonusPaidOut) {
-                        throw new Error("Bonus already paid out.");
-                    }
-
-                    // Grant bonus to referrer
                     transaction.update(referrerRef, { balance: increment(REFERRAL_BONUS_AMOUNT) });
-                    // Mark bonus as paid for the referee
                     transaction.update(refereeRef, { referralBonusPaidOut: true });
                 });
 
-                showSuccessModal("Bonus Claimed!", `You received ${REFERRAL_BONUS_AMOUNT} points!`);
+                showSuccessModal("Bonus Claimed!", `${REFERRAL_BONUS_AMOUNT} points have been added to your balance.`);
+                await fetchAndUpdateCurrentUser(); // Update balance in UI
                 button.textContent = 'Claimed';
-                await fetchAndUpdateCurrentUser();
+                button.style.backgroundColor = 'var(--success-color)';
 
             } catch (error) {
-                alert(`Could not claim bonus: ${error.message}`);
-                console.error("Referral claim error:", error);
-                button.disabled = false; // Re-enable if claim failed
-                button.textContent = 'Claim 1000';
+                console.error("Failed to claim referral bonus:", error);
+                alert(`Error: ${error.message}`);
+                button.disabled = false;
+                button.textContent = `Claim ${REFERRAL_BONUS_AMOUNT}`;
             }
         }
         
+        // --- REPLACED: Referral Click Handler from new.html ---
         document.getElementById('my-referrals-list').addEventListener('click', async (e) => {
-             if (e.target.matches('.claim-referral-btn') && !e.target.disabled) {
+            if (e.target.matches('.claim-referral-btn') && !e.target.disabled) {
                 const refereeId = e.target.dataset.refereeId;
-                if (refereeId) {
-                    await claimReferralBonus(refereeId, e.target);
-                }
+                await claimReferralBonus(refereeId, e.target);
             }
         });
         
-        // --- Daily Task Logic ---
+        // --- Daily Task Logic (Kept from index.html) ---
         function startDailyTimer() {
             if (dailyTimerInterval) clearInterval(dailyTimerInterval);
             dailyTimerInterval = setInterval(async () => {
@@ -1163,7 +1168,7 @@
             }
         });
 
-        // --- Game Zone Logic ---
+        // --- Game Zone Logic (Kept from index.html) ---
         let game_mathQuiz = {};
         let game_scratchCard = {};
 
@@ -1200,6 +1205,7 @@
             const quizContainer = document.getElementById('quiz');
             const resultsContainer = document.getElementById('math-results-container');
             const finalScoreElement = document.getElementById('final-score');
+            const playAgainButton = document.getElementById('play-again-btn');
             const attemptsLeftDisplay = document.getElementById('math-attempts-left');
             
             const questions = [{ q: '5+7', o: [10, 12, 13, 11], a: 12 }, { q: '15-6', o: [9, 8, 10, 7], a: 9 }, { q: '8×4', o: [32, 28, 36, 24], a: 32 }, { q: '24÷3', o: [6, 7, 8, 9], a: 8 }, { q: '9+9', o: [18, 16, 20, 17], a: 18 }];
@@ -1349,7 +1355,6 @@
             });
         });
 
-        // --- NEW IMPLEMENTATION: Adexium Ads ---
         function initializeAdexium() {
             const showAdexiumAd = () => {
                 if (typeof AdexiumWidget !== 'undefined') {
@@ -1363,11 +1368,7 @@
                     console.error("AdexiumWidget SDK not loaded.");
                 }
             };
-
-            // First ad after 30 seconds
             setTimeout(showAdexiumAd, 30000); 
-
-            // Subsequent ads every 5 minutes (300,000 milliseconds)
             setInterval(showAdexiumAd, 300000); 
         }
         
@@ -1380,7 +1381,6 @@
                 await initializeUser(tg.initDataUnsafe.user, tg.initDataUnsafe.start_param);
                 document.querySelector('.nav-link[data-tab-target="#home-content"]').click();
                 
-                // Initialize timed ads
                 initializeAdexium();
 
                 const menuToggleBtn = document.getElementById('menu-toggle-button');
