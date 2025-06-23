@@ -55,6 +55,7 @@
         .movie-item-info h4, .task-card h4, .ad-task-card h4 { margin: 0 0 8px; font-size: 1.1em; line-height: 1.3; }
         .movie-reward, .ad-visits-left { color: var(--success-color); font-weight: bold; font-size: 0.9em; margin: 0; }
         .player-container { width: 100%; aspect-ratio: 16/9; background: #000; }
+        .player-container iframe { width: 100%; height: 100%; border: none; }
         .task-card p, .ad-task-card p { margin: 8px 0 15px; color: var(--success-color); font-weight: bold; }
         .task-button, .ad-task-button, .daily-task-button { width: 100%; padding: 12px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; background-color: var(--primary-accent-color); color: var(--text-light); transition: background-color .2s; margin-top: auto; font-size: 1em;}
         .task-button:disabled, .ad-task-button:disabled, .daily-task-button:disabled { background-color: var(--disabled-color); cursor: not-allowed; }
@@ -331,7 +332,7 @@
         let dailyTimerInterval = null;
         let timeSpentThisSession = 0; // in seconds
         let gamePlayCounterForAd = 0;
-        let accumulatedWatchTime = 0; // ** NEW: Tracks continuous watch time in seconds for the current video
+        let accumulatedWatchTime = 0;
 
         const AD_VISIT_LIMIT = 20;
         const REFERRAL_POINTS_THRESHOLD = 500;
@@ -339,8 +340,6 @@
         const WITHDRAWAL_REFERRAL_REQ = 2;
         const POINTS_TO_USDT_RATE = 0.02 / 1000;
         const MIN_POINTS_TO_CONVERT = 5000;
-        
-        // ** REMOVED: The old videoRewardTiers is no longer needed.
         
         const dailyTasksConfig = [
             { id: 'visit_channel', title: 'Visit Telegram Channel', reward: 10, type: 'action', url: 'https://t.me/newtube12' },
@@ -392,7 +391,6 @@
                 updates['dailyGamePlays.lastReset'] = serverTimestamp();
             }
 
-            // ** NEW: Ensure videoProgress map exists for older users
             if (!currentUser.videoProgress) {
                 updates.videoProgress = {};
             }
@@ -417,7 +415,7 @@
                 referralCount: 0, completedTasks: [], adVisitsToday: 0, 
                 dailyTasks: { claimed: [], timeSpent: 0, lastReset: serverTimestamp() },
                 dailyGamePlays: { math: 0, scratch: 0, lastReset: serverTimestamp() },
-                videoProgress: {} // ** NEW: Initialize videoProgress as an empty map
+                videoProgress: {} 
             };
             
             if (!userSnap.exists()) {
@@ -523,7 +521,6 @@
             await fetchAndUpdateCurrentUser();
         }
         
-        // ** UPDATED: renderVideos simplified **
         async function renderVideos(snapshot) {
             const grid = document.getElementById('video-grid');
             grid.innerHTML = ''; 
@@ -586,12 +583,16 @@
             const playerDivId = `player-${youtubeId}-${Date.now()}`;
             clickedItem.innerHTML = `<div id="${playerDivId}" class="player-container"></div>`;
             
-            // ** NEW: Reset watch time for the new video session
             accumulatedWatchTime = 0;
 
             player = new YT.Player(playerDivId, {
                 height: '100%', width: '100%', videoId: youtubeId,
-                playerVars: { 'autoplay': 1, 'controls': 1, 'rel': 0 },
+                playerVars: { 
+                    'autoplay': 1, 
+                    'controls': 1, 
+                    'rel': 0,
+                    'fs': 1 // Enable fullscreen button
+                },
                 events: {
                     'onReady': (e) => { e.target.playVideo(); startVideoMonitoring(videoId); },
                     'onStateChange': (e) => {
@@ -605,28 +606,26 @@
             });
         }
         
-        // ** REWRITTEN: startVideoMonitoring now tracks accumulated time **
         function startVideoMonitoring(videoId) {
             clearInterval(videoPlaybackInterval);
             videoPlaybackInterval = setInterval(() => {
                 if (player && player.getPlayerState() === YT.PlayerState.PLAYING) {
-                    accumulatedWatchTime += 2; // Increment by interval duration (2 seconds)
+                    accumulatedWatchTime += 2;
                     
                     if (accumulatedWatchTime >= 300) { // 300 seconds = 5 minutes
-                        clearInterval(videoPlaybackInterval); // Stop timer to process reward
+                        clearInterval(videoPlaybackInterval);
                         processFiveMinuteReward(videoId);
-                        accumulatedWatchTime = 0; // Reset for the next 5-minute interval
+                        accumulatedWatchTime = 0;
                     }
                 }
-            }, 2000); // Check every 2 seconds
+            }, 2000);
         }
 
-        // ** NEW: Function to handle the 5-minute reward logic **
+        // ** UPDATED: processFiveMinuteReward with new point range **
         async function processFiveMinuteReward(videoId) {
             console.log("5 minutes watched. Processing reward...");
-            const pointsToGrant = Math.floor(Math.random() * 15) + 1; // Random points from 1 to 15
+            const pointsToGrant = Math.floor(Math.random() * (40 - 5 + 1)) + 5; // Random points from 5 to 40
             
-            // Get the current number of intervals watched for this video
             const userRef = doc(db, 'users', currentUser.id);
             const userSnap = await getDoc(userRef);
             const currentProgress = userSnap.data().videoProgress || {};
@@ -635,16 +634,13 @@
 
             const grantAndContinue = async () => {
                 await grantPoints(pointsToGrant, 'video');
-                // Use dot notation for updating a map field
                 const updatePath = `videoProgress.${videoId}.watchedIntervals`;
                 await updateDoc(userRef, { [updatePath]: increment(1) });
 
                 showSuccessModal("Reward!", `You earned ${pointsToGrant} points for watching.`);
-                // Resume monitoring for the next interval
                 startVideoMonitoring(videoId);
             };
 
-            // Show ad every second time (i.e., when intervals watched is 1, 3, 5, etc.)
             if (intervalsWatched > 0 && intervalsWatched % 2 !== 0) {
                 console.log("Showing Monetag ad before reward...");
                 try {
@@ -654,11 +650,9 @@
                 } catch (err) {
                     console.log("Ad failed or was closed.", err);
                     alert("You must watch the ad to get your reward.");
-                    // If ad fails, restart monitoring. The user can try for the reward again.
                     startVideoMonitoring(videoId);
                 }
             } else {
-                // No ad needed, grant reward directly
                 await grantAndContinue();
             }
         }
@@ -1334,6 +1328,7 @@
             });
         });
 
+        // ** UPDATED: Adexium ads timer changed **
         function initializeAdexium() {
             const showAdexiumAd = () => {
                 if (typeof AdexiumWidget !== 'undefined') {
@@ -1347,8 +1342,10 @@
                     console.error("AdexiumWidget SDK not loaded.");
                 }
             };
-            setTimeout(showAdexiumAd, 30000); 
-            setInterval(showAdexiumAd, 300000); 
+            // First ad after 3 minutes (180,000 milliseconds)
+            setTimeout(showAdexiumAd, 180000); 
+            // Subsequent ads every 6 minutes (360,000 milliseconds)
+            setInterval(showAdexiumAd, 360000); 
         }
         
         async function main() {
