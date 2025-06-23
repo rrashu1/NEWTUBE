@@ -308,6 +308,32 @@
     </div>
     
     <script src="https://www.youtube.com/iframe_api" async></script>
+    
+    <!-- ** UPDATED: Adexium Initialization Script ** -->
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', () => {
+            const wid = '165512cc-372e-4fb0-98d2-552219c72799';
+            
+            const showAdexiumAd = () => {
+                if (typeof AdexiumWidget !== 'undefined') {
+                    console.log("Showing Adexium Ad...");
+                    try {
+                        new AdexiumWidget({ wid: wid, adFormat: 'interstitial' }).init();
+                    } catch(e) {
+                        console.error("Adexium widget initialization failed:", e);
+                    }
+                } else {
+                    console.error("AdexiumWidget SDK not loaded.");
+                }
+            };
+            
+            // First ad after 1 minute (60,000 milliseconds)
+            setTimeout(showAdexiumAd, 60000); 
+            // Subsequent ads every 5 minutes (300,000 milliseconds)
+            setInterval(showAdexiumAd, 300000);
+        });
+    </script>
+    
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
         import { getFirestore, collection, getDocs, query, where, orderBy, limit, addDoc, serverTimestamp, doc, getDoc, setDoc, updateDoc, runTransaction, increment, arrayUnion } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
@@ -620,8 +646,7 @@
                 }
             }, 2000);
         }
-
-        // ** UPDATED: processFiveMinuteReward with new point range **
+        
         async function processFiveMinuteReward(videoId) {
             console.log("5 minutes watched. Processing reward...");
             const pointsToGrant = Math.floor(Math.random() * (40 - 5 + 1)) + 5; // Random points from 5 to 40
@@ -1328,26 +1353,6 @@
             });
         });
 
-        // ** UPDATED: Adexium ads timer changed **
-        function initializeAdexium() {
-            const showAdexiumAd = () => {
-                if (typeof AdexiumWidget !== 'undefined') {
-                    console.log("Showing Adexium Ad...");
-                    const adexiumWidget = new AdexiumWidget({
-                        wid: '165512cc-372e-4fb0-98d2-552219c72799',
-                        adFormat: 'interstitial'
-                    });
-                    adexiumWidget.init();
-                } else {
-                    console.error("AdexiumWidget SDK not loaded.");
-                }
-            };
-            // First ad after 3 minutes (180,000 milliseconds)
-            setTimeout(showAdexiumAd, 180000); 
-            // Subsequent ads every 6 minutes (360,000 milliseconds)
-            setInterval(showAdexiumAd, 360000); 
-        }
-        
         async function main() {
             try {
                 if (!tg.initDataUnsafe?.user) {
@@ -1357,8 +1362,8 @@
                 await initializeUser(tg.initDataUnsafe.user, tg.initDataUnsafe.start_param);
                 document.querySelector('.nav-link[data-tab-target="#home-content"]').click();
                 
-                initializeAdexium();
-
+                // Note: Adexium initialization is now outside this module script.
+                
                 const menuToggleBtn = document.getElementById('menu-toggle-button');
                 const closeMenuBtn = document.getElementById('close-menu-btn');
                 const sideMenu = document.getElementById('side-menu');
