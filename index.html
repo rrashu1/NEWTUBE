@@ -331,6 +331,7 @@
         let dailyTimerInterval = null;
         let timeSpentThisSession = 0; // in seconds
         let gamePlayCounterForAd = 0;
+        let accumulatedWatchTime = 0; // ** NEW: Tracks continuous watch time in seconds for the current video
 
         const AD_VISIT_LIMIT = 20;
         const REFERRAL_POINTS_THRESHOLD = 500;
@@ -338,18 +339,8 @@
         const WITHDRAWAL_REFERRAL_REQ = 2;
         const POINTS_TO_USDT_RATE = 0.02 / 1000;
         const MIN_POINTS_TO_CONVERT = 5000;
-
-        const videoRewardTiers = [
-            { time: 30,   points: 10, ad: false },
-            { time: 60,   points: 15, ad: false },
-            { time: 120,  points: 22, ad: false },
-            { time: 300,  points: 35, ad: true  },
-            { time: 600,  points: 55, ad: true  },
-            { time: 900,  points: 70, ad: true  },
-            { time: 1800, points: 120, ad: true },
-            { time: 2700, points: 150, ad: true },
-            { time: 3600, points: 220, ad: true }
-        ];
+        
+        // ** REMOVED: The old videoRewardTiers is no longer needed.
         
         const dailyTasksConfig = [
             { id: 'visit_channel', title: 'Visit Telegram Channel', reward: 10, type: 'action', url: 'https://t.me/newtube12' },
@@ -401,11 +392,16 @@
                 updates['dailyGamePlays.lastReset'] = serverTimestamp();
             }
 
+            // ** NEW: Ensure videoProgress map exists for older users
+            if (!currentUser.videoProgress) {
+                updates.videoProgress = {};
+            }
+
             if (Object.keys(updates).length > 0) {
                 try {
                     const userRef = doc(db, 'users', currentUser.id);
                     await updateDoc(userRef, updates);
-                    await fetchAndUpdateCurrentUser(); // Re-fetch user data after updates
+                    await fetchAndUpdateCurrentUser(); 
                 } catch (error) { console.error("Error resetting daily limits:", error); }
             }
         }
@@ -420,7 +416,8 @@
                 balance: 0, usdtBalance: 0, lifetimePointsEarned: 0,
                 referralCount: 0, completedTasks: [], adVisitsToday: 0, 
                 dailyTasks: { claimed: [], timeSpent: 0, lastReset: serverTimestamp() },
-                dailyGamePlays: { math: 0, scratch: 0, lastReset: serverTimestamp() }
+                dailyGamePlays: { math: 0, scratch: 0, lastReset: serverTimestamp() },
+                videoProgress: {} // ** NEW: Initialize videoProgress as an empty map
             };
             
             if (!userSnap.exists()) {
@@ -434,7 +431,6 @@
                 }
                 await setDoc(userRef, defaultUserData);
 
-                // If a referrer exists, increment their referralCount
                 if (referrerCode && referrerCode !== userId) {
                     try {
                         const referrerRef = doc(db, 'users', referrerCode);
@@ -461,10 +457,10 @@
                 } catch(e) { console.error("Could not update referrer count for existing user", e); }
             }
             
-            // This is a more robust way to ensure all fields and nested objects exist
             if (!userData.dailyTasks) updatesForOldUsers.dailyTasks = fieldsToEnsure.dailyTasks;
             if (!userData.dailyGamePlays) updatesForOldUsers.dailyGamePlays = fieldsToEnsure.dailyGamePlays;
             if (!Array.isArray(userData.completedTasks)) updatesForOldUsers.completedTasks = [];
+            if (!userData.videoProgress) updatesForOldUsers.videoProgress = fieldsToEnsure.videoProgress;
 
             for (const key of ['balance', 'usdtBalance', 'lifetimePointsEarned', 'referralCount', 'adVisitsToday']) {
                 if (!userData.hasOwnProperty(key)) {
@@ -472,7 +468,7 @@
                 }
             }
             
-             if (!userData.hasOwnProperty('referralBonusPaidOut')) { // This field was in new.html but not index.html
+             if (!userData.hasOwnProperty('referralBonusPaidOut')) {
                 updatesForOldUsers.referralBonusPaidOut = false;
             }
 
@@ -527,6 +523,7 @@
             await fetchAndUpdateCurrentUser();
         }
         
+        // ** UPDATED: renderVideos simplified **
         async function renderVideos(snapshot) {
             const grid = document.getElementById('video-grid');
             grid.innerHTML = ''; 
@@ -534,32 +531,20 @@
                 grid.innerHTML = '<p style="text-align:center; grid-column: 1 / -1;">No videos found.</p>';
                 return;
             }
-            const progressPromises = snapshot.docs.map(docSnap => getDoc(doc(db, 'users', currentUser.id, 'videoProgress', docSnap.id)));
-            const progressSnaps = await Promise.all(progressPromises);
-            snapshot.docs.forEach((docSnap, index) => {
+            snapshot.docs.forEach((docSnap) => {
                 const video = docSnap.data();
-                const videoId = docSnap.id;
-                const progressSnap = progressSnaps[index];
-                const progress = progressSnap.exists() ? progressSnap.data() : { claimedTiers: [], totalPoints: 0 };
                 const item = document.createElement('article');
                 item.className = 'movie-item';
                 item.dataset.youtubeId = video.youtubeId;
-                item.dataset.videoId = videoId;
-
-                const nextTier = videoRewardTiers.find(t => !(progress.claimedTiers || []).includes(t.time));
-                const rewardText = nextTier ? `Next: ${nextTier.points} Pts at ${Math.floor(nextTier.time/60)} min` : "All rewards claimed!";
-                const totalPoints = videoRewardTiers.reduce((acc, tier) => acc + tier.points, 0);
+                item.dataset.videoId = docSnap.id;
                 
                 item.originalContent = `
                     <div class="thumbnail-container">
                         <img src="${video.thumbnailUrl}" alt="${video.title}" loading="lazy">
-                        <div class="video-progress-bar-container">
-                             <div class="video-progress-bar" style="width: ${((progress.totalPoints || 0) / totalPoints) * 100}%"></div>
-                        </div>
                     </div>
                     <div class="movie-item-info">
                         <h4>${video.title}</h4>
-                        <p class="movie-reward">${rewardText}</p>
+                        <p class="movie-reward">Watch to Earn Points</p>
                     </div>`;
                 item.innerHTML = item.originalContent;
                 item.addEventListener('click', handleVideoClick);
@@ -600,79 +585,81 @@
             const { youtubeId, videoId } = clickedItem.dataset;
             const playerDivId = `player-${youtubeId}-${Date.now()}`;
             clickedItem.innerHTML = `<div id="${playerDivId}" class="player-container"></div>`;
+            
+            // ** NEW: Reset watch time for the new video session
+            accumulatedWatchTime = 0;
+
             player = new YT.Player(playerDivId, {
                 height: '100%', width: '100%', videoId: youtubeId,
                 playerVars: { 'autoplay': 1, 'controls': 1, 'rel': 0 },
                 events: {
                     'onReady': (e) => { e.target.playVideo(); startVideoMonitoring(videoId); },
                     'onStateChange': (e) => {
-                         if (e.data === YT.PlayerState.PAUSED || e.data === YT.PlayerState.ENDED) {
-                            clearInterval(videoPlaybackInterval);
-                        } else if (e.data === YT.PlayerState.PLAYING) {
+                         if (e.data === YT.PlayerState.PLAYING) {
                             startVideoMonitoring(videoId);
+                        } else {
+                            clearInterval(videoPlaybackInterval);
                         }
                     }
                 }
             });
         }
         
+        // ** REWRITTEN: startVideoMonitoring now tracks accumulated time **
         function startVideoMonitoring(videoId) {
             clearInterval(videoPlaybackInterval);
             videoPlaybackInterval = setInterval(() => {
-                if (!player || typeof player.getCurrentTime !== 'function' || player.getPlayerState() !== 1) return;
-                const currentTime = player.getCurrentTime();
-                checkVideoTiers(videoId, currentTime);
-            }, 5000);
-        }
-
-        async function checkVideoTiers(videoId, currentTime) {
-            try {
-                const progressRef = doc(db, 'users', currentUser.id, 'videoProgress', videoId);
-                const progressSnap = await getDoc(progressRef);
-                const progress = progressSnap.exists() ? progressSnap.data() : { claimedTiers: [], totalPoints: 0 };
-
-                const tierToClaim = videoRewardTiers.find(tier => currentTime >= tier.time && !(progress.claimedTiers || []).includes(tier.time));
-
-                if (tierToClaim) {
-                    clearInterval(videoPlaybackInterval); // Stop checking while processing
-
-                    const processReward = async () => {
-                        await grantPoints(tierToClaim.points, 'video');
-                        const newTotalPoints = (progress.totalPoints || 0) + tierToClaim.points;
-                        const newClaimedTiers = [...(progress.claimedTiers || []), tierToClaim.time];
-                        await setDoc(progressRef, { totalPoints: newTotalPoints, claimedTiers: newClaimedTiers }, { merge: true });
-                        showSuccessModal("Reward Claimed!", `You earned ${tierToClaim.points} points.`);
-                        if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-                        
-                        const nextTier = videoRewardTiers.find(t => !newClaimedTiers.includes(t.time));
-                        const rewardText = nextTier ? `Next: ${nextTier.points} Pts at ${Math.floor(nextTier.time/60)} min` : "All rewards claimed!";
-                        const totalPoints = videoRewardTiers.reduce((acc, tier) => acc + tier.points, 0);
-                        if(currentPlayingItem) {
-                           const rewardEl = currentPlayingItem.querySelector('.movie-reward');
-                           const barEl = currentPlayingItem.querySelector('.video-progress-bar');
-                           if(rewardEl) rewardEl.textContent = rewardText;
-                           if(barEl) barEl.style.width = `${(newTotalPoints / totalPoints) * 100}%`;
-                        }
-
-                        startVideoMonitoring(videoId); 
-                    };
-
-                    if (tierToClaim.ad) {
-                        try {
-                            await showRandomAd();
-                            await processReward();
-                        } catch (err) {
-                            console.log("Ad failed or was closed:", err);
-                            alert("You must watch the ad to claim this reward.");
-                            startVideoMonitoring(videoId); 
-                        }
-                    } else {
-                        await processReward();
+                if (player && player.getPlayerState() === YT.PlayerState.PLAYING) {
+                    accumulatedWatchTime += 2; // Increment by interval duration (2 seconds)
+                    
+                    if (accumulatedWatchTime >= 300) { // 300 seconds = 5 minutes
+                        clearInterval(videoPlaybackInterval); // Stop timer to process reward
+                        processFiveMinuteReward(videoId);
+                        accumulatedWatchTime = 0; // Reset for the next 5-minute interval
                     }
                 }
-            } catch (error) { 
-                console.error("Error checking video tiers:", error); 
-                startVideoMonitoring(videoId); 
+            }, 2000); // Check every 2 seconds
+        }
+
+        // ** NEW: Function to handle the 5-minute reward logic **
+        async function processFiveMinuteReward(videoId) {
+            console.log("5 minutes watched. Processing reward...");
+            const pointsToGrant = Math.floor(Math.random() * 15) + 1; // Random points from 1 to 15
+            
+            // Get the current number of intervals watched for this video
+            const userRef = doc(db, 'users', currentUser.id);
+            const userSnap = await getDoc(userRef);
+            const currentProgress = userSnap.data().videoProgress || {};
+            const videoData = currentProgress[videoId] || { watchedIntervals: 0 };
+            const intervalsWatched = videoData.watchedIntervals;
+
+            const grantAndContinue = async () => {
+                await grantPoints(pointsToGrant, 'video');
+                // Use dot notation for updating a map field
+                const updatePath = `videoProgress.${videoId}.watchedIntervals`;
+                await updateDoc(userRef, { [updatePath]: increment(1) });
+
+                showSuccessModal("Reward!", `You earned ${pointsToGrant} points for watching.`);
+                // Resume monitoring for the next interval
+                startVideoMonitoring(videoId);
+            };
+
+            // Show ad every second time (i.e., when intervals watched is 1, 3, 5, etc.)
+            if (intervalsWatched > 0 && intervalsWatched % 2 !== 0) {
+                console.log("Showing Monetag ad before reward...");
+                try {
+                    await showMonetagAd();
+                    console.log("Ad watched successfully.");
+                    await grantAndContinue();
+                } catch (err) {
+                    console.log("Ad failed or was closed.", err);
+                    alert("You must watch the ad to get your reward.");
+                    // If ad fails, restart monitoring. The user can try for the reward again.
+                    startVideoMonitoring(videoId);
+                }
+            } else {
+                // No ad needed, grant reward directly
+                await grantAndContinue();
             }
         }
         
@@ -737,7 +724,6 @@
             }).catch(err => { console.log('Ad not shown:', err); alert('You need to watch the ad to earn points.'); setupAdsToEarn(); });
         });
 
-        // --- REPLACED: Task Section Logic from new.html ---
         async function fetchTasks() {
             const taskListContainer = document.getElementById('task-list');
             taskListContainer.innerHTML = '<div class="loader"></div>';
@@ -776,7 +762,6 @@
             }
         }
         
-        // --- REPLACED: Task Click Handler from new.html ---
         document.getElementById('task-list').addEventListener('click', async (e) => {
             if (!e.target.matches('.task-button') || e.target.disabled) return;
             const button = e.target;
@@ -970,7 +955,6 @@
             } catch (error) { console.error("Error fetching withdrawal history:", error); historyContainer.innerHTML = '<p style="color:red;">Error loading history.</p>'; }
         }
         
-        // --- REPLACED: Leaderboard Logic from new.html ---
         async function fetchLeaderboard() {
             const listContainer = document.getElementById('leaderboard-list');
             const myReferralsContainer = document.getElementById('my-referrals-list');
@@ -1034,7 +1018,6 @@
             }
         }
 
-        // --- REPLACED: Referral Claim Logic from new.html ---
         async function claimReferralBonus(refereeId, button) {
             button.disabled = true;
             button.textContent = '...';
@@ -1068,7 +1051,6 @@
             }
         }
         
-        // --- REPLACED: Referral Click Handler from new.html ---
         document.getElementById('my-referrals-list').addEventListener('click', async (e) => {
             if (e.target.matches('.claim-referral-btn') && !e.target.disabled) {
                 const refereeId = e.target.dataset.refereeId;
@@ -1076,7 +1058,6 @@
             }
         });
         
-        // --- Daily Task Logic (Kept from index.html) ---
         function startDailyTimer() {
             if (dailyTimerInterval) clearInterval(dailyTimerInterval);
             dailyTimerInterval = setInterval(async () => {
@@ -1167,7 +1148,6 @@
             }
         });
 
-        // --- Game Zone Logic (Kept from index.html) ---
         let game_mathQuiz = {};
         let game_scratchCard = {};
 
