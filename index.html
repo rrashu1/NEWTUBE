@@ -815,13 +815,12 @@
                         const taskLimit = taskData.limit || 0;
                         if ((taskLimit > 0) && (completionCount >= taskLimit)) throw "TASK_LIMIT_REACHED";
                         
-                        // Use the existing grantPoints function to handle rewards
                         transaction.update(userRef, { 
                             completedTasks: arrayUnion(taskId) 
                         });
                         transaction.update(taskRef, { completionCount: increment(1) });
                     });
-                    // Grant points outside the transaction to avoid contention, but after transaction succeeds
+                    
                     await grantPoints(Number(reward), 'task');
                     
                     showSuccessModal("Reward Claimed!", `${reward} points have been added to your balance.`);
