@@ -312,8 +312,7 @@
     <!-- ** UPDATED: Adexium Initialization Script ** -->
     <script type="text/javascript">
         document.addEventListener('DOMContentLoaded', () => {
-            // UPDATED: Using the new Widget ID from your image
-            const wid = '12c05dba-2642-46f2-950f-cee6575119c9';
+            const wid = '165512cc-372e-4fb0-98d2-552219c72799';
             
             const showAdexiumAd = () => {
                 if (typeof AdexiumWidget !== 'undefined') {
@@ -328,8 +327,8 @@
                 }
             };
             
-            // UPDATED: First ad after 45 seconds (45,000 milliseconds) as per your request
-            setTimeout(showAdexiumAd, 45000); 
+            // First ad after 1 minute (60,000 milliseconds)
+            setTimeout(showAdexiumAd, 60000); 
             // Subsequent ads every 5 minutes (300,000 milliseconds)
             setInterval(showAdexiumAd, 300000);
         });
@@ -377,18 +376,6 @@
             { id: 'stay_1h', title: 'Stay for 1 hour', reward: 70, type: 'time', requirement: 3600 }
         ];
 
-        // UPDATED: New function to format points (1000 -> 1K, 10000 -> 10K)
-        function formatPoints(num) {
-            if (num < 1000) {
-                return num.toString();
-            }
-            if (num < 1000000) {
-                const value = (num / 1000).toFixed(1);
-                return (value.endsWith('.0') ? value.slice(0, -2) : value) + 'K';
-            }
-            const value = (num / 1000000).toFixed(1);
-            return (value.endsWith('.0') ? value.slice(0, -2) : value) + 'M';
-        }
 
         async function fetchAndUpdateCurrentUser() {
             if (!currentUser?.id) return;
@@ -527,11 +514,10 @@
             startDailyTimer();
         }
         
-        // UPDATED: Balance UI function now uses formatters
         function updateBalanceUI(balance, usdtBalance) {
             const points = Math.floor(balance || 0);
-            const usdt = parseFloat(usdtBalance || 0).toFixed(2); // Changed to 2 decimal places
-            document.getElementById('userBalanceDisplay').textContent = formatPoints(points); // Using new formatter
+            const usdt = parseFloat(usdtBalance || 0).toFixed(4);
+            document.getElementById('userBalanceDisplay').textContent = points;
             document.getElementById('userUSDTBalanceDisplay').textContent = usdt;
         }
 
@@ -864,15 +850,14 @@
             setTimeout(() => { modal.classList.remove('show'); }, 3000);
         }
         
-        // UPDATED: UI rendering function updated for new formats
         function renderConvertWithdrawUI() {
             if (!currentUser) return;
             const pointsBalance = Math.floor(currentUser.balance || 0);
             const usdtBalance = parseFloat(currentUser.usdtBalance || 0);
             const referralCount = currentUser.referralCount || 0;
 
-            document.getElementById('convertPointsBalance').textContent = formatPoints(pointsBalance); // Using formatter
-            document.getElementById('withdrawUsdtBalance').textContent = usdtBalance.toFixed(2); // Using 2 decimals
+            document.getElementById('convertPointsBalance').textContent = pointsBalance;
+            document.getElementById('withdrawUsdtBalance').textContent = usdtBalance.toFixed(4);
             
             const referralCheckEl = document.getElementById('referralCheck');
             const requestBtn = document.getElementById('requestWithdrawalBtn');
@@ -885,11 +870,10 @@
             }
         }
 
-        // UPDATED: Input listener updated for new formats
         document.getElementById('pointsToConvert').addEventListener('input', (e) => {
             const points = parseInt(e.target.value, 10) || 0;
             const usdtValue = points * POINTS_TO_USDT_RATE;
-            document.getElementById('usdtReceiveAmount').textContent = `$${usdtValue.toFixed(2)} USDT`; // Changed to 2 decimals
+            document.getElementById('usdtReceiveAmount').textContent = `$${usdtValue.toFixed(4)} USDT`;
         });
 
         document.getElementById('convertPointsBtn').addEventListener('click', async () => {
@@ -921,7 +905,7 @@
                 renderConvertWithdrawUI();
                 document.getElementById('pointsToConvert').value = '';
                 document.getElementById('usdtReceiveAmount').textContent = '$0.00 USDT';
-                showSuccessModal("Success!", `${formatPoints(pointsToConvert)} points converted to $${usdtToReceive.toFixed(2)} USDT.`); // Using formatter
+                showSuccessModal("Success!", `${pointsToConvert} points converted to $${usdtToReceive.toFixed(4)} USDT.`);
             } catch (error) {
                 alert(`Conversion failed: ${error.message}`);
             } finally {
@@ -1377,7 +1361,9 @@
                 tg.ready(); tg.expand();
                 await initializeUser(tg.initDataUnsafe.user, tg.initDataUnsafe.start_param);
                 document.querySelector('.nav-link[data-tab-target="#home-content"]').click();
-                                
+                
+                // Note: Adexium initialization is now outside this module script.
+                
                 const menuToggleBtn = document.getElementById('menu-toggle-button');
                 const closeMenuBtn = document.getElementById('close-menu-btn');
                 const sideMenu = document.getElementById('side-menu');
