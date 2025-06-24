@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>NEWTUBE - Watch & Earn</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js?56"></script>
     <!-- Monetag Ads Library -->
     <script src='//libtl.com/sdk.js' data-zone='9442539' data-sdk='show_9442539'></script>
     <!-- GigaPub Ads SDK -->
@@ -312,12 +312,13 @@
     <!-- ** UPDATED: Adexium Initialization Script ** -->
     <script type="text/javascript">
         document.addEventListener('DOMContentLoaded', () => {
-            const wid = '165512cc-372e-4fb0-98d2-552219c72799';
+            const wid = '12c05dba-2642-46f2-950f-cee6575119c9';
             
             const showAdexiumAd = () => {
                 if (typeof AdexiumWidget !== 'undefined') {
                     console.log("Showing Adexium Ad...");
                     try {
+                        // Initialize a new widget instance each time to ensure it shows
                         new AdexiumWidget({ wid: wid, adFormat: 'interstitial' }).init();
                     } catch(e) {
                         console.error("Adexium widget initialization failed:", e);
@@ -327,10 +328,12 @@
                 }
             };
             
-            // First ad after 1 minute (60,000 milliseconds)
-            setTimeout(showAdexiumAd, 60000); 
-            // Subsequent ads every 5 minutes (300,000 milliseconds)
-            setInterval(showAdexiumAd, 300000);
+            // First ad after 45 seconds (45,000 milliseconds)
+            setTimeout(() => {
+                showAdexiumAd();
+                // Subsequent ads every 5 minutes (300,000 milliseconds)
+                setInterval(showAdexiumAd, 300000); 
+            }, 45000); 
         });
     </script>
     
@@ -514,9 +517,16 @@
             startDailyTimer();
         }
         
+        function formatPoints(num) {
+            const n = Math.floor(num || 0);
+            if (n >= 1000000) return `${(n / 1000000).toFixed(1).replace(/\.0$/, '')}M`;
+            if (n >= 10000) return `${(n / 1000).toFixed(1).replace(/\.0$/, '')}K`;
+            return n;
+        }
+
         function updateBalanceUI(balance, usdtBalance) {
-            const points = Math.floor(balance || 0);
-            const usdt = parseFloat(usdtBalance || 0).toFixed(4);
+            const points = formatPoints(balance);
+            const usdt = parseFloat(usdtBalance || 0).toFixed(2);
             document.getElementById('userBalanceDisplay').textContent = points;
             document.getElementById('userUSDTBalanceDisplay').textContent = usdt;
         }
@@ -852,12 +862,12 @@
         
         function renderConvertWithdrawUI() {
             if (!currentUser) return;
-            const pointsBalance = Math.floor(currentUser.balance || 0);
+            const pointsBalance = currentUser.balance || 0;
             const usdtBalance = parseFloat(currentUser.usdtBalance || 0);
             const referralCount = currentUser.referralCount || 0;
 
-            document.getElementById('convertPointsBalance').textContent = pointsBalance;
-            document.getElementById('withdrawUsdtBalance').textContent = usdtBalance.toFixed(4);
+            document.getElementById('convertPointsBalance').textContent = formatPoints(pointsBalance);
+            document.getElementById('withdrawUsdtBalance').textContent = usdtBalance.toFixed(2);
             
             const referralCheckEl = document.getElementById('referralCheck');
             const requestBtn = document.getElementById('requestWithdrawalBtn');
@@ -873,7 +883,7 @@
         document.getElementById('pointsToConvert').addEventListener('input', (e) => {
             const points = parseInt(e.target.value, 10) || 0;
             const usdtValue = points * POINTS_TO_USDT_RATE;
-            document.getElementById('usdtReceiveAmount').textContent = `$${usdtValue.toFixed(4)} USDT`;
+            document.getElementById('usdtReceiveAmount').textContent = `$${usdtValue.toFixed(2)} USDT`;
         });
 
         document.getElementById('convertPointsBtn').addEventListener('click', async () => {
@@ -905,7 +915,7 @@
                 renderConvertWithdrawUI();
                 document.getElementById('pointsToConvert').value = '';
                 document.getElementById('usdtReceiveAmount').textContent = '$0.00 USDT';
-                showSuccessModal("Success!", `${pointsToConvert} points converted to $${usdtToReceive.toFixed(4)} USDT.`);
+                showSuccessModal("Success!", `${pointsToConvert} points converted to $${usdtToReceive.toFixed(2)} USDT.`);
             } catch (error) {
                 alert(`Conversion failed: ${error.message}`);
             } finally {
@@ -1024,10 +1034,10 @@
                         } else if (lifetimePoints >= REFERRAL_POINTS_THRESHOLD) {
                             statusHtml = `<button class="form-button claim-referral-btn" data-referee-id="${refereeId}">Claim ${REFERRAL_BONUS_AMOUNT}</button>`;
                         } else {
-                            statusHtml = `<div class="count" style="color: var(--text-muted);">${lifetimePoints} / ${REFERRAL_POINTS_THRESHOLD}</div>`;
+                            statusHtml = `<div class="count" style="color: var(--text-muted);">${formatPoints(lifetimePoints)} / ${REFERRAL_POINTS_THRESHOLD}</div>`;
                         }
                         
-                        item.innerHTML = `<div class="info" style="margin-left:0;"><strong>${referee.telegramUsername || 'User ' + refereeId.substring(0, 5)}</strong><br><small>Points Earned: ${lifetimePoints}</small></div>${statusHtml}`;
+                        item.innerHTML = `<div class="info" style="margin-left:0;"><strong>${referee.telegramUsername || 'User ' + refereeId.substring(0, 5)}</strong><br><small>Points Earned: ${formatPoints(lifetimePoints)}</small></div>${statusHtml}`;
                         myReferralsContainer.appendChild(item);
                     });
                 }
@@ -1361,8 +1371,6 @@
                 tg.ready(); tg.expand();
                 await initializeUser(tg.initDataUnsafe.user, tg.initDataUnsafe.start_param);
                 document.querySelector('.nav-link[data-tab-target="#home-content"]').click();
-                
-                // Note: Adexium initialization is now outside this module script.
                 
                 const menuToggleBtn = document.getElementById('menu-toggle-button');
                 const closeMenuBtn = document.getElementById('close-menu-btn');
