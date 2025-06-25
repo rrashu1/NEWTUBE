@@ -135,7 +135,7 @@
         #scratch-card-container #new-card-btn { background-color: var(--success-color); color: white; padding: 12px 25px; font-size: 1rem; border-radius: 5px; border: none; cursor: pointer; margin-top: 10px; }
         #scratch-card-container #new-card-btn:disabled { background-color: var(--disabled-color); cursor: not-allowed; }
         .hide { display: none; }
-        #onclicka-banner-container { margin-top: 15px; display: flex; justify-content: center; align-items: center; min-height: 50px; } /* Added min-height */
+        #onclicka-banner-container { margin-top: 10px; display: flex; justify-content: center; align-items: center; min-height: 50px; }
 
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         @keyframes modal-pop-in { to { transform: scale(1); opacity: 1; } }
@@ -187,8 +187,6 @@
         <section id="ads-to-earn-content" class="content-section">
              <h3 class="section-title">Watch Ads, Earn Points</h3>
              <div id="ad-task-list" class="item-grid"></div>
-             <!-- Container for Onclicka Banner Ad -->
-             <div id="onclicka-banner-container"></div>
         </section>
         
         <section id="task-content" class="content-section">
@@ -371,7 +369,7 @@
         let accumulatedWatchTime = 0;
 
         const AD_VISIT_LIMIT = 40; 
-        const VIDEO_WATCH_LIMIT = 40;
+        const VIDEO_WATCH_LIMIT = 30; // UPDATED: Video watch limit set to 30
         const GAME_AD_TRIGGER_COUNT = 3;
         const REFERRAL_POINTS_THRESHOLD = 500;
         const REFERRAL_BONUS_AMOUNT = 1000;
@@ -637,13 +635,26 @@
             const clickedItem = event.currentTarget;
             if (currentPlayingItem === clickedItem) {
                 currentPlayingItem = null;
+                // Clean up banner when video is closed
+                const bannerContainer = document.getElementById('onclicka-banner-container');
+                if(bannerContainer) bannerContainer.innerHTML = '';
                 return;
             }
             currentPlayingItem = clickedItem;
             const { youtubeId, videoId } = clickedItem.dataset;
             const playerDivId = `player-${youtubeId}-${Date.now()}`;
-            clickedItem.innerHTML = `<div id="${playerDivId}" class="player-container"></div>`;
             
+            // Create banner container and add it below the player
+            const bannerAdHtml = `<div id="onclicka-banner-container" style="margin-top: 10px;">
+                                     <div data-banner="343471"></div>
+                                  </div>`;
+            clickedItem.innerHTML = `<div id="${playerDivId}" class="player-container"></div>${bannerAdHtml}`;
+            
+            // Reload the banner ad
+            if(window.ONCBANNER && typeof window.ONCBANNER.reload === 'function') {
+                window.ONCBANNER.reload();
+            }
+
             accumulatedWatchTime = 0;
 
             player = new YT.Player(playerDivId, {
@@ -725,6 +736,9 @@
             if (currentPlayingItem) {
                 const originalContent = currentPlayingItem.originalContent;
                 if(originalContent) currentPlayingItem.innerHTML = originalContent;
+                 // Clean up banner when video is stopped
+                const bannerContainer = document.getElementById('onclicka-banner-container');
+                if(bannerContainer) bannerContainer.innerHTML = '';
             }
             if (player) {
                 try { player.destroy(); } catch (e) { console.error(e); }
@@ -775,73 +789,18 @@
                 }
             };
             
-            // --- Ad Functions ---
-            const showMonetagAd = () => new Promise((res, rej) => {
-                if(typeof show_9442539 === 'function') {
-                    show_9442539().then(res).catch(rej);
-                } else {
-                    rej('Monetag SDK missing');
-                }
-            });
-
-            const showGigaPubAd = () => new Promise((res, rej) => {
-                if(typeof window.showGiga === 'function') {
-                    window.showGiga("main").then(res).catch(rej);
-                } else {
-                    rej('GigaPub SDK missing');
-                }
-            });
-            
+            const showMonetagAd = () => new Promise((res, rej) => typeof show_9442539 === 'function' ? show_9442539().then(res).catch(rej) : rej('Monetag SDK missing'));
+            const showGigaPubAd = () => new Promise((res, rej) => typeof window.showGiga === 'function' ? window.showGiga("main").then(res).catch(rej) : rej('GigaPub SDK missing'));
             const showOnclickaVideoAd = () => new Promise((res, rej) => {
                 if (window.showOnclickaVideoFunc) {
-                    window.showOnclickaVideoFunc()
-                        .then(() => {
-                            console.log('Onclicka ad played successfully.');
-                            res();
-                        })
-                        .catch(e => {
-                            console.log('Onclicka ad failed or was closed.', e);
-                            rej(e);
-                        });
+                    window.showOnclickaVideoFunc().then(res).catch(rej);
                 } else {
                     rej('Onclicka Video function not available.');
                 }
             });
 
-            const showOnclickaBannerAd = () => new Promise((res, rej) => {
-                 const bannerContainer = document.getElementById('onclicka-banner-container');
-                 if (!bannerContainer) return rej('Banner container not found');
-                 
-                 // Create a unique div for the banner each time
-                 const bannerDiv = document.createElement('div');
-                 bannerDiv.setAttribute('data-banner', '343471');
-                 bannerContainer.innerHTML = ''; // Clear previous banner
-                 bannerContainer.appendChild(bannerDiv);
-                 
-                 if(window.ONCBANNER && typeof window.ONCBANNER.reload === 'function') {
-                     window.ONCBANNER.reload();
-                     console.log("Onclicka banner reloaded.");
-                 }
-
-                 let adClicked = false;
-                 const clickListener = () => { adClicked = true; };
-                 bannerDiv.addEventListener('click', clickListener);
-
-                 setTimeout(() => {
-                    bannerDiv.removeEventListener('click', clickListener);
-                    bannerContainer.innerHTML = '';
-                    if(adClicked) {
-                        console.log("Onclicka banner was clicked.");
-                        res(); // Success if clicked
-                    } else {
-                        console.log("Onclicka banner was not clicked.");
-                        rej('Banner not clicked'); // Fail if not clicked
-                    }
-                 }, 8000); // Wait 8 seconds for a click
-            });
-            
-            // --- Random Ad Logic ---
-            const adNetworks = [showMonetagAd, showGigaPubAd, showOnclickaVideoAd, showOnclickaBannerAd];
+            // Onclicka Banner Ad is removed from this list
+            const adNetworks = [showMonetagAd, showGigaPubAd, showOnclickaVideoAd];
             const randomAdFunction = adNetworks[Math.floor(Math.random() * adNetworks.length)];
 
             try {
@@ -850,7 +809,7 @@
                 await grantAdReward();
             } catch (err) {
                 console.log('Ad not shown or completed:', err);
-                alert('You need to watch the complete ad to earn points. For banner ads, you must click on them.');
+                alert('You need to watch the complete ad to earn points.');
                 setupAdsToEarn();
             }
         });
