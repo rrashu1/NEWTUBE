@@ -10,10 +10,12 @@
     <script src='//libtl.com/sdk.js' data-zone='9442539' data-sdk='show_9442539'></script>
     <!-- GigaPub Ads SDK -->
     <script src="https://ad.gigapub.tech/script?id=846"></script>
-    <!-- Adexium Ads SDK -->
-    <script type="text/javascript" src="https://cdn.tgads.space/assets/js/adexium-widget.min.js"></script>
-    <!-- Onclicka Ads SDK -->
+    <!-- Onclicka Rewarded Video SDK -->
     <script src="https://js.onclckvd.com/in-stream-ad-admanager/tma.js"></script>
+    <!-- Onclicka Banner SDK -->
+    <script async data-onclicka-banner="343471" src="https://js.onclckmn.com/banner/oncbanner.m.js" data-onclicka-banner-ar="c"></script>
+    <!-- Adexium Ads SDK (New) -->
+    <script type="text/javascript" src="https://cdn.tgads.space/assets/js/adexium-widget.min.js"></script>
 
     <style>
         :root {
@@ -133,6 +135,7 @@
         #scratch-card-container #new-card-btn { background-color: var(--success-color); color: white; padding: 12px 25px; font-size: 1rem; border-radius: 5px; border: none; cursor: pointer; margin-top: 10px; }
         #scratch-card-container #new-card-btn:disabled { background-color: var(--disabled-color); cursor: not-allowed; }
         .hide { display: none; }
+        #onclicka-banner-container { margin-top: 15px; display: flex; justify-content: center; align-items: center; }
 
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         @keyframes modal-pop-in { to { transform: scale(1); opacity: 1; } }
@@ -181,7 +184,12 @@
             <div class="item-grid" id="video-grid"></div>
         </section>
 
-        <section id="ads-to-earn-content" class="content-section"><h3 class="section-title">Watch Ads, Earn Points</h3><div id="ad-task-list" class="item-grid"></div></section>
+        <section id="ads-to-earn-content" class="content-section">
+             <h3 class="section-title">Watch Ads, Earn Points</h3>
+             <div id="ad-task-list" class="item-grid"></div>
+             <!-- Container for Onclicka Banner Ad -->
+             <div id="onclicka-banner-container"></div>
+        </section>
         
         <section id="task-content" class="content-section">
              <h3 class="section-title">Daily Rewards</h3>
@@ -313,17 +321,14 @@
     
     <script src="https://www.youtube.com/iframe_api" async></script>
     
-    <!-- ** UPDATED: Adexium Initialization Script ** -->
+    <!-- ** UPDATED: New Adexium Initialization Script ** -->
     <script type="text/javascript">
         document.addEventListener('DOMContentLoaded', () => {
-            const wid = '4fa15c42-bfae-42d1-b7ee-8a6f45aaa097';
-            
             const showAdexiumAd = () => {
                 if (typeof AdexiumWidget !== 'undefined') {
                     console.log("Showing Adexium Ad...");
                     try {
-                        // Initialize a new widget instance each time to ensure it shows
-                        new AdexiumWidget({ wid: wid, adFormat: 'interstitial' }).init();
+                        new AdexiumWidget({wid: '165512cc-372e-4fb0-98d2-552219c72799', adFormat: 'interstitial'}).init();
                     } catch(e) {
                         console.error("Adexium widget initialization failed:", e);
                     }
@@ -332,12 +337,10 @@
                 }
             };
             
-            // First ad after 45 seconds (45,000 milliseconds)
-            setTimeout(() => {
-                showAdexiumAd();
-                // Subsequent ads every 5 minutes (300,000 milliseconds)
-                setInterval(showAdexiumAd, 300000); 
-            }, 45000); 
+            // First ad after 45 seconds
+            setTimeout(showAdexiumAd, 45000); 
+            // Subsequent ads every 5 minutes
+            setInterval(showAdexiumAd, 300000); 
         });
     </script>
     
@@ -364,10 +367,12 @@
         let videoPlaybackInterval = null;
         let dailyTimerInterval = null;
         let timeSpentThisSession = 0; // in seconds
-        let gamePlayCounterForAd = 0;
+        let gamePlayCounter = 0; // UPDATED: Renamed for clarity
         let accumulatedWatchTime = 0;
 
-        const AD_VISIT_LIMIT = 30; // UPDATED: Ad limit increased to 30
+        const AD_VISIT_LIMIT = 40; // UPDATED: Ad limit per day (20 per button)
+        const VIDEO_WATCH_LIMIT = 40; // UPDATED: Video watch limit
+        const GAME_AD_TRIGGER_COUNT = 3; // UPDATED: Show ad after every 3 game plays
         const REFERRAL_POINTS_THRESHOLD = 500;
         const REFERRAL_BONUS_AMOUNT = 1000;
         const WITHDRAWAL_REFERRAL_REQ = 2;
@@ -426,7 +431,15 @@
 
             if (!currentUser.videoProgress) {
                 updates.videoProgress = {};
+            } else {
+                // Reset daily video watch counts
+                const lastVideoReset = currentUser.videoProgress.lastReset?.toDate();
+                const lastVideoResetTime = lastVideoReset ? new Date(lastVideoReset.getFullYear(), lastVideoReset.getMonth(), lastVideoReset.getDate()).getTime() : 0;
+                if(lastVideoResetTime < today) {
+                    updates['videoProgress.dailyWatchedCount'] = 0;
+                }
             }
+
 
             if (Object.keys(updates).length > 0) {
                 try {
@@ -448,7 +461,8 @@
                 referralCount: 0, completedTasks: [], adVisitsToday: 0, 
                 dailyTasks: { claimed: [], timeSpent: 0, lastReset: serverTimestamp() },
                 dailyGamePlays: { math: 0, scratch: 0, lastReset: serverTimestamp() },
-                videoProgress: {} 
+                videoProgress: { dailyWatchedCount: 0, lastReset: serverTimestamp() },
+                readMessages: []
             };
             
             if (!userSnap.exists()) {
@@ -491,7 +505,9 @@
             if (!userData.dailyTasks) updatesForOldUsers.dailyTasks = fieldsToEnsure.dailyTasks;
             if (!userData.dailyGamePlays) updatesForOldUsers.dailyGamePlays = fieldsToEnsure.dailyGamePlays;
             if (!Array.isArray(userData.completedTasks)) updatesForOldUsers.completedTasks = [];
-            if (!userData.videoProgress) updatesForOldUsers.videoProgress = fieldsToEnsure.videoProgress;
+            if (!userData.videoProgress?.dailyWatchedCount) updatesForOldUsers['videoProgress.dailyWatchedCount'] = 0;
+            if (!userData.videoProgress?.lastReset) updatesForOldUsers['videoProgress.lastReset'] = serverTimestamp();
+            if (!Array.isArray(userData.readMessages)) updatesForOldUsers.readMessages = [];
 
             for (const key of ['balance', 'usdtBalance', 'lifetimePointsEarned', 'referralCount', 'adVisitsToday']) {
                 if (!userData.hasOwnProperty(key)) {
@@ -594,7 +610,7 @@
             grid.innerHTML = '<div class="loader"></div>';
             try {
                 const videosCollection = collection(db, 'videos');
-                const q = query(videosCollection, orderBy('createdAt', 'desc'), limit(20));
+                const q = query(videosCollection, orderBy('createdAt', 'desc'), limit(VIDEO_WATCH_LIMIT));
                 const snapshot = await getDocs(q);
                 await renderVideos(snapshot);
             } catch (error) { 
@@ -607,6 +623,13 @@
 
         async function handleVideoClick(event) {
             if (!currentUser) { alert("User data not loaded yet."); return; }
+
+            const dailyWatchedCount = currentUser.videoProgress?.dailyWatchedCount || 0;
+            if(dailyWatchedCount >= VIDEO_WATCH_LIMIT){
+                alert(`You have reached your daily video watch limit of ${VIDEO_WATCH_LIMIT}.`);
+                return;
+            }
+
             if (currentPlayingItem) {
                 clearInterval(videoPlaybackInterval);
                 const originalContent = currentPlayingItem.originalContent;
@@ -663,27 +686,30 @@
         
         async function processFiveMinuteReward(videoId) {
             console.log("5 minutes watched. Processing reward...");
-            const pointsToGrant = Math.floor(Math.random() * (40 - 5 + 1)) + 5; // Random points from 5 to 40
+            const pointsToGrant = Math.floor(Math.random() * (40 - 5 + 1)) + 5;
             
             const userRef = doc(db, 'users', currentUser.id);
-            const userSnap = await getDoc(userRef);
-            const currentProgress = userSnap.data().videoProgress || {};
-            const videoData = currentProgress[videoId] || { watchedIntervals: 0 };
-            const intervalsWatched = videoData.watchedIntervals;
 
             const grantAndContinue = async () => {
                 await grantPoints(pointsToGrant, 'video');
-                const updatePath = `videoProgress.${videoId}.watchedIntervals`;
-                await updateDoc(userRef, { [updatePath]: increment(1) });
+                await updateDoc(userRef, { 
+                    [`videoProgress.${videoId}.watchedIntervals`]: increment(1),
+                    'videoProgress.dailyWatchedCount': increment(1),
+                    'videoProgress.lastReset': serverTimestamp()
+                });
 
                 showSuccessModal("Reward!", `You earned ${pointsToGrant} points for watching.`);
                 startVideoMonitoring(videoId);
             };
 
+            const userSnap = await getDoc(userRef);
+            const videoData = userSnap.data().videoProgress?.[videoId] || { watchedIntervals: 0 };
+            const intervalsWatched = videoData.watchedIntervals;
+
             if (intervalsWatched > 0 && intervalsWatched % 2 !== 0) {
-                console.log("Showing Monetag ad before reward...");
+                console.log("Showing ad before video reward...");
                 try {
-                    await showMonetagAd();
+                    await showRandomAdForGames(); // Use game ad logic
                     console.log("Ad watched successfully.");
                     await grantAndContinue();
                 } catch (err) {
@@ -716,17 +742,17 @@
             const visitsToday = currentUser.adVisitsToday || 0;
             const visitsLeft = AD_VISIT_LIMIT - visitsToday;
             const isLimitReached = visitsLeft <= 0;
-            [1, 2].forEach(() => {
+            const buttonCount = 2;
+            const limitPerButton = AD_VISIT_LIMIT / buttonCount;
+
+            for(let i=1; i <= buttonCount; i++) {
                 const card = document.createElement('div');
                 card.className = 'ad-task-card';
-                card.innerHTML = `<div class="ad-task-card-info"><h4>Watch Ad & Earn</h4><p>Reward: 50 Points</p><p class="ad-visits-left">Today's Visits Left: ${visitsLeft > 0 ? visitsLeft : 0}</p></div><button class="ad-task-button" ${isLimitReached ? 'disabled' : ''}>${isLimitReached ? 'Daily Limit Reached' : 'Watch Ad'}</button>`;
+                card.innerHTML = `<div class="ad-task-card-info"><h4>Watch Ad & Earn</h4><p>Reward: 50 Points</p><p class="ad-visits-left">Today's Visits Left: ${visitsLeft > 0 ? visitsLeft : 0} / ${AD_VISIT_LIMIT}</p></div><button class="ad-task-button" ${isLimitReached ? 'disabled' : ''}>${isLimitReached ? 'Daily Limit Reached' : 'Watch Ad'}</button>`;
                 adTaskListContainer.appendChild(card);
-            });
+            }
         }
         
-        // =========================================================================
-        // UPDATED: Ads to Earn click listener with Monetag, GigaPub, and Onclicka
-        // =========================================================================
         document.getElementById('ad-task-list').addEventListener('click', async (e) => {
             if (!e.target.matches('.ad-task-button') || e.target.disabled) return;
             
@@ -755,23 +781,27 @@
             const showMonetagAd = () => new Promise((res, rej) => typeof show_9442539 === 'function' ? show_9442539().then(res).catch(rej) : rej('Monetag SDK missing'));
             const showGigaPubAd = () => new Promise((res, rej) => typeof window.showGiga === 'function' ? window.showGiga("main").then(res).catch(rej) : rej('GigaPub SDK missing'));
             
-            const showOnclickaAd = () => new Promise((res, rej) => {
-                if (window.showOnclickaAdFunc) {
-                    window.showOnclickaAdFunc()
-                        .then(() => {
-                            console.log('Onclicka ad played successfully.');
-                            res();
-                        })
-                        .catch(e => {
-                            console.log('Onclicka ad failed or was closed.', e);
-                            rej(e);
-                        });
+            const showOnclickaVideoAd = () => new Promise((res, rej) => {
+                if (window.showOnclickaVideoFunc) {
+                    window.showOnclickaVideoFunc().then(res).catch(rej);
                 } else {
-                    rej('Onclicka show function not available.');
+                    rej('Onclicka Video function not available.');
                 }
             });
 
-            const adNetworks = [showMonetagAd, showGigaPubAd, showOnclickaAd];
+            const showOnclickaBannerAd = () => new Promise((res, rej) => {
+                 const bannerContainer = document.getElementById('onclicka-banner-container');
+                 bannerContainer.innerHTML = '<div data-banner="343471"></div>';
+                 if(window.ONCBANNER && typeof window.ONCBANNER.reload === 'function') {
+                     window.ONCBANNER.reload();
+                 }
+                 setTimeout(() => {
+                     bannerContainer.innerHTML = ''; // Hide banner after some time
+                     res();
+                 }, 8000); // Show banner for 8 seconds
+            });
+
+            const adNetworks = [showMonetagAd, showGigaPubAd, showOnclickaVideoAd, showOnclickaBannerAd];
             const randomAdFunction = adNetworks[Math.floor(Math.random() * adNetworks.length)];
 
             try {
@@ -1212,6 +1242,25 @@
         let game_mathQuiz = {};
         let game_scratchCard = {};
 
+        // Shared ad functions for games
+        const showMonetagAd = () => new Promise((res, rej) => typeof show_9442539 === 'function' ? show_9442539().then(res).catch(rej) : rej('Monetag SDK missing'));
+        const showGigaPubAd = () => new Promise((res, rej) => typeof window.showGiga === 'function' ? window.showGiga("main").then(res).catch(rej) : rej('GigaPub SDK missing'));
+        const showOnclickaVideoAd = () => new Promise((res, rej) => {
+            if (window.showOnclickaVideoFunc) {
+                window.showOnclickaVideoFunc().then(res).catch(rej);
+            } else {
+                rej('Onclicka Video function not available.');
+            }
+        });
+        
+        async function showRandomAdForGames() {
+            const gameAdNetworks = [showMonetagAd, showGigaPubAd, showOnclickaVideoAd];
+            const randomAdFunction = gameAdNetworks[Math.floor(Math.random() * gameAdNetworks.length)];
+            console.log(`Attempting to show game ad from: ${randomAdFunction.name}`);
+            return randomAdFunction();
+        }
+
+
         function renderGameZone() {
             if (!currentUser) return;
             game_mathQuiz.init();
@@ -1220,21 +1269,24 @@
 
         async function handleGamePlay(gameType) {
             if (!currentUser) return false;
+            
+            gamePlayCounter++;
             const userRef = doc(db, 'users', currentUser.id);
+
             try {
                 await updateDoc(userRef, { [`dailyGamePlays.${gameType}`]: increment(1) });
                 await fetchAndUpdateCurrentUser();
                 
-                gamePlayCounterForAd++;
-                if (gamePlayCounterForAd >= 3) {
-                    // Game ad logic can be different, maybe just use Monetag here
-                    showMonetagAd().catch(err => console.error("Game ad failed to show:", err));
-                    gamePlayCounterForAd = 0;
+                if (gamePlayCounter >= GAME_AD_TRIGGER_COUNT) {
+                    gamePlayCounter = 0; // Reset counter
+                    console.log("Triggering ad after game play...");
+                    await showRandomAdForGames();
                 }
                 return true;
             } catch (error) {
-                console.error(`Error updating ${gameType} plays:`, error);
-                return false;
+                console.error(`Error in handleGamePlay for ${gameType}:`, error);
+                // If ad fails, we still consider the game play successful for reward
+                return true; 
             }
         }
 
@@ -1284,8 +1336,8 @@
                 resultsContainer.classList.remove('hide');
                 finalScoreElement.innerText = `You scored ${score} out of ${questions.length}!`;
                 
-                const success = await handleGamePlay('math');
-                if (success) {
+                const adShownSuccessfully = await handleGamePlay('math');
+                if (adShownSuccessfully) {
                     const pointsWon = Math.floor(Math.random() * (50 - 3 + 1)) + 3;
                     await grantPoints(pointsWon, 'math_quiz');
                     showSuccessModal("Quiz Complete!", `You won ${pointsWon} points!`);
@@ -1344,8 +1396,8 @@
                 if (!canScratch) return;
                 canScratch = false;
                 
-                const success = await handleGamePlay('scratch');
-                if (success) {
+                const adShownSuccessfully = await handleGamePlay('scratch');
+                if (adShownSuccessfully) {
                     const rewardText = rewardResult.textContent;
                     if (rewardText.includes("Points Won!")) {
                         const pointsWon = parseInt(rewardText);
@@ -1369,9 +1421,62 @@
             document.getElementById('select-scratch-card').classList.add('active'); document.getElementById('select-math-quiz').classList.remove('active');
         });
 
-        async function checkForUnreadMessages() { /* ... unchanged ... */ }
-        document.getElementById('inbox-container').addEventListener('click', async () => { /* ... unchanged ... */ });
-        document.getElementById('closeInboxBtn').addEventListener('click', () => { /* ... unchanged ... */ });
+        async function checkForUnreadMessages() {
+            if (!currentUser?.id) return;
+            const messagesRef = collection(db, 'messages');
+            const q = query(messagesRef, where("isGlobal", "==", true));
+            const snapshot = await getDocs(q);
+            const userReadMessages = currentUser.readMessages || [];
+            const unreadMessagesExist = snapshot.docs.some(doc => !userReadMessages.includes(doc.id));
+            
+            if (unreadMessagesExist) {
+                document.getElementById('inbox-notification-dot').classList.add('visible');
+            } else {
+                document.getElementById('inbox-notification-dot').classList.remove('visible');
+            }
+        }
+        
+        document.getElementById('inbox-container').addEventListener('click', async () => {
+            const modalOverlay = document.getElementById('inboxModalOverlay');
+            const messageList = document.getElementById('inbox-message-list');
+            messageList.innerHTML = '<div class="loader"></div>';
+            modalOverlay.classList.add('show');
+            
+            try {
+                const messagesRef = collection(db, 'messages');
+                const q = query(messagesRef, where("isGlobal", "==", true), orderBy("createdAt", "desc"), limit(20));
+                const snapshot = await getDocs(q);
+
+                messageList.innerHTML = '';
+                if (snapshot.empty) {
+                    messageList.innerHTML = '<p style="text-align: center; color: var(--text-muted);">No new messages.</p>';
+                } else {
+                    const messagesToMarkAsRead = [];
+                    snapshot.forEach(doc => {
+                        const msg = doc.data();
+                        const item = document.createElement('div');
+                        item.className = 'inbox-message-item';
+                        item.innerHTML = `<p>${msg.content}</p><small>${msg.createdAt.toDate().toLocaleString()}</small>`;
+                        messageList.appendChild(item);
+                        messagesToMarkAsRead.push(doc.id);
+                    });
+                    
+                    // Mark messages as read
+                    const userRef = doc(db, 'users', currentUser.id);
+                    await updateDoc(userRef, {
+                        readMessages: arrayUnion(...messagesToMarkAsRead)
+                    });
+                    document.getElementById('inbox-notification-dot').classList.remove('visible');
+                }
+            } catch (error) {
+                console.error("Error fetching inbox messages:", error);
+                messageList.innerHTML = '<p style="text-align: center; color: red;">Failed to load messages.</p>';
+            }
+        });
+
+        document.getElementById('closeInboxBtn').addEventListener('click', () => {
+            document.getElementById('inboxModalOverlay').classList.remove('show');
+        });
 
         document.querySelectorAll('.nav-link').forEach(link => {
             link.addEventListener('click', async (e) => {
@@ -1402,11 +1507,11 @@
                     document.body.innerHTML = `<div class="card" style="margin-top: 50px;"><h3>Error</h3><p>This application can only be launched from Telegram.</p></div>`; return;
                 }
 
-                // UPDATED: Initialize Onclicka Ad Engine
+                // Initialize Onclicka Rewarded Video Ad Engine
                 try {
                     window.initCdTma?.({ id: '343423' }).then(show => {
-                        window.showOnclickaAdFunc = show; // Store the show function globally
-                        console.log("Onclicka Ad Engine Initialized.");
+                        window.showOnclickaVideoFunc = show;
+                        console.log("Onclicka Rewarded Video Engine Initialized.");
                     }).catch(e => console.error("Onclicka Init Error:", e));
                 } catch(e) {
                     console.error("Onclicka init script failed:", e);
