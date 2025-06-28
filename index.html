@@ -14,6 +14,15 @@
     <script src="https://js.onclckvd.com/in-stream-ad-admanager/tma.js"></script>
     <!-- Adexium Ads SDK (New) -->
     <script type="text/javascript" src="https://cdn.tgads.space/assets/js/adexium-widget.min.js"></script>
+    <!-- RichAds SDK (New) -->
+    <script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
+    <script>
+      window.TelegramAdsController = new TelegramAdsController();
+      window.TelegramAdsController.initialize({
+        pubId: "978188",
+        appId: "2778",
+      });
+    </script>
 
     <style>
         :root {
@@ -105,21 +114,6 @@
         #closeInboxBtn { padding: 10px; border: none; border-radius: 8px; background-color: var(--primary-accent-color); color: white; cursor: pointer; }
 
         /* --- Game Zone Styles --- */
-        .game-selector { display: flex; justify-content: center; margin-bottom: 25px; border-bottom: 2px solid #282828; padding-bottom: 15px; }
-        .game-selector button { background-color: transparent; border: 2px solid var(--primary-accent-color); color: var(--primary-accent-color); padding: 10px 20px; margin: 0 5px; border-radius: 25px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: all 0.3s ease; }
-        .game-selector button.active, .game-selector button:hover { background-color: var(--primary-accent-color); color: white; }
-        .game-container { margin-top: 20px; display: none; }
-        .game-container.active { display: block; }
-        #math-quiz-container #question { font-size: 1.5rem; font-weight: bold; margin-bottom: 20px; }
-        #math-quiz-container .btn-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
-        #math-quiz-container .btn { background-color: #333; color: white; border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; font-size: 1.1rem; cursor: pointer; transition: background-color 0.3s, transform 0.2s; }
-        #math-quiz-container .btn:hover:not(:disabled) { background-color: #444; transform: translateY(-2px); }
-        #math-quiz-container .btn.correct { background-color: var(--success-color); }
-        #math-quiz-container .btn.incorrect { background-color: #dc3545; }
-        #math-quiz-container .btn:disabled { cursor: not-allowed; opacity: 0.7; }
-        #math-quiz-container #controls { display: flex; justify-content: space-between; align-items: center; }
-        #math-quiz-container #score-container { font-size: 1.2rem; font-weight: bold; }
-        #math-quiz-container #next-btn, #math-quiz-container #play-again-btn { background-color: var(--primary-accent-color); color: white; padding: 10px 20px; font-size: 1rem; border-radius: 5px; border: none; cursor: pointer; }
         #scratch-card-container #attempts-left { font-size: 1.2rem; font-weight: bold; color: var(--primary-accent-color); margin-bottom: 15px; }
         #scratch-card-container #card-area { position: relative; width: 300px; height: 150px; margin: 20px auto; border-radius: 10px; cursor: grabbing; touch-action: none; }
         #scratch-card-container #reward-result { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; font-size: 1.8rem; font-weight: bold; color: var(--primary-accent-color); background: linear-gradient(135deg, #333, #222); border-radius: 10px; }
@@ -237,29 +231,9 @@
         <section id="game-zone-content" class="content-section">
             <h3 class="section-title">Game Zone</h3>
              <div class="card" style="padding: 15px 15px 25px 15px;">
-                <div class="game-selector">
-                    <button id="select-math-quiz" class="active">Math Quiz</button>
-                    <button id="select-scratch-card">Scratch & Win</button>
-                </div>
-                <div id="math-quiz-container" class="game-container active">
-                    <h1 style="font-size: 1.5rem;">Math Quiz</h1>
-                    <p id="math-attempts-left" style="color: var(--text-muted); font-weight: bold;"></p>
-                    <div id="quiz">
-                        <div id="question-container"><div id="question">Question will be shown here</div></div>
-                        <div id="answer-buttons" class="btn-grid"></div>
-                        <div id="controls">
-                            <div id="score-container">Score: 0</div>
-                            <button id="next-btn" class="hide">Next Question</button>
-                        </div>
-                    </div>
-                    <div id="math-results-container" class="hide">
-                        <h2 id="final-score"></h2>
-                        <button id="play-again-btn">Play Again</button>
-                    </div>
-                </div>
-                <div id="scratch-card-container" class="game-container">
+                <div id="scratch-card-container">
                     <h1 style="font-size: 1.5rem;">Scratch & Win</h1>
-                    <p id="attempts-left">Attempts left: 10</p>
+                    <p id="attempts-left">Attempts left: 20</p>
                     <div id="card-area">
                         <div id="reward-result"></div>
                         <canvas id="scratch-canvas" width="300" height="150"></canvas>
@@ -443,7 +417,6 @@
             const lastGameReset = currentUser.dailyGamePlays?.lastReset?.toDate();
             const lastGameResetTime = lastGameReset ? new Date(lastGameReset.getFullYear(), lastGameReset.getMonth(), lastGameReset.getDate()).getTime() : 0;
             if (!lastGameReset || lastGameResetTime < today) {
-                updates['dailyGamePlays.math'] = 0;
                 updates['dailyGamePlays.scratch'] = 0;
                 updates['dailyGamePlays.lastReset'] = serverTimestamp();
             }
@@ -476,7 +449,7 @@
                 balance: 0, usdtBalance: 0, pgBalance: 0, lifetimePointsEarned: 0,
                 referralCount: 0, completedTasks: [], adVisitsToday: 0, 
                 dailyTasks: { claimed: [], timeSpent: 0, lastReset: serverTimestamp() },
-                dailyGamePlays: { math: 0, scratch: 0, lastReset: serverTimestamp() },
+                dailyGamePlays: { scratch: 0, lastReset: serverTimestamp() },
                 videoProgress: { dailyWatchedCount: 0, lastReset: serverTimestamp() },
                 readMessages: [],
                 miningSessionEndTime: null, withdrawalCount: 0
@@ -526,6 +499,9 @@
             }
             if (!userData.dailyTasks) updatesForOldUsers.dailyTasks = fieldsToEnsure.dailyTasks;
             if (!userData.dailyGamePlays) updatesForOldUsers.dailyGamePlays = fieldsToEnsure.dailyGamePlays;
+            if (userData.dailyGamePlays?.hasOwnProperty('math')) {
+                // For old users, we can just let it be, new resets won't touch it
+            }
             if (!Array.isArray(userData.completedTasks)) updatesForOldUsers.completedTasks = [];
             if (!userData.videoProgress?.dailyWatchedCount) updatesForOldUsers['videoProgress.dailyWatchedCount'] = 0;
             if (!userData.videoProgress?.lastReset) updatesForOldUsers['videoProgress.lastReset'] = serverTimestamp();
@@ -1357,7 +1333,6 @@
             }
         });
 
-        let game_mathQuiz = {};
         let game_scratchCard = {};
 
         // Shared ad functions for games
@@ -1382,7 +1357,6 @@
 
         function renderGameZone() {
             if (!currentUser) return;
-            game_mathQuiz.init();
             game_scratchCard.init();
         }
 
@@ -1409,64 +1383,6 @@
             }
         }
 
-        (function() { // Math Quiz Logic
-            const questionElement = document.getElementById('question');
-            const answerButtonsElement = document.getElementById('answer-buttons');
-            const nextButton = document.getElementById('next-btn');
-            const scoreElement = document.getElementById('score-container');
-            const quizContainer = document.getElementById('quiz');
-            const resultsContainer = document.getElementById('math-results-container');
-            const finalScoreElement = document.getElementById('final-score');
-            const playAgainButton = document.getElementById('play-again-btn');
-            const attemptsLeftDisplay = document.getElementById('math-attempts-left');
-            
-            const questions = [{ q: '5+7', o: [10, 12, 13, 11], a: 12 }, { q: '15-6', o: [9, 8, 10, 7], a: 9 }, { q: '8×4', o: [32, 28, 36, 24], a: 32 }, { q: '24÷3', o: [6, 7, 8, 9], a: 8 }, { q: '9+9', o: [18, 16, 20, 17], a: 18 }];
-            let currentQuestionIndex = 0; let score = 0;
-
-            function updateAttempts() {
-                const plays = currentUser.dailyGamePlays?.math || 0;
-                const limit = 10;
-                attemptsLeftDisplay.textContent = `Today's Attempts: ${plays}/${limit}`;
-                return plays < limit;
-            }
-
-            function startGame() { 
-                resultsContainer.classList.add('hide');
-                quizContainer.classList.remove('hide');
-                if (!updateAttempts()) {
-                    quizContainer.innerHTML = '<p>No more quiz attempts for today.</p>';
-                    return;
-                }
-                currentQuestionIndex = 0; score = 0; scoreElement.innerText = `Score: 0`; 
-                showQuestion(); 
-            }
-            function showQuestion() { resetState(); let currentQuestion = questions[currentQuestionIndex]; questionElement.innerText = `Question ${currentQuestionIndex + 1}: ${currentQuestion.q} = ?`; currentQuestion.o.forEach(opt => { const button = document.createElement('button'); button.innerText = opt; button.classList.add('btn'); if (opt === currentQuestion.a) button.dataset.correct = true; button.addEventListener('click', selectAnswer); answerButtonsElement.appendChild(button); }); }
-            function resetState() { nextButton.classList.add('hide'); while (answerButtonsElement.firstChild) { answerButtonsElement.removeChild(answerButtonsElement.firstChild); } }
-            function selectAnswer(e) { const selectedBtn = e.target; if (selectedBtn.dataset.correct) { score++; scoreElement.innerText = `Score: ${score}`; } Array.from(answerButtonsElement.children).forEach(button => { setStatusClass(button, button.dataset.correct); button.disabled = true; }); nextButton.classList.remove('hide'); }
-            function setStatusClass(element, correct) { if(correct) { element.classList.add('correct'); } else { element.classList.add('incorrect'); } }
-            
-            async function handleNextButton() {
-                currentQuestionIndex++;
-                if (currentQuestionIndex < questions.length) { showQuestion(); } else { await showResults(); }
-            }
-
-            async function showResults() {
-                quizContainer.classList.add('hide');
-                resultsContainer.classList.remove('hide');
-                finalScoreElement.innerText = `You scored ${score} out of ${questions.length}!`;
-                
-                await handleGamePlay('math');
-                const pointsWon = Math.floor(Math.random() * (50 - 3 + 1)) + 3;
-                await grantPoints(pointsWon, 'math_quiz');
-                showSuccessModal("Quiz Complete!", `You won ${pointsWon} points!`);
-                updateAttempts();
-            }
-
-            nextButton.addEventListener('click', handleNextButton);
-            playAgainButton.addEventListener('click', startGame);
-            game_mathQuiz.init = startGame;
-        })();
-
         (function() { // Scratch Card Logic
             const canvas = document.getElementById('scratch-canvas');
             const ctx = canvas.getContext('2d');
@@ -1478,7 +1394,7 @@
 
             function updateAttempts() {
                 const plays = currentUser.dailyGamePlays?.scratch || 0;
-                const limit = 10;
+                const limit = 20; // UPDATED LIMIT
                 attemptsLeftDisplay.textContent = `Attempts left: ${limit - plays}`;
                 if (plays >= limit) {
                     rewardResult.textContent = "See You Tomorrow!";
@@ -1528,15 +1444,6 @@
             }
             game_scratchCard.init = generateNewCard;
         })();
-
-        document.getElementById('select-math-quiz').addEventListener('click', () => {
-            document.getElementById('scratch-card-container').classList.remove('active'); document.getElementById('math-quiz-container').classList.add('active');
-            document.getElementById('select-math-quiz').classList.add('active'); document.getElementById('select-scratch-card').classList.remove('active');
-        });
-        document.getElementById('select-scratch-card').addEventListener('click', () => {
-            document.getElementById('math-quiz-container').classList.remove('active'); document.getElementById('scratch-card-container').classList.add('active');
-            document.getElementById('select-scratch-card').classList.add('active'); document.getElementById('select-math-quiz').classList.remove('active');
-        });
 
         async function checkForUnreadMessages() {
             if (!currentUser?.id) return;
