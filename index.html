@@ -10,12 +10,17 @@
     <script src='//libtl.com/sdk.js' data-zone='9442539' data-sdk='show_9442539'></script>
     <!-- GigaPub Ads SDK -->
     <script src="https://ad.gigapub.tech/script?id=846"></script>
-    <!-- Onclicka Rewarded Video SDK -->
-    <script src="https://js.onclckvd.com/in-stream-ad-admanager/tma.js"></script>
-    <!-- Onclicka Banner SDK -->
-    <script async data-onclicka-banner="343471" src="https://js.onclckmn.com/banner/oncbanner.m.js" data-onclicka-banner-ar="c"></script>
     <!-- Adexium Ads SDK (New) -->
     <script type="text/javascript" src="https://cdn.tgads.space/assets/js/adexium-widget.min.js"></script>
+    <!-- RichAds Monetization -->
+    <script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
+    <script>
+      window.TelegramAdsController = new TelegramAdsController();
+      window.TelegramAdsController.initialize({
+        pubId: "978188",
+        appId: "2778",
+      });
+    </script>
 
     <style>
         :root {
@@ -153,6 +158,7 @@
             </div>
             <div class="balance-display">$: <span id="userUSDTBalanceDisplay">0.00</span></div>
             <div class="balance-display">Pts: <span id="userBalanceDisplay">0</span></div>
+            <div class="balance-display">PG: <span id="userPgCoinDisplay">0.000</span></div>
             <button class="menu-toggle-button" id="menu-toggle-button"><span class="bar"></span><span class="bar"></span><span class="bar"></span></button>
         </div>
     </header>
@@ -273,6 +279,7 @@
                      <h4>Withdraw USDT</h4>
                       <p>Your USDT Balance: <strong id="withdrawUsdtBalance">0.00</strong></p>
                      <p id="referralCheck" class="info-text">Referral Check: <span style="color: #ffc107">Checking...</span></p>
+                     <p id="pgCoinCheck" class="info-text">PG Coin Check: <span style="color: #ffc107">Checking...</span></p>
                      <form id="withdrawalForm">
                          <div class="conversion-info" style="text-align: left;">
                             Minimums: <br>
@@ -374,6 +381,7 @@
         const REFERRAL_POINTS_THRESHOLD = 500;
         const REFERRAL_BONUS_AMOUNT = 1000;
         const WITHDRAWAL_REFERRAL_REQ = 2;
+        const WITHDRAWAL_PG_COIN_REQ = 5;
         const POINTS_TO_USDT_RATE = 0.02 / 1000;
         const MIN_POINTS_TO_CONVERT = 5000;
         
@@ -394,7 +402,7 @@
                 const userSnap = await getDoc(userRef);
                 if (userSnap.exists()) {
                     currentUser = { id: userSnap.id, ...userSnap.data() };
-                    updateBalanceUI(currentUser.balance, currentUser.usdtBalance);
+                    updateBalanceUI(currentUser.balance, currentUser.usdtBalance, currentUser.pgCoin);
                 }
             } catch (error) { console.error("Error fetching current user:", error); }
         }
@@ -453,7 +461,7 @@
             let userSnap = await getDoc(userRef);
 
             const fieldsToEnsure = {
-                balance: 0, usdtBalance: 0, lifetimePointsEarned: 0,
+                balance: 0, usdtBalance: 0, pgCoin: 0, lifetimePointsEarned: 0,
                 referralCount: 0, completedTasks: [], adVisitsToday: 0, 
                 dailyTasks: { claimed: [], timeSpent: 0, lastReset: serverTimestamp() },
                 dailyGamePlays: { math: 0, scratch: 0, lastReset: serverTimestamp() },
@@ -505,7 +513,7 @@
             if (!userData.videoProgress?.lastReset) updatesForOldUsers['videoProgress.lastReset'] = serverTimestamp();
             if (!Array.isArray(userData.readMessages)) updatesForOldUsers.readMessages = [];
 
-            for (const key of ['balance', 'usdtBalance', 'lifetimePointsEarned', 'referralCount', 'adVisitsToday']) {
+            for (const key of ['balance', 'usdtBalance', 'pgCoin', 'lifetimePointsEarned', 'referralCount', 'adVisitsToday']) {
                 if (!userData.hasOwnProperty(key)) {
                     updatesForOldUsers[key] = fieldsToEnsure[key];
                 }
@@ -527,7 +535,7 @@
             
             await checkAndResetDailies();
 
-            updateBalanceUI(currentUser.balance, currentUser.usdtBalance);
+            updateBalanceUI(currentUser.balance, currentUser.usdtBalance, currentUser.pgCoin);
             generateReferralLink(currentUser.id);
             checkForUnreadMessages();
             startDailyTimer();
@@ -540,11 +548,13 @@
             return n;
         }
 
-        function updateBalanceUI(balance, usdtBalance) {
+        function updateBalanceUI(balance, usdtBalance, pgCoinBalance) {
             const points = formatPoints(balance);
             const usdt = parseFloat(usdtBalance || 0).toFixed(2);
+            const pgCoin = parseFloat(pgCoinBalance || 0).toFixed(3);
             document.getElementById('userBalanceDisplay').textContent = points;
             document.getElementById('userUSDTBalanceDisplay').textContent = usdt;
+            document.getElementById('userPgCoinDisplay').textContent = pgCoin;
         }
 
         function generateReferralLink(userId) {
@@ -569,6 +579,15 @@
             await updateDoc(userRef, {
                 balance: increment(amount),
                 lifetimePointsEarned: increment(amount)
+            });
+            await fetchAndUpdateCurrentUser();
+        }
+        
+        async function grantPgCoin(amount, source) {
+            if (!currentUser || amount <= 0) return;
+            const userRef = doc(db, 'users', currentUser.id);
+            await updateDoc(userRef, {
+                pgCoin: increment(amount)
             });
             await fetchAndUpdateCurrentUser();
         }
@@ -635,26 +654,14 @@
             const clickedItem = event.currentTarget;
             if (currentPlayingItem === clickedItem) {
                 currentPlayingItem = null;
-                // Clean up banner when video is closed
-                const bannerContainer = document.getElementById('onclicka-banner-container');
-                if(bannerContainer) bannerContainer.innerHTML = '';
                 return;
             }
             currentPlayingItem = clickedItem;
             const { youtubeId, videoId } = clickedItem.dataset;
             const playerDivId = `player-${youtubeId}-${Date.now()}`;
             
-            // Create banner container and add it below the player
-            const bannerAdHtml = `<div id="onclicka-banner-container" style="margin-top: 10px;">
-                                     <div data-banner="343471"></div>
-                                  </div>`;
-            clickedItem.innerHTML = `<div id="${playerDivId}" class="player-container"></div>${bannerAdHtml}`;
+            clickedItem.innerHTML = `<div id="${playerDivId}" class="player-container"></div>`;
             
-            // Reload the banner ad
-            if(window.ONCBANNER && typeof window.ONCBANNER.reload === 'function') {
-                window.ONCBANNER.reload();
-            }
-
             accumulatedWatchTime = 0;
 
             player = new YT.Player(playerDivId, {
@@ -736,9 +743,6 @@
             if (currentPlayingItem) {
                 const originalContent = currentPlayingItem.originalContent;
                 if(originalContent) currentPlayingItem.innerHTML = originalContent;
-                 // Clean up banner when video is stopped
-                const bannerContainer = document.getElementById('onclicka-banner-container');
-                if(bannerContainer) bannerContainer.innerHTML = '';
             }
             if (player) {
                 try { player.destroy(); } catch (e) { console.error(e); }
@@ -791,16 +795,8 @@
             
             const showMonetagAd = () => new Promise((res, rej) => typeof show_9442539 === 'function' ? show_9442539().then(res).catch(rej) : rej('Monetag SDK missing'));
             const showGigaPubAd = () => new Promise((res, rej) => typeof window.showGiga === 'function' ? window.showGiga("main").then(res).catch(rej) : rej('GigaPub SDK missing'));
-            const showOnclickaVideoAd = () => new Promise((res, rej) => {
-                if (window.showOnclickaVideoFunc) {
-                    window.showOnclickaVideoFunc().then(res).catch(rej);
-                } else {
-                    rej('Onclicka Video function not available.');
-                }
-            });
-
-            // Onclicka Banner Ad is removed from this list
-            const adNetworks = [showMonetagAd, showGigaPubAd, showOnclickaVideoAd];
+            
+            const adNetworks = [showMonetagAd, showGigaPubAd];
             const randomAdFunction = adNetworks[Math.floor(Math.random() * adNetworks.length)];
 
             try {
@@ -926,19 +922,22 @@
             const pointsBalance = currentUser.balance || 0;
             const usdtBalance = parseFloat(currentUser.usdtBalance || 0);
             const referralCount = currentUser.referralCount || 0;
+            const pgCoinBalance = currentUser.pgCoin || 0;
 
             document.getElementById('convertPointsBalance').textContent = formatPoints(pointsBalance);
             document.getElementById('withdrawUsdtBalance').textContent = usdtBalance.toFixed(2);
             
             const referralCheckEl = document.getElementById('referralCheck');
+            const pgCoinCheckEl = document.getElementById('pgCoinCheck');
             const requestBtn = document.getElementById('requestWithdrawalBtn');
-            if (referralCount >= WITHDRAWAL_REFERRAL_REQ) {
-                referralCheckEl.innerHTML = `Referral Check: <span style="color: var(--success-color);">${referralCount}/${WITHDRAWAL_REFERRAL_REQ} - OK</span>`;
-                requestBtn.disabled = false;
-            } else {
-                referralCheckEl.innerHTML = `Referral Check: <span style="color: #dc3545;">${referralCount}/${WITHDRAWAL_REFERRAL_REQ} - Not met</span>`;
-                requestBtn.disabled = true;
-            }
+
+            const hasEnoughReferrals = referralCount >= WITHDRAWAL_REFERRAL_REQ;
+            const hasEnoughPgCoin = pgCoinBalance >= WITHDRAWAL_PG_COIN_REQ;
+
+            referralCheckEl.innerHTML = `Referral Check: ${hasEnoughReferrals ? '✅' : '❌'} <span style="color: ${hasEnoughReferrals ? 'var(--success-color)' : '#dc3545'};">${referralCount}/${WITHDRAWAL_REFERRAL_REQ}</span>`;
+            pgCoinCheckEl.innerHTML = `PG Coin Check: ${hasEnoughPgCoin ? '✅' : '❌'} <span style="color: ${hasEnoughPgCoin ? 'var(--success-color)' : '#dc3545'};">${pgCoinBalance.toFixed(3)}/${WITHDRAWAL_PG_COIN_REQ}</span>`;
+
+            requestBtn.disabled = !(hasEnoughReferrals && hasEnoughPgCoin);
         }
 
         document.getElementById('pointsToConvert').addEventListener('input', (e) => {
@@ -1000,6 +999,9 @@
             }
             if ((currentUser.referralCount || 0) < WITHDRAWAL_REFERRAL_REQ) {
                 alert(`You need at least ${WITHDRAWAL_REFERRAL_REQ} referrals to withdraw.`); return;
+            }
+            if ((currentUser.pgCoin || 0) < WITHDRAWAL_PG_COIN_REQ) {
+                alert(`You need at least ${WITHDRAWAL_PG_COIN_REQ} PG Coin to withdraw.`); return;
             }
 
             submitButton.disabled = true; submitButton.textContent = 'Processing...';
@@ -1244,18 +1246,9 @@
         // Shared ad functions for games
         const showMonetagAd = () => new Promise((res, rej) => typeof show_9442539 === 'function' ? show_9442539().then(res).catch(rej) : rej('Monetag SDK missing'));
         const showGigaPubAd = () => new Promise((res, rej) => typeof window.showGiga === 'function' ? window.showGiga("main").then(res).catch(rej) : rej('GigaPub SDK missing'));
-        const showOnclickaVideoAd = () => new Promise((res, rej) => {
-            if (window.showOnclickaVideoFunc) {
-                window.showOnclickaVideoFunc()
-                  .then(() => { console.log('Onclicka ad played.'); res(); })
-                  .catch(e => { console.error('Onclicka ad error.', e); rej(e); });
-            } else {
-                rej('Onclicka Video function not available.');
-            }
-        });
         
         async function showRandomAdForGames() {
-            const gameAdNetworks = [showMonetagAd, showGigaPubAd, showOnclickaVideoAd];
+            const gameAdNetworks = [showMonetagAd, showGigaPubAd];
             const randomAdFunction = gameAdNetworks[Math.floor(Math.random() * gameAdNetworks.length)];
             console.log(`Attempting to show game ad from: ${randomAdFunction.name}`);
             return randomAdFunction();
@@ -1337,10 +1330,10 @@
                 resultsContainer.classList.remove('hide');
                 finalScoreElement.innerText = `You scored ${score} out of ${questions.length}!`;
                 
-                const adShownSuccessfully = await handleGamePlay('math');
-                const pointsWon = Math.floor(Math.random() * (50 - 3 + 1)) + 3;
-                await grantPoints(pointsWon, 'math_quiz');
-                showSuccessModal("Quiz Complete!", `You won ${pointsWon} points!`);
+                await handleGamePlay('math');
+                const pgCoinWon = parseFloat((Math.random() * (0.01 - 0.001) + 0.001).toFixed(3));
+                await grantPgCoin(pgCoinWon, 'math_quiz');
+                showSuccessModal("Quiz Complete!", `You won ${pgCoinWon} PG Coin!`);
                 updateAttempts();
             }
 
@@ -1371,7 +1364,7 @@
                 return true;
             }
 
-            function generateReward() { return Math.random() < 0.2 ? "Empty! Try Again." : `${Math.floor(Math.random() * (50 - 3 + 1)) + 3} Points Won!`; }
+            function generateReward() { return Math.random() < 0.2 ? "Empty! Try Again." : `You Won!`; }
             function generateNewCard() { if (!updateAttempts()) return; newCardBtn.classList.add('hide'); canScratch = true; ctx.globalCompositeOperation = 'source-over'; ctx.fillStyle = '#bdc3c7'; ctx.fillRect(0, 0, canvas.width, canvas.height); rewardResult.textContent = generateReward(); }
             function getEventCoords(e) { const rect = canvas.getBoundingClientRect(); const scaleX = canvas.width / rect.width; const scaleY = canvas.height / rect.height; if (e.touches && e.touches.length > 0) return { x: (e.touches[0].clientX - rect.left) * scaleX, y: (e.touches[0].clientY - rect.top) * scaleY }; return { x: (e.clientX - rect.left) * scaleX, y: (e.clientY - rect.top) * scaleY }; }
             function startScratching(e) { if (!canScratch) return; isDrawing = true; const coords = getEventCoords(e); scratch(coords.x, coords.y); }
@@ -1395,13 +1388,13 @@
                 if (!canScratch) return;
                 canScratch = false;
                 
-                const adShownSuccessfully = await handleGamePlay('scratch');
+                await handleGamePlay('scratch');
                 
                 const rewardText = rewardResult.textContent;
-                if (rewardText.includes("Points Won!")) {
-                    const pointsWon = parseInt(rewardText);
-                    await grantPoints(pointsWon, 'scratch_card');
-                    showSuccessModal("You Won!", `You received ${pointsWon} points.`);
+                if (rewardText.includes("You Won!")) {
+                    const pgCoinWon = parseFloat((Math.random() * (0.01 - 0.001) + 0.001).toFixed(3));
+                    await grantPgCoin(pgCoinWon, 'scratch_card');
+                    showSuccessModal("You Won!", `You received ${pgCoinWon} PG Coin.`);
                 }
                 
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -1507,15 +1500,6 @@
             try {
                 if (!tg.initDataUnsafe?.user) {
                     document.body.innerHTML = `<div class="card" style="margin-top: 50px;"><h3>Error</h3><p>This application can only be launched from Telegram.</p></div>`; return;
-                }
-
-                try {
-                    window.initCdTma?.({ id: '343423' }).then(show => {
-                        window.showOnclickaVideoFunc = show;
-                        console.log("Onclicka Rewarded Video Engine Initialized.");
-                    }).catch(e => console.error("Onclicka Init Error:", e));
-                } catch(e) {
-                    console.error("Onclicka init script failed:", e);
                 }
                 
                 tg.ready(); tg.expand();
