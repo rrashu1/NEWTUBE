@@ -59,18 +59,18 @@
         .search-container button { padding: 10px 15px; border: none; border-radius: 8px; background-color: var(--primary-accent-color); color: var(--text-light); font-weight: bold; cursor: pointer; }
         .search-container button#clearSearchBtn { background-color: #444; }
         .item-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
-        .movie-item, .task-card, .ad-task-card { background-color: var(--card-bg); border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; }
+        .movie-item, .ad-task-card { background-color: var(--card-bg); border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; }
         .movie-item { cursor: pointer; transition: transform 0.2s; } .movie-item:hover{ transform: scale(1.03); }
         .thumbnail-container { width: 100%; aspect-ratio: 16/9; background-color: #333; position: relative; }
         .thumbnail-container img { width: 100%; height: 100%; object-fit: cover; }
-        .movie-item-info, .task-card-info, .ad-task-card-info { padding: 15px; flex-grow: 1; text-align:center;}
-        .movie-item-info h4, .task-card h4, .ad-task-card h4 { margin: 0 0 8px; font-size: 1.1em; line-height: 1.3; }
+        .movie-item-info, .ad-task-card-info { padding: 15px; flex-grow: 1; text-align:center;}
+        .movie-item-info h4, .ad-task-card h4 { margin: 0 0 8px; font-size: 1.1em; line-height: 1.3; }
         .movie-reward, .ad-visits-left { color: var(--success-color); font-weight: bold; font-size: 0.9em; margin: 0; }
         .player-container { width: 100%; aspect-ratio: 16/9; background: #000; }
         .player-container iframe { width: 100%; height: 100%; border: none; }
-        .task-card p, .ad-task-card p { margin: 8px 0 15px; color: var(--success-color); font-weight: bold; }
-        .task-button, .ad-task-button, .daily-task-button { width: 100%; padding: 12px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; background-color: var(--primary-accent-color); color: var(--text-light); transition: background-color .2s; margin-top: auto; font-size: 1em;}
-        .task-button:disabled, .ad-task-button:disabled, .daily-task-button:disabled { background-color: var(--disabled-color); cursor: not-allowed; }
+        .ad-task-card p { margin: 8px 0 15px; color: var(--success-color); font-weight: bold; }
+        .ad-task-button, .daily-task-button { width: 100%; padding: 12px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; background-color: var(--primary-accent-color); color: var(--text-light); transition: background-color .2s; margin-top: auto; font-size: 1em;}
+        .ad-task-button:disabled, .daily-task-button:disabled { background-color: var(--disabled-color); cursor: not-allowed; }
         .card { max-width: 500px; margin: 20px auto; background-color: var(--card-bg); padding: 25px; border-radius: 12px; border: 1px solid var(--border-color); text-align: center; }
         .card-icon { width: 50px; height: 50px; margin: 0 auto 15px; color: var(--primary-accent-color); }
         .card h3 { margin-top: 0; font-size: 1.4em; } .card p { color: var(--text-muted); line-height: 1.6; }
@@ -94,7 +94,7 @@
         .history-item .status-pending { color: var(--yellow-color); } .history-item .status-approved { color: var(--success-color); } .history-item .status-rejected { color: #dc3545; }
         .sub-card { background-color: #222; padding: 20px; border-radius: 10px; margin-bottom: 25px; }
         .info-text { font-size: 0.9em; color: var(--text-muted); margin-top: 10px; }
-        .daily-task-card { background-color: var(--card-bg); border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; padding: 15px; flex-direction: row; justify-content: space-between; align-items: center; }
+        .daily-task-card { background-color: var(--card-bg); border-radius: 8px; overflow: hidden; display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 15px; }
         .daily-task-info { text-align: left; }
         .daily-task-info h4 { margin: 0 0 5px; }
         .daily-task-info p { margin: 0; font-size: 0.9em; color: var(--success-color); }
@@ -122,6 +122,60 @@
         #scratch-card-container #new-card-btn:disabled { background-color: var(--disabled-color); cursor: not-allowed; }
         .hide { display: none; }
         
+        /* --- NEW: Task to Earn Styles --- */
+        .task-item-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .task-item {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .task-item-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+            background-color: #333; /* Placeholder color */
+        }
+        .task-item-info {
+            flex-grow: 1;
+        }
+        .task-item-info h4 {
+            margin: 0 0 4px;
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+        .task-item-info p {
+            margin: 0;
+            font-size: 0.9em;
+            color: var(--success-color);
+            font-weight: bold;
+        }
+        .task-go-button {
+            background-color: #28a745bb; /* Translucent green */
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 8px 25px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            flex-shrink: 0;
+        }
+        .task-go-button:disabled {
+            background-color: var(--disabled-color);
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+
         /* --- Mining Section Styles --- */
         #mining-content .card { text-align: center; }
         #mining-content h1 { color: var(--primary-accent-color); margin-bottom: 5px; font-size: 2em; }
@@ -223,9 +277,9 @@
         
         <section id="task-content" class="content-section">
              <h3 class="section-title">Daily Rewards</h3>
-             <div id="daily-task-list" class="item-grid" style="grid-template-columns: 1fr; margin-bottom: 40px;"></div>
-             <h3 class="section-title">Complete Tasks</h3>
-             <div id="task-list" class="item-grid"></div>
+             <div class="item-grid" style="grid-template-columns: 1fr; margin-bottom: 40px;" id="daily-task-list"></div>
+             <h3 class="section-title">Complete Tasks to Earn</h3>
+             <div id="task-list"></div> <!-- Container for new task list design -->
         </section>
 
         <section id="game-zone-content" class="content-section">
@@ -797,46 +851,65 @@
             }
         });
 
+        // --- NEW: Redesigned Task Function ---
         async function fetchTasks() {
             const taskListContainer = document.getElementById('task-list');
             taskListContainer.innerHTML = '<div class="loader"></div>';
+            // Use a specific class for the list container to apply new styles
+            taskListContainer.className = 'task-item-container'; 
             try {
                 const tasksRef = collection(db, 'tasks');
                 const snapshot = await getDocs(query(tasksRef, orderBy("createdAt", "desc")));
                 taskListContainer.innerHTML = '';
                 if (snapshot.empty) {
-                    taskListContainer.innerHTML = '<p style="text-align:center; grid-column: 1 / -1;">No tasks available right now. Check back later!</p>'; return;
+                    taskListContainer.innerHTML = '<p style="text-align:center;">No tasks available right now. Check back later!</p>'; return;
                 }
                 snapshot.forEach(docSnap => {
                     const task = docSnap.data();
                     const taskId = docSnap.id;
-                    const card = document.createElement('div');
-                    card.className = 'task-card';
+                    const item = document.createElement('div');
+                    item.className = 'task-item'; // New class for list items
                     const isCompleted = currentUser.completedTasks?.includes(taskId);
                     const completionCount = task.completionCount || 0;
                     const taskLimit = task.limit || 0;
                     const isLimitReached = (taskLimit > 0) && (completionCount >= taskLimit);
-                    let buttonText = 'Start Task'; let buttonDisabled = false; let buttonState = 'start';
-                    if (isCompleted) { buttonText = 'Done'; buttonDisabled = true; buttonState = 'done'; }
-                    else if (isLimitReached) { buttonText = 'Limit Reached'; buttonDisabled = true; buttonState = 'limit_reached'; }
-                    card.innerHTML = `
-                        <div class="task-card-info">
+                    
+                    let buttonText = 'GO'; 
+                    let buttonDisabled = false; 
+                    let buttonState = 'start';
+
+                    if (isCompleted) { 
+                        buttonText = 'DONE'; 
+                        buttonDisabled = true; 
+                        buttonState = 'done'; 
+                    } else if (isLimitReached) { 
+                        buttonText = 'LIMIT'; 
+                        buttonDisabled = true; 
+                        buttonState = 'limit_reached'; 
+                    }
+                    
+                    // Note: Ensure your 'tasks' collection in Firebase has an 'iconUrl' field.
+                    item.innerHTML = `
+                        <img src="${task.iconUrl || 'https://via.placeholder.com/48'}" alt="${task.title}" class="task-item-icon">
+                        <div class="task-item-info">
                             <h4>${task.title}</h4>
-                            <p>Reward: ${task.reward} Points</p>
+                            <p>+${task.reward} Points</p>
                         </div>
-                        <button class="task-button" data-task-id="${taskId}" data-task-url="${task.url}" data-reward="${task.reward}" data-visit-duration="${task.visitDurationSeconds || 0}" data-state="${buttonState}" ${buttonDisabled ? 'disabled' : ''}>
+                        <button class="task-go-button" data-task-id="${taskId}" data-task-url="${task.url}" data-reward="${task.reward}" data-visit-duration="${task.visitDurationSeconds || 0}" data-state="${buttonState}" ${buttonDisabled ? 'disabled' : ''}>
                             ${buttonText}
                         </button>`;
-                    taskListContainer.appendChild(card);
+                    taskListContainer.appendChild(item);
                 });
             } catch (error) {
                 console.error("Error fetching tasks:", error);
-                taskListContainer.innerHTML = '<p style="color:red; text-align:center; grid-column: 1 / -1;">Could not load tasks. Please try again later.</p>';
+                taskListContainer.innerHTML = '<p style="color:red; text-align:center;">Could not load tasks.</p>';
             }
         }
         
+        // Updated event listener to match the new button class
         document.getElementById('task-list').addEventListener('click', async (e) => {
-            if (!e.target.matches('.task-button') || e.target.disabled) return;
+            if (!e.target.matches('.task-go-button') || e.target.disabled) return;
+
             const button = e.target;
             const { taskId, taskUrl, reward, state } = button.dataset;
             const visitDuration = parseInt(button.dataset.visitDuration, 10);
@@ -849,16 +922,16 @@
                         countdown--; button.textContent = `Wait ${countdown}s...`;
                         if (countdown <= 0) {
                             clearInterval(intervalId); button.disabled = false;
-                            button.textContent = 'Claim Reward'; button.dataset.state = 'claim';
+                            button.textContent = 'Claim'; button.dataset.state = 'claim';
                             if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('warning');
                         }
                     }, 1000);
                 } else {
-                    button.textContent = 'Claim Reward'; button.dataset.state = 'claim';
+                    button.textContent = 'Claim'; button.dataset.state = 'claim';
                     if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
                 }
             } else if (state === 'claim') {
-                button.disabled = true; button.textContent = 'Verifying...';
+                button.disabled = true; button.textContent = '...';
                 try {
                     await runTransaction(db, async (transaction) => {
                         const userRef = doc(db, 'users', currentUser.id);
@@ -883,12 +956,12 @@
                     
                     showSuccessModal("Reward Claimed!", `${reward} points have been added to your balance.`);
                     if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-                    button.textContent = 'Done';
+                    button.textContent = 'DONE';
                 } catch (error) {
                     const errorMessages = { "ALREADY_COMPLETED": "You have already completed this task.", "TASK_LIMIT_REACHED": "This task has reached its completion limit.", "USER_OR_TASK_NOT_FOUND": "Task not found. It might have been removed."};
                     const message = errorMessages[error] || 'Failed to claim reward. Please try again.';
                     alert(message);
-                    button.textContent = (error === "ALREADY_COMPLETED" || error === "TASK_LIMIT_REACHED") ? 'Done' : 'Claim Reward';
+                    button.textContent = (error === "ALREADY_COMPLETED" || error === "TASK_LIMIT_REACHED") ? 'DONE' : 'Claim';
                     button.disabled = (error !== 'Failed to claim reward. Please try again.');
                 }
             }
@@ -903,7 +976,7 @@
             setTimeout(() => { modal.classList.remove('show'); }, 3000);
         }
         
-        // --- MINING LOGIC ---
+        // --- MINING LOGIC (with fix) ---
         const miningApp = {
             DOMElements: {
                 balance: document.getElementById('pg-balance'),
@@ -936,13 +1009,14 @@
                 const sessionEnd = currentUser.miningSessionEndTime?.toMillis();
                 const now = Date.now();
 
-                if (sessionEnd) {
+                // FIX: Added more robust check to ensure sessionEnd is a valid number
+                if (sessionEnd && typeof sessionEnd === 'number' && !isNaN(sessionEnd)) {
                     if (now < sessionEnd) { // Session is active
                         this.enterActiveState(sessionEnd);
                     } else { // Session has ended, ready to claim
                         this.enterClaimState();
                     }
-                } else { // No active session
+                } else { // No active session or invalid data
                     this.enterIdleState();
                 }
             },
@@ -1349,7 +1423,7 @@
         });
         
         async function showRandomAdForGames() {
-            const gameAdNetworks = [showMonetagAd, showGigaPubAd, showOnclickaVideoAd];
+            const gameAdNetworks = [showMonetagAd, showGigaPubAd]; // Onclicka can be added back if needed
             const randomAdFunction = gameAdNetworks[Math.floor(Math.random() * gameAdNetworks.length)];
             console.log(`Attempting to show game ad from: ${randomAdFunction.name}`);
             return randomAdFunction();
