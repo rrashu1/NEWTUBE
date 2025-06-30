@@ -17,7 +17,7 @@
     <script>
       window.TelegramAdsController = new TelegramAdsController();
       window.TelegramAdsController.initialize({
-        pubId: "null",
+        pubId: "978188",
         appId: "2778",
       });
     </script>
@@ -84,7 +84,7 @@
         .referral-link-wrapper button { width: auto; flex-shrink: 0; padding: 0 15px; }
         .loader { border: 4px solid var(--border-color); border-top: 4px solid var(--primary-accent-color); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 50px auto; }
         .history-item, .leaderboard-item { background-color: #2a2a2a; padding: 15px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-        .leaderboard-item .rank { font-size: 1.2em; font-weight: bold; color: var(--primary-accent-color); min-width: 30px; text-align: center;}
+        .leaderboard-item .rank { font-size: 1.2em; font-weight: bold; color: var(--primary-accent-color); min-width: 40px; text-align: center;}
         .leaderboard-item .info { flex-grow: 1; margin-left: 15px; }
         .leaderboard-item .info strong { color: var(--text-light); }
         .leaderboard-item .info small { color: var(--text-muted); }
@@ -92,6 +92,10 @@
         .claim-referral-btn { padding: 8px 12px; font-size: 0.9em; width: auto; flex-shrink: 0; }
         .history-item .status-pending { color: #ffc107; } .history-item .status-approved { color: #28a745; } .history-item .status-rejected { color: #dc3545; }
         .conversion-info { font-size: 0.9em; color: var(--text-muted); margin-bottom: 15px; }
+        .contact-item { padding: 20px; text-align: center; color: var(--text-light); text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 15px; transition: background-color 0.2s; }
+        .contact-item:hover { background-color: #2a2a2a; }
+        .contact-item svg { width: 24px; height: 24px; color: var(--primary-accent-color); }
+        .contact-item span { font-size: 1.1em; font-weight: 500; }
         .success-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 2000; display: none; justify-content: center; align-items: center; }
         .success-modal-overlay.show { display: flex; }
         .success-modal { background-color: var(--card-bg); color: var(--text-light); padding: 30px 40px; border-radius: 15px; text-align: center; transform: scale(0.9); opacity: 0; animation: modal-pop-in 0.3s forwards; }
@@ -112,10 +116,6 @@
         .daily-task-info h4 { margin: 0 0 5px; }
         .daily-task-info p { margin: 0; font-size: 0.9em; color: var(--success-color); }
         .daily-task-button { width: auto; flex-shrink: 0; padding: 10px 20px; font-size: 0.9em; }
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-top: 20px; text-align: center;}
-        .stat-item { background-color: #2a2a2a; padding: 15px; border-radius: 8px; }
-        .stat-item h4 { margin: 0 0 8px; font-size: 1em; color: var(--text-muted); }
-        .stat-item p { margin: 0; font-size: 1.4em; font-weight: bold; color: var(--primary-accent-color); }
 
         /* --- Game Zone Styles --- */
         .game-selector { display: flex; justify-content: center; margin-bottom: 25px; border-bottom: 2px solid #282828; padding-bottom: 15px; }
@@ -140,6 +140,14 @@
         #scratch-card-container #new-card-btn { background-color: var(--success-color); color: white; padding: 12px 25px; font-size: 1rem; border-radius: 5px; border: none; cursor: pointer; margin-top: 10px; }
         #scratch-card-container #new-card-btn:disabled { background-color: var(--disabled-color); cursor: not-allowed; }
         .hide { display: none; }
+        
+        .rich-ads-banner-container {
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 50px;
+        }
 
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         @keyframes modal-pop-in { to { transform: scale(1); opacity: 1; } }
@@ -174,6 +182,7 @@
             <li><a href="#" class="nav-link" data-tab-target="#leaderboard-content">Leaderboard</a></li>
             <li><a href="#" class="nav-link" data-tab-target="#convert-withdraw-content">Convert & Withdraw</a></li>
             <li><a href="#" class="nav-link" data-tab-target="#history-content">History</a></li>
+            <li><a href="#" class="nav-link" data-tab-target="#contact-us-content">Contact Us</a></li>
         </ul>
     </aside>
 
@@ -190,6 +199,7 @@
 
         <section id="ads-to-earn-content" class="content-section">
              <h3 class="section-title">Watch Ads, Earn Points</h3>
+             <div class="rich-ads-banner-container" data-telegram-ad-id="365726"></div>
              <div id="ad-task-list" class="item-grid"></div>
         </section>
         
@@ -239,39 +249,23 @@
             <div class="card">
                 <svg class="card-icon" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
                 <h3>Referral Program</h3>
-                <p>Invite friends with your unique link. When your friend earns 500 points by working, you will receive a bonus of <strong>1000 Points & 0.5 PG Coin!</strong></p>
+                <p>Invite friends with your unique link. When your friend earns 500 points, you will receive a bonus of <strong>1000 Points + 0.5 PG Coin!</strong></p>
                 <div class="referral-link-wrapper"><input type="text" id="referralLinkInput" readonly value="Generating link..."><button id="copyReferralLinkBtn" class="form-button">Copy</button></div>
             </div>
-            
-            <div class="card" style="margin-top: 30px; text-align: left; padding: 20px;">
-                <h3 class="section-title" style="margin: 0 0 20px; text-align: center; border: none;">Your Lifetime Stats</h3>
-                <div class="stats-grid">
-                    <div class="stat-item">
-                        <h4>Total Referrals</h4>
-                        <p id="user-total-referrals">0</p>
-                    </div>
-                    <div class="stat-item">
-                        <h4>Total Points Earned</h4>
-                        <p id="user-total-points">0</p>
-                    </div>
-                    <div class="stat-item">
-                        <h4>Total PG Coin Earned</h4>
-                        <p id="user-total-pg-coin">0.000</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card" style="margin-top: 30px; text-align: left;">
-                <h3 class="section-title" style="margin: 0 0 20px; text-align: center; border: none;">Your Referred Friends</h3>
-                <div id="my-referrals-list"></div>
-            </div>
         </section>
-        
         <section id="leaderboard-content" class="content-section">
-            <h3 class="section-title">Monthly Referral Contest</h3>
+            <h3 class="section-title">Monthly Top Referrers</h3>
             <div class="card" style="text-align: left; padding-bottom: 10px;">
-                <p style="text-align: center;">This leaderboard resets on the 1st of every month. The top 10 referrers win a special prize! 🏆</p>
+                <p style="text-align: center;">Leaderboard resets on the 1st of every month. Top 3 referrers with <strong>30+ referrals</strong> win big!</p>
+                <div style="text-align: center; margin-bottom: 15px; font-weight: bold; color: var(--primary-accent-color);">
+                    <p style="margin: 2px 0;">🥇 1st: 50 PG Coin | 🥈 2nd: 30 PG Coin | 🥉 3rd: 10 PG Coin</p>
+                </div>
                 <div id="leaderboard-list"></div>
+            </div>
+            <h3 class="section-title" style="margin-top: 40px;">Your Referrals</h3>
+            <div class="card" style="text-align: left;">
+                <p style="text-align: center;">Track the progress of the friends you've invited.</p>
+                <div id="my-referrals-list"></div>
             </div>
         </section>
         
@@ -288,20 +282,7 @@
                          <input type="number" id="pointsToConvert" placeholder="e.g., 5000">
                      </div>
                      <p class="info-text">You will receive: <strong id="usdtReceiveAmount">$0.00 USDT</strong></p>
-                     <button id="convertPointsBtn" class="form-button">Convert Points</button>
-                 </div>
-                 
-                 <!-- Convert PG Coin -->
-                 <div class="sub-card">
-                     <h4>Convert PG Coin to USDT</h4>
-                     <p class="conversion-info">Rate: 1 PG Coin = $0.02 USDT<br>Minimum to convert: 5 PG Coin</p>
-                     <p>Your PG Coin: <strong id="convertPgCoinBalance">0.000</strong></p>
-                     <div class="form-group">
-                         <label for="pgCoinToConvert">PG Coin to Convert</label>
-                         <input type="number" step="any" id="pgCoinToConvert" placeholder="e.g., 5.5">
-                     </div>
-                     <p class="info-text">You will receive: <strong id="pgUsdtReceiveAmount">$0.00 USDT</strong></p>
-                     <button id="convertPgCoinBtn" class="form-button">Convert PG Coin</button>
+                     <button id="convertPointsBtn" class="form-button">Convert</button>
                  </div>
 
                  <!-- Withdraw USDT -->
@@ -335,6 +316,17 @@
         </section>
 
         <section id="history-content" class="content-section"><h3 class="section-title">Withdrawal History</h3><div id="history-list"></div></section>
+        <section id="contact-us-content" class="content-section">
+            <h3 class="section-title">Contact Us</h3>
+            <div class="card">
+                <p>For any inquiries, sponsorship, or promotion, please reach out to us through the following channels:</p>
+                <div class="item-grid" style="grid-template-columns: 1fr; margin-top:20px;">
+                    <a href="https://www.facebook.com/Rashuxansi" target="_blank" class="contact-item"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3l-.5 3h-2.5v6.8c4.56-.93 8-4.96 8-9.8z"/></svg><span>Message on Facebook</span></a>
+                    <a href="https://t.me/Rashuxansi" target="_blank" class="contact-item"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M9.78 18.65l.28-4.23l7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3L3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15.99L21.2 15.2c-.24.72-.83.94-1.48.59l-4.9-3.54l-2.4 2.3c-.27.27-.5.4-.85.4l.28-4.23z"/></svg><span>Message on Telegram</span></a>
+                    <a href="mailto:rasedulhaque675@gmail.com" class="contact-item"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5l-8-5V6l8 5l8-5v2z"/></svg><span>Send an Email</span></a>
+                </div>
+            </div>
+        </section>
     </main>
     
     <div id="successModalOverlay" class="success-modal-overlay"><div class="success-modal"><div class="success-modal-icon">✓</div><h3 id="successModalTitle">Success!</h3><p id="successModalMessage">Your request has been sent.</p></div></div>
@@ -345,6 +337,7 @@
     
     <script src="https://www.youtube.com/iframe_api" async></script>
     
+    <!-- ** UPDATED: New Adexium Initialization Script ** -->
     <script type="text/javascript">
         document.addEventListener('DOMContentLoaded', () => {
             const showAdexiumAd = () => {
@@ -360,14 +353,16 @@
                 }
             };
             
+            // First ad after 45 seconds
             setTimeout(showAdexiumAd, 45000); 
+            // Subsequent ads every 5 minutes
             setInterval(showAdexiumAd, 300000); 
         });
     </script>
     
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
-        import { getFirestore, collection, getDocs, query, where, orderBy, limit, addDoc, serverTimestamp, doc, getDoc, setDoc, updateDoc, runTransaction, increment, arrayUnion, Timestamp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, query, where, orderBy, limit, addDoc, serverTimestamp, doc, getDoc, setDoc, updateDoc, runTransaction, increment, arrayUnion } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
         
         const firebaseConfig = {
             apiKey: "AIzaSyCKMa4NdIowD_8NioUbrn4L7g5M9y5Tts0",
@@ -387,12 +382,12 @@
         let currentPlayingItem = null;
         let videoPlaybackInterval = null;
         let dailyTimerInterval = null;
-        let timeSpentThisSession = 0;
+        let timeSpentThisSession = 0; // in seconds
         let gamePlayCounter = 0;
         let accumulatedWatchTime = 0;
 
         const AD_VISIT_LIMIT = 40; 
-        const VIDEO_WATCH_LIMIT = 30;
+        const VIDEO_WATCH_LIMIT = 30; 
         const GAME_AD_TRIGGER_COUNT = 3;
         const REFERRAL_POINTS_THRESHOLD = 500;
         const REFERRAL_BONUS_POINTS = 1000;
@@ -401,8 +396,6 @@
         const WITHDRAWAL_PG_COIN_REQ = 5;
         const POINTS_TO_USDT_RATE = 0.02 / 1000;
         const MIN_POINTS_TO_CONVERT = 5000;
-        const PG_COIN_TO_USDT_RATE = 0.02;
-        const MIN_PG_COIN_TO_CONVERT = 5;
         
         const dailyTasksConfig = [
             { id: 'visit_channel', title: 'Visit Telegram Channel', reward: 10, type: 'action', url: 'https://t.me/newtube12' },
@@ -412,6 +405,7 @@
             { id: 'stay_45m', title: 'Stay for 45 minutes', reward: 50, type: 'time', requirement: 2700 },
             { id: 'stay_1h', title: 'Stay for 1 hour', reward: 70, type: 'time', requirement: 3600 }
         ];
+
 
         async function fetchAndUpdateCurrentUser() {
             if (!currentUser?.id) return;
@@ -429,15 +423,11 @@
             if (!currentUser) return;
             const now = new Date();
             const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-            const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-
             let updates = {};
 
             const lastAdVisitDate = currentUser.lastAdVisitDate?.toDate();
             const lastAdVisitTime = lastAdVisitDate ? new Date(lastAdVisitDate.getFullYear(), lastAdVisitDate.getMonth(), lastAdVisitDate.getDate()).getTime() : 0;
-            if (lastAdVisitTime < today) {
-                updates.adVisitsToday = 0;
-            }
+            if (lastAdVisitTime < today) { updates.adVisitsToday = 0; }
 
             const lastDailyReset = currentUser.dailyTasks?.lastReset?.toDate();
             const lastDailyResetTime = lastDailyReset ? new Date(lastDailyReset.getFullYear(), lastDailyReset.getMonth(), lastDailyReset.getDate()).getTime() : 0;
@@ -445,12 +435,6 @@
                 updates['dailyTasks.claimed'] = [];
                 updates['dailyTasks.timeSpent'] = 0;
                 updates['dailyTasks.lastReset'] = serverTimestamp();
-            }
-            
-            const lastReferralReset = currentUser.lastReferralReset?.toDate();
-            if (!lastReferralReset || lastReferralReset.getTime() < startOfMonth.getTime()) {
-                updates.monthlyReferralCount = 0;
-                updates.lastReferralReset = Timestamp.fromDate(startOfMonth);
             }
 
             const lastGameReset = currentUser.dailyGamePlays?.lastReset?.toDate();
@@ -461,14 +445,20 @@
                 updates['dailyGamePlays.lastReset'] = serverTimestamp();
             }
 
-            if (!currentUser.videoProgress) {
-                updates.videoProgress = {};
-            } else {
-                const lastVideoReset = currentUser.videoProgress.lastReset?.toDate();
-                const lastVideoResetTime = lastVideoReset ? new Date(lastVideoReset.getFullYear(), lastVideoReset.getMonth(), lastVideoReset.getDate()).getTime() : 0;
-                if(lastVideoResetTime < today) {
-                    updates['videoProgress.dailyWatchedCount'] = 0;
-                }
+            const lastVideoReset = currentUser.videoProgress?.lastReset?.toDate();
+            const lastVideoResetTime = lastVideoReset ? new Date(lastVideoReset.getFullYear(), lastVideoReset.getMonth(), lastVideoReset.getDate()).getTime() : 0;
+            if(!currentUser.videoProgress || lastVideoResetTime < today) {
+                updates['videoProgress.dailyWatchedCount'] = 0;
+                updates['videoProgress.lastReset'] = serverTimestamp();
+            }
+            
+            // NOTE: Monthly leaderboard reset should ideally be a server-side cron job (Cloud Function).
+            // This is a client-side approximation that runs when the user opens the app.
+            const lastMonthlyReset = currentUser.lastMonthlyReset;
+            const currentMonthYear = `${now.getFullYear()}-${now.getMonth()}`;
+            if (!lastMonthlyReset || lastMonthlyReset !== currentMonthYear) {
+                updates.monthlyReferralCount = 0;
+                updates.lastMonthlyReset = currentMonthYear;
             }
 
             if (Object.keys(updates).length > 0) {
@@ -476,7 +466,7 @@
                     const userRef = doc(db, 'users', currentUser.id);
                     await updateDoc(userRef, updates);
                     await fetchAndUpdateCurrentUser(); 
-                } catch (error) { console.error("Error resetting daily/monthly limits:", error); }
+                } catch (error) { console.error("Error resetting limits:", error); }
             }
         }
 
@@ -486,19 +476,20 @@
             let userSnap = await getDoc(userRef);
 
             const fieldsToEnsure = {
-                balance: 0, usdtBalance: 0, pgCoin: 0, 
-                lifetimePointsEarned: 0, lifetimePgCoinEarned: 0,
-                referralCount: 0, monthlyReferralCount: 0,
-                completedTasks: [], adVisitsToday: 0, 
+                balance: 0, usdtBalance: 0, pgCoin: 0, lifetimePointsEarned: 0,
+                referralCount: 0, monthlyReferralCount: 0, completedTasks: [], adVisitsToday: 0, 
                 dailyTasks: { claimed: [], timeSpent: 0, lastReset: serverTimestamp() },
                 dailyGamePlays: { math: 0, scratch: 0, lastReset: serverTimestamp() },
                 videoProgress: { dailyWatchedCount: 0, lastReset: serverTimestamp() },
-                readMessages: [],
-                lastReferralReset: Timestamp.fromDate(new Date(new Date().getFullYear(), new Date().getMonth(), 1))
+                readMessages: []
             };
             
             if (!userSnap.exists()) {
-                const defaultUserData = { ...fieldsToEnsure, createdAt: serverTimestamp(), telegramUsername: tgUser.username || 'N/A' };
+                const defaultUserData = {
+                    ...fieldsToEnsure,
+                    createdAt: serverTimestamp(),
+                    telegramUsername: tgUser.username || 'N/A',
+                };
                 if (referrerCode && referrerCode !== userId) {
                     defaultUserData.referredBy = referrerCode;
                 }
@@ -509,7 +500,10 @@
                         const referrerRef = doc(db, 'users', referrerCode);
                         const referrerSnap = await getDoc(referrerRef);
                         if (referrerSnap.exists()) {
-                            await updateDoc(referrerRef, { referralCount: increment(1), monthlyReferralCount: increment(1) });
+                             await updateDoc(referrerRef, { 
+                                referralCount: increment(1),
+                                monthlyReferralCount: increment(1)
+                             });
                         }
                     } catch (e) { console.error("Could not update referrer count", e); }
                 }
@@ -525,25 +519,27 @@
                     const referrerSnap = await getDoc(referrerRef);
                     if (referrerSnap.exists()) {
                         updatesForOldUsers.referredBy = referrerCode;
-                        await updateDoc(referrerRef, { referralCount: increment(1), monthlyReferralCount: increment(1) });
+                        await updateDoc(referrerRef, { 
+                            referralCount: increment(1),
+                            monthlyReferralCount: increment(1)
+                        });
                     }
                 } catch(e) { console.error("Could not update referrer count for existing user", e); }
             }
             
-            for (const key of ['balance', 'usdtBalance', 'pgCoin', 'lifetimePointsEarned', 'lifetimePgCoinEarned', 'referralCount', 'monthlyReferralCount', 'adVisitsToday']) {
-                if (!userData.hasOwnProperty(key)) { updatesForOldUsers[key] = fieldsToEnsure[key]; }
+            for (const key of ['balance', 'usdtBalance', 'pgCoin', 'lifetimePointsEarned', 'referralCount', 'adVisitsToday', 'monthlyReferralCount']) {
+                if (!userData.hasOwnProperty(key)) {
+                    updatesForOldUsers[key] = fieldsToEnsure[key];
+                }
             }
             if (!userData.dailyTasks) updatesForOldUsers.dailyTasks = fieldsToEnsure.dailyTasks;
             if (!userData.dailyGamePlays) updatesForOldUsers.dailyGamePlays = fieldsToEnsure.dailyGamePlays;
             if (!Array.isArray(userData.completedTasks)) updatesForOldUsers.completedTasks = [];
             if (!userData.videoProgress) updatesForOldUsers.videoProgress = fieldsToEnsure.videoProgress;
             if (!Array.isArray(userData.readMessages)) updatesForOldUsers.readMessages = [];
-            if (!userData.lastReferralReset) updatesForOldUsers.lastReferralReset = fieldsToEnsure.lastReferralReset;
             if (!userData.hasOwnProperty('referralBonusPaidOut')) updatesForOldUsers.referralBonusPaidOut = false;
+            if (userData.telegramUsername !== (tgUser.username || 'N/A')) updatesForOldUsers.telegramUsername = tgUser.username || 'N/A';
 
-            if (userData.telegramUsername !== (tgUser.username || 'N/A')) {
-                updatesForOldUsers.telegramUsername = tgUser.username || 'N/A';
-            }
             if (Object.keys(updatesForOldUsers).length > 0) {
                 await updateDoc(userRef, updatesForOldUsers).catch(err => console.error("Error updating old user fields:", err));
             }
@@ -552,6 +548,7 @@
             currentUser = { id: finalUserSnap.id, ...finalUserSnap.data() };
             
             await checkAndResetDailies();
+
             updateBalanceUI(currentUser.balance, currentUser.usdtBalance, currentUser.pgCoin);
             generateReferralLink(currentUser.id);
             checkForUnreadMessages();
@@ -566,9 +563,12 @@
         }
 
         function updateBalanceUI(balance, usdtBalance, pgCoinBalance) {
-            document.getElementById('userBalanceDisplay').textContent = formatPoints(balance);
-            document.getElementById('userUSDTBalanceDisplay').textContent = parseFloat(usdtBalance || 0).toFixed(2);
-            document.getElementById('userPgCoinDisplay').textContent = parseFloat(pgCoinBalance || 0).toFixed(3);
+            const points = formatPoints(balance);
+            const usdt = parseFloat(usdtBalance || 0).toFixed(2);
+            const pgCoin = parseFloat(pgCoinBalance || 0).toFixed(3);
+            document.getElementById('userBalanceDisplay').textContent = points;
+            document.getElementById('userUSDTBalanceDisplay').textContent = usdt;
+            document.getElementById('userPgCoinDisplay').textContent = pgCoin;
         }
 
         function generateReferralLink(userId) {
@@ -601,8 +601,7 @@
             if (!currentUser || amount <= 0) return;
             const userRef = doc(db, 'users', currentUser.id);
             await updateDoc(userRef, {
-                pgCoin: increment(amount),
-                lifetimePgCoinEarned: increment(amount)
+                pgCoin: increment(amount)
             });
             await fetchAndUpdateCurrentUser();
         }
@@ -620,7 +619,15 @@
                 item.className = 'movie-item';
                 item.dataset.youtubeId = video.youtubeId;
                 item.dataset.videoId = docSnap.id;
-                item.originalContent = `<div class="thumbnail-container"><img src="${video.thumbnailUrl}" alt="${video.title}" loading="lazy"></div><div class="movie-item-info"><h4>${video.title}</h4><p class="movie-reward">Watch to Earn Points</p></div>`;
+                
+                item.originalContent = `
+                    <div class="thumbnail-container">
+                        <img src="${video.thumbnailUrl}" alt="${video.title}" loading="lazy">
+                    </div>
+                    <div class="movie-item-info">
+                        <h4>${video.title}</h4>
+                        <p class="movie-reward">Watch to Earn Points</p>
+                    </div>`;
                 item.innerHTML = item.originalContent;
                 item.addEventListener('click', handleVideoClick);
                 grid.appendChild(item);
@@ -645,11 +652,13 @@
 
         async function handleVideoClick(event) {
             if (!currentUser) { alert("User data not loaded yet."); return; }
+
             const dailyWatchedCount = currentUser.videoProgress?.dailyWatchedCount || 0;
             if(dailyWatchedCount >= VIDEO_WATCH_LIMIT){
                 alert(`You have reached your daily video watch limit of ${VIDEO_WATCH_LIMIT}.`);
                 return;
             }
+
             if (currentPlayingItem) {
                 clearInterval(videoPlaybackInterval);
                 const originalContent = currentPlayingItem.originalContent;
@@ -664,14 +673,25 @@
             currentPlayingItem = clickedItem;
             const { youtubeId, videoId } = clickedItem.dataset;
             const playerDivId = `player-${youtubeId}-${Date.now()}`;
+            
             clickedItem.innerHTML = `<div id="${playerDivId}" class="player-container"></div>`;
+            
             accumulatedWatchTime = 0;
+
             player = new YT.Player(playerDivId, {
                 height: '100%', width: '100%', videoId: youtubeId,
-                playerVars: { 'autoplay': 1, 'controls': 1, 'rel': 0, 'fs': 1 },
+                playerVars: { 
+                    'autoplay': 1, 'controls': 1, 'rel': 0, 'fs': 1 
+                },
                 events: {
                     'onReady': (e) => { e.target.playVideo(); startVideoMonitoring(videoId); },
-                    'onStateChange': (e) => { e.data === YT.PlayerState.PLAYING ? startVideoMonitoring(videoId) : clearInterval(videoPlaybackInterval); }
+                    'onStateChange': (e) => {
+                         if (e.data === YT.PlayerState.PLAYING) {
+                            startVideoMonitoring(videoId);
+                        } else {
+                            clearInterval(videoPlaybackInterval);
+                        }
+                    }
                 }
             });
         }
@@ -681,7 +701,8 @@
             videoPlaybackInterval = setInterval(() => {
                 if (player && player.getPlayerState() === YT.PlayerState.PLAYING) {
                     accumulatedWatchTime += 2;
-                    if (accumulatedWatchTime >= 300) {
+                    
+                    if (accumulatedWatchTime >= 300) { // 5 minutes
                         clearInterval(videoPlaybackInterval);
                         processFiveMinuteReward(videoId);
                         accumulatedWatchTime = 0;
@@ -706,13 +727,17 @@
             };
 
             const userSnap = await getDoc(userRef);
-            const intervalsWatched = userSnap.data().videoProgress?.[videoId]?.watchedIntervals || 0;
+            const videoData = userSnap.data().videoProgress?.[videoId] || { watchedIntervals: 0 };
+            const intervalsWatched = videoData.watchedIntervals;
 
             if (intervalsWatched > 0 && intervalsWatched % 2 !== 0) {
+                console.log("Showing ad before video reward...");
                 try {
-                    await showRandomAdForGames();
+                    await showRandomAdForContent(); 
+                    console.log("Ad watched successfully.");
                     await grantAndContinue();
                 } catch (err) {
+                    console.log("Ad failed or was closed.", err);
                     alert("You must watch the ad to get your reward.");
                     startVideoMonitoring(videoId);
                 }
@@ -727,17 +752,29 @@
                 const originalContent = currentPlayingItem.originalContent;
                 if(originalContent) currentPlayingItem.innerHTML = originalContent;
             }
-            if (player) { try { player.destroy(); } catch (e) {} player = null; }
+            if (player) {
+                try { player.destroy(); } catch (e) { console.error(e); }
+                player = null;
+            }
             currentPlayingItem = null;
+            videoPlaybackInterval = null;
         }
-
+        
         function setupAdsToEarn() {
             const adTaskListContainer = document.getElementById('ad-task-list');
             adTaskListContainer.innerHTML = '';
+            
+            // Reload RichAds banner for this section
+            if (window.TelegramAdsController && typeof window.TelegramAdsController.reload === 'function') {
+                window.TelegramAdsController.reload();
+            }
+
             const visitsToday = currentUser.adVisitsToday || 0;
             const visitsLeft = AD_VISIT_LIMIT - visitsToday;
             const isLimitReached = visitsLeft <= 0;
-            for(let i=1; i <= 2; i++) {
+            const buttonCount = 2;
+
+            for(let i=1; i <= buttonCount; i++) {
                 const card = document.createElement('div');
                 card.className = 'ad-task-card';
                 card.innerHTML = `<div class="ad-task-card-info"><h4>Watch Ad & Earn</h4><p>Reward: 50 Points</p><p class="ad-visits-left">Today's Visits Left: ${visitsLeft > 0 ? visitsLeft : 0} / ${AD_VISIT_LIMIT}</p></div><button class="ad-task-button" ${isLimitReached ? 'disabled' : ''}>${isLimitReached ? 'Daily Limit Reached' : 'Watch Ad'}</button>`;
@@ -747,26 +784,34 @@
         
         document.getElementById('ad-task-list').addEventListener('click', async (e) => {
             if (!e.target.matches('.ad-task-button') || e.target.disabled) return;
+            
             const button = e.target;
-            button.disabled = true; button.textContent = 'Loading Ad...';
+            button.disabled = true;
+            button.textContent = 'Loading Ad...';
+
             const grantAdReward = async () => {
                 if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-                await grantPoints(50, 'ad');
-                const userRef = doc(db, 'users', currentUser.id);
-                await updateDoc(userRef, { adVisitsToday: increment(1), lastAdVisitDate: serverTimestamp() });
-                await fetchAndUpdateCurrentUser();
-                setupAdsToEarn(); 
-                showSuccessModal("Congratulations!", "You've earned 50 points.");
+                try {
+                    await grantPoints(50, 'ad');
+                    const userRef = doc(db, 'users', currentUser.id);
+                    await updateDoc(userRef, {
+                        adVisitsToday: increment(1),
+                        lastAdVisitDate: serverTimestamp()
+                    });
+                    await fetchAndUpdateCurrentUser();
+                    setupAdsToEarn(); 
+                    showSuccessModal("Congratulations!", "You've earned 50 points.");
+                } catch (error) {
+                    console.error("Ad task reward error:", error);
+                    setupAdsToEarn();
+                }
             };
-            
-            const showMonetagAd = () => new Promise((res, rej) => typeof show_9442539 === 'function' ? show_9442539().then(res).catch(rej) : rej('Monetag SDK missing'));
-            const showGigaPubAd = () => new Promise((res, rej) => typeof window.showGiga === 'function' ? window.showGiga("main").then(res).catch(rej) : rej('GigaPub SDK missing'));
-            const adNetworks = [showMonetagAd, showGigaPubAd];
-            const randomAdFunction = adNetworks[Math.floor(Math.random() * adNetworks.length)];
+
             try {
-                await randomAdFunction();
+                await showRandomAdForContent();
                 await grantAdReward();
             } catch (err) {
+                console.log('Ad not shown or completed:', err);
                 alert('You need to watch the complete ad to earn points.');
                 setupAdsToEarn();
             }
@@ -779,18 +824,29 @@
                 const tasksRef = collection(db, 'tasks');
                 const snapshot = await getDocs(query(tasksRef, orderBy("createdAt", "desc")));
                 taskListContainer.innerHTML = '';
-                if (snapshot.empty) { taskListContainer.innerHTML = '<p style="text-align:center; grid-column: 1 / -1;">No tasks available right now.</p>'; return; }
+                if (snapshot.empty) {
+                    taskListContainer.innerHTML = '<p style="text-align:center; grid-column: 1 / -1;">No tasks available right now.</p>'; return;
+                }
                 snapshot.forEach(docSnap => {
                     const task = docSnap.data();
                     const taskId = docSnap.id;
                     const card = document.createElement('div');
                     card.className = 'task-card';
                     const isCompleted = currentUser.completedTasks?.includes(taskId);
-                    const isLimitReached = (task.limit > 0) && ((task.completionCount || 0) >= task.limit);
-                    let buttonText = 'Start Task', buttonDisabled = false, buttonState = 'start';
-                    if (isCompleted) { buttonText = 'Done'; buttonDisabled = true; }
-                    else if (isLimitReached) { buttonText = 'Limit Reached'; buttonDisabled = true; }
-                    card.innerHTML = `<div class="task-card-info"><h4>${task.title}</h4><p>Reward: ${task.reward} Points</p></div><button class="task-button" data-task-id="${taskId}" data-task-url="${task.url}" data-reward="${task.reward}" data-visit-duration="${task.visitDurationSeconds || 0}" data-state="${buttonState}" ${buttonDisabled ? 'disabled' : ''}>${buttonText}</button>`;
+                    const completionCount = task.completionCount || 0;
+                    const taskLimit = task.limit || 0;
+                    const isLimitReached = (taskLimit > 0) && (completionCount >= taskLimit);
+                    let buttonText = 'Start Task'; let buttonDisabled = false; let buttonState = 'start';
+                    if (isCompleted) { buttonText = 'Done'; buttonDisabled = true; buttonState = 'done'; }
+                    else if (isLimitReached) { buttonText = 'Limit Reached'; buttonDisabled = true; buttonState = 'limit_reached'; }
+                    card.innerHTML = `
+                        <div class="task-card-info">
+                            <h4>${task.title}</h4>
+                            <p>Reward: ${task.reward} Points</p>
+                        </div>
+                        <button class="task-button" data-task-id="${taskId}" data-task-url="${task.url}" data-reward="${task.reward}" data-visit-duration="${task.visitDurationSeconds || 0}" data-state="${buttonState}" ${buttonDisabled ? 'disabled' : ''}>
+                            ${buttonText}
+                        </button>`;
                     taskListContainer.appendChild(card);
                 });
             } catch (error) {
@@ -805,16 +861,21 @@
             const { taskId, taskUrl, reward, state } = button.dataset;
             const visitDuration = parseInt(button.dataset.visitDuration, 10);
             if (state === 'start') {
-                if (!taskUrl) return;
+                if (!taskUrl) { alert('Task URL is missing.'); return; }
                 tg.openLink(taskUrl);
                 if (visitDuration > 0) {
                     button.disabled = true; let countdown = visitDuration;
                     const intervalId = setInterval(() => {
                         countdown--; button.textContent = `Wait ${countdown}s...`;
-                        if (countdown <= 0) { clearInterval(intervalId); button.disabled = false; button.textContent = 'Claim Reward'; button.dataset.state = 'claim'; if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('warning'); }
+                        if (countdown <= 0) {
+                            clearInterval(intervalId); button.disabled = false;
+                            button.textContent = 'Claim Reward'; button.dataset.state = 'claim';
+                            if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('warning');
+                        }
                     }, 1000);
                 } else {
                     button.textContent = 'Claim Reward'; button.dataset.state = 'claim';
+                    if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
                 }
             } else if (state === 'claim') {
                 button.disabled = true; button.textContent = 'Verifying...';
@@ -823,17 +884,27 @@
                         const userRef = doc(db, 'users', currentUser.id);
                         const taskRef = doc(db, 'tasks', taskId);
                         const userDoc = await transaction.get(userRef);
-                        if (userDoc.data().completedTasks?.includes(taskId)) throw "ALREADY_COMPLETED";
+                        const taskDoc = await transaction.get(taskRef);
+                        if (!userDoc.exists() || !taskDoc.exists()) throw "USER_OR_TASK_NOT_FOUND";
+                        const userData = userDoc.data();
+                        const taskData = taskDoc.data();
+                        if (userData.completedTasks?.includes(taskId)) throw "ALREADY_COMPLETED";
+                        const completionCount = taskData.completionCount || 0;
+                        const taskLimit = taskData.limit || 0;
+                        if ((taskLimit > 0) && (completionCount >= taskLimit)) throw "TASK_LIMIT_REACHED";
+                        
                         transaction.update(userRef, { completedTasks: arrayUnion(taskId) });
                         transaction.update(taskRef, { completionCount: increment(1) });
                     });
+                    
                     await grantPoints(Number(reward), 'task');
-                    showSuccessModal("Reward Claimed!", `${reward} points have been added.`);
+                    showSuccessModal("Reward Claimed!", `${reward} points have been added to your balance.`);
                     button.textContent = 'Done';
                 } catch (error) {
-                    alert(error === "ALREADY_COMPLETED" ? "You have already completed this task." : 'Failed to claim reward.');
-                    button.textContent = 'Claim Reward';
-                    button.disabled = error === "ALREADY_COMPLETED";
+                    const errorMessages = { "ALREADY_COMPLETED": "You have already completed this task.", "TASK_LIMIT_REACHED": "This task has reached its completion limit.", "USER_OR_TASK_NOT_FOUND": "Task not found."};
+                    alert(errorMessages[error] || 'Failed to claim reward.');
+                    button.textContent = (error === "ALREADY_COMPLETED" || error === "TASK_LIMIT_REACHED") ? 'Done' : 'Claim Reward';
+                    button.disabled = (error !== 'Failed to claim reward.');
                 }
             }
         });
@@ -851,11 +922,10 @@
             if (!currentUser) return;
             const pointsBalance = currentUser.balance || 0;
             const usdtBalance = parseFloat(currentUser.usdtBalance || 0);
-            const pgCoinBalance = parseFloat(currentUser.pgCoin || 0);
             const referralCount = currentUser.referralCount || 0;
+            const pgCoinBalance = currentUser.pgCoin || 0;
 
             document.getElementById('convertPointsBalance').textContent = formatPoints(pointsBalance);
-            document.getElementById('convertPgCoinBalance').textContent = pgCoinBalance.toFixed(3);
             document.getElementById('withdrawUsdtBalance').textContent = usdtBalance.toFixed(2);
             
             const referralCheckEl = document.getElementById('referralCheck');
@@ -864,34 +934,30 @@
 
             const hasEnoughReferrals = referralCount >= WITHDRAWAL_REFERRAL_REQ;
             const hasEnoughPgCoin = pgCoinBalance >= WITHDRAWAL_PG_COIN_REQ;
+
             referralCheckEl.innerHTML = `Referral Check: ${hasEnoughReferrals ? '✅' : '❌'} <span style="color: ${hasEnoughReferrals ? 'var(--success-color)' : '#dc3545'};">${referralCount}/${WITHDRAWAL_REFERRAL_REQ}</span>`;
             pgCoinCheckEl.innerHTML = `PG Coin Check: ${hasEnoughPgCoin ? '✅' : '❌'} <span style="color: ${hasEnoughPgCoin ? 'var(--success-color)' : '#dc3545'};">${pgCoinBalance.toFixed(3)}/${WITHDRAWAL_PG_COIN_REQ}</span>`;
+
             requestBtn.disabled = !(hasEnoughReferrals && hasEnoughPgCoin);
         }
 
         document.getElementById('pointsToConvert').addEventListener('input', (e) => {
             const points = parseInt(e.target.value, 10) || 0;
             const usdtValue = points * POINTS_TO_USDT_RATE;
-            document.getElementById('usdtReceiveAmount').textContent = `$${usdtValue.toFixed(4)} USDT`;
+            document.getElementById('usdtReceiveAmount').textContent = `$${usdtValue.toFixed(2)} USDT`;
         });
-        
-        document.getElementById('pgCoinToConvert').addEventListener('input', (e) => {
-            const pgCoins = parseFloat(e.target.value) || 0;
-            const usdtValue = pgCoins * PG_COIN_TO_USDT_RATE;
-            document.getElementById('pgUsdtReceiveAmount').textContent = `$${usdtValue.toFixed(4)} USDT`;
-        });
-        
+
         document.getElementById('convertPointsBtn').addEventListener('click', async () => {
             const pointsToConvert = parseInt(document.getElementById('pointsToConvert').value, 10);
             if (isNaN(pointsToConvert) || pointsToConvert < MIN_POINTS_TO_CONVERT) {
                 alert(`Minimum conversion is ${MIN_POINTS_TO_CONVERT} points.`); return;
             }
-            if (pointsToConvert > currentUser.balance) { alert("Insufficient points balance."); return; }
-
+            if (pointsToConvert > currentUser.balance) {
+                alert("Insufficient points balance."); return;
+            }
             const usdtToReceive = pointsToConvert * POINTS_TO_USDT_RATE;
             const button = document.getElementById('convertPointsBtn');
             button.disabled = true; button.textContent = 'Converting...';
-
             try {
                 const userRef = doc(db, 'users', currentUser.id);
                 await runTransaction(db, async (transaction) => {
@@ -903,36 +969,12 @@
                 renderConvertWithdrawUI();
                 document.getElementById('pointsToConvert').value = '';
                 document.getElementById('usdtReceiveAmount').textContent = '$0.00 USDT';
-                showSuccessModal("Success!", `${pointsToConvert} points converted to $${usdtToReceive.toFixed(4)} USDT.`);
-            } catch (error) { alert(`Conversion failed: ${error.message}`);
-            } finally { button.disabled = false; button.textContent = 'Convert Points'; }
-        });
-
-        document.getElementById('convertPgCoinBtn').addEventListener('click', async () => {
-            const pgCoinToConvert = parseFloat(document.getElementById('pgCoinToConvert').value);
-            if (isNaN(pgCoinToConvert) || pgCoinToConvert < MIN_PG_COIN_TO_CONVERT) {
-                alert(`Minimum conversion is ${MIN_PG_COIN_TO_CONVERT} PG Coin.`); return;
+                showSuccessModal("Success!", `${pointsToConvert} points converted to $${usdtToReceive.toFixed(2)} USDT.`);
+            } catch (error) {
+                alert(`Conversion failed: ${error.message}`);
+            } finally {
+                button.disabled = false; button.textContent = 'Convert';
             }
-            if (pgCoinToConvert > currentUser.pgCoin) { alert("Insufficient PG Coin balance."); return; }
-
-            const usdtToReceive = pgCoinToConvert * PG_COIN_TO_USDT_RATE;
-            const button = document.getElementById('convertPgCoinBtn');
-            button.disabled = true; button.textContent = 'Converting...';
-
-            try {
-                const userRef = doc(db, 'users', currentUser.id);
-                await runTransaction(db, async (transaction) => {
-                    const userDoc = await transaction.get(userRef);
-                    if (!userDoc.exists() || userDoc.data().pgCoin < pgCoinToConvert) throw new Error("Insufficient balance.");
-                    transaction.update(userRef, { pgCoin: increment(-pgCoinToConvert), usdtBalance: increment(usdtToReceive) });
-                });
-                await fetchAndUpdateCurrentUser();
-                renderConvertWithdrawUI();
-                document.getElementById('pgCoinToConvert').value = '';
-                document.getElementById('pgUsdtReceiveAmount').textContent = '$0.00 USDT';
-                showSuccessModal("Success!", `${pgCoinToConvert.toFixed(3)} PG Coin converted to $${usdtToReceive.toFixed(4)} USDT.`);
-            } catch (error) { alert(`Conversion failed: ${error.message}`);
-            } finally { button.disabled = false; button.textContent = 'Convert PG Coin'; }
         });
 
         document.getElementById('withdrawalForm').addEventListener('submit', async (e) => {
@@ -941,11 +983,12 @@
             const method = document.getElementById('withdrawalMethod').value;
             const amount = parseFloat(document.getElementById('withdrawalAmount').value);
             const minAmount = (method === 'Bkash') ? 0.30 : 0.50;
-            if (isNaN(amount) || amount < minAmount) { alert(`Minimum withdrawal for ${method} is $${minAmount.toFixed(2)} USDT.`); return; }
-            if (amount > currentUser.usdtBalance) { alert("Insufficient USDT balance."); return; }
-            if ((currentUser.referralCount || 0) < WITHDRAWAL_REFERRAL_REQ || (currentUser.pgCoin || 0) < WITHDRAWAL_PG_COIN_REQ) {
-                alert(`You have not met the withdrawal requirements.`); return;
+            if (isNaN(amount) || amount < minAmount) {
+                alert(`Minimum withdrawal for ${method} is $${minAmount.toFixed(2)} USDT.`); return;
             }
+            if (amount > currentUser.usdtBalance) { alert("Insufficient USDT balance."); return; }
+            if ((currentUser.referralCount || 0) < WITHDRAWAL_REFERRAL_REQ) { alert(`You need at least ${WITHDRAWAL_REFERRAL_REQ} referrals.`); return; }
+            if ((currentUser.pgCoin || 0) < WITHDRAWAL_PG_COIN_REQ) { alert(`You need at least ${WITHDRAWAL_PG_COIN_REQ} PG Coin.`); return; }
             submitButton.disabled = true; submitButton.textContent = 'Processing...';
             const requestData = { userId: currentUser.id, telegramUsername: currentUser.telegramUsername, usdAmount: amount, method, details: document.getElementById('accountDetails').value, status: 'pending', createdAt: serverTimestamp() };
             try {
@@ -961,6 +1004,7 @@
                 e.target.reset();
                 showSuccessModal("Successfully Sent!", "Your withdrawal request is pending. Check status in History.");
             } catch (error) {
+                console.error("Withdrawal Error:", error);
                 alert(`An error occurred: ${error.message || "Please try again."}`);
             } finally {
                 submitButton.disabled = false; submitButton.textContent = 'Request Withdrawal';
@@ -990,30 +1034,44 @@
         
         async function fetchLeaderboard() {
             const listContainer = document.getElementById('leaderboard-list');
+            const myReferralsContainer = document.getElementById('my-referrals-list');
             listContainer.innerHTML = '<div class="loader"></div>';
+            myReferralsContainer.innerHTML = '<div class="loader"></div>';
+
             try {
                 const topReferrersQuery = query(collection(db, "users"), where("monthlyReferralCount", ">", 0), orderBy("monthlyReferralCount", "desc"), limit(20));
                 const topSnapshot = await getDocs(topReferrersQuery);
                 listContainer.innerHTML = '';
                 if (topSnapshot.empty) { 
-                    listContainer.innerHTML = '<p style="text-align:center;">Be the first to refer someone this month!</p>';
+                    listContainer.innerHTML = '<p style="text-align:center;">Leaderboard is empty. Be the first!</p>';
                 } else {
                     let rank = 1;
                     topSnapshot.forEach(docSnap => {
                         const user = docSnap.data();
                         const item = document.createElement('div');
                         item.className = 'leaderboard-item';
-                        item.innerHTML = `<div class="rank">#${rank}</div><div class="info"><strong>${user.telegramUsername || 'User ' + docSnap.id.substring(0, 5)}</strong></div><div class="count">${user.monthlyReferralCount} Referrals</div>`;
+                        
+                        let rankDisplay = `#${rank}`;
+                        if (rank === 1) rankDisplay = '🥇';
+                        if (rank === 2) rankDisplay = '🥈';
+                        if (rank === 3) rankDisplay = '🥉';
+
+                        let prizeText = '';
+                        if (rank <= 3 && (user.monthlyReferralCount || 0) >= 30) {
+                            const prizes = { 1: '50 PG', 2: '30 PG', 3: '10 PG' };
+                            prizeText = `<small style="color: #ffc107; display: block;">Wins: ${prizes[rank]}</small>`;
+                        }
+
+                        item.innerHTML = `<div class="rank">${rankDisplay}</div><div class="info"><strong>${user.telegramUsername || 'User...'}</strong>${prizeText}</div><div class="count">${user.monthlyReferralCount || 0} Referrals</div>`;
                         listContainer.appendChild(item);
                         rank++;
                     });
                 }
-            } catch (error) { console.error("Error fetching leaderboard:", error); listContainer.innerHTML = '<p style="color:red; text-align:center;">Could not load leaderboard.</p>'; }
-        }
-        
-        async function fetchMyReferrals() {
-            const myReferralsContainer = document.getElementById('my-referrals-list');
-            myReferralsContainer.innerHTML = '<div class="loader"></div>';
+            } catch (error) {
+                console.error("Error fetching leaderboard:", error);
+                listContainer.innerHTML = '<p style="color:red; text-align:center;">Could not load leaderboard.</p>';
+            }
+            
             try {
                 const myReferralsQuery = query(collection(db, "users"), where("referredBy", "==", currentUser.id));
                 const myReferralsSnapshot = await getDocs(myReferralsQuery);
@@ -1026,27 +1084,34 @@
                         const refereeId = docSnap.id;
                         const item = document.createElement('div');
                         item.className = 'leaderboard-item';
+
                         const lifetimePoints = referee.lifetimePointsEarned || 0;
                         const isBonusPaid = referee.referralBonusPaidOut === true;
+                        
                         let statusHtml;
                         if (isBonusPaid) {
                             statusHtml = `<div class="count" style="color: var(--success-color);">Claimed</div>`;
                         } else if (lifetimePoints >= REFERRAL_POINTS_THRESHOLD) {
                             statusHtml = `<button class="form-button claim-referral-btn" data-referee-id="${refereeId}">Claim</button>`;
                         } else {
-                            statusHtml = `<div class="count" style="color: var(--text-muted);">${formatPoints(lifetimePoints)} / ${REFERRAL_POINTS_THRESHOLD}</div>`;
+                            statusHtml = `<div class="count" style="color: var(--text-muted);">${formatPoints(lifetimePoints)}/${formatPoints(REFERRAL_POINTS_THRESHOLD)}</div>`;
                         }
-                        item.innerHTML = `<div class="info" style="margin-left:0;"><strong>${referee.telegramUsername || 'User ' + refereeId.substring(0, 5)}</strong><br><small>Points Earned: ${formatPoints(lifetimePoints)}</small></div>${statusHtml}`;
+                        
+                        item.innerHTML = `<div class="info" style="margin-left:0;"><strong>${referee.telegramUsername || 'User...'}</strong><br><small>Points: ${formatPoints(lifetimePoints)}</small></div>${statusHtml}`;
                         myReferralsContainer.appendChild(item);
                     });
                 }
-            } catch(error) { console.error("Error fetching your referrals:", error); myReferralsContainer.innerHTML = '<p style="color:red; text-align:center;">Could not load your referrals.</p>'; }
+            } catch(error) {
+                console.error("Error fetching your referrals:", error);
+                myReferralsContainer.innerHTML = '<p style="color:red; text-align:center;">Could not load your referrals.</p>';
+            }
         }
 
         async function claimReferralBonus(refereeId, button) {
             button.disabled = true; button.textContent = '...';
             const referrerRef = doc(db, 'users', currentUser.id);
             const refereeRef = doc(db, 'users', refereeId);
+
             try {
                 await runTransaction(db, async (transaction) => {
                     const refereeSnap = await transaction.get(refereeRef);
@@ -1054,13 +1119,15 @@
                     const refereeData = refereeSnap.data();
                     if (refereeData.referralBonusPaidOut === true) throw new Error("Bonus already paid.");
                     if ((refereeData.lifetimePointsEarned || 0) < REFERRAL_POINTS_THRESHOLD) throw new Error("Referee has not reached the threshold.");
+
                     transaction.update(referrerRef, { 
                         balance: increment(REFERRAL_BONUS_POINTS),
                         pgCoin: increment(REFERRAL_BONUS_PG_COIN)
                     });
                     transaction.update(refereeRef, { referralBonusPaidOut: true });
                 });
-                showSuccessModal("Bonus Claimed!", `${REFERRAL_BONUS_POINTS} Points & ${REFERRAL_BONUS_PG_COIN} PG Coin added.`);
+
+                showSuccessModal("Bonus Claimed!", `${REFERRAL_BONUS_POINTS} Points and ${REFERRAL_BONUS_PG_COIN} PG Coin added.`);
                 await fetchAndUpdateCurrentUser();
                 button.textContent = 'Claimed';
                 button.style.backgroundColor = 'var(--success-color)';
@@ -1079,24 +1146,19 @@
             }
         });
         
-        function renderReferralPage() {
-            if (!currentUser) return;
-            document.getElementById('user-total-referrals').textContent = currentUser.referralCount || 0;
-            document.getElementById('user-total-points').textContent = formatPoints(currentUser.lifetimePointsEarned);
-            document.getElementById('user-total-pg-coin').textContent = (currentUser.lifetimePgCoinEarned || 0).toFixed(3);
-            fetchMyReferrals();
-        }
-
         function startDailyTimer() {
             if (dailyTimerInterval) clearInterval(dailyTimerInterval);
             dailyTimerInterval = setInterval(async () => {
                 timeSpentThisSession++;
                 if (timeSpentThisSession > 0 && timeSpentThisSession % 60 === 0) {
                     if (!currentUser?.id) return;
-                    await updateDoc(doc(db, 'users', currentUser.id), { 'dailyTasks.timeSpent': increment(60) });
+                    const userRef = doc(db, 'users', currentUser.id);
+                    await updateDoc(userRef, { 'dailyTasks.timeSpent': increment(60) });
                     await fetchAndUpdateCurrentUser(); 
                 }
-                if (document.getElementById('task-content').classList.contains('active')) renderDailyTasks();
+                if (document.getElementById('task-content').classList.contains('active')) {
+                    renderDailyTasks();
+                }
             }, 1000);
         }
 
@@ -1104,23 +1166,40 @@
             if (!currentUser) return;
             const container = document.getElementById('daily-task-list');
             container.innerHTML = '';
+            
             const claimedTasks = currentUser.dailyTasks?.claimed || [];
-            const timeSpent = (currentUser.dailyTasks?.timeSpent || 0);
+            const timeSpent = (currentUser.dailyTasks?.timeSpent || 0) + timeSpentThisSession;
+
             dailyTasksConfig.forEach(task => {
                 const card = document.createElement('div');
                 card.className = 'daily-task-card';
                 const isClaimed = claimedTasks.includes(task.id);
-                let canClaim = false, buttonText = 'Go';
+                let canClaim = false;
+                let buttonText = 'Go';
+
                 if (isClaimed) {
                     buttonText = 'Claimed';
                 } else if (task.type === 'time') {
-                    if (timeSpent + timeSpentThisSession >= task.requirement) { canClaim = true; buttonText = 'Claim'; } 
-                    else {
-                        const timeLeft = task.requirement - (timeSpent + timeSpentThisSession);
-                        buttonText = `Wait ${Math.floor(timeLeft / 60)}m ${timeLeft % 60}s`;
+                    if (timeSpent >= task.requirement) {
+                        canClaim = true; buttonText = 'Claim';
+                    } else {
+                        const timeLeft = task.requirement - timeSpent;
+                        const minutes = Math.floor(timeLeft / 60);
+                        const seconds = timeLeft % 60;
+                        buttonText = `Wait ${minutes}m ${seconds}s`;
                     }
-                } else if (task.type === 'action') { canClaim = true; buttonText = 'Go & Claim'; }
-                card.innerHTML = `<div class="daily-task-info"><h4>${task.title}</h4><p>Reward: ${task.reward} Points</p></div><button class="daily-task-button" data-task-id="${task.id}" data-task-type="${task.type}" data-task-url="${task.url || ''}" data-reward="${task.reward}" ${isClaimed || !canClaim ? 'disabled' : ''}>${buttonText}</button>`;
+                } else if (task.type === 'action') {
+                    canClaim = true; buttonText = 'Go & Claim';
+                }
+                
+                card.innerHTML = `
+                    <div class="daily-task-info">
+                        <h4>${task.title}</h4>
+                        <p>Reward: ${task.reward} Points</p>
+                    </div>
+                    <button class="daily-task-button" data-task-id="${task.id}" data-task-type="${task.type}" data-task-url="${task.url || ''}" data-reward="${task.reward}" ${isClaimed || !canClaim ? 'disabled' : ''}>
+                        ${buttonText}
+                    </button>`;
                 container.appendChild(card);
             });
         }
@@ -1129,85 +1208,186 @@
             if (!e.target.matches('.daily-task-button') || e.target.disabled) return;
             const button = e.target;
             const { taskId, taskType, taskUrl, reward } = button.dataset;
+
             if (taskType === 'action' && taskUrl) tg.openLink(taskUrl);
             button.disabled = true; button.textContent = '...';
             try {
+                const userRef = doc(db, 'users', currentUser.id);
                 await grantPoints(Number(reward), 'daily_task');
-                await updateDoc(doc(db, 'users', currentUser.id), { 'dailyTasks.claimed': arrayUnion(taskId) });
+                await updateDoc(userRef, { 'dailyTasks.claimed': arrayUnion(taskId) });
                 await fetchAndUpdateCurrentUser();
                 renderDailyTasks();
                 showSuccessModal("Reward Claimed!", `You earned ${reward} points.`);
-            } catch (error) { alert("Failed to claim task."); button.disabled = false; console.error("Daily task claim error:", error); }
+            } catch (error) {
+                alert("Failed to claim task. Please try again.");
+                button.disabled = false;
+                console.error("Daily task claim error:", error);
+            }
         });
-
-        let game_mathQuiz = {}, game_scratchCard = {};
+        
+        let game_mathQuiz = {};
+        let game_scratchCard = {};
 
         const showMonetagAd = () => new Promise((res, rej) => typeof show_9442539 === 'function' ? show_9442539().then(res).catch(rej) : rej('Monetag SDK missing'));
         const showGigaPubAd = () => new Promise((res, rej) => typeof window.showGiga === 'function' ? window.showGiga("main").then(res).catch(rej) : rej('GigaPub SDK missing'));
-        async function showRandomAdForGames() {
-            const gameAdNetworks = [showMonetagAd, showGigaPubAd];
-            return gameAdNetworks[Math.floor(Math.random() * gameAdNetworks.length)]();
+        const showRichAdsInterstitial = () => new Promise((res, rej) => {
+            if(window.TelegramAdsController && typeof window.TelegramAdsController.showInterstitial === 'function') {
+                console.log("Showing RichAds Interstitial");
+                window.TelegramAdsController.showInterstitial(res, rej);
+            } else {
+                rej('RichAds Controller not ready for Interstitial');
+            }
+        });
+        
+        async function showRandomAdForContent() {
+            const adNetworks = [showMonetagAd, showGigaPubAd, showRichAdsInterstitial];
+            const randomAdFunction = adNetworks[Math.floor(Math.random() * adNetworks.length)];
+            console.log(`Attempting to show content ad from: ${randomAdFunction.name}`);
+            return randomAdFunction();
         }
 
-        function renderGameZone() { if (currentUser) { game_mathQuiz.init(); game_scratchCard.init(); } }
+        function renderGameZone() {
+            if (!currentUser) return;
+            game_mathQuiz.init();
+            game_scratchCard.init();
+        }
 
         async function handleGamePlay(gameType) {
             if (!currentUser) return false;
+            
             gamePlayCounter++;
             const userRef = doc(db, 'users', currentUser.id);
+
             try {
                 await updateDoc(userRef, { [`dailyGamePlays.${gameType}`]: increment(1) });
                 await fetchAndUpdateCurrentUser();
+                
                 if (gamePlayCounter >= GAME_AD_TRIGGER_COUNT) {
-                    gamePlayCounter = 0;
-                    await showRandomAdForGames();
+                    gamePlayCounter = 0; 
+                    console.log("Triggering ad after game play...");
+                    await showRandomAdForContent();
                 }
                 return true;
-            } catch (error) { console.error(`Error in handleGamePlay for ${gameType}:`, error); return true; }
+            } catch (error) {
+                console.error(`Error in handleGamePlay for ${gameType}:`, error);
+                alert("Ad could not be shown, but you will still get your reward.");
+                return true; 
+            }
         }
 
         (function() { // Math Quiz Logic
-            const quizContainer = document.getElementById('quiz'), resultsContainer = document.getElementById('math-results-container');
-            let questions = [], currentQuestionIndex = 0, score = 0;
-            function updateAttempts() { const plays = currentUser.dailyGamePlays?.math || 0, limit = 10; document.getElementById('math-attempts-left').textContent = `Today's Attempts: ${plays}/${limit}`; return plays < limit; }
-            function startGame() { resultsContainer.classList.add('hide'); quizContainer.classList.remove('hide'); if (!updateAttempts()) { quizContainer.innerHTML = '<p>No more quiz attempts for today.</p>'; return; } questions = [{ q: '5+7', o: [10, 12, 13, 11], a: 12 }, { q: '15-6', o: [9, 8, 10, 7], a: 9 }, { q: '8×4', o: [32, 28, 36, 24], a: 32 }, { q: '24÷3', o: [6, 7, 8, 9], a: 8 }, { q: '9+9', o: [18, 16, 20, 17], a: 18 }]; currentQuestionIndex = 0; score = 0; document.getElementById('score-container').innerText = `Score: 0`; showQuestion(); }
-            function showQuestion() { resetState(); let currentQuestion = questions[currentQuestionIndex]; document.getElementById('question').innerText = `Question ${currentQuestionIndex + 1}: ${currentQuestion.q} = ?`; currentQuestion.o.forEach(opt => { const button = document.createElement('button'); button.innerText = opt; button.className = 'btn'; if (opt === currentQuestion.a) button.dataset.correct = true; button.addEventListener('click', selectAnswer); document.getElementById('answer-buttons').appendChild(button); }); }
-            function resetState() { document.getElementById('next-btn').classList.add('hide'); const answerButtons = document.getElementById('answer-buttons'); while (answerButtons.firstChild) answerButtons.removeChild(answerButtons.firstChild); }
-            function selectAnswer(e) { if (e.target.dataset.correct) { score++; document.getElementById('score-container').innerText = `Score: ${score}`; } Array.from(document.getElementById('answer-buttons').children).forEach(button => { button.classList.add(button.dataset.correct ? 'correct' : 'incorrect'); button.disabled = true; }); document.getElementById('next-btn').classList.remove('hide'); }
-            async function showResults() { quizContainer.classList.add('hide'); resultsContainer.classList.remove('hide'); document.getElementById('final-score').innerText = `You scored ${score} out of ${questions.length}!`; await handleGamePlay('math'); const pgCoinWon = parseFloat((Math.random() * (0.01 - 0.001) + 0.001).toFixed(3)); await grantPgCoin(pgCoinWon, 'math_quiz'); showSuccessModal("Quiz Complete!", `You won ${pgCoinWon.toFixed(3)} PG Coin!`); updateAttempts(); }
-            document.getElementById('next-btn').addEventListener('click', async () => { currentQuestionIndex++; if (currentQuestionIndex < questions.length) showQuestion(); else await showResults(); });
-            document.getElementById('play-again-btn').addEventListener('click', startGame);
+            const questionElement = document.getElementById('question');
+            const answerButtonsElement = document.getElementById('answer-buttons');
+            const nextButton = document.getElementById('next-btn');
+            const scoreElement = document.getElementById('score-container');
+            const quizContainer = document.getElementById('quiz');
+            const resultsContainer = document.getElementById('math-results-container');
+            const finalScoreElement = document.getElementById('final-score');
+            const playAgainButton = document.getElementById('play-again-btn');
+            const attemptsLeftDisplay = document.getElementById('math-attempts-left');
+            const questions = [{ q: '5+7', o: [10, 12, 13, 11], a: 12 }, { q: '15-6', o: [9, 8, 10, 7], a: 9 }, { q: '8×4', o: [32, 28, 36, 24], a: 32 }, { q: '24÷3', o: [6, 7, 8, 9], a: 8 }, { q: '9+9', o: [18, 16, 20, 17], a: 18 }];
+            let currentQuestionIndex = 0; let score = 0;
+            function updateAttempts() {
+                const plays = currentUser.dailyGamePlays?.math || 0; const limit = 10;
+                attemptsLeftDisplay.textContent = `Today's Attempts: ${plays}/${limit}`;
+                return plays < limit;
+            }
+            function startGame() { 
+                resultsContainer.classList.add('hide'); quizContainer.classList.remove('hide');
+                if (!updateAttempts()) { quizContainer.innerHTML = '<p>No more quiz attempts for today.</p>'; return; }
+                currentQuestionIndex = 0; score = 0; scoreElement.innerText = `Score: 0`; 
+                showQuestion(); 
+            }
+            function showQuestion() { resetState(); let q = questions[currentQuestionIndex]; questionElement.innerText = `Q${currentQuestionIndex + 1}: ${q.q} = ?`; q.o.forEach(opt => { const btn = document.createElement('button'); btn.innerText = opt; btn.classList.add('btn'); if (opt === q.a) btn.dataset.correct = true; btn.addEventListener('click', selectAnswer); answerButtonsElement.appendChild(btn); }); }
+            function resetState() { nextButton.classList.add('hide'); while (answerButtonsElement.firstChild) { answerButtonsElement.removeChild(answerButtonsElement.firstChild); } }
+            function selectAnswer(e) { const btn = e.target; if (btn.dataset.correct) { score++; scoreElement.innerText = `Score: ${score}`; } Array.from(answerButtonsElement.children).forEach(b => { setStatusClass(b, b.dataset.correct); b.disabled = true; }); nextButton.classList.remove('hide'); }
+            function setStatusClass(el, correct) { if(correct) { el.classList.add('correct'); } else { el.classList.add('incorrect'); } }
+            async function handleNextButton() { currentQuestionIndex++; if (currentQuestionIndex < questions.length) { showQuestion(); } else { await showResults(); } }
+            async function showResults() {
+                quizContainer.classList.add('hide'); resultsContainer.classList.remove('hide');
+                finalScoreElement.innerText = `You scored ${score} out of ${questions.length}!`;
+                await handleGamePlay('math');
+                const pgCoinWon = parseFloat((Math.random() * (0.01 - 0.001) + 0.001).toFixed(3));
+                await grantPgCoin(pgCoinWon, 'math_quiz');
+                showSuccessModal("Quiz Complete!", `You won ${pgCoinWon} PG Coin!`);
+                updateAttempts();
+            }
+            nextButton.addEventListener('click', handleNextButton);
+            playAgainButton.addEventListener('click', startGame);
             game_mathQuiz.init = startGame;
         })();
 
         (function() { // Scratch Card Logic
-            const canvas = document.getElementById('scratch-canvas'), ctx = canvas.getContext('2d'), rewardResult = document.getElementById('reward-result'), newCardBtn = document.getElementById('new-card-btn');
-            let canScratch = false, isDrawing = false;
-            function updateAttempts() { const plays = currentUser.dailyGamePlays?.scratch || 0, limit = 10; document.getElementById('attempts-left').textContent = `Attempts left: ${limit - plays}`; if (plays >= limit) { rewardResult.textContent = "See You Tomorrow!"; ctx.clearRect(0, 0, canvas.width, canvas.height); newCardBtn.classList.add('hide'); return false; } return true; }
-            function generateNewCard() { if (!updateAttempts()) return; newCardBtn.classList.add('hide'); canScratch = true; ctx.globalCompositeOperation = 'source-over'; ctx.fillStyle = '#bdc3c7'; ctx.fillRect(0, 0, canvas.width, canvas.height); rewardResult.textContent = Math.random() < 0.2 ? "Empty!" : `You Won!`; }
-            function getCoords(e) { const rect = canvas.getBoundingClientRect(); if (e.touches) e = e.touches[0]; return { x: (e.clientX - rect.left) * (canvas.width / rect.width), y: (e.clientY - rect.top) * (canvas.height / rect.height) }; }
-            function scratch(x, y) { ctx.globalCompositeOperation = 'destination-out'; ctx.beginPath(); ctx.arc(x, y, 20, 0, 2 * Math.PI); ctx.fill(); checkScratch(); }
-            function checkScratch() { const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data; let transparent = 0; for (let i = 3; i < data.length; i += 4) if (data[i] === 0) transparent++; if (transparent / (canvas.width * canvas.height) > 0.65) finishCard(); }
-            async function finishCard() { if (!canScratch) return; canScratch = false; await handleGamePlay('scratch'); if (rewardResult.textContent.includes("You Won!")) { const pgCoinWon = parseFloat((Math.random() * (0.01 - 0.001) + 0.001).toFixed(3)); await grantPgCoin(pgCoinWon, 'scratch_card'); showSuccessModal("You Won!", `You received ${pgCoinWon.toFixed(3)} PG Coin.`); } ctx.clearRect(0, 0, canvas.width, canvas.height); newCardBtn.classList.remove('hide'); updateAttempts(); }
-            ['mousedown', 'touchstart'].forEach(evt => canvas.addEventListener(evt, (e) => { if (canScratch) { isDrawing = true; scratch(getCoords(e).x, getCoords(e).y); } }));
-            ['mousemove', 'touchmove'].forEach(evt => canvas.addEventListener(evt, (e) => { if (isDrawing) { e.preventDefault(); scratch(getCoords(e).x, getCoords(e).y); } }));
-            ['mouseup', 'touchend'].forEach(evt => window.addEventListener(evt, () => { isDrawing = false; }));
+            const canvas = document.getElementById('scratch-canvas'); const ctx = canvas.getContext('2d');
+            const rewardResult = document.getElementById('reward-result'); const attemptsLeftDisplay = document.getElementById('attempts-left');
+            const newCardBtn = document.getElementById('new-card-btn'); let canScratch = false; let isDrawing = false;
+            function updateAttempts() {
+                const plays = currentUser.dailyGamePlays?.scratch || 0; const limit = 10;
+                attemptsLeftDisplay.textContent = `Attempts left: ${limit - plays}`;
+                if (plays >= limit) {
+                    rewardResult.textContent = "See You Tomorrow!"; ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    newCardBtn.classList.add('hide'); return false;
+                } return true;
+            }
+            function generateReward() { return Math.random() < 0.2 ? "Empty! Try Again." : `You Won!`; }
+            function generateNewCard() { if (!updateAttempts()) return; newCardBtn.classList.add('hide'); canScratch = true; ctx.globalCompositeOperation = 'source-over'; ctx.fillStyle = '#bdc3c7'; ctx.fillRect(0, 0, canvas.width, canvas.height); rewardResult.textContent = generateReward(); }
+            function getEventCoords(e) { const rect = canvas.getBoundingClientRect(); const scaleX = canvas.width / rect.width; const scaleY = canvas.height / rect.height; if (e.touches && e.touches.length > 0) return { x: (e.touches[0].clientX - rect.left) * scaleX, y: (e.touches[0].clientY - rect.top) * scaleY }; return { x: (e.clientX - rect.left) * scaleX, y: (e.clientY - rect.top) * scaleY }; }
+            function startScratching(e) { if (!canScratch) return; isDrawing = true; const coords = getEventCoords(e); scratch(coords.x, coords.y); }
+            function stopScratching() { isDrawing = false; }
+            function doScratch(e) { if (!isDrawing || !canScratch) return; e.preventDefault(); const coords = getEventCoords(e); scratch(coords.x, coords.y); }
+            function scratch(x, y) { ctx.globalCompositeOperation = 'destination-out'; ctx.beginPath(); ctx.arc(x, y, 20, 0, 2 * Math.PI); ctx.fill(); checkScratchPercentage(); }
+            canvas.addEventListener('mousedown', startScratching); canvas.addEventListener('touchstart', startScratching);
+            canvas.addEventListener('mousemove', doScratch); canvas.addEventListener('touchmove', doScratch);
+            window.addEventListener('mouseup', stopScratching); window.addEventListener('touchend', stopScratching);
             newCardBtn.addEventListener('click', generateNewCard);
+            function checkScratchPercentage() {
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height); const pixels = imageData.data; let transparentPixels = 0;
+                for (let i = 3; i < pixels.length; i += 4) { if (pixels[i] === 0) transparentPixels++; }
+                if ((transparentPixels / (canvas.width * canvas.height)) * 100 > 65) { finishCard(); }
+            }
+            async function finishCard() {
+                if (!canScratch) return; canScratch = false;
+                await handleGamePlay('scratch');
+                const rewardText = rewardResult.textContent;
+                if (rewardText.includes("You Won!")) {
+                    const pgCoinWon = parseFloat((Math.random() * (0.01 - 0.001) + 0.001).toFixed(3));
+                    await grantPgCoin(pgCoinWon, 'scratch_card');
+                    showSuccessModal("You Won!", `You received ${pgCoinWon} PG Coin.`);
+                }
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                newCardBtn.classList.remove('hide');
+                updateAttempts();
+            }
             game_scratchCard.init = generateNewCard;
         })();
 
-        document.getElementById('select-math-quiz').addEventListener('click', (e) => { document.getElementById('scratch-card-container').classList.remove('active'); document.getElementById('math-quiz-container').classList.add('active'); e.target.classList.add('active'); document.getElementById('select-scratch-card').classList.remove('active'); });
-        document.getElementById('select-scratch-card').addEventListener('click', (e) => { document.getElementById('math-quiz-container').classList.remove('active'); document.getElementById('scratch-card-container').classList.add('active'); e.target.classList.add('active'); document.getElementById('select-math-quiz').classList.remove('active'); });
+        document.getElementById('select-math-quiz').addEventListener('click', () => {
+            document.getElementById('scratch-card-container').classList.remove('active'); document.getElementById('math-quiz-container').classList.add('active');
+            document.getElementById('select-math-quiz').classList.add('active'); document.getElementById('select-scratch-card').classList.remove('active');
+        });
+        document.getElementById('select-scratch-card').addEventListener('click', () => {
+            document.getElementById('math-quiz-container').classList.remove('active'); document.getElementById('scratch-card-container').classList.add('active');
+            document.getElementById('select-scratch-card').classList.add('active'); document.getElementById('select-math-quiz').classList.remove('active');
+        });
 
         async function checkForUnreadMessages() {
             if (!currentUser?.id) return;
             const messagesRef = collection(db, 'messages');
-            const qGlobal = query(messagesRef, where("isGlobal", "==", true));
-            const qPrivate = query(messagesRef, where("recipientId", "==", currentUser.id));
-            const [globalSnap, privateSnap] = await Promise.all([getDocs(qGlobal), getDocs(qPrivate)]);
-            const allMessages = [...globalSnap.docs, ...privateSnap.docs];
-            const unread = allMessages.some(doc => !(currentUser.readMessages || []).includes(doc.id));
-            document.getElementById('inbox-notification-dot').classList.toggle('visible', unread);
+            // Query for both global and private messages for the user
+            const globalQuery = where("isGlobal", "==", true);
+            const privateQuery = where("recipientId", "==", currentUser.id);
+            const snapshot = await getDocs(query(messagesRef, globalQuery));
+            const privateSnapshot = await getDocs(query(messagesRef, privateQuery));
+            
+            const allMessages = [...snapshot.docs, ...privateSnapshot.docs];
+            const userReadMessages = currentUser.readMessages || [];
+            const unreadMessagesExist = allMessages.some(doc => !userReadMessages.includes(doc.id));
+            
+            if (unreadMessagesExist) {
+                document.getElementById('inbox-notification-dot').classList.add('visible');
+            } else {
+                document.getElementById('inbox-notification-dot').classList.remove('visible');
+            }
         }
         
         document.getElementById('inbox-container').addEventListener('click', async () => {
@@ -1215,33 +1395,48 @@
             const messageList = document.getElementById('inbox-message-list');
             messageList.innerHTML = '<div class="loader"></div>';
             modalOverlay.classList.add('show');
+            
             try {
                 const messagesRef = collection(db, 'messages');
-                const qGlobal = query(messagesRef, where("isGlobal", "==", true));
-                const qPrivate = query(messagesRef, where("recipientId", "==", currentUser.id));
-                const [globalSnap, privateSnap] = await Promise.all([getDocs(qGlobal), getDocs(qPrivate)]);
-                const allMessages = [...globalSnap.docs, ...privateSnap.docs].sort((a, b) => b.data().createdAt.toMillis() - a.data().createdAt.toMillis());
+                const globalQuery = query(messagesRef, where("isGlobal", "==", true));
+                const privateQuery = query(messagesRef, where("recipientId", "==", currentUser.id));
+                const globalSnapshot = await getDocs(globalQuery);
+                const privateSnapshot = await getDocs(privateQuery);
+                
+                let allMessages = [...globalSnapshot.docs, ...privateSnapshot.docs];
+                allMessages.sort((a,b) => b.data().createdAt.toMillis() - a.data().createdAt.toMillis());
+
                 messageList.innerHTML = '';
                 if (allMessages.length === 0) {
                     messageList.innerHTML = '<p style="text-align: center; color: var(--text-muted);">No new messages.</p>';
                 } else {
-                    const toMarkAsRead = allMessages.filter(doc => !(currentUser.readMessages || []).includes(doc.id)).map(doc => doc.id);
+                    const messagesToMarkAsRead = [];
                     allMessages.forEach(doc => {
                         const msg = doc.data();
                         const item = document.createElement('div');
                         item.className = 'inbox-message-item';
                         item.innerHTML = `<p>${msg.content}</p><small>${msg.createdAt.toDate().toLocaleString()}</small>`;
                         messageList.appendChild(item);
+                        if (!currentUser.readMessages.includes(doc.id)) {
+                           messagesToMarkAsRead.push(doc.id);
+                        }
                     });
-                    if (toMarkAsRead.length > 0) {
-                        await updateDoc(doc(db, 'users', currentUser.id), { readMessages: arrayUnion(...toMarkAsRead) });
+                    
+                    if (messagesToMarkAsRead.length > 0) {
+                        const userRef = doc(db, 'users', currentUser.id);
+                        await updateDoc(userRef, { readMessages: arrayUnion(...messagesToMarkAsRead) });
                         document.getElementById('inbox-notification-dot').classList.remove('visible');
                     }
                 }
-            } catch (error) { console.error("Error fetching inbox messages:", error); messageList.innerHTML = '<p style="text-align: center; color: red;">Failed to load messages.</p>'; }
+            } catch (error) {
+                console.error("Error fetching inbox messages:", error);
+                messageList.innerHTML = '<p style="text-align: center; color: red;">Failed to load messages.</p>';
+            }
         });
 
-        document.getElementById('closeInboxBtn').addEventListener('click', () => { document.getElementById('inboxModalOverlay').classList.remove('show'); });
+        document.getElementById('closeInboxBtn').addEventListener('click', () => {
+            document.getElementById('inboxModalOverlay').classList.remove('show');
+        });
 
         document.querySelectorAll('.nav-link').forEach(link => {
             link.addEventListener('click', async (e) => {
@@ -1257,7 +1452,6 @@
                     case '#ads-to-earn-content': setupAdsToEarn(); break;
                     case '#task-content': fetchTasks(); renderDailyTasks(); break;
                     case '#game-zone-content': renderGameZone(); break;
-                    case '#referral-content': renderReferralPage(); break;
                     case '#leaderboard-content': fetchLeaderboard(); break;
                     case '#convert-withdraw-content': renderConvertWithdrawUI(); break;
                     case '#history-content': displayWithdrawalHistory(); break;
@@ -1270,24 +1464,28 @@
         async function main() {
             try {
                 if (!tg.initDataUnsafe?.user) {
-                    document.body.innerHTML = `<div class="card" style="margin-top: 50px;"><h3>Error</h3><p>This application can only be launched from Telegram.</p></div>`; return;
+                    document.body.innerHTML = `<div class="card" style="margin-top: 50px;"><h3>Error</h3><p>This app can only be launched from Telegram.</p></div>`; return;
                 }
+                
                 tg.ready(); tg.expand();
                 await initializeUser(tg.initDataUnsafe.user, tg.initDataUnsafe.start_param);
                 document.querySelector('.nav-link[data-tab-target="#home-content"]').click();
+                
                 const menuToggleBtn = document.getElementById('menu-toggle-button');
                 const closeMenuBtn = document.getElementById('close-menu-btn');
                 const sideMenu = document.getElementById('side-menu');
                 const menuOverlay = document.getElementById('menu-overlay');
                 const toggleMenu = () => { sideMenu.classList.toggle('is-open'); menuOverlay.classList.toggle('is-open'); };
                 [menuToggleBtn, closeMenuBtn, menuOverlay].forEach(el => el.addEventListener('click', toggleMenu));
+
                 const searchInput = document.getElementById('videoSearchInput');
                 const searchBtn = document.getElementById('videoSearchBtn');
                 const clearBtn = document.getElementById('clearSearchBtn');
                 const performSearch = () => { const term = searchInput.value.trim(); searchVideos(term); clearBtn.style.display = term ? 'inline-block' : 'none'; };
                 searchBtn.addEventListener('click', performSearch);
-                searchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') performSearch(); });
+                searchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') { performSearch(); } });
                 clearBtn.addEventListener('click', () => { searchInput.value = ''; fetchContent(); clearBtn.style.display = 'none'; });
+
             } catch (error) {
                 console.error("Initialization failed:", error);
                 document.body.innerHTML = `<div class="card" style="margin-top: 50px;"><h3>Application Error</h3><p>Could not initialize. Please restart.</p><p style="font-size: 0.8em; color: #888;">Error: ${error.message}</p></div>`;
