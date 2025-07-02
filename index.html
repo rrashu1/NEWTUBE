@@ -283,9 +283,9 @@
         <section id="leaderboard-content" class="content-section">
             <h3 class="section-title">Monthly Top Referrers</h3>
             <div class="card" style="text-align: left; padding-bottom: 10px;">
-                <p style="text-align: center;">Leaderboard resets on the 1st of every month. Top 3 referrers with <strong>30+ referrals</strong> win big!</p>
+                <p style="text-align: center;">Leaderboard resets on the 1st of every month. Top 10 referrers with <strong>30+ referrals</strong> win big!</p>
                 <div style="text-align: center; margin-bottom: 15px; font-weight: bold; color: var(--primary-accent-color);">
-                    <p style="margin: 2px 0;">🥇 1st: 50 PG Coin | 🥈 2nd: 30 PG Coin | 🥉 3rd: 10 PG Coin</p>
+                    <p style="margin: 2px 0;">🥇 1st: 50 PG | 🥈 2nd: 25 PG | 🥉 3rd: 15 PG | 🏅 4th-10th: 5 PG</p>
                 </div>
                 <div id="leaderboard-list"></div>
             </div>
@@ -411,7 +411,7 @@
 
         const AD_VISIT_LIMIT = 30; 
         const VIDEO_WATCH_LIMIT = 30; 
-        const GAME_AD_TRIGGER_COUNT = 3;
+        const GAME_AD_TRIGGER_COUNT = 2; // UPDATED
         const REFERRAL_POINTS_THRESHOLD = 500;
         const REFERRAL_BONUS_POINTS = 1000;
         const REFERRAL_BONUS_PG_COIN = 0.5;
@@ -1107,6 +1107,7 @@
             document.getElementById('referral-stats-pg').textContent = (currentUser.referralPgCoinEarned || 0).toFixed(3);
         }
         
+        // --- START LEADERBOARD UPDATE ---
         async function fetchLeaderboard() {
             const listContainer = document.getElementById('leaderboard-list');
             const myReferralsContainer = document.getElementById('my-referrals-list');
@@ -1114,27 +1115,37 @@
             myReferralsContainer.innerHTML = '<div class="loader"></div>';
 
             try {
-                const topReferrersQuery = query(collection(db, "users"), where("monthlyReferralCount", ">", 0), orderBy("monthlyReferralCount", "desc"), limit(20));
+                const topReferrersQuery = query(collection(db, "users"), where("monthlyReferralCount", ">", 0), orderBy("monthlyReferralCount", "desc"), limit(50));
                 const topSnapshot = await getDocs(topReferrersQuery);
                 listContainer.innerHTML = '';
                 if (topSnapshot.empty) { 
                     listContainer.innerHTML = '<p style="text-align:center;">Leaderboard is empty. Be the first!</p>';
                 } else {
+                    // Identify the actual winners (top 10 among those with 30+ referrals)
+                    const eligibleUsers = topSnapshot.docs.filter(doc => (doc.data().monthlyReferralCount || 0) >= 30);
+                    const winnerIds = eligibleUsers.slice(0, 10).map(doc => doc.id);
+
                     let rank = 1;
                     topSnapshot.forEach(docSnap => {
                         const user = docSnap.data();
+                        const userId = docSnap.id;
                         const item = document.createElement('div');
                         item.className = 'leaderboard-item';
                         
                         let rankDisplay = `#${rank}`;
-                        if (rank === 1) rankDisplay = '🥇';
-                        if (rank === 2) rankDisplay = '🥈';
-                        if (rank === 3) rankDisplay = '🥉';
-
                         let prizeText = '';
-                        if (rank <= 3 && (user.monthlyReferralCount || 0) >= 30) {
-                            const prizes = { 1: '50 PG', 2: '30 PG', 3: '10 PG' };
-                            prizeText = `<small style="color: #ffc107; display: block;">Wins: ${prizes[rank]}</small>`;
+                        const winnerIndex = winnerIds.indexOf(userId);
+
+                        if (winnerIndex !== -1) { // This user is a winner
+                            const prizeRank = winnerIndex + 1;
+                            let prizeAmount = 0;
+                            
+                            if (prizeRank === 1) { rankDisplay = '🥇'; prizeAmount = 50; }
+                            else if (prizeRank === 2) { rankDisplay = '🥈'; prizeAmount = 25; }
+                            else if (prizeRank === 3) { rankDisplay = '🥉'; prizeAmount = 15; }
+                            else { rankDisplay = `🏅 #${prizeRank}`; prizeAmount = 5; }
+                            
+                            prizeText = `<small style="color: #ffc107; display: block;">Wins: ${prizeAmount} PG Coin</small>`;
                         }
 
                         item.innerHTML = `<div class="rank">${rankDisplay}</div><div class="info"><strong>${user.telegramUsername || 'User...'}</strong>${prizeText}</div><div class="count">${user.monthlyReferralCount || 0} Referrals</div>`;
@@ -1181,6 +1192,7 @@
                 myReferralsContainer.innerHTML = '<p style="color:red; text-align:center;">Could not load your referrals.</p>';
             }
         }
+        // --- END LEADERBOARD UPDATE ---
 
         async function claimReferralBonus(refereeId, button) {
             button.disabled = true; button.textContent = '...';
@@ -1323,6 +1335,14 @@
             return randomAdFunction();
         }
 
+        // --- START GAME ZONE UPDATE ---
+        async function showRandomAdForGame() {
+            const adNetworks = [showMonetagAd, showGigaPubAd]; // Only Monetag and GigaPub for games
+            const randomAdFunction = adNetworks[Math.floor(Math.random() * adNetworks.length)];
+            console.log(`Attempting to show game ad from: ${randomAdFunction.name}`);
+            return randomAdFunction();
+        }
+
         function renderGameZone() {
             if (!currentUser) return;
             game_mathQuiz.init();
@@ -1339,10 +1359,9 @@
                 await updateDoc(userRef, { [`dailyGamePlays.${gameType}`]: increment(1) });
                 await fetchAndUpdateCurrentUser();
                 
-                if (gamePlayCounter >= GAME_AD_TRIGGER_COUNT) {
-                    gamePlayCounter = 0; 
+                if (gamePlayCounter % GAME_AD_TRIGGER_COUNT === 0) {
                     console.log("Triggering ad after game play...");
-                    await showRandomAdForContent();
+                    await showRandomAdForGame(); // Use game-specific ad function
                 }
                 return true;
             } catch (error) {
@@ -1384,7 +1403,7 @@
                 quizContainer.classList.add('hide'); resultsContainer.classList.remove('hide');
                 finalScoreElement.innerText = `You scored ${score} out of ${questions.length}!`;
                 await handleGamePlay('math');
-                const pgCoinWon = parseFloat((Math.random() * (0.01 - 0.001) + 0.001).toFixed(3));
+                const pgCoinWon = parseFloat((Math.random() * (0.2 - 0.001) + 0.001).toFixed(3)); // UPDATED REWARD
                 await grantPgCoin(pgCoinWon, 'math_quiz');
                 showSuccessModal("Quiz Complete!", `You won ${pgCoinWon} PG Coin!`);
                 updateAttempts();
@@ -1427,7 +1446,7 @@
                 await handleGamePlay('scratch');
                 const rewardText = rewardResult.textContent;
                 if (rewardText.includes("You Won!")) {
-                    const pgCoinWon = parseFloat((Math.random() * (0.01 - 0.001) + 0.001).toFixed(3));
+                    const pgCoinWon = parseFloat((Math.random() * (0.2 - 0.001) + 0.001).toFixed(3)); // UPDATED REWARD
                     await grantPgCoin(pgCoinWon, 'scratch_card');
                     showSuccessModal("You Won!", `You received ${pgCoinWon} PG Coin.`);
                 }
@@ -1437,6 +1456,7 @@
             }
             game_scratchCard.init = generateNewCard;
         })();
+        // --- END GAME ZONE UPDATE ---
 
         document.getElementById('select-math-quiz').addEventListener('click', () => {
             document.getElementById('scratch-card-container').classList.remove('active'); document.getElementById('math-quiz-container').classList.add('active');
