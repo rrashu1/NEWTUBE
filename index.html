@@ -119,22 +119,8 @@
         .task-category-selector .task-category-btn.active, .task-category-selector .task-category-btn:hover { background-color: var(--primary-accent-color); color: white; }
         .task-category-container { display: none; } .task-category-container.active { display: block; }
         
-        /* --- Game Zone Styles --- */
-        .game-selector { display: flex; justify-content: center; margin-bottom: 25px; border-bottom: 2px solid #282828; padding-bottom: 15px; }
-        .game-selector button { background-color: transparent; border: 2px solid var(--primary-accent-color); color: var(--primary-accent-color); padding: 10px 20px; margin: 0 5px; border-radius: 25px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: all 0.3s ease; }
-        .game-selector button.active, .game-selector button:hover { background-color: var(--primary-accent-color); color: white; }
-        .game-container { margin-top: 20px; display: none; }
-        .game-container.active { display: block; }
-        #math-quiz-container #question { font-size: 1.5rem; font-weight: bold; margin-bottom: 20px; }
-        #math-quiz-container .btn-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
-        #math-quiz-container .btn { background-color: #333; color: white; border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; font-size: 1.1rem; cursor: pointer; transition: background-color 0.3s, transform 0.2s; }
-        #math-quiz-container .btn:hover:not(:disabled) { background-color: #444; transform: translateY(-2px); }
-        #math-quiz-container .btn.correct { background-color: var(--success-color); }
-        #math-quiz-container .btn.incorrect { background-color: #dc3545; }
-        #math-quiz-container .btn:disabled { cursor: not-allowed; opacity: 0.7; }
-        #math-quiz-container #controls { display: flex; justify-content: space-between; align-items: center; }
-        #math-quiz-container #score-container { font-size: 1.2rem; font-weight: bold; }
-        #math-quiz-container #next-btn, #math-quiz-container #play-again-btn { background-color: var(--primary-accent-color); color: white; padding: 10px 20px; font-size: 1rem; border-radius: 5px; border: none; cursor: pointer; }
+        /* --- Game Zone Styles (Updated) --- */
+        #scratch-card-container { text-align: center; }
         #scratch-card-container #attempts-left { font-size: 1.2rem; font-weight: bold; color: var(--primary-accent-color); margin-bottom: 15px; }
         #scratch-card-container #card-area { position: relative; width: 300px; height: 150px; margin: 20px auto; border-radius: 10px; cursor: grabbing; touch-action: none; }
         #scratch-card-container #reward-result { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; font-size: 1.8rem; font-weight: bold; color: var(--primary-accent-color); background: linear-gradient(135deg, #333, #222); border-radius: 10px; }
@@ -205,7 +191,7 @@
         </section>
         
         <section id="task-content" class="content-section">
-            <div class="task-category-selector game-selector">
+            <div class="task-category-selector">
                 <button class="task-category-btn active" data-task-category="daily-rewards">Daily Rewards</button>
                 <button class="task-category-btn" data-task-category="complete-tasks">Complete Tasks</button>
             </div>
@@ -219,40 +205,23 @@
             </div>
         </section>
 
+        <!-- === GAME ZONE SECTION (UPDATED) === -->
         <section id="game-zone-content" class="content-section">
             <h3 class="section-title">Game Zone</h3>
-             <div class="card" style="padding: 15px 15px 25px 15px;">
-                <div class="game-selector">
-                    <button id="select-math-quiz" class="active">Math Quiz</button>
-                    <button id="select-scratch-card">Scratch & Win</button>
-                </div>
-                <div id="math-quiz-container" class="game-container active">
-                    <h1 style="font-size: 1.5rem;">Math Quiz</h1>
-                    <p id="math-attempts-left" style="color: var(--text-muted); font-weight: bold;"></p>
-                    <div id="quiz">
-                        <div id="question-container"><div id="question">Question will be shown here</div></div>
-                        <div id="answer-buttons" class="btn-grid"></div>
-                        <div id="controls">
-                            <div id="score-container">Score: 0</div>
-                            <button id="next-btn" class="hide">Next Question</button>
-                        </div>
-                    </div>
-                    <div id="math-results-container" class="hide">
-                        <h2 id="final-score"></h2>
-                        <button id="play-again-btn">Play Again</button>
-                    </div>
-                </div>
-                <div id="scratch-card-container" class="game-container">
+             <div class="card">
+                <div id="scratch-card-container">
                     <h1 style="font-size: 1.5rem;">Scratch & Win</h1>
-                    <p id="attempts-left">Attempts left: 10</p>
+                    <p id="attempts-left">Attempts left: 20</p>
                     <div id="card-area">
                         <div id="reward-result"></div>
                         <canvas id="scratch-canvas" width="300" height="150"></canvas>
                     </div>
                     <button id="new-card-btn" class="hide">Get New Card</button>
                 </div>
+                <button class="form-button" disabled style="margin-top: 20px; background-color: var(--disabled-color);">More Games Coming</button>
             </div>
         </section>
+        <!-- === END GAME ZONE SECTION === -->
 
         <section id="referral-content" class="content-section">
             <div class="card">
@@ -280,13 +249,12 @@
                 </div>
             </div>
         </section>
+        
+        <!-- === LEADERBOARD SECTION (UPDATED) === -->
         <section id="leaderboard-content" class="content-section">
-            <h3 class="section-title">Monthly Top Referrers</h3>
+            <h3 class="section-title">Lifetime Top Referrers</h3>
             <div class="card" style="text-align: left; padding-bottom: 10px;">
-                <p style="text-align: center;">Leaderboard resets on the 1st of every month. Top 10 referrers with <strong>30+ referrals</strong> win big!</p>
-                <div style="text-align: center; margin-bottom: 15px; font-weight: bold; color: var(--primary-accent-color);">
-                    <p style="margin: 2px 0;">🥇 1st: 50 PG | 🥈 2nd: 25 PG | 🥉 3rd: 15 PG | 🏅 4th-10th: 5 PG</p>
-                </div>
+                <p style="text-align: center;">Users with the most referrals of all time are ranked here. Keep inviting to climb the ranks!</p>
                 <div id="leaderboard-list"></div>
             </div>
             <h3 class="section-title" style="margin-top: 40px;">Your Referrals</h3>
@@ -295,6 +263,7 @@
                 <div id="my-referrals-list"></div>
             </div>
         </section>
+        <!-- === END LEADERBOARD SECTION === -->
         
         <section id="convert-withdraw-content" class="content-section">
              <div class="card">
@@ -361,6 +330,7 @@
     
     <script src="https://www.youtube.com/iframe_api" async></script>
     
+    <!-- === ADEXIUM ADS SCRIPT (UPDATED) === -->
     <script type="text/javascript">
         document.addEventListener('DOMContentLoaded', () => {
             const showAdexiumAd = () => {
@@ -376,12 +346,24 @@
                 }
             };
             
-            // First ad after 45 seconds
-            setTimeout(showAdexiumAd, 45000); 
-            // Subsequent ads every 5 minutes
-            setInterval(showAdexiumAd, 300000); 
+            const scheduleNextAdexiumAd = () => {
+                // Random time between 4 minutes (240000 ms) and 7 minutes (420000 ms)
+                const randomDelay = Math.floor(Math.random() * (420000 - 240000 + 1)) + 240000;
+                console.log(`Scheduling next Adexium ad in ${randomDelay / 1000 / 60} minutes.`);
+                setTimeout(() => {
+                    showAdexiumAd();
+                    scheduleNextAdexiumAd(); // Schedule the next one after this one is shown
+                }, randomDelay);
+            };
+
+            // First ad after 2 minutes (120000 ms)
+            setTimeout(() => {
+                showAdexiumAd();
+                scheduleNextAdexiumAd(); // Start the scheduling loop after the first ad
+            }, 120000); 
         });
     </script>
+    <!-- === END ADEXIUM ADS SCRIPT === -->
     
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
@@ -411,7 +393,7 @@
 
         const AD_VISIT_LIMIT = 30; 
         const VIDEO_WATCH_LIMIT = 30; 
-        const GAME_AD_TRIGGER_COUNT = 2; // UPDATED
+        const GAME_AD_TRIGGER_COUNT = 2;
         const REFERRAL_POINTS_THRESHOLD = 500;
         const REFERRAL_BONUS_POINTS = 1000;
         const REFERRAL_BONUS_PG_COIN = 0.5;
@@ -477,13 +459,6 @@
                 updates['videoProgress.lastReset'] = serverTimestamp();
             }
             
-            const lastMonthlyReset = currentUser.lastMonthlyReset;
-            const currentMonthYear = `${now.getFullYear()}-${now.getMonth()}`;
-            if (!lastMonthlyReset || lastMonthlyReset !== currentMonthYear) {
-                updates.monthlyReferralCount = 0;
-                updates.lastMonthlyReset = currentMonthYear;
-            }
-
             if (Object.keys(updates).length > 0) {
                 try {
                     const userRef = doc(db, 'users', currentUser.id);
@@ -500,9 +475,9 @@
 
             const fieldsToEnsure = {
                 balance: 0, usdtBalance: 0, pgCoin: 0, lifetimePointsEarned: 0, referralPointsEarned: 0, referralPgCoinEarned: 0,
-                referralCount: 0, monthlyReferralCount: 0, completedTasks: [], adVisitsToday: 0, 
+                referralCount: 0, completedTasks: [], adVisitsToday: 0, 
                 dailyTasks: { claimed: [], timeSpent: 0, lastReset: serverTimestamp() },
-                dailyGamePlays: { math: 0, scratch: 0, lastReset: serverTimestamp() },
+                dailyGamePlays: { scratch: 0, lastReset: serverTimestamp() }, // Removed math quiz
                 videoProgress: { dailyWatchedCount: 0, lastReset: serverTimestamp() },
                 readMessages: []
             };
@@ -525,7 +500,6 @@
                         if (referrerSnap.exists()) {
                              await updateDoc(referrerRef, { 
                                 referralCount: increment(1),
-                                monthlyReferralCount: increment(1)
                              });
                         }
                     } catch (e) { console.error("Could not update referrer count", e); }
@@ -544,13 +518,12 @@
                         updatesForOldUsers.referredBy = referrerCode;
                         await updateDoc(referrerRef, { 
                             referralCount: increment(1),
-                            monthlyReferralCount: increment(1)
                         });
                     }
                 } catch(e) { console.error("Could not update referrer count for existing user", e); }
             }
             
-            for (const key of ['balance', 'usdtBalance', 'pgCoin', 'lifetimePointsEarned', 'referralCount', 'adVisitsToday', 'monthlyReferralCount', 'referralPointsEarned', 'referralPgCoinEarned']) {
+            for (const key of ['balance', 'usdtBalance', 'pgCoin', 'lifetimePointsEarned', 'referralCount', 'adVisitsToday', 'referralPointsEarned', 'referralPgCoinEarned']) {
                 if (!userData.hasOwnProperty(key)) {
                     updatesForOldUsers[key] = fieldsToEnsure[key];
                 }
@@ -1107,7 +1080,7 @@
             document.getElementById('referral-stats-pg').textContent = (currentUser.referralPgCoinEarned || 0).toFixed(3);
         }
         
-        // --- START LEADERBOARD UPDATE ---
+        // --- LEADERBOARD LOGIC (UPDATED FOR LIFETIME REFERRALS) ---
         async function fetchLeaderboard() {
             const listContainer = document.getElementById('leaderboard-list');
             const myReferralsContainer = document.getElementById('my-referrals-list');
@@ -1115,40 +1088,27 @@
             myReferralsContainer.innerHTML = '<div class="loader"></div>';
 
             try {
-                const topReferrersQuery = query(collection(db, "users"), where("monthlyReferralCount", ">", 0), orderBy("monthlyReferralCount", "desc"), limit(50));
+                // Query based on lifetime referralCount
+                const topReferrersQuery = query(collection(db, "users"), where("referralCount", ">", 0), orderBy("referralCount", "desc"), limit(50));
                 const topSnapshot = await getDocs(topReferrersQuery);
                 listContainer.innerHTML = '';
                 if (topSnapshot.empty) { 
                     listContainer.innerHTML = '<p style="text-align:center;">Leaderboard is empty. Be the first!</p>';
                 } else {
-                    // Identify the actual winners (top 10 among those with 30+ referrals)
-                    const eligibleUsers = topSnapshot.docs.filter(doc => (doc.data().monthlyReferralCount || 0) >= 30);
-                    const winnerIds = eligibleUsers.slice(0, 10).map(doc => doc.id);
-
                     let rank = 1;
                     topSnapshot.forEach(docSnap => {
                         const user = docSnap.data();
-                        const userId = docSnap.id;
                         const item = document.createElement('div');
                         item.className = 'leaderboard-item';
                         
-                        let rankDisplay = `#${rank}`;
-                        let prizeText = '';
-                        const winnerIndex = winnerIds.indexOf(userId);
+                        let rankDisplay;
+                        if (rank === 1) { rankDisplay = '🥇'; }
+                        else if (rank === 2) { rankDisplay = '🥈'; }
+                        else if (rank === 3) { rankDisplay = '🥉'; }
+                        else { rankDisplay = `#${rank}`; }
 
-                        if (winnerIndex !== -1) { // This user is a winner
-                            const prizeRank = winnerIndex + 1;
-                            let prizeAmount = 0;
-                            
-                            if (prizeRank === 1) { rankDisplay = '🥇'; prizeAmount = 50; }
-                            else if (prizeRank === 2) { rankDisplay = '🥈'; prizeAmount = 25; }
-                            else if (prizeRank === 3) { rankDisplay = '🥉'; prizeAmount = 15; }
-                            else { rankDisplay = `🏅 #${prizeRank}`; prizeAmount = 5; }
-                            
-                            prizeText = `<small style="color: #ffc107; display: block;">Wins: ${prizeAmount} PG Coin</small>`;
-                        }
-
-                        item.innerHTML = `<div class="rank">${rankDisplay}</div><div class="info"><strong>${user.telegramUsername || 'User...'}</strong>${prizeText}</div><div class="count">${user.monthlyReferralCount || 0} Referrals</div>`;
+                        // Simplified item without prize info
+                        item.innerHTML = `<div class="rank">${rankDisplay}</div><div class="info"><strong>${user.telegramUsername || 'User...'}</strong></div><div class="count">${user.referralCount || 0} Referrals</div>`;
                         listContainer.appendChild(item);
                         rank++;
                     });
@@ -1192,7 +1152,7 @@
                 myReferralsContainer.innerHTML = '<p style="color:red; text-align:center;">Could not load your referrals.</p>';
             }
         }
-        // --- END LEADERBOARD UPDATE ---
+        // --- END LEADERBOARD LOGIC ---
 
         async function claimReferralBonus(refereeId, button) {
             button.disabled = true; button.textContent = '...';
@@ -1314,7 +1274,6 @@
             }
         });
         
-        let game_mathQuiz = {};
         let game_scratchCard = {};
 
         const showMonetagAd = () => new Promise((res, rej) => typeof show_9442539 === 'function' ? show_9442539().then(res).catch(rej) : rej('Monetag SDK missing'));
@@ -1335,7 +1294,7 @@
             return randomAdFunction();
         }
 
-        // --- START GAME ZONE UPDATE ---
+        // --- GAME ZONE LOGIC (UPDATED) ---
         async function showRandomAdForGame() {
             const adNetworks = [showMonetagAd, showGigaPubAd]; // Only Monetag and GigaPub for games
             const randomAdFunction = adNetworks[Math.floor(Math.random() * adNetworks.length)];
@@ -1345,7 +1304,6 @@
 
         function renderGameZone() {
             if (!currentUser) return;
-            game_mathQuiz.init();
             game_scratchCard.init();
         }
 
@@ -1361,7 +1319,7 @@
                 
                 if (gamePlayCounter % GAME_AD_TRIGGER_COUNT === 0) {
                     console.log("Triggering ad after game play...");
-                    await showRandomAdForGame(); // Use game-specific ad function
+                    await showRandomAdForGame();
                 }
                 return true;
             } catch (error) {
@@ -1370,55 +1328,14 @@
                 return true; 
             }
         }
-
-        (function() { // Math Quiz Logic
-            const questionElement = document.getElementById('question');
-            const answerButtonsElement = document.getElementById('answer-buttons');
-            const nextButton = document.getElementById('next-btn');
-            const scoreElement = document.getElementById('score-container');
-            const quizContainer = document.getElementById('quiz');
-            const resultsContainer = document.getElementById('math-results-container');
-            const finalScoreElement = document.getElementById('final-score');
-            const playAgainButton = document.getElementById('play-again-btn');
-            const attemptsLeftDisplay = document.getElementById('math-attempts-left');
-            const questions = [{ q: '5+7', o: [10, 12, 13, 11], a: 12 }, { q: '15-6', o: [9, 8, 10, 7], a: 9 }, { q: '8×4', o: [32, 28, 36, 24], a: 32 }, { q: '24÷3', o: [6, 7, 8, 9], a: 8 }, { q: '9+9', o: [18, 16, 20, 17], a: 18 }];
-            let currentQuestionIndex = 0; let score = 0;
-            function updateAttempts() {
-                const plays = currentUser.dailyGamePlays?.math || 0; const limit = 10;
-                attemptsLeftDisplay.textContent = `Today's Attempts: ${plays}/${limit}`;
-                return plays < limit;
-            }
-            function startGame() { 
-                resultsContainer.classList.add('hide'); quizContainer.classList.remove('hide');
-                if (!updateAttempts()) { quizContainer.innerHTML = '<p>No more quiz attempts for today.</p>'; return; }
-                currentQuestionIndex = 0; score = 0; scoreElement.innerText = `Score: 0`; 
-                showQuestion(); 
-            }
-            function showQuestion() { resetState(); let q = questions[currentQuestionIndex]; questionElement.innerText = `Q${currentQuestionIndex + 1}: ${q.q} = ?`; q.o.forEach(opt => { const btn = document.createElement('button'); btn.innerText = opt; btn.classList.add('btn'); if (opt === q.a) btn.dataset.correct = true; btn.addEventListener('click', selectAnswer); answerButtonsElement.appendChild(btn); }); }
-            function resetState() { nextButton.classList.add('hide'); while (answerButtonsElement.firstChild) { answerButtonsElement.removeChild(answerButtonsElement.firstChild); } }
-            function selectAnswer(e) { const btn = e.target; if (btn.dataset.correct) { score++; scoreElement.innerText = `Score: ${score}`; } Array.from(answerButtonsElement.children).forEach(b => { setStatusClass(b, b.dataset.correct); b.disabled = true; }); nextButton.classList.remove('hide'); }
-            function setStatusClass(el, correct) { if(correct) { el.classList.add('correct'); } else { el.classList.add('incorrect'); } }
-            async function handleNextButton() { currentQuestionIndex++; if (currentQuestionIndex < questions.length) { showQuestion(); } else { await showResults(); } }
-            async function showResults() {
-                quizContainer.classList.add('hide'); resultsContainer.classList.remove('hide');
-                finalScoreElement.innerText = `You scored ${score} out of ${questions.length}!`;
-                await handleGamePlay('math');
-                const pgCoinWon = parseFloat((Math.random() * (0.2 - 0.001) + 0.001).toFixed(3)); // UPDATED REWARD
-                await grantPgCoin(pgCoinWon, 'math_quiz');
-                showSuccessModal("Quiz Complete!", `You won ${pgCoinWon} PG Coin!`);
-                updateAttempts();
-            }
-            nextButton.addEventListener('click', handleNextButton);
-            playAgainButton.addEventListener('click', startGame);
-            game_mathQuiz.init = startGame;
-        })();
-
-        (function() { // Scratch Card Logic
+        
+        (function() { // Scratch Card Logic (Updated Limit)
             const canvas = document.getElementById('scratch-canvas'); const ctx = canvas.getContext('2d');
             const rewardResult = document.getElementById('reward-result'); const attemptsLeftDisplay = document.getElementById('attempts-left');
             const newCardBtn = document.getElementById('new-card-btn'); let canScratch = false; let isDrawing = false;
             function updateAttempts() {
-                const plays = currentUser.dailyGamePlays?.scratch || 0; const limit = 10;
+                const plays = currentUser.dailyGamePlays?.scratch || 0;
+                const limit = 20; // UPDATED LIMIT
                 attemptsLeftDisplay.textContent = `Attempts left: ${limit - plays}`;
                 if (plays >= limit) {
                     rewardResult.textContent = "See You Tomorrow!"; ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -1446,7 +1363,7 @@
                 await handleGamePlay('scratch');
                 const rewardText = rewardResult.textContent;
                 if (rewardText.includes("You Won!")) {
-                    const pgCoinWon = parseFloat((Math.random() * (0.2 - 0.001) + 0.001).toFixed(3)); // UPDATED REWARD
+                    const pgCoinWon = parseFloat((Math.random() * (0.2 - 0.001) + 0.001).toFixed(3));
                     await grantPgCoin(pgCoinWon, 'scratch_card');
                     showSuccessModal("You Won!", `You received ${pgCoinWon} PG Coin.`);
                 }
@@ -1456,16 +1373,7 @@
             }
             game_scratchCard.init = generateNewCard;
         })();
-        // --- END GAME ZONE UPDATE ---
-
-        document.getElementById('select-math-quiz').addEventListener('click', () => {
-            document.getElementById('scratch-card-container').classList.remove('active'); document.getElementById('math-quiz-container').classList.add('active');
-            document.getElementById('select-math-quiz').classList.add('active'); document.getElementById('select-scratch-card').classList.remove('active');
-        });
-        document.getElementById('select-scratch-card').addEventListener('click', () => {
-            document.getElementById('math-quiz-container').classList.remove('active'); document.getElementById('scratch-card-container').classList.add('active');
-            document.getElementById('select-scratch-card').classList.add('active'); document.getElementById('select-math-quiz').classList.remove('active');
-        });
+        // --- END GAME ZONE LOGIC ---
 
         async function checkForUnreadMessages() {
             if (!currentUser?.id) return;
