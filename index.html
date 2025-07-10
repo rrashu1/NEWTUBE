@@ -31,7 +31,9 @@
         body { background-color: var(--dark-bg); color: var(--text-light); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 60px 0 0; }
         .container { max-width: 1200px; margin: 0 auto; padding: 0 15px; }
         .main-header { background-color: var(--header-bg); padding: 10px 15px; border-bottom: 1px solid var(--border-color); position: fixed; top: 0; left: 0; right: 0; z-index: 1000; display: flex; justify-content: space-between; align-items: center; height: 40px; }
-        .site-title { font-size: 1.2em; color: var(--primary-accent-color); font-weight: 700; text-transform: uppercase; }
+        .site-title-container { display: flex; flex-direction: column; align-items: flex-start; }
+        .site-title { font-size: 1.2em; color: var(--primary-accent-color); font-weight: 700; text-transform: uppercase; margin: 0; padding: 0; line-height: 1; }
+        .user-id-display { font-size: 0.7em; color: var(--text-muted); font-weight: normal; margin-top: 1px; }
         .header-right { display: flex; align-items: center; gap: 10px; }
         .inbox-container { position: relative; cursor: pointer; }
         #inbox-icon { width: 24px; height: 24px; color: var(--text-light); }
@@ -119,16 +121,51 @@
         .task-category-selector .task-category-btn.active, .task-category-selector .task-category-btn:hover { background-color: var(--primary-accent-color); color: white; }
         .task-category-container { display: none; } .task-category-container.active { display: block; }
         
-        /* --- Game Zone Styles (Updated) --- */
-        #scratch-card-container { text-align: center; }
-        #scratch-card-container #attempts-left { font-size: 1.2rem; font-weight: bold; color: var(--primary-accent-color); margin-bottom: 15px; }
-        #scratch-card-container #card-area { position: relative; width: 300px; height: 150px; margin: 20px auto; border-radius: 10px; cursor: grabbing; touch-action: none; }
-        #scratch-card-container #reward-result { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; font-size: 1.8rem; font-weight: bold; color: var(--primary-accent-color); background: linear-gradient(135deg, #333, #222); border-radius: 10px; }
-        #scratch-card-container #scratch-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: transparent; border-radius: 10px; }
-        #scratch-card-container #new-card-btn { background-color: var(--success-color); color: white; padding: 12px 25px; font-size: 1rem; border-radius: 5px; border: none; cursor: pointer; margin-top: 10px; }
-        #scratch-card-container #new-card-btn:disabled { background-color: var(--disabled-color); cursor: not-allowed; }
-        .hide { display: none; }
-        
+        /* --- New Game Zone Styles --- */
+        .game-card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            text-align: center;
+            padding: 15px;
+            justify-content: space-between;
+            transition: transform 0.2s;
+        }
+        .game-card:hover {
+             transform: scale(1.03);
+        }
+        .game-card-thumbnail {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            object-fit: cover;
+        }
+        .game-card h4 {
+            margin: 0 0 15px;
+            font-size: 1.2em;
+            flex-grow: 1;
+        }
+        .game-play-btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            background-color: var(--primary-accent-color);
+            color: var(--text-light);
+            transition: background-color .2s;
+            font-size: 1em;
+            text-decoration: none;
+        }
+        .game-play-btn:hover {
+            background-color: var(--primary-accent-hover-color);
+        }
+
         .rich-ads-banner-container {
             margin: 20px 0;
             display: flex;
@@ -145,7 +182,10 @@
 <body>
 
     <header class="main-header">
-        <h1 class="site-title">NEWTUBE</h1>
+        <div class="site-title-container">
+            <h1 class="site-title">NEWTUBE</h1>
+            <span id="userIdDisplay" class="user-id-display"></span>
+        </div>
         <div class="header-right">
              <div class="inbox-container" id="inbox-container">
                 <svg id="inbox-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg>
@@ -208,17 +248,27 @@
         <!-- === GAME ZONE SECTION (UPDATED) === -->
         <section id="game-zone-content" class="content-section">
             <h3 class="section-title">Game Zone</h3>
-             <div class="card">
-                <div id="scratch-card-container">
-                    <h1 style="font-size: 1.5rem;">Scratch & Win</h1>
-                    <p id="attempts-left">Attempts left: 20</p>
-                    <div id="card-area">
-                        <div id="reward-result"></div>
-                        <canvas id="scratch-canvas" width="300" height="150"></canvas>
-                    </div>
-                    <button id="new-card-btn" class="hide">Get New Card</button>
+            <div class="item-grid" id="game-grid" style="grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));">
+                 <div class="game-card">
+                    <img src="https://i.postimg.cc/j2WRPcK1/5a523e006331193aa53312ccc544d1a6.jpg" alt="Dig Game" class="game-card-thumbnail">
+                    <h4>Dig Game</h4>
+                    <a href="#" class="game-play-btn" data-url="https://dig-game-ruby.vercel.app/">Play</a>
                 </div>
-                <button class="form-button" disabled style="margin-top: 20px; background-color: var(--disabled-color);">More Games Coming</button>
+                <div class="game-card">
+                    <img src="https://i.postimg.cc/8cyZmMdf/d6d9da5fcb714066456ed62a18945f43.jpg" alt="Galaxy Shooter" class="game-card-thumbnail">
+                    <h4>Galaxy Shooter</h4>
+                    <a href="#" class="game-play-btn" data-url="https://galaxy-shooter-three.vercel.app/">Play</a>
+                </div>
+                <div class="game-card">
+                    <img src="https://i.postimg.cc/sgqPCYrq/84791fc10c5fbe32db7c837252a788e3.jpg" alt="Word Finder" class="game-card-thumbnail">
+                    <h4>Word Finder</h4>
+                    <a href="#" class="game-play-btn" data-url="https://word-finder-eight.vercel.app/">Play</a>
+                </div>
+                 <div class="game-card">
+                    <img src="https://i.postimg.cc/0QZFZKb4/b179ce3754e0766607b19aae37681080.jpg" alt="Wood Sortfuz" class="game-card-thumbnail">
+                    <h4>Wood Sortfuz</h4>
+                    <a href="#" class="game-play-btn" data-url="https://wood-shortfuz.vercel.app/">Play</a>
+                </div>
             </div>
         </section>
         <!-- === END GAME ZONE SECTION === -->
@@ -330,12 +380,12 @@
     
     <script src="https://www.youtube.com/iframe_api" async></script>
     
-    <!-- === ADEXIUM ADS SCRIPT (UPDATED) === -->
+    <!-- === ADEXIUM ADS SCRIPT (TIMED INTERSTITIAL) === -->
     <script type="text/javascript">
         document.addEventListener('DOMContentLoaded', () => {
             const showAdexiumAd = () => {
                 if (typeof AdexiumWidget !== 'undefined') {
-                    console.log("Showing Adexium Ad...");
+                    console.log("Showing Timed Adexium Ad...");
                     try {
                         new AdexiumWidget({wid: '165512cc-372e-4fb0-98d2-552219c72799', adFormat: 'interstitial'}).init();
                     } catch(e) {
@@ -349,7 +399,7 @@
             const scheduleNextAdexiumAd = () => {
                 // Random time between 4 minutes (240000 ms) and 7 minutes (420000 ms)
                 const randomDelay = Math.floor(Math.random() * (420000 - 240000 + 1)) + 240000;
-                console.log(`Scheduling next Adexium ad in ${randomDelay / 1000 / 60} minutes.`);
+                console.log(`Scheduling next Adexium ad in ${Math.round(randomDelay / 1000 / 60)} minutes.`);
                 setTimeout(() => {
                     showAdexiumAd();
                     scheduleNextAdexiumAd(); // Schedule the next one after this one is shown
@@ -388,12 +438,10 @@
         let videoPlaybackInterval = null;
         let dailyTimerInterval = null;
         let timeSpentThisSession = 0; // in seconds
-        let gamePlayCounter = 0;
         let accumulatedWatchTime = 0;
 
-        const AD_VISIT_LIMIT = 30; 
+        const AD_VISIT_LIMIT = 10; // UPDATE 3
         const VIDEO_WATCH_LIMIT = 30; 
-        const GAME_AD_TRIGGER_COUNT = 2;
         const REFERRAL_POINTS_THRESHOLD = 500;
         const REFERRAL_BONUS_POINTS = 1000;
         const REFERRAL_BONUS_PG_COIN = 0.5;
@@ -444,13 +492,7 @@
                 updates['dailyTasks.lastReset'] = serverTimestamp();
             }
 
-            const lastGameReset = currentUser.dailyGamePlays?.lastReset?.toDate();
-            const lastGameResetTime = lastGameReset ? new Date(lastGameReset.getFullYear(), lastGameReset.getMonth(), lastGameReset.getDate()).getTime() : 0;
-            if (!lastGameReset || lastGameResetTime < today) {
-                updates['dailyGamePlays.math'] = 0;
-                updates['dailyGamePlays.scratch'] = 0;
-                updates['dailyGamePlays.lastReset'] = serverTimestamp();
-            }
+            // Removed game reset logic as per Update 2
 
             const lastVideoReset = currentUser.videoProgress?.lastReset?.toDate();
             const lastVideoResetTime = lastVideoReset ? new Date(lastVideoReset.getFullYear(), lastVideoReset.getMonth(), lastVideoReset.getDate()).getTime() : 0;
@@ -473,11 +515,10 @@
             const userRef = doc(db, 'users', userId);
             let userSnap = await getDoc(userRef);
 
-            const fieldsToEnsure = {
+            const fieldsToEnsure = { // UPDATE 2: Removed dailyGamePlays
                 balance: 0, usdtBalance: 0, pgCoin: 0, lifetimePointsEarned: 0, referralPointsEarned: 0, referralPgCoinEarned: 0,
                 referralCount: 0, completedTasks: [], adVisitsToday: 0, 
                 dailyTasks: { claimed: [], timeSpent: 0, lastReset: serverTimestamp() },
-                dailyGamePlays: { scratch: 0, lastReset: serverTimestamp() }, // Removed math quiz
                 videoProgress: { dailyWatchedCount: 0, lastReset: serverTimestamp() },
                 readMessages: []
             };
@@ -529,7 +570,7 @@
                 }
             }
             if (!userData.dailyTasks) updatesForOldUsers.dailyTasks = fieldsToEnsure.dailyTasks;
-            if (!userData.dailyGamePlays) updatesForOldUsers.dailyGamePlays = fieldsToEnsure.dailyGamePlays;
+            if (userData.dailyGamePlays) updatesForOldUsers.dailyGamePlays = null; // Remove old game data
             if (!Array.isArray(userData.completedTasks)) updatesForOldUsers.completedTasks = [];
             if (!userData.videoProgress) updatesForOldUsers.videoProgress = fieldsToEnsure.videoProgress;
             if (!Array.isArray(userData.readMessages)) updatesForOldUsers.readMessages = [];
@@ -544,6 +585,9 @@
             currentUser = { id: finalUserSnap.id, ...finalUserSnap.data() };
             
             await checkAndResetDailies();
+            
+            // UPDATE 1: Display User ID
+            document.getElementById('userIdDisplay').textContent = `ID: ${currentUser.id}`;
 
             updateBalanceUI(currentUser.balance, currentUser.usdtBalance, currentUser.pgCoin);
             generateReferralLink(currentUser.id);
@@ -803,7 +847,8 @@
             };
 
             try {
-                await showRandomAdForContent();
+                // UPDATE 3: Use the new function with only Monetag and GigaPub
+                await showRandomAdForTask();
                 await grantAdReward();
             } catch (err) {
                 console.log('Ad not shown or completed:', err);
@@ -1080,7 +1125,6 @@
             document.getElementById('referral-stats-pg').textContent = (currentUser.referralPgCoinEarned || 0).toFixed(3);
         }
         
-        // --- LEADERBOARD LOGIC (UPDATED FOR LIFETIME REFERRALS) ---
         async function fetchLeaderboard() {
             const listContainer = document.getElementById('leaderboard-list');
             const myReferralsContainer = document.getElementById('my-referrals-list');
@@ -1088,7 +1132,6 @@
             myReferralsContainer.innerHTML = '<div class="loader"></div>';
 
             try {
-                // Query based on lifetime referralCount
                 const topReferrersQuery = query(collection(db, "users"), where("referralCount", ">", 0), orderBy("referralCount", "desc"), limit(50));
                 const topSnapshot = await getDocs(topReferrersQuery);
                 listContainer.innerHTML = '';
@@ -1107,7 +1150,6 @@
                         else if (rank === 3) { rankDisplay = '🥉'; }
                         else { rankDisplay = `#${rank}`; }
 
-                        // Simplified item without prize info
                         item.innerHTML = `<div class="rank">${rankDisplay}</div><div class="info"><strong>${user.telegramUsername || 'User...'}</strong></div><div class="count">${user.referralCount || 0} Referrals</div>`;
                         listContainer.appendChild(item);
                         rank++;
@@ -1152,7 +1194,6 @@
                 myReferralsContainer.innerHTML = '<p style="color:red; text-align:center;">Could not load your referrals.</p>';
             }
         }
-        // --- END LEADERBOARD LOGIC ---
 
         async function claimReferralBonus(refereeId, button) {
             button.disabled = true; button.textContent = '...';
@@ -1274,106 +1315,28 @@
             }
         });
         
-        let game_scratchCard = {};
-
         const showMonetagAd = () => new Promise((res, rej) => typeof show_9442539 === 'function' ? show_9442539().then(res).catch(rej) : rej('Monetag SDK missing'));
         const showGigaPubAd = () => new Promise((res, rej) => typeof window.showGiga === 'function' ? window.showGiga("main").then(res).catch(rej) : rej('GigaPub SDK missing'));
-        const showRichAdsInterstitial = () => new Promise((res, rej) => {
-            if(window.TelegramAdsController && typeof window.TelegramAdsController.showInterstitial === 'function') {
-                console.log("Showing RichAds Interstitial");
-                window.TelegramAdsController.showInterstitial(res, rej);
-            } else {
-                rej('RichAds Controller not ready for Interstitial');
-            }
-        });
         
+        // UPDATE 4: RichAds is now only shown by the timed script at the bottom of the page.
+        // It has been removed from the random ad functions to avoid user annoyance.
         async function showRandomAdForContent() {
-            const adNetworks = [showMonetagAd, showGigaPubAd, showRichAdsInterstitial];
+            // This function is for things like video rewards.
+            const adNetworks = [showMonetagAd, showGigaPubAd];
             const randomAdFunction = adNetworks[Math.floor(Math.random() * adNetworks.length)];
             console.log(`Attempting to show content ad from: ${randomAdFunction.name}`);
             return randomAdFunction();
         }
 
-        // --- GAME ZONE LOGIC (UPDATED) ---
-        async function showRandomAdForGame() {
-            const adNetworks = [showMonetagAd, showGigaPubAd]; // Only Monetag and GigaPub for games
+        // UPDATE 3: New function for "Ads to Earn" section
+        async function showRandomAdForTask() {
+            const adNetworks = [showMonetagAd, showGigaPubAd]; // Only Monetag and GigaPub for this task
             const randomAdFunction = adNetworks[Math.floor(Math.random() * adNetworks.length)];
-            console.log(`Attempting to show game ad from: ${randomAdFunction.name}`);
+            console.log(`Attempting to show task ad from: ${randomAdFunction.name}`);
             return randomAdFunction();
         }
 
-        function renderGameZone() {
-            if (!currentUser) return;
-            game_scratchCard.init();
-        }
-
-        async function handleGamePlay(gameType) {
-            if (!currentUser) return false;
-            
-            gamePlayCounter++;
-            const userRef = doc(db, 'users', currentUser.id);
-
-            try {
-                await updateDoc(userRef, { [`dailyGamePlays.${gameType}`]: increment(1) });
-                await fetchAndUpdateCurrentUser();
-                
-                if (gamePlayCounter % GAME_AD_TRIGGER_COUNT === 0) {
-                    console.log("Triggering ad after game play...");
-                    await showRandomAdForGame();
-                }
-                return true;
-            } catch (error) {
-                console.error(`Error in handleGamePlay for ${gameType}:`, error);
-                alert("Ad could not be shown, but you will still get your reward.");
-                return true; 
-            }
-        }
-        
-        (function() { // Scratch Card Logic (Updated Limit)
-            const canvas = document.getElementById('scratch-canvas'); const ctx = canvas.getContext('2d');
-            const rewardResult = document.getElementById('reward-result'); const attemptsLeftDisplay = document.getElementById('attempts-left');
-            const newCardBtn = document.getElementById('new-card-btn'); let canScratch = false; let isDrawing = false;
-            function updateAttempts() {
-                const plays = currentUser.dailyGamePlays?.scratch || 0;
-                const limit = 20; // UPDATED LIMIT
-                attemptsLeftDisplay.textContent = `Attempts left: ${limit - plays}`;
-                if (plays >= limit) {
-                    rewardResult.textContent = "See You Tomorrow!"; ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    newCardBtn.classList.add('hide'); return false;
-                } return true;
-            }
-            function generateReward() { return Math.random() < 0.2 ? "Empty! Try Again." : `You Won!`; }
-            function generateNewCard() { if (!updateAttempts()) return; newCardBtn.classList.add('hide'); canScratch = true; ctx.globalCompositeOperation = 'source-over'; ctx.fillStyle = '#bdc3c7'; ctx.fillRect(0, 0, canvas.width, canvas.height); rewardResult.textContent = generateReward(); }
-            function getEventCoords(e) { const rect = canvas.getBoundingClientRect(); const scaleX = canvas.width / rect.width; const scaleY = canvas.height / rect.height; if (e.touches && e.touches.length > 0) return { x: (e.touches[0].clientX - rect.left) * scaleX, y: (e.touches[0].clientY - rect.top) * scaleY }; return { x: (e.clientX - rect.left) * scaleX, y: (e.clientY - rect.top) * scaleY }; }
-            function startScratching(e) { if (!canScratch) return; isDrawing = true; const coords = getEventCoords(e); scratch(coords.x, coords.y); }
-            function stopScratching() { isDrawing = false; }
-            function doScratch(e) { if (!isDrawing || !canScratch) return; e.preventDefault(); const coords = getEventCoords(e); scratch(coords.x, coords.y); }
-            function scratch(x, y) { ctx.globalCompositeOperation = 'destination-out'; ctx.beginPath(); ctx.arc(x, y, 20, 0, 2 * Math.PI); ctx.fill(); checkScratchPercentage(); }
-            canvas.addEventListener('mousedown', startScratching); canvas.addEventListener('touchstart', startScratching);
-            canvas.addEventListener('mousemove', doScratch); canvas.addEventListener('touchmove', doScratch);
-            window.addEventListener('mouseup', stopScratching); window.addEventListener('touchend', stopScratching);
-            newCardBtn.addEventListener('click', generateNewCard);
-            function checkScratchPercentage() {
-                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height); const pixels = imageData.data; let transparentPixels = 0;
-                for (let i = 3; i < pixels.length; i += 4) { if (pixels[i] === 0) transparentPixels++; }
-                if ((transparentPixels / (canvas.width * canvas.height)) * 100 > 65) { finishCard(); }
-            }
-            async function finishCard() {
-                if (!canScratch) return; canScratch = false;
-                await handleGamePlay('scratch');
-                const rewardText = rewardResult.textContent;
-                if (rewardText.includes("You Won!")) {
-                    const pgCoinWon = parseFloat((Math.random() * (0.2 - 0.001) + 0.001).toFixed(3));
-                    await grantPgCoin(pgCoinWon, 'scratch_card');
-                    showSuccessModal("You Won!", `You received ${pgCoinWon} PG Coin.`);
-                }
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                newCardBtn.classList.remove('hide');
-                updateAttempts();
-            }
-            game_scratchCard.init = generateNewCard;
-        })();
-        // --- END GAME ZONE LOGIC ---
+        // --- GAME ZONE LOGIC REMOVED (UPDATE 2) ---
 
         async function checkForUnreadMessages() {
             if (!currentUser?.id) return;
@@ -1455,7 +1418,7 @@
                     case '#home-content': fetchContent(); break;
                     case '#ads-to-earn-content': setupAdsToEarn(); break;
                     case '#task-content': fetchTasks(); renderDailyTasks(); break;
-                    case '#game-zone-content': renderGameZone(); break;
+                    case '#game-zone-content': /* No action needed, static content */ break; // UPDATE 2
                     case '#referral-content': renderReferralStats(); break;
                     case '#leaderboard-content': fetchLeaderboard(); break;
                     case '#convert-withdraw-content': renderConvertWithdrawUI(); break;
@@ -1505,6 +1468,18 @@
                     });
                 });
                 
+                // UPDATE 2: Event listener for new game buttons
+                document.getElementById('game-grid').addEventListener('click', (e) => {
+                    const button = e.target.closest('.game-play-btn');
+                    if (button) {
+                        e.preventDefault();
+                        const url = button.dataset.url;
+                        if (url) {
+                            tg.openLink(url);
+                        }
+                    }
+                });
+
                 document.getElementById('convertSource').addEventListener('change', updateConvertUI);
 
             } catch (error) {
