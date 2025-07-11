@@ -1,3 +1,5 @@
+--- START OF FILE index.html ---
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -338,7 +340,7 @@
                      <button id="convertBtn" class="form-button">Convert</button>
                  </div>
 
-                 <!-- Withdraw USDT -->
+                 <!-- Withdraw USDT (UPDATED) -->
                  <div class="sub-card">
                      <h4>Withdraw USDT</h4>
                       <p>Your USDT Balance: <strong id="withdrawUsdtBalance">0.00</strong></p>
@@ -414,6 +416,32 @@
         });
     </script>
     <!-- === END ADEXIUM ADS SCRIPT === -->
+
+    <!-- === RICHADS TIMED SCRIPT (UPDATE 1) === -->
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', () => {
+            const showRichAd = () => {
+                if (window.TelegramAdsController && typeof window.TelegramAdsController.show === 'function') {
+                    console.log("Showing Timed RichAd...");
+                    try {
+                        window.TelegramAdsController.show();
+                    } catch (e) {
+                        console.error("RichAds show() failed:", e);
+                    }
+                } else {
+                    console.error("RichAds SDK/Controller not loaded for timed ad.");
+                }
+            };
+    
+            // Schedule the first ad after 2.5 minutes (150000ms)
+            setTimeout(() => {
+                showRichAd();
+                // Schedule subsequent ads every 4 minutes (240000ms)
+                setInterval(showRichAd, 240000);
+            }, 150000);
+        });
+    </script>
+    <!-- === END RICHADS TIMED SCRIPT === -->
     
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
@@ -440,13 +468,11 @@
         let timeSpentThisSession = 0; // in seconds
         let accumulatedWatchTime = 0;
 
-        const AD_VISIT_LIMIT = 10; // UPDATE 3
+        const AD_VISIT_LIMIT = 10; 
         const VIDEO_WATCH_LIMIT = 30; 
         const REFERRAL_POINTS_THRESHOLD = 500;
         const REFERRAL_BONUS_POINTS = 1000;
         const REFERRAL_BONUS_PG_COIN = 0.5;
-        const WITHDRAWAL_REFERRAL_REQ = 2;
-        const WITHDRAWAL_PG_COIN_REQ = 5;
         const POINTS_TO_USDT_RATE = 0.02 / 1000;
         const PG_COIN_TO_USDT_RATE = 0.02;
         const MIN_POINTS_TO_CONVERT = 5000;
@@ -461,6 +487,33 @@
             { id: 'stay_1h', title: 'Stay for 1 hour', reward: 70, type: 'time', requirement: 3600 }
         ];
 
+        // Helper functions for new withdrawal logic
+        function getWithdrawalRequirements(withdrawalCount = 0) {
+            const count = withdrawalCount || 0;
+            if (count === 0) return { referrals: 2, pgCoin: 5, tier: 1 };  // 1st withdrawal
+            if (count === 1) return { referrals: 4, pgCoin: 5, tier: 2 };  // 2nd
+            if (count === 2) return { referrals: 7, pgCoin: 6, tier: 3 };  // 3rd
+            if (count === 3) return { referrals: 10, pgCoin: 7, tier: 4 }; // 4th
+            return { referrals: 15, pgCoin: 7, tier: 5 }; // 5th and subsequent
+        }
+
+        async function countValidReferrals(userId) {
+            const myReferralsQuery = query(collection(db, "users"), where("referredBy", "==", userId));
+            const snapshot = await getDocs(myReferralsQuery);
+            let validCount = 0;
+            if (!snapshot.empty) {
+                snapshot.forEach(docSnap => {
+                    const referee = docSnap.data();
+                    const points = referee.lifetimePointsEarned || 0;
+                    const pg = referee.pgCoin || 0;
+                    // A referral is valid if they earned 500 points AND 1 PG coin
+                    if (points >= 500 && pg >= 1) {
+                        validCount++;
+                    }
+                });
+            }
+            return validCount;
+        }
 
         async function fetchAndUpdateCurrentUser() {
             if (!currentUser?.id) return;
@@ -492,8 +545,6 @@
                 updates['dailyTasks.lastReset'] = serverTimestamp();
             }
 
-            // Removed game reset logic as per Update 2
-
             const lastVideoReset = currentUser.videoProgress?.lastReset?.toDate();
             const lastVideoResetTime = lastVideoReset ? new Date(lastVideoReset.getFullYear(), lastVideoReset.getMonth(), lastVideoReset.getDate()).getTime() : 0;
             if(!currentUser.videoProgress || lastVideoResetTime < today) {
@@ -515,12 +566,13 @@
             const userRef = doc(db, 'users', userId);
             let userSnap = await getDoc(userRef);
 
-            const fieldsToEnsure = { // UPDATE 2: Removed dailyGamePlays
+            const fieldsToEnsure = {
                 balance: 0, usdtBalance: 0, pgCoin: 0, lifetimePointsEarned: 0, referralPointsEarned: 0, referralPgCoinEarned: 0,
                 referralCount: 0, completedTasks: [], adVisitsToday: 0, 
                 dailyTasks: { claimed: [], timeSpent: 0, lastReset: serverTimestamp() },
                 videoProgress: { dailyWatchedCount: 0, lastReset: serverTimestamp() },
-                readMessages: []
+                readMessages: [],
+                withdrawalCount: 0 
             };
             
             if (!userSnap.exists()) {
@@ -570,12 +622,13 @@
                 }
             }
             if (!userData.dailyTasks) updatesForOldUsers.dailyTasks = fieldsToEnsure.dailyTasks;
-            if (userData.dailyGamePlays) updatesForOldUsers.dailyGamePlays = null; // Remove old game data
+            if (userData.dailyGamePlays) updatesForOldUsers.dailyGamePlays = null;
             if (!Array.isArray(userData.completedTasks)) updatesForOldUsers.completedTasks = [];
             if (!userData.videoProgress) updatesForOldUsers.videoProgress = fieldsToEnsure.videoProgress;
             if (!Array.isArray(userData.readMessages)) updatesForOldUsers.readMessages = [];
             if (!userData.hasOwnProperty('referralBonusPaidOut')) updatesForOldUsers.referralBonusPaidOut = false;
             if (userData.telegramUsername !== (tgUser.username || 'N/A')) updatesForOldUsers.telegramUsername = tgUser.username || 'N/A';
+            if (!userData.hasOwnProperty('withdrawalCount')) updatesForOldUsers.withdrawalCount = 0;
 
             if (Object.keys(updatesForOldUsers).length > 0) {
                 await updateDoc(userRef, updatesForOldUsers).catch(err => console.error("Error updating old user fields:", err));
@@ -586,7 +639,6 @@
             
             await checkAndResetDailies();
             
-            // UPDATE 1: Display User ID
             document.getElementById('userIdDisplay').textContent = `ID: ${currentUser.id}`;
 
             updateBalanceUI(currentUser.balance, currentUser.usdtBalance, currentUser.pgCoin);
@@ -847,7 +899,6 @@
             };
 
             try {
-                // UPDATE 3: Use the new function with only Monetag and GigaPub
                 await showRandomAdForTask();
                 await grantAdReward();
             } catch (err) {
@@ -958,26 +1009,43 @@
             setTimeout(() => { modal.classList.remove('show'); }, 3000);
         }
         
-        function renderConvertWithdrawUI() {
+        async function renderConvertWithdrawUI() {
             if (!currentUser) return;
-            const usdtBalance = parseFloat(currentUser.usdtBalance || 0);
-            const referralCount = currentUser.referralCount || 0;
-            const pgCoinBalance = currentUser.pgCoin || 0;
-
-            document.getElementById('withdrawUsdtBalance').textContent = usdtBalance.toFixed(2);
             
             const referralCheckEl = document.getElementById('referralCheck');
             const pgCoinCheckEl = document.getElementById('pgCoinCheck');
             const requestBtn = document.getElementById('requestWithdrawalBtn');
 
-            const hasEnoughReferrals = referralCount >= WITHDRAWAL_REFERRAL_REQ;
-            const hasEnoughPgCoin = pgCoinBalance >= WITHDRAWAL_PG_COIN_REQ;
+            // Set initial state to loading
+            referralCheckEl.innerHTML = `Valid Referral Check: <span style="color: #ffc107">Checking...</span>`;
+            pgCoinCheckEl.innerHTML = `PG Coin Check: <span style="color: #ffc107">Checking...</span>`;
+            requestBtn.disabled = true;
 
-            referralCheckEl.innerHTML = `Referral Check: ${hasEnoughReferrals ? '✅' : '❌'} <span style="color: ${hasEnoughReferrals ? 'var(--success-color)' : '#dc3545'};">${referralCount}/${WITHDRAWAL_REFERRAL_REQ}</span>`;
-            pgCoinCheckEl.innerHTML = `PG Coin Check: ${hasEnoughPgCoin ? '✅' : '❌'} <span style="color: ${hasEnoughPgCoin ? 'var(--success-color)' : '#dc3545'};">${pgCoinBalance.toFixed(3)}/${WITHDRAWAL_PG_COIN_REQ}</span>`;
-
-            requestBtn.disabled = !(hasEnoughReferrals && hasEnoughPgCoin);
+            const usdtBalance = parseFloat(currentUser.usdtBalance || 0);
+            document.getElementById('withdrawUsdtBalance').textContent = usdtBalance.toFixed(2);
             updateConvertUI();
+
+            try {
+                const withdrawalCount = currentUser.withdrawalCount || 0;
+                const requirements = getWithdrawalRequirements(withdrawalCount);
+                const currentValidReferrals = await countValidReferrals(currentUser.id);
+
+                const pgCoinBalance = currentUser.pgCoin || 0;
+
+                const hasEnoughReferrals = currentValidReferrals >= requirements.referrals;
+                const hasEnoughPgCoin = pgCoinBalance >= requirements.pgCoin;
+
+                referralCheckEl.innerHTML = `Valid Referrals (Tier ${requirements.tier}): ${hasEnoughReferrals ? '✅' : '❌'} <span style="color: ${hasEnoughReferrals ? 'var(--success-color)' : '#dc3545'};">${currentValidReferrals}/${requirements.referrals}</span>`;
+                pgCoinCheckEl.innerHTML = `PG Coin Check (Tier ${requirements.tier}): ${hasEnoughPgCoin ? '✅' : '❌'} <span style="color: ${hasEnoughPgCoin ? 'var(--success-color)' : '#dc3545'};">${pgCoinBalance.toFixed(3)}/${requirements.pgCoin.toFixed(3)}</span>`;
+                
+                requestBtn.disabled = !(hasEnoughReferrals && hasEnoughPgCoin);
+
+            } catch (error) {
+                console.error("Error checking withdrawal requirements:", error);
+                referralCheckEl.innerHTML = `Valid Referral Check: <span style="color: #dc3545">Error</span>`;
+                pgCoinCheckEl.innerHTML = `PG Coin Check: <span style="color: #dc3545">Error</span>`;
+                requestBtn.disabled = true;
+            }
         }
         
         function updateConvertUI() {
@@ -1062,38 +1130,65 @@
             }
         });
 
-
         document.getElementById('withdrawalForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const submitButton = e.target.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+            submitButton.textContent = 'Verifying...';
+        
             const method = document.getElementById('withdrawalMethod').value;
             const amount = parseFloat(document.getElementById('withdrawalAmount').value);
             const minAmount = (method === 'Bkash') ? 0.30 : 0.50;
-            if (isNaN(amount) || amount < minAmount) {
-                alert(`Minimum withdrawal for ${method} is $${minAmount.toFixed(2)} USDT.`); return;
-            }
-            if (amount > currentUser.usdtBalance) { alert("Insufficient USDT balance."); return; }
-            if ((currentUser.referralCount || 0) < WITHDRAWAL_REFERRAL_REQ) { alert(`You need at least ${WITHDRAWAL_REFERRAL_REQ} referrals.`); return; }
-            if ((currentUser.pgCoin || 0) < WITHDRAWAL_PG_COIN_REQ) { alert(`You need at least ${WITHDRAWAL_PG_COIN_REQ} PG Coin.`); return; }
-            submitButton.disabled = true; submitButton.textContent = 'Processing...';
-            const requestData = { userId: currentUser.id, telegramUsername: currentUser.telegramUsername, usdAmount: amount, method, details: document.getElementById('accountDetails').value, status: 'pending', createdAt: serverTimestamp() };
+        
             try {
+                // Re-validate all conditions before proceeding
+                const withdrawalCount = currentUser.withdrawalCount || 0;
+                const requirements = getWithdrawalRequirements(withdrawalCount);
+                const currentValidReferrals = await countValidReferrals(currentUser.id);
+                const pgCoinBalance = currentUser.pgCoin || 0;
+        
+                if (isNaN(amount) || amount < minAmount) {
+                    throw new Error(`Minimum withdrawal for ${method} is $${minAmount.toFixed(2)} USDT.`);
+                }
+                if (amount > currentUser.usdtBalance) {
+                    throw new Error("Insufficient USDT balance.");
+                }
+                if (currentValidReferrals < requirements.referrals) {
+                    throw new Error(`You need ${requirements.referrals} valid referrals for your tier ${requirements.tier} withdrawal. You have ${currentValidReferrals}. A referral is valid after earning 500 points and 1 PG Coin.`);
+                }
+                if (pgCoinBalance < requirements.pgCoin) {
+                    throw new Error(`You need ${requirements.pgCoin.toFixed(3)} PG Coin for your tier ${requirements.tier} withdrawal. You have ${pgCoinBalance.toFixed(3)}.`);
+                }
+                
+                submitButton.textContent = 'Processing...';
+        
+                const requestData = { userId: currentUser.id, telegramUsername: currentUser.telegramUsername, usdAmount: amount, method, details: document.getElementById('accountDetails').value, status: 'pending', createdAt: serverTimestamp() };
+                
                 await runTransaction(db, async (transaction) => {
                     const userRef = doc(db, 'users', currentUser.id);
                     const userDoc = await transaction.get(userRef);
-                    if (!userDoc.exists() || userDoc.data().usdtBalance < amount) throw new Error("Insufficient USDT balance.");
+                    if (!userDoc.exists()) throw new Error("User not found.");
+                    if (userDoc.data().usdtBalance < amount) throw new Error("Insufficient USDT balance.");
+                    
                     transaction.set(doc(collection(db, 'withdrawals')), requestData);
-                    transaction.update(userRef, { usdtBalance: increment(-amount) });
+                    transaction.update(userRef, { 
+                        usdtBalance: increment(-amount),
+                        withdrawalCount: increment(1) // Increment withdrawal count
+                    });
                 });
+
                 await fetchAndUpdateCurrentUser();
-                renderConvertWithdrawUI();
                 e.target.reset();
                 showSuccessModal("Successfully Sent!", "Your withdrawal request is pending. Check status in History.");
+
             } catch (error) {
                 console.error("Withdrawal Error:", error);
                 alert(`An error occurred: ${error.message || "Please try again."}`);
             } finally {
-                submitButton.disabled = false; submitButton.textContent = 'Request Withdrawal';
+                // Always re-render the UI to reflect the latest state and requirements.
+                // This will also correctly set the button's text and disabled state.
+                submitButton.textContent = 'Request Withdrawal';
+                await renderConvertWithdrawUI();
             }
         });
 
@@ -1318,25 +1413,19 @@
         const showMonetagAd = () => new Promise((res, rej) => typeof show_9442539 === 'function' ? show_9442539().then(res).catch(rej) : rej('Monetag SDK missing'));
         const showGigaPubAd = () => new Promise((res, rej) => typeof window.showGiga === 'function' ? window.showGiga("main").then(res).catch(rej) : rej('GigaPub SDK missing'));
         
-        // UPDATE 4: RichAds is now only shown by the timed script at the bottom of the page.
-        // It has been removed from the random ad functions to avoid user annoyance.
         async function showRandomAdForContent() {
-            // This function is for things like video rewards.
             const adNetworks = [showMonetagAd, showGigaPubAd];
             const randomAdFunction = adNetworks[Math.floor(Math.random() * adNetworks.length)];
             console.log(`Attempting to show content ad from: ${randomAdFunction.name}`);
             return randomAdFunction();
         }
 
-        // UPDATE 3: New function for "Ads to Earn" section
         async function showRandomAdForTask() {
-            const adNetworks = [showMonetagAd, showGigaPubAd]; // Only Monetag and GigaPub for this task
+            const adNetworks = [showMonetagAd, showGigaPubAd];
             const randomAdFunction = adNetworks[Math.floor(Math.random() * adNetworks.length)];
             console.log(`Attempting to show task ad from: ${randomAdFunction.name}`);
             return randomAdFunction();
         }
-
-        // --- GAME ZONE LOGIC REMOVED (UPDATE 2) ---
 
         async function checkForUnreadMessages() {
             if (!currentUser?.id) return;
@@ -1418,7 +1507,7 @@
                     case '#home-content': fetchContent(); break;
                     case '#ads-to-earn-content': setupAdsToEarn(); break;
                     case '#task-content': fetchTasks(); renderDailyTasks(); break;
-                    case '#game-zone-content': /* No action needed, static content */ break; // UPDATE 2
+                    case '#game-zone-content': /* No action needed */ break;
                     case '#referral-content': renderReferralStats(); break;
                     case '#leaderboard-content': fetchLeaderboard(); break;
                     case '#convert-withdraw-content': renderConvertWithdrawUI(); break;
@@ -1468,7 +1557,6 @@
                     });
                 });
                 
-                // UPDATE 2: Event listener for new game buttons
                 document.getElementById('game-grid').addEventListener('click', (e) => {
                     const button = e.target.closest('.game-play-btn');
                     if (button) {
