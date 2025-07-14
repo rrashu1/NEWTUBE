@@ -1,5 +1,3 @@
---- START OF FILE index.html ---
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -17,7 +15,9 @@
 
     <style>
         :root {
-            --primary-accent-color: #FF4500; --primary-accent-hover-color: #E03D00; --dark-bg: #000000;
+            --primary-accent-color: #007BFF; /* UPDATE: Color changed to blue */
+            --primary-accent-hover-color: #0056b3; /* UPDATE: Hover color changed to a darker blue */
+            --dark-bg: #000000;
             --card-bg: #1a1a1a; --header-bg: #181818; --text-light: #ffffff; --text-muted: #b3b3b3;
             --border-color: #282828; --success-color: #28a745; --disabled-color: #444;
         }
@@ -26,7 +26,13 @@
         .main-header { background-color: var(--header-bg); padding: 10px 15px; border-bottom: 1px solid var(--border-color); position: fixed; top: 0; left: 0; right: 0; z-index: 1000; display: flex; justify-content: space-between; align-items: center; height: 40px; }
         .site-title-container { display: flex; flex-direction: column; align-items: flex-start; }
         .site-title { font-size: 1.2em; color: var(--primary-accent-color); font-weight: 700; text-transform: uppercase; margin: 0; padding: 0; line-height: 1; }
-        .user-id-display { font-size: 0.7em; color: var(--text-muted); font-weight: normal; margin-top: 1px; }
+        /* UPDATE: Styles for User ID copy functionality */
+        .user-id-container { display: flex; align-items: center; gap: 8px; cursor: pointer; margin-top: 1px; }
+        .user-id-display { font-size: 0.7em; color: var(--text-muted); font-weight: normal; }
+        .copy-user-id-btn { background: none; border: none; padding: 0; display: flex; align-items: center; justify-content: center; color: var(--text-muted); }
+        .copy-user-id-btn svg { width: 12px; height: 12px; }
+        .user-id-container:hover .user-id-display, .user-id-container:hover .copy-user-id-btn { color: var(--text-light); }
+        
         .header-right { display: flex; align-items: center; gap: 10px; }
         .inbox-container { position: relative; cursor: pointer; }
         #inbox-icon { width: 24px; height: 24px; color: var(--text-light); }
@@ -169,7 +175,13 @@
     <header class="main-header">
         <div class="site-title-container">
             <h1 class="site-title">NEWTUBE</h1>
-            <span id="userIdDisplay" class="user-id-display"></span>
+            <!-- UPDATE: User ID container with copy functionality -->
+            <div class="user-id-container" id="userIdContainer">
+                <span id="userIdDisplay" class="user-id-display"></span>
+                <button class="copy-user-id-btn" title="Copy User ID">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 448 512"><path fill="currentColor" d="M384 336H192c-8.8 0-16-7.2-16-16V64c0-8.8 7.2-16 16-16l140.1 0L400 115.9V320c0 8.8-7.2 16-16 16zM192 384H384c35.3 0 64-28.7 64-64V115.9c0-12.7-5.1-24.9-14.1-33.9L366.1 14.1c-9-9-21.2-14.1-33.9-14.1H192c-35.3 0-64 28.7-64 64V320c0 35.3 28.7 64 64 64zM64 128c-35.3 0-64 28.7-64 64V448c0 35.3 28.7 64 64 64H256c35.3 0 64-28.7 64-64V416H272v32c0 8.8-7.2 16-16 16H64c-8.8 0-16-7.2-16-16V192c0-8.8 7.2-16 16-16H96V128H64z"/></svg>
+                </button>
+            </div>
         </div>
         <div class="header-right">
              <div class="inbox-container" id="inbox-container">
@@ -229,7 +241,6 @@
             </div>
         </section>
 
-        <!-- === GAME ZONE SECTION (UPDATED) === -->
         <section id="game-zone-content" class="content-section">
             <h3 class="section-title">Game Zone</h3>
             <div class="item-grid" id="game-grid" style="grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));">
@@ -255,7 +266,6 @@
                 </div>
             </div>
         </section>
-        <!-- === END GAME ZONE SECTION === -->
 
         <section id="referral-content" class="content-section">
             <div class="card">
@@ -284,7 +294,6 @@
             </div>
         </section>
         
-        <!-- === LEADERBOARD SECTION (UPDATED) === -->
         <section id="leaderboard-content" class="content-section">
             <h3 class="section-title">Lifetime Top Referrers</h3>
             <div class="card" style="text-align: left; padding-bottom: 10px;">
@@ -297,12 +306,10 @@
                 <div id="my-referrals-list"></div>
             </div>
         </section>
-        <!-- === END LEADERBOARD SECTION === -->
         
         <section id="convert-withdraw-content" class="content-section">
              <div class="card">
                  <h3 class="section-title" style="border: none; margin-bottom: 5px; text-align: center;">Convert & Withdraw</h3>
-                 <!-- Convert to USDT -->
                  <div class="sub-card">
                      <h4>Convert to USDT</h4>
                      <div class="form-group">
@@ -322,7 +329,6 @@
                      <button id="convertBtn" class="form-button">Convert</button>
                  </div>
 
-                 <!-- Withdraw USDT (UPDATED) -->
                  <div class="sub-card">
                      <h4>Withdraw USDT</h4>
                       <p>Your USDT Balance: <strong id="withdrawUsdtBalance">0.00</strong></p>
@@ -381,19 +387,17 @@
             };
             
             const scheduleNextAdexiumAd = () => {
-                // Random time between 4 minutes (240000 ms) and 7 minutes (420000 ms)
                 const randomDelay = Math.floor(Math.random() * (420000 - 240000 + 1)) + 240000;
                 console.log(`Scheduling next Adexium ad in ${Math.round(randomDelay / 1000 / 60)} minutes.`);
                 setTimeout(() => {
                     showAdexiumAd();
-                    scheduleNextAdexiumAd(); // Schedule the next one after this one is shown
+                    scheduleNextAdexiumAd();
                 }, randomDelay);
             };
 
-            // First ad after 2 minutes (120000 ms)
             setTimeout(() => {
                 showAdexiumAd();
-                scheduleNextAdexiumAd(); // Start the scheduling loop after the first ad
+                scheduleNextAdexiumAd();
             }, 120000); 
         });
     </script>
@@ -421,7 +425,7 @@
         let currentPlayingItem = null;
         let videoPlaybackInterval = null;
         let dailyTimerInterval = null;
-        let timeSpentThisSession = 0; // in seconds
+        let timeSpentThisSession = 0;
         let accumulatedWatchTime = 0;
 
         const AD_VISIT_LIMIT = 10; 
@@ -443,14 +447,13 @@
             { id: 'stay_1h', title: 'Stay for 1 hour', reward: 70, type: 'time', requirement: 3600 }
         ];
 
-        // Helper functions for new withdrawal logic
         function getWithdrawalRequirements(withdrawalCount = 0) {
             const count = withdrawalCount || 0;
-            if (count === 0) return { referrals: 2, pgCoin: 5, tier: 1 };  // 1st withdrawal
-            if (count === 1) return { referrals: 4, pgCoin: 5, tier: 2 };  // 2nd
-            if (count === 2) return { referrals: 7, pgCoin: 6, tier: 3 };  // 3rd
-            if (count === 3) return { referrals: 10, pgCoin: 7, tier: 4 }; // 4th
-            return { referrals: 15, pgCoin: 7, tier: 5 }; // 5th and subsequent
+            if (count === 0) return { referrals: 2, pgCoin: 5, tier: 1 };
+            if (count === 1) return { referrals: 4, pgCoin: 5, tier: 2 };
+            if (count === 2) return { referrals: 7, pgCoin: 6, tier: 3 };
+            if (count === 3) return { referrals: 10, pgCoin: 7, tier: 4 };
+            return { referrals: 15, pgCoin: 7, tier: 5 };
         }
 
         async function countValidReferrals(userId) {
@@ -462,7 +465,7 @@
                     const referee = docSnap.data();
                     const points = referee.lifetimePointsEarned || 0;
                     const pg = referee.pgCoin || 0;
-                    // A referral is valid if they earned 500 points AND 0.5 PG coin
+                    // UPDATE: A referral is valid if they earned 500 points AND 0.5 PG coin
                     if (points >= 500 && pg >= 0.5) {
                         validCount++;
                     }
@@ -815,7 +818,8 @@
             const visitsToday = currentUser.adVisitsToday || 0;
             const visitsLeft = AD_VISIT_LIMIT - visitsToday;
             const isLimitReached = visitsLeft <= 0;
-            const buttonCount = 1; // UPDATE: Changed from 2 to 1
+            // UPDATE: Changed from 2 to 1 button
+            const buttonCount = 1; 
 
             for(let i=1; i <= buttonCount; i++) {
                 const card = document.createElement('div');
@@ -968,7 +972,6 @@
             const pgCoinCheckEl = document.getElementById('pgCoinCheck');
             const requestBtn = document.getElementById('requestWithdrawalBtn');
 
-            // Set initial state to loading
             referralCheckEl.innerHTML = `Valid Referral Check: <span style="color: #ffc107">Checking...</span>`;
             pgCoinCheckEl.innerHTML = `PG Coin Check: <span style="color: #ffc107">Checking...</span>`;
             requestBtn.disabled = true;
@@ -981,9 +984,7 @@
                 const withdrawalCount = currentUser.withdrawalCount || 0;
                 const requirements = getWithdrawalRequirements(withdrawalCount);
                 const currentValidReferrals = await countValidReferrals(currentUser.id);
-
                 const pgCoinBalance = currentUser.pgCoin || 0;
-
                 const hasEnoughReferrals = currentValidReferrals >= requirements.referrals;
                 const hasEnoughPgCoin = pgCoinBalance >= requirements.pgCoin;
 
@@ -1093,7 +1094,6 @@
             const minAmount = (method === 'Bkash') ? 0.30 : 0.50;
         
             try {
-                // Re-validate all conditions before proceeding
                 const withdrawalCount = currentUser.withdrawalCount || 0;
                 const requirements = getWithdrawalRequirements(withdrawalCount);
                 const currentValidReferrals = await countValidReferrals(currentUser.id);
@@ -1106,7 +1106,7 @@
                     throw new Error("Insufficient USDT balance.");
                 }
                 if (currentValidReferrals < requirements.referrals) {
-                    throw new Error(`You need ${requirements.referrals} valid referrals for your tier ${requirements.tier} withdrawal. You have ${currentValidReferrals}. A referral is valid after earning 500 points and 0.5 PG Coin.`);
+                    throw new Error(`You need ${requirements.referrals} valid referrals for your tier ${requirements.tier} withdrawal. A referral is valid after earning 500 points and 0.5 PG Coin.`);
                 }
                 if (pgCoinBalance < requirements.pgCoin) {
                     throw new Error(`You need ${requirements.pgCoin.toFixed(3)} PG Coin for your tier ${requirements.tier} withdrawal. You have ${pgCoinBalance.toFixed(3)}.`);
@@ -1125,7 +1125,7 @@
                     transaction.set(doc(collection(db, 'withdrawals')), requestData);
                     transaction.update(userRef, { 
                         usdtBalance: increment(-amount),
-                        withdrawalCount: increment(1) // Increment withdrawal count
+                        withdrawalCount: increment(1)
                     });
                 });
 
@@ -1137,8 +1137,6 @@
                 console.error("Withdrawal Error:", error);
                 alert(`An error occurred: ${error.message || "Please try again."}`);
             } finally {
-                // Always re-render the UI to reflect the latest state and requirements.
-                // This will also correctly set the button's text and disabled state.
                 submitButton.textContent = 'Request Withdrawal';
                 await renderConvertWithdrawUI();
             }
@@ -1495,7 +1493,20 @@
                 searchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') { performSearch(); } });
                 clearBtn.addEventListener('click', () => { searchInput.value = ''; fetchContent(); clearBtn.style.display = 'none'; });
 
-                // Task category button handler
+                // UPDATE: Event listener for User ID copy
+                const userIdContainer = document.getElementById('userIdContainer');
+                const copyUserIdBtn = userIdContainer.querySelector('button');
+                userIdContainer.addEventListener('click', () => {
+                    if (currentUser && currentUser.id) {
+                        navigator.clipboard.writeText(currentUser.id).then(() => {
+                            const originalTitle = copyUserIdBtn.title;
+                            copyUserIdBtn.title = 'Copied!';
+                            if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+                            setTimeout(() => { copyUserIdBtn.title = originalTitle; }, 2000);
+                        });
+                    }
+                });
+
                 document.querySelectorAll('.task-category-btn').forEach(button => {
                     button.addEventListener('click', () => {
                         document.querySelectorAll('.task-category-btn').forEach(btn => btn.classList.remove('active'));
