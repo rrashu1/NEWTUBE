@@ -14,15 +14,6 @@
     <script src="https://ad.gigapub.tech/script?id=846"></script>
     <!-- Adexium Ads SDK (New) -->
     <script type="text/javascript" src="https://cdn.tgads.space/assets/js/adexium-widget.min.js"></script>
-    <!-- RichAds Monetization -->
-    <script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
-    <script>
-      window.TelegramAdsController = new TelegramAdsController();
-      window.TelegramAdsController.initialize({
-        pubId: "978188",
-        appId: "2778",
-      });
-    </script>
 
     <style>
         :root {
@@ -168,14 +159,6 @@
             background-color: var(--primary-accent-hover-color);
         }
 
-        .rich-ads-banner-container {
-            margin: 20px 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 50px;
-        }
-
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         @keyframes modal-pop-in { to { transform: scale(1); opacity: 1; } }
         @keyframes icon-pop-in { 0% { transform: scale(0); } 70% { transform: scale(1.1); } 100% { transform: scale(1); } }
@@ -228,7 +211,6 @@
 
         <section id="ads-to-earn-content" class="content-section">
              <h3 class="section-title">Watch Ads, Earn Points</h3>
-             <div class="rich-ads-banner-container" data-telegram-ad-id="365726"></div>
              <div id="ad-task-list" class="item-grid"></div>
         </section>
         
@@ -416,32 +398,6 @@
         });
     </script>
     <!-- === END ADEXIUM ADS SCRIPT === -->
-
-    <!-- === RICHADS TIMED SCRIPT (UPDATE 1) === -->
-    <script type="text/javascript">
-        document.addEventListener('DOMContentLoaded', () => {
-            const showRichAd = () => {
-                if (window.TelegramAdsController && typeof window.TelegramAdsController.show === 'function') {
-                    console.log("Showing Timed RichAd...");
-                    try {
-                        window.TelegramAdsController.show();
-                    } catch (e) {
-                        console.error("RichAds show() failed:", e);
-                    }
-                } else {
-                    console.error("RichAds SDK/Controller not loaded for timed ad.");
-                }
-            };
-    
-            // Schedule the first ad after 2.5 minutes (150000ms)
-            setTimeout(() => {
-                showRichAd();
-                // Schedule subsequent ads every 4 minutes (240000ms)
-                setInterval(showRichAd, 240000);
-            }, 150000);
-        });
-    </script>
-    <!-- === END RICHADS TIMED SCRIPT === -->
     
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
@@ -506,8 +462,8 @@
                     const referee = docSnap.data();
                     const points = referee.lifetimePointsEarned || 0;
                     const pg = referee.pgCoin || 0;
-                    // A referral is valid if they earned 500 points AND 1 PG coin
-                    if (points >= 500 && pg >= 1) {
+                    // A referral is valid if they earned 500 points AND 0.5 PG coin
+                    if (points >= 500 && pg >= 0.5) {
                         validCount++;
                     }
                 });
@@ -855,15 +811,11 @@
         function setupAdsToEarn() {
             const adTaskListContainer = document.getElementById('ad-task-list');
             adTaskListContainer.innerHTML = '';
-            
-            if (window.TelegramAdsController && typeof window.TelegramAdsController.reload === 'function') {
-                window.TelegramAdsController.reload();
-            }
 
             const visitsToday = currentUser.adVisitsToday || 0;
             const visitsLeft = AD_VISIT_LIMIT - visitsToday;
             const isLimitReached = visitsLeft <= 0;
-            const buttonCount = 2;
+            const buttonCount = 1; // UPDATE: Changed from 2 to 1
 
             for(let i=1; i <= buttonCount; i++) {
                 const card = document.createElement('div');
@@ -1154,7 +1106,7 @@
                     throw new Error("Insufficient USDT balance.");
                 }
                 if (currentValidReferrals < requirements.referrals) {
-                    throw new Error(`You need ${requirements.referrals} valid referrals for your tier ${requirements.tier} withdrawal. You have ${currentValidReferrals}. A referral is valid after earning 500 points and 1 PG Coin.`);
+                    throw new Error(`You need ${requirements.referrals} valid referrals for your tier ${requirements.tier} withdrawal. You have ${currentValidReferrals}. A referral is valid after earning 500 points and 0.5 PG Coin.`);
                 }
                 if (pgCoinBalance < requirements.pgCoin) {
                     throw new Error(`You need ${requirements.pgCoin.toFixed(3)} PG Coin for your tier ${requirements.tier} withdrawal. You have ${pgCoinBalance.toFixed(3)}.`);
