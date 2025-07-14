@@ -15,8 +15,8 @@
 
     <style>
         :root {
-            --primary-accent-color: #007BFF; /* UPDATE: Color changed to blue */
-            --primary-accent-hover-color: #0056b3; /* UPDATE: Hover color changed to a darker blue */
+            --primary-accent-color: #007BFF; 
+            --primary-accent-hover-color: #0056b3; 
             --dark-bg: #000000;
             --card-bg: #1a1a1a; --header-bg: #181818; --text-light: #ffffff; --text-muted: #b3b3b3;
             --border-color: #282828; --success-color: #28a745; --disabled-color: #444;
@@ -26,7 +26,6 @@
         .main-header { background-color: var(--header-bg); padding: 10px 15px; border-bottom: 1px solid var(--border-color); position: fixed; top: 0; left: 0; right: 0; z-index: 1000; display: flex; justify-content: space-between; align-items: center; height: 40px; }
         .site-title-container { display: flex; flex-direction: column; align-items: flex-start; }
         .site-title { font-size: 1.2em; color: var(--primary-accent-color); font-weight: 700; text-transform: uppercase; margin: 0; padding: 0; line-height: 1; }
-        /* UPDATE: Styles for User ID copy functionality */
         .user-id-container { display: flex; align-items: center; gap: 8px; cursor: pointer; margin-top: 1px; }
         .user-id-display { font-size: 0.7em; color: var(--text-muted); font-weight: normal; }
         .copy-user-id-btn { background: none; border: none; padding: 0; display: flex; align-items: center; justify-content: center; color: var(--text-muted); }
@@ -113,57 +112,16 @@
         .daily-task-info h4 { margin: 0 0 5px; }
         .daily-task-info p { margin: 0; font-size: 0.9em; color: var(--success-color); }
         .daily-task-button { width: auto; flex-shrink: 0; padding: 10px 20px; font-size: 0.9em; }
-
-        /* --- Task Section Styles --- */
         .task-category-selector { display: flex; justify-content: center; margin-bottom: 25px; border-bottom: 2px solid #282828; padding-bottom: 15px; }
         .task-category-selector .task-category-btn { background-color: transparent; border: 2px solid var(--primary-accent-color); color: var(--primary-accent-color); padding: 10px 20px; margin: 0 5px; border-radius: 25px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: all 0.3s ease; }
         .task-category-selector .task-category-btn.active, .task-category-selector .task-category-btn:hover { background-color: var(--primary-accent-color); color: white; }
         .task-category-container { display: none; } .task-category-container.active { display: block; }
-        
-        /* --- New Game Zone Styles --- */
-        .game-card {
-            background-color: var(--card-bg);
-            border-radius: 8px;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            text-align: center;
-            padding: 15px;
-            justify-content: space-between;
-            transition: transform 0.2s;
-        }
-        .game-card:hover {
-             transform: scale(1.03);
-        }
-        .game-card-thumbnail {
-            width: 100%;
-            aspect-ratio: 1 / 1;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            object-fit: cover;
-        }
-        .game-card h4 {
-            margin: 0 0 15px;
-            font-size: 1.2em;
-            flex-grow: 1;
-        }
-        .game-play-btn {
-            display: block;
-            width: 100%;
-            padding: 12px;
-            border: none;
-            border-radius: 5px;
-            font-weight: bold;
-            cursor: pointer;
-            background-color: var(--primary-accent-color);
-            color: var(--text-light);
-            transition: background-color .2s;
-            font-size: 1em;
-            text-decoration: none;
-        }
-        .game-play-btn:hover {
-            background-color: var(--primary-accent-hover-color);
-        }
+        .game-card { background-color: var(--card-bg); border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; text-align: center; padding: 15px; justify-content: space-between; transition: transform 0.2s; }
+        .game-card:hover { transform: scale(1.03); }
+        .game-card-thumbnail { width: 100%; aspect-ratio: 1 / 1; border-radius: 8px; margin-bottom: 15px; object-fit: cover; }
+        .game-card h4 { margin: 0 0 15px; font-size: 1.2em; flex-grow: 1; }
+        .game-play-btn { display: block; width: 100%; padding: 12px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; background-color: var(--primary-accent-color); color: var(--text-light); transition: background-color .2s; font-size: 1em; text-decoration: none; }
+        .game-play-btn:hover { background-color: var(--primary-accent-hover-color); }
 
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         @keyframes modal-pop-in { to { transform: scale(1); opacity: 1; } }
@@ -175,7 +133,6 @@
     <header class="main-header">
         <div class="site-title-container">
             <h1 class="site-title">NEWTUBE</h1>
-            <!-- UPDATE: User ID container with copy functionality -->
             <div class="user-id-container" id="userIdContainer">
                 <span id="userIdDisplay" class="user-id-display"></span>
                 <button class="copy-user-id-btn" title="Copy User ID">
@@ -370,38 +327,7 @@
     
     <script src="https://www.youtube.com/iframe_api" async></script>
     
-    <!-- === ADEXIUM ADS SCRIPT (TIMED INTERSTITIAL) === -->
-    <script type="text/javascript">
-        document.addEventListener('DOMContentLoaded', () => {
-            const showAdexiumAd = () => {
-                if (typeof AdexiumWidget !== 'undefined') {
-                    console.log("Showing Timed Adexium Ad...");
-                    try {
-                        new AdexiumWidget({wid: '165512cc-372e-4fb0-98d2-552219c72799', adFormat: 'interstitial'}).init();
-                    } catch(e) {
-                        console.error("Adexium widget initialization failed:", e);
-                    }
-                } else {
-                    console.error("AdexiumWidget SDK not loaded.");
-                }
-            };
-            
-            const scheduleNextAdexiumAd = () => {
-                const randomDelay = Math.floor(Math.random() * (420000 - 240000 + 1)) + 240000;
-                console.log(`Scheduling next Adexium ad in ${Math.round(randomDelay / 1000 / 60)} minutes.`);
-                setTimeout(() => {
-                    showAdexiumAd();
-                    scheduleNextAdexiumAd();
-                }, randomDelay);
-            };
-
-            setTimeout(() => {
-                showAdexiumAd();
-                scheduleNextAdexiumAd();
-            }, 120000); 
-        });
-    </script>
-    <!-- === END ADEXIUM ADS SCRIPT === -->
+    <!-- UPDATE: Adexium timed logic is removed. The SDK will control itself. -->
     
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
@@ -427,6 +353,7 @@
         let dailyTimerInterval = null;
         let timeSpentThisSession = 0;
         let accumulatedWatchTime = 0;
+        let taskTimers = {}; // UPDATE: For task verification
 
         const AD_VISIT_LIMIT = 10; 
         const VIDEO_WATCH_LIMIT = 30; 
@@ -438,7 +365,9 @@
         const MIN_POINTS_TO_CONVERT = 5000;
         const MIN_PG_COIN_TO_CONVERT = 5;
         
+        // UPDATE: Daily login bonus added
         const dailyTasksConfig = [
+            { id: 'daily_login', title: 'Daily Login Bonus', reward: 40, type: 'action' },
             { id: 'visit_channel', title: 'Visit Telegram Channel', reward: 10, type: 'action', url: 'https://t.me/newtube12' },
             { id: 'stay_5m', title: 'Stay for 5 minutes', reward: 10, type: 'time', requirement: 300 },
             { id: 'stay_15m', title: 'Stay for 15 minutes', reward: 20, type: 'time', requirement: 900 },
@@ -465,7 +394,6 @@
                     const referee = docSnap.data();
                     const points = referee.lifetimePointsEarned || 0;
                     const pg = referee.pgCoin || 0;
-                    // UPDATE: A referral is valid if they earned 500 points AND 0.5 PG coin
                     if (points >= 500 && pg >= 0.5) {
                         validCount++;
                     }
@@ -818,7 +746,6 @@
             const visitsToday = currentUser.adVisitsToday || 0;
             const visitsLeft = AD_VISIT_LIMIT - visitsToday;
             const isLimitReached = visitsLeft <= 0;
-            // UPDATE: Changed from 2 to 1 button
             const buttonCount = 1; 
 
             for(let i=1; i <= buttonCount; i++) {
@@ -902,30 +829,51 @@
             }
         }
         
+        // UPDATE: Task verification logic updated
         document.getElementById('task-list').addEventListener('click', async (e) => {
             if (!e.target.matches('.task-button') || e.target.disabled) return;
             const button = e.target;
             const { taskId, taskUrl, reward, state } = button.dataset;
-            const visitDuration = parseInt(button.dataset.visitDuration, 10);
+            const visitDuration = parseInt(button.dataset.visitDuration, 10) || 0;
+
             if (state === 'start') {
                 if (!taskUrl) { alert('Task URL is missing.'); return; }
-                tg.openLink(taskUrl);
+
+                // If there's a visit duration, start the timer. Otherwise, it's a simple link click.
                 if (visitDuration > 0) {
-                    button.disabled = true; let countdown = visitDuration;
-                    const intervalId = setInterval(() => {
-                        countdown--; button.textContent = `Wait ${countdown}s...`;
-                        if (countdown <= 0) {
-                            clearInterval(intervalId); button.disabled = false;
-                            button.textContent = 'Claim Reward'; button.dataset.state = 'claim';
-                            if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('warning');
-                        }
-                    }, 1000);
+                    taskTimers[taskId] = Date.now();
+                    button.textContent = `Claim after ${visitDuration}s`;
+                    button.dataset.state = 'claim';
                 } else {
-                    button.textContent = 'Claim Reward'; button.dataset.state = 'claim';
-                    if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+                    // For tasks without a timer, change state to claim immediately
+                    button.textContent = 'Claim Reward';
+                    button.dataset.state = 'claim';
                 }
+                tg.openLink(taskUrl);
+
             } else if (state === 'claim') {
-                button.disabled = true; button.textContent = 'Verifying...';
+                // Check if the required time has passed for timed tasks
+                if (visitDuration > 0) {
+                    const startTime = taskTimers[taskId];
+                    if (!startTime) {
+                        alert("Please start the task first.");
+                        button.textContent = 'Start Task';
+                        button.dataset.state = 'start';
+                        return;
+                    }
+                    const elapsedTime = (Date.now() - startTime) / 1000;
+                    if (elapsedTime < visitDuration) {
+                        alert(`You must visit the site for at least ${visitDuration} seconds. You were gone for ${Math.round(elapsedTime)} seconds. Please try again.`);
+                        delete taskTimers[taskId];
+                        button.textContent = 'Start Task';
+                        button.dataset.state = 'start';
+                        return;
+                    }
+                }
+                
+                // Proceed with claiming the reward
+                button.disabled = true; 
+                button.textContent = 'Verifying...';
                 try {
                     await runTransaction(db, async (transaction) => {
                         const userRef = doc(db, 'users', currentUser.id);
@@ -944,14 +892,20 @@
                         transaction.update(taskRef, { completionCount: increment(1) });
                     });
                     
+                    delete taskTimers[taskId]; // Clean up timer
                     await grantPoints(Number(reward), 'task');
                     showSuccessModal("Reward Claimed!", `${reward} points have been added to your balance.`);
                     button.textContent = 'Done';
+
                 } catch (error) {
                     const errorMessages = { "ALREADY_COMPLETED": "You have already completed this task.", "TASK_LIMIT_REACHED": "This task has reached its completion limit.", "USER_OR_TASK_NOT_FOUND": "Task not found."};
                     alert(errorMessages[error] || 'Failed to claim reward.');
-                    button.textContent = (error === "ALREADY_COMPLETED" || error === "TASK_LIMIT_REACHED") ? 'Done' : 'Claim Reward';
-                    button.disabled = (error !== 'Failed to claim reward.');
+                    button.disabled = (error === "ALREADY_COMPLETED" || error === "TASK_LIMIT_REACHED");
+                    if (!button.disabled) {
+                        button.textContent = 'Claim Reward';
+                    } else {
+                        button.textContent = 'Done';
+                    }
                 }
             }
         });
@@ -1310,13 +1264,11 @@
                 card.className = 'daily-task-card';
                 const isClaimed = claimedTasks.includes(task.id);
                 let canClaim = false;
-                let buttonText = 'Go';
+                let buttonText = 'Claim';
 
-                if (isClaimed) {
-                    buttonText = 'Claimed';
-                } else if (task.type === 'time') {
+                if (task.type === 'time') {
                     if (timeSpent >= task.requirement) {
-                        canClaim = true; buttonText = 'Claim';
+                        canClaim = true;
                     } else {
                         const timeLeft = task.requirement - timeSpent;
                         const minutes = Math.floor(timeLeft / 60);
@@ -1324,7 +1276,12 @@
                         buttonText = `Wait ${minutes}m ${seconds}s`;
                     }
                 } else if (task.type === 'action') {
-                    canClaim = true; buttonText = 'Go & Claim';
+                    canClaim = true;
+                    buttonText = task.url ? 'Go & Claim' : 'Claim';
+                }
+                
+                if (isClaimed) {
+                    buttonText = 'Claimed';
                 }
                 
                 card.innerHTML = `
@@ -1344,8 +1301,13 @@
             const button = e.target;
             const { taskId, taskType, taskUrl, reward } = button.dataset;
 
-            if (taskType === 'action' && taskUrl) tg.openLink(taskUrl);
-            button.disabled = true; button.textContent = '...';
+            if (taskType === 'action' && taskUrl) {
+                tg.openLink(taskUrl);
+            }
+            
+            button.disabled = true; 
+            button.textContent = '...';
+
             try {
                 const userRef = doc(db, 'users', currentUser.id);
                 await grantPoints(Number(reward), 'daily_task');
@@ -1356,6 +1318,7 @@
             } catch (error) {
                 alert("Failed to claim task. Please try again.");
                 button.disabled = false;
+                renderDailyTasks();
                 console.error("Daily task claim error:", error);
             }
         });
@@ -1493,7 +1456,6 @@
                 searchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') { performSearch(); } });
                 clearBtn.addEventListener('click', () => { searchInput.value = ''; fetchContent(); clearBtn.style.display = 'none'; });
 
-                // UPDATE: Event listener for User ID copy
                 const userIdContainer = document.getElementById('userIdContainer');
                 const copyUserIdBtn = userIdContainer.querySelector('button');
                 userIdContainer.addEventListener('click', () => {
@@ -1511,11 +1473,8 @@
                     button.addEventListener('click', () => {
                         document.querySelectorAll('.task-category-btn').forEach(btn => btn.classList.remove('active'));
                         button.classList.add('active');
-
                         const category = button.dataset.taskCategory;
-                        document.querySelectorAll('.task-category-container').forEach(container => {
-                            container.classList.remove('active');
-                        });
+                        document.querySelectorAll('.task-category-container').forEach(container => container.classList.remove('active'));
                         document.getElementById(`${category}-container`).classList.add('active');
                     });
                 });
