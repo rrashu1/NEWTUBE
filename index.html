@@ -124,7 +124,20 @@
         
         /* Profile Section Styles */
         #profile-card { background-color: var(--card-bg); padding: 30px; border-radius: 15px; text-align: center; }
-        #profile-avatar { width: 100px; height: 100px; border-radius: 50%; border: 4px solid var(--primary-accent-color); margin: 0 auto 20px; display: block; background-color: #333; }
+        #profile-avatar { 
+            width: 100px; height: 100px; border-radius: 50%; 
+            border: 4px solid var(--primary-accent-color); 
+            margin: 0 auto 20px; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #333;
+            font-size: 48px;
+            font-weight: bold;
+            color: var(--text-light);
+            background-size: cover;
+            background-position: center;
+        }
         #profile-username { font-size: 1.8em; font-weight: bold; margin: 0 0 10px; }
         #profile-userid { font-size: 1em; color: var(--text-muted); margin-bottom: 25px; }
         #profile-stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
@@ -133,16 +146,16 @@
         .profile-stat-item p { margin: 0; font-size: 1.4em; font-weight: bold; color: var(--primary-accent-color); }
 
         /* Lottery Section Styles */
-        .lottery-container { background-color: var(--card-bg); padding: 30px 40px; border-radius: 12px; text-align: center; width: 100%; max-width: 450px; margin: 0 auto; }
+        .lottery-container { background-color: var(--card-bg); padding: 25px; border-radius: 12px; text-align: center; width: 100%; max-width: 450px; margin: 0 auto; }
         .lottery-container h1 { font-family: 'Hind Siliguri', sans-serif; }
-        #lottery-result-display { font-family: 'Roboto Mono', monospace; font-size: 4rem; font-weight: 700; color: #0056b3; background-color: #e7f3ff; padding: 20px; border-radius: 8px; margin-bottom: 30px; min-height: 90px; display: flex; justify-content: center; align-items: center; transition: all 0.3s ease; }
-        #lottery-result-display.tier-1 { color: #333; background-color: #f0f0f0; } /* সাধারণ */
-        #lottery-result-display.tier-2 { color: #1e8449; background-color: #eafaf1; } /* মোটামুটি */
-        #lottery-result-display.tier-3 { color: #2980b9; background-color: #eaf2f8; } /* বিরল */
-        #lottery-result-display.tier-4 { color: #884ea0; background-color: #f4eef7; } /* খুব বিরল */
-        #lottery-result-display.tier-5 { color: #d35400; background-color: #fbeee6; border: 2px solid #d35400;} /* দুর্লভ */
-        #lottery-result-display.tier-6 { color: #c0392b; background-color: #f9ebea; border: 2px solid #c0392b; text-shadow: 0 0 5px #ffdddd;} /* কিংবদন্তীতুল্য */
-        .lottery-button { background-color: var(--primary-accent-color); color: white; border: none; padding: 15px 30px; font-size: 1.2rem; font-weight: 600; border-radius: 8px; cursor: pointer; transition: background-color 0.3s ease, transform 0.1s ease; width: 100%; margin-top: 10px; }
+        #lottery-result-display { font-family: 'Roboto Mono', monospace; font-size: 3.5rem; font-weight: 700; color: #0056b3; background-color: #e7f3ff; padding: 15px; border-radius: 8px; margin-bottom: 25px; min-height: 80px; display: flex; justify-content: center; align-items: center; transition: all 0.3s ease; }
+        #lottery-result-display.tier-1 { color: #333; background-color: #f0f0f0; }
+        #lottery-result-display.tier-2 { color: #1e8449; background-color: #eafaf1; }
+        #lottery-result-display.tier-3 { color: #2980b9; background-color: #eaf2f8; }
+        #lottery-result-display.tier-4 { color: #884ea0; background-color: #f4eef7; }
+        #lottery-result-display.tier-5 { color: #d35400; background-color: #fbeee6; border: 2px solid #d35400;}
+        #lottery-result-display.tier-6 { color: #c0392b; background-color: #f9ebea; border: 2px solid #c0392b; text-shadow: 0 0 5px #ffdddd;}
+        .lottery-button { background-color: var(--primary-accent-color); color: white; border: none; padding: 12px 20px; font-size: 1rem; font-weight: 600; border-radius: 8px; cursor: pointer; transition: background-color 0.3s ease, transform 0.1s ease; width: 100%; margin-top: 15px; }
         .lottery-button:hover:not(:disabled) { background-color: var(--primary-accent-hover-color); }
         .lottery-button:disabled { background-color: var(--disabled-color); cursor: not-allowed; }
         #lottery-info { color: var(--text-muted); font-size: 0.9rem; margin-top: 15px; min-height: 20px; }
@@ -207,7 +220,7 @@
         <section id="profile-content" class="content-section">
             <h3 class="section-title">Your Profile</h3>
             <div id="profile-card">
-                <img id="profile-avatar" src="https://i.postimg.cc/85hS2m25/3d-avatar-profession-as-a-programmer-23-2151341142.jpg" alt="User Avatar">
+                <div id="profile-avatar"></div>
                 <h2 id="profile-username">Loading...</h2>
                 <p id="profile-userid">ID: Loading...</p>
                 
@@ -253,8 +266,8 @@
         
         <section id="lottery-content" class="content-section">
             <div class="lottery-container">
-                <h3 class="section-title" style="border: none; text-align: center;">সংখ্যা লটারি গেম</h3>
-                <p>আপনার ভাগ্য পরীক্ষা করতে নিচের বাটনে ক্লিক করুন!</p>
+                <h3 class="section-title" style="border: none; text-align: center;">Lottery Spin Game</h3>
+                <p>Click a button below to test your luck!</p>
                 
                 <div id="lottery-result-display">?</div>
                 
@@ -338,6 +351,8 @@
                          &bull; A <strong>Valid Referral</strong> is a user you invited who has earned at least 500 Points.
                          <br>
                          &bull; The number of required valid referrals increases with each withdrawal you make. Check your current requirement below. Keep inviting to unlock withdrawals!
+                         <br>
+                         &bull; <strong style="color: var(--success-color);">Level 7+ users have no referral requirements for withdrawal.</strong>
                      </div>
                       <p>Your USDT Balance: <strong id="withdrawUsdtBalance">0.00</strong></p>
                      <p id="referralCheck" class="info-text">Referral Check: <span style="color: #ffc107">Checking...</span></p>
@@ -377,13 +392,6 @@
     
     <script src="https://www.youtube.com/iframe_api" async></script>
     
-    <script type="text/javascript">
-        document.addEventListener('DOMContentLoaded', () => {
-            const adexiumWidget = new AdexiumWidget({wid: '12c05dba-2642-46f2-950f-cee6575119c9', adFormat: 'interstitial'});
-            adexiumWidget.autoMode();
-        });
-    </script>
-    
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
         import { getFirestore, collection, getDocs, query, where, orderBy, limit, addDoc, serverTimestamp, doc, getDoc, setDoc, updateDoc, runTransaction, increment, arrayUnion } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
@@ -409,6 +417,7 @@
         let timeSpentThisSession = 0;
         let accumulatedWatchTime = 0;
         let taskTimers = {};
+        let isInterstitialAdVisible = false;
 
         const AD_VISIT_LIMIT = 10; 
         const VIDEO_WATCH_LIMIT = 30; 
@@ -430,17 +439,20 @@
         ];
         
         const userLevels = [
-            { level: 1, name: "Newbie", requiredPoints: 0 },
-            { level: 2, name: "Rookie", requiredPoints: 5000 },
-            { level: 3, name: "Apprentice", requiredPoints: 15000 },
-            { level: 4, name: "Journeyman", requiredPoints: 50000 },
-            { level: 5, name: "Master", requiredPoints: 150000 },
-            { level: 6, name: "Grandmaster", requiredPoints: 500000 },
+            { level: 1, name: "Newbie", requiredPoints: 0, requiredPgCoin: 0 },
+            { level: 2, name: "Rookie", requiredPoints: 5000, requiredPgCoin: 0 },
+            { level: 3, name: "Apprentice", requiredPoints: 15000, requiredPgCoin: 0 },
+            { level: 4, name: "Journeyman", requiredPoints: 50000, requiredPgCoin: 8 },
+            { level: 5, name: "Expert", requiredPoints: 70000, requiredPgCoin: 20 },
+            { level: 6, name: "Master", requiredPoints: 150000, requiredPgCoin: 35 },
+            { level: 7, name: "Grandmaster", requiredPoints: 320000, requiredPgCoin: 70 },
+            { level: 8, name: "Legend", requiredPoints: 600000, requiredPgCoin: 200 }
         ];
+
+        const levelBonuses = { 1: 0, 2: 0.02, 3: 0.05, 4: 0.08, 5: 0.15, 6: 0.20, 7: 0.30, 8: 0.40 };
 
         function getWithdrawalRequirements(withdrawalCount = 0) {
             const count = withdrawalCount || 0;
-            // PG Coin requirement is removed
             if (count === 0) return { referrals: 2, tier: 1 };
             if (count === 1) return { referrals: 4, tier: 2 };
             if (count === 2) return { referrals: 7, tier: 3 };
@@ -456,7 +468,7 @@
                 snapshot.forEach(docSnap => {
                     const referee = docSnap.data();
                     const points = referee.lifetimePointsEarned || 0;
-                    if (points >= REFERRAL_POINTS_THRESHOLD) { // Only check points
+                    if (points >= REFERRAL_POINTS_THRESHOLD) {
                         validCount++;
                     }
                 });
@@ -524,7 +536,7 @@
             let userSnap = await getDoc(userRef);
 
             const fieldsToEnsure = {
-                balance: 0, usdtBalance: 0, pgCoin: 0, lifetimePointsEarned: 0, referralPointsEarned: 0, referralPgCoinEarned: 0,
+                balance: 0, usdtBalance: 0, pgCoin: 0, lifetimePointsEarned: 0, lifetimePgCoinEarned: 0, referralPointsEarned: 0, referralPgCoinEarned: 0,
                 referralCount: 0, completedTasks: [], adVisitsToday: 0, 
                 dailyTasks: { claimed: [], timeSpent: 0, lastReset: serverTimestamp() },
                 videoProgress: { dailyWatchedCount: 0, lastReset: serverTimestamp() },
@@ -574,7 +586,7 @@
                 } catch(e) { console.error("Could not update referrer count for existing user", e); }
             }
             
-            for (const key of ['balance', 'usdtBalance', 'pgCoin', 'lifetimePointsEarned', 'referralCount', 'adVisitsToday', 'referralPointsEarned', 'referralPgCoinEarned']) {
+            for (const key of ['balance', 'usdtBalance', 'pgCoin', 'lifetimePointsEarned', 'lifetimePgCoinEarned', 'referralCount', 'adVisitsToday', 'referralPointsEarned', 'referralPgCoinEarned']) {
                 if (!userData.hasOwnProperty(key)) {
                     updatesForOldUsers[key] = fieldsToEnsure[key];
                 }
@@ -638,7 +650,24 @@
         });
 
         async function grantReward(rewards) {
-             if (!currentUser) return;
+             if (!currentUser || (!rewards.points && !rewards.pgCoin)) return;
+
+             if (rewards.points && rewards.points > 0) {
+                let currentLevel = userLevels[0];
+                const totalPoints = currentUser.lifetimePointsEarned || 0;
+                const totalPgCoin = currentUser.lifetimePgCoinEarned || 0;
+                for (let i = userLevels.length - 1; i >= 0; i--) {
+                    const levelInfo = userLevels[i];
+                    if (totalPoints >= levelInfo.requiredPoints && totalPgCoin >= levelInfo.requiredPgCoin) {
+                        currentLevel = levelInfo;
+                        break;
+                    }
+                }
+                const bonusMultiplier = levelBonuses[currentLevel.level] || 0;
+                const bonusPoints = Math.floor(rewards.points * bonusMultiplier);
+                rewards.points += bonusPoints;
+             }
+             
              const userRef = doc(db, 'users', currentUser.id);
              const updates = {};
              if (rewards.points) {
@@ -647,7 +676,9 @@
              }
              if (rewards.pgCoin) {
                  updates.pgCoin = increment(rewards.pgCoin);
+                 updates.lifetimePgCoinEarned = increment(rewards.pgCoin);
              }
+
              if (Object.keys(updates).length > 0) {
                  await updateDoc(userRef, updates);
                  await fetchAndUpdateCurrentUser();
@@ -834,7 +865,6 @@
                             ${buttonText}
                         </button>`;
 
-                    // Check for special 24-hour tasks
                     if (task.isSpecial && task.expiresAt && task.expiresAt.toMillis() > now) {
                         specialTaskListContainer.appendChild(card);
                         hasSpecialTasks = true;
@@ -914,7 +944,6 @@
             }
         }
 
-
         function showSuccessModal(title, message) {
             const modal = document.getElementById('successModalOverlay');
             document.getElementById('successModalTitle').textContent = title;
@@ -930,13 +959,29 @@
             const referralCheckEl = document.getElementById('referralCheck');
             const requestBtn = document.getElementById('requestWithdrawalBtn');
 
-            referralCheckEl.innerHTML = `Valid Referral Check: <span style="color: #ffc107">Checking...</span>`;
-            document.getElementById('pgCoinCheck')?.remove(); // Remove PG Coin check element if it exists
-            requestBtn.disabled = true;
-
             const usdtBalance = parseFloat(currentUser.usdtBalance || 0);
             document.getElementById('withdrawUsdtBalance').textContent = usdtBalance.toFixed(2);
             updateConvertUI();
+            
+            let currentLevel = userLevels[0];
+            const totalPoints = currentUser.lifetimePointsEarned || 0;
+            const totalPgCoin = currentUser.lifetimePgCoinEarned || 0;
+            for (let i = userLevels.length - 1; i >= 0; i--) {
+                const levelInfo = userLevels[i];
+                if (totalPoints >= levelInfo.requiredPoints && totalPgCoin >= levelInfo.requiredPgCoin) {
+                    currentLevel = levelInfo;
+                    break;
+                }
+            }
+            
+            if (currentLevel.level >= 7) {
+                referralCheckEl.innerHTML = `✅ Level ${currentLevel.level}: Withdrawal requirements waived.`;
+                requestBtn.disabled = false;
+                return;
+            }
+
+            referralCheckEl.innerHTML = `Valid Referral Check: <span style="color: #ffc107">Checking...</span>`;
+            requestBtn.disabled = true;
 
             try {
                 const withdrawalCount = currentUser.withdrawalCount || 0;
@@ -1020,12 +1065,28 @@
             const amount = parseFloat(document.getElementById('withdrawalAmount').value);
             const minAmount = (method === 'Bkash') ? 0.30 : 0.50;
             try {
-                const withdrawalCount = currentUser.withdrawalCount || 0;
-                const requirements = getWithdrawalRequirements(withdrawalCount);
-                const currentValidReferrals = await countValidReferrals(currentUser.id);
+                let currentLevel = userLevels[0];
+                const totalPoints = currentUser.lifetimePointsEarned || 0;
+                const totalPgCoin = currentUser.lifetimePgCoinEarned || 0;
+                for (let i = userLevels.length - 1; i >= 0; i--) {
+                    const levelInfo = userLevels[i];
+                    if (totalPoints >= levelInfo.requiredPoints && totalPgCoin >= levelInfo.requiredPgCoin) {
+                        currentLevel = levelInfo;
+                        break;
+                    }
+                }
+                const isHighLevel = currentLevel.level >= 7;
+
                 if (isNaN(amount) || amount < minAmount) throw new Error(`Minimum withdrawal for ${method} is $${minAmount.toFixed(2)}.`);
                 if (amount > currentUser.usdtBalance) throw new Error("Insufficient USDT balance.");
-                if (currentValidReferrals < requirements.referrals) throw new Error(`You need ${requirements.referrals} valid referrals for your tier ${requirements.tier} withdrawal.`);
+                
+                if (!isHighLevel) {
+                    const withdrawalCount = currentUser.withdrawalCount || 0;
+                    const requirements = getWithdrawalRequirements(withdrawalCount);
+                    const currentValidReferrals = await countValidReferrals(currentUser.id);
+                    if (currentValidReferrals < requirements.referrals) throw new Error(`You need ${requirements.referrals} valid referrals for your tier ${requirements.tier} withdrawal.`);
+                }
+                
                 submitButton.textContent = 'Processing...';
                 const requestData = { userId: currentUser.id, telegramUsername: currentUser.telegramUsername, usdAmount: amount, method, details: document.getElementById('accountDetails').value, status: 'pending', createdAt: serverTimestamp() };
                 await runTransaction(db, async (transaction) => {
@@ -1119,15 +1180,35 @@
             try {
                 await runTransaction(db, async (transaction) => {
                     const refereeSnap = await transaction.get(refereeRef);
-                    if (!refereeSnap.exists()) throw new Error("Referee not found.");
+                    const referrerSnap = await transaction.get(referrerRef);
+                    if (!refereeSnap.exists() || !referrerSnap.exists()) throw new Error("Referee or Referrer not found.");
+                    
                     const refereeData = refereeSnap.data();
                     if (refereeData.referralBonusPaidOut?.[currentUser.id] === true) throw new Error("Bonus already paid.");
                     if ((refereeData.lifetimePointsEarned || 0) < REFERRAL_POINTS_THRESHOLD) throw new Error("Referee has not reached the threshold.");
+                    
+                    const referrerData = referrerSnap.data();
+                    let currentLevel = userLevels[0];
+                    const totalPoints = referrerData.lifetimePointsEarned || 0;
+                    const totalPgCoin = referrerData.lifetimePgCoinEarned || 0;
+                    for (let i = userLevels.length - 1; i >= 0; i--) {
+                        const levelInfo = userLevels[i];
+                        if (totalPoints >= levelInfo.requiredPoints && totalPgCoin >= levelInfo.requiredPgCoin) {
+                            currentLevel = levelInfo;
+                            break;
+                        }
+                    }
+
+                    const bonusMultiplier = levelBonuses[currentLevel.level] || 0;
+                    const totalPointsToGrant = REFERRAL_BONUS_POINTS + Math.floor(REFERRAL_BONUS_POINTS * bonusMultiplier);
+
                     transaction.update(referrerRef, { 
-                        balance: increment(REFERRAL_BONUS_POINTS),
+                        balance: increment(totalPointsToGrant),
+                        lifetimePointsEarned: increment(totalPointsToGrant),
                         pgCoin: increment(REFERRAL_BONUS_PG_COIN),
+                        lifetimePgCoinEarned: increment(REFERRAL_BONUS_PG_COIN),
                         'lottery.referralSpins': increment(REFERRAL_BONUS_SPINS),
-                        referralPointsEarned: increment(REFERRAL_BONUS_POINTS)
+                        referralPointsEarned: increment(REFERRAL_BONUS_POINTS) 
                     });
                     transaction.update(refereeRef, { [`referralBonusPaidOut.${currentUser.id}`]: true });
                 });
@@ -1176,7 +1257,7 @@
                 } else if (task.type === 'action') { canClaim = true; buttonText = task.url ? 'Go & Claim' : 'Claim'; }
                 if (isClaimed) { buttonText = 'Claimed'; }
                 card.innerHTML = `<div class="daily-task-info"><h4>${task.title}</h4><p>Reward: ${task.reward} Points</p></div>
-                    <button class="daily-task-button" data-task-id="${task.id}" data-task-type="${task.type}" data-reward="${task.reward}" ${isClaimed || !canClaim ? 'disabled' : ''}>${buttonText}</button>`;
+                    <button class="daily-task-button" data-task-id="${task.id}" data-task-type="${task.type}" data-task-url="${task.url || ''}" data-reward="${task.reward}" ${isClaimed || !canClaim ? 'disabled' : ''}>${buttonText}</button>`;
                 container.appendChild(card);
             });
         }
@@ -1199,16 +1280,36 @@
         // Profile Section Logic
         function renderProfile() {
             if (!currentUser) return;
+            
             document.getElementById('profile-username').textContent = currentUser.telegramUsername || 'User';
             document.getElementById('profile-userid').textContent = `ID: ${currentUser.id}`;
             const totalPoints = currentUser.lifetimePointsEarned || 0;
+            const totalPgCoin = currentUser.lifetimePgCoinEarned || 0;
             document.getElementById('profile-points').textContent = formatPoints(totalPoints);
             document.getElementById('profile-pg-coins').textContent = (currentUser.pgCoin || 0).toFixed(3);
             
+            const avatarEl = document.getElementById('profile-avatar');
+            const username = currentUser.telegramUsername || 'User';
+            if (currentUser.profilePictureUrl) {
+                avatarEl.style.backgroundImage = `url('${currentUser.profilePictureUrl}')`;
+                avatarEl.textContent = '';
+            } else {
+                const initial = username.charAt(0).toUpperCase();
+                let hash = 0;
+                for (let i = 0; i < username.length; i++) {
+                    hash = username.charCodeAt(i) + ((hash << 5) - hash);
+                }
+                const color = `hsl(${hash % 360}, 50%, 40%)`;
+                avatarEl.style.backgroundColor = color;
+                avatarEl.style.backgroundImage = 'none';
+                avatarEl.textContent = initial;
+            }
+
             let currentLevel = userLevels[0];
             for (let i = userLevels.length - 1; i >= 0; i--) {
-                if (totalPoints >= userLevels[i].requiredPoints) {
-                    currentLevel = userLevels[i];
+                const levelInfo = userLevels[i];
+                if (totalPoints >= levelInfo.requiredPoints && totalPgCoin >= levelInfo.requiredPgCoin) {
+                    currentLevel = levelInfo;
                     break;
                 }
             }
@@ -1230,19 +1331,19 @@
             const adSpinsLeft = 3 - (lotteryData.adSpinsUsed || 0);
             
             freeSpinButton.textContent = `Free Daily Spin (${freeSpinsLeft > 0 ? freeSpinsLeft : 0} left)`;
-            freeSpinButton.disabled = freeSpinsLeft <= 0;
+            freeSpinButton.disabled = freeSpinsLeft <= 0 || isSpinning;
             
             adSpinButton.textContent = `Spin with Ad (${adSpinsLeft > 0 ? adSpinsLeft : 0} left)`;
-            adSpinButton.disabled = adSpinsLeft <= 0;
+            adSpinButton.disabled = adSpinsLeft <= 0 || isSpinning;
 
             refSpinButton.textContent = `Spin with Referral (${lotteryData.referralSpins || 0} left)`;
-            refSpinButton.disabled = (lotteryData.referralSpins || 0) <= 0;
+            refSpinButton.disabled = (lotteryData.referralSpins || 0) <= 0 || isSpinning;
         }
         
         async function handleSpin(spinType) {
             if (isSpinning) return;
             isSpinning = true;
-            [freeSpinButton, adSpinButton, refSpinButton].forEach(b => b.disabled = true);
+            updateLotteryUI();
             lotteryResultDisplay.className = 'tier-1';
             
             const animationInterval = setInterval(() => { lotteryResultDisplay.textContent = Math.floor(Math.random() * 9999); }, 50);
@@ -1261,8 +1362,8 @@
                 lotteryResultDisplay.textContent = number;
                 lotteryResultDisplay.className = `tier-${tier}`;
                 
-                showSuccessModal("You Won!", `You have won ${reward} Points!`);
                 await grantReward({ points: reward });
+                showSuccessModal("You Won!", `You have won ${reward} Points!`);
 
                 const userRef = doc(db, 'users', currentUser.id);
                 if (spinType === 'free') await updateDoc(userRef, { 'lottery.freeSpinsUsed': increment(1) });
@@ -1270,20 +1371,23 @@
                 else if (spinType === 'referral') await updateDoc(userRef, { 'lottery.referralSpins': increment(-1) });
                 
                 await fetchAndUpdateCurrentUser();
-                updateLotteryUI();
                 isSpinning = false;
+                updateLotteryUI();
             }, 2000);
         }
 
         freeSpinButton.addEventListener('click', () => handleSpin('free'));
         refSpinButton.addEventListener('click', () => handleSpin('referral'));
         adSpinButton.addEventListener('click', async () => {
-            adSpinButton.disabled = true; adSpinButton.textContent = 'Loading Ad...';
+            isSpinning = true;
+            updateLotteryUI();
+            adSpinButton.textContent = 'Loading Ad...';
             try {
                 await showRandomAdForTask();
                 await handleSpin('ad');
             } catch (err) {
                 alert('Ad failed to load. Please try again.');
+                isSpinning = false;
                 updateLotteryUI();
             }
         });
@@ -1291,8 +1395,13 @@
         const showMonetagAd = () => new Promise((res, rej) => typeof show_9442539 === 'function' ? show_9442539().then(res).catch(rej) : rej('Monetag SDK missing'));
         const showGigaPubAd = () => new Promise((res, rej) => typeof window.showGiga === 'function' ? window.showGiga("main").then(res).catch(rej) : rej('GigaPub SDK missing'));
         async function showRandomAdForTask() {
+            isInterstitialAdVisible = true;
             const adNetworks = [showMonetagAd, showGigaPubAd];
-            return adNetworks[Math.floor(Math.random() * adNetworks.length)]();
+            try {
+                await adNetworks[Math.floor(Math.random() * adNetworks.length)]();
+            } finally {
+                isInterstitialAdVisible = false;
+            }
         }
 
         async function checkForUnreadMessages() { /* ... unchanged ... */ }
@@ -1334,6 +1443,36 @@
             }
         });
 
+        function manageAdTimers() {
+            try {
+                const adexiumWidget = new AdexiumWidget({ wid: '12c05dba-2642-46f2-950f-cee6575119c9', adFormat: 'interstitial' });
+                
+                setInterval(() => {
+                    if (isInterstitialAdVisible) {
+                        console.log("An ad is already visible, skipping timed Adexium ad.");
+                        return;
+                    }
+                    console.log("Attempting to show timed Adexium ad.");
+                    isInterstitialAdVisible = true;
+                    // We must assume a `show()` method exists that returns a promise, similar to other ad networks.
+                    if (typeof adexiumWidget.show === 'function') {
+                        adexiumWidget.show()
+                            .catch(err => console.error("Timed Adexium ad failed to show:", err))
+                            .finally(() => { 
+                                isInterstitialAdVisible = false;
+                                console.log("Adexium ad flow finished."); 
+                            });
+                    } else {
+                        console.warn("Adexium widget does not have a manual .show() method. Cannot trigger timed ad.");
+                        isInterstitialAdVisible = false;
+                        // Fallback to autoMode if show() doesn't exist to not break functionality completely.
+                        adexiumWidget.autoMode(); 
+                    }
+                }, 3 * 60 * 1000); // 3 minutes
+            } catch (e) {
+                console.error("Failed to initialize Adexium for timed display:", e);
+            }
+        }
 
         async function main() {
             try {
@@ -1343,6 +1482,9 @@
                 tg.ready(); tg.expand();
                 await initializeUser(tg.initDataUnsafe.user, tg.initDataUnsafe.start_param);
                 document.querySelector('.nav-link[data-tab-target="#home-content"]').click();
+                
+                manageAdTimers();
+
                 const menuToggleBtn = document.getElementById('menu-toggle-button');
                 const closeMenuBtn = document.getElementById('close-menu-btn');
                 const sideMenu = document.getElementById('side-menu');
