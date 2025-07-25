@@ -288,6 +288,16 @@
 
                  <div class="sub-card">
                      <h4>Withdraw USDT</h4>
+                     <div class="info-text" style="text-align: left; margin-bottom: 20px; line-height: 1.5;">
+                         <strong style="color: var(--text-light);">How to Withdraw:</strong><br>
+                         To be eligible for withdrawal, you must meet tiered requirements for both <strong>Valid Referrals</strong> and <strong>PG Coins</strong>.
+                         <br><br>
+                         &bull; A <strong>Valid Referral</strong> is a user you invited who has earned at least 500 Points and 0.5 PG Coin.
+                         <br>
+                         &bull; The number of required valid referrals and PG Coins increases with each withdrawal you make. Your current tier status is checked live below.
+                         <br>
+                         &bull; Earn PG Coins by playing games in the "Game Zone"!
+                     </div>
                       <p>Your USDT Balance: <strong id="withdrawUsdtBalance">0.00</strong></p>
                      <p id="referralCheck" class="info-text">Referral Check: <span style="color: #ffc107">Checking...</span></p>
                      <p id="pgCoinCheck" class="info-text">PG Coin Check: <span style="color: #ffc107">Checking...</span></p>
@@ -327,7 +337,12 @@
     
     <script src="https://www.youtube.com/iframe_api" async></script>
     
-    <!-- UPDATE: Adexium timed logic is removed. The SDK will control itself. -->
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', () => {
+            const adexiumWidget = new AdexiumWidget({wid: '12c05dba-2642-46f2-950f-cee6575119c9', adFormat: 'interstitial'});
+            adexiumWidget.autoMode();
+        });
+    </script>
     
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
@@ -1484,8 +1499,13 @@
                     if (button) {
                         e.preventDefault();
                         const url = button.dataset.url;
-                        if (url) {
-                            tg.openLink(url);
+                        // UPDATE: Pass user ID to the game for Firebase integration
+                        if (url && currentUser && currentUser.id) {
+                            const finalUrl = `${url}?userId=${currentUser.id}`;
+                            tg.openLink(finalUrl);
+                        } else if (url) {
+                            // Fallback for case where user is not loaded yet
+                            tg.openLink(url); 
                         }
                     }
                 });
