@@ -106,8 +106,9 @@
         .inbox-modal { background-color: var(--card-bg); color: var(--text-light); padding: 20px; border-radius: 15px; text-align: left; width: 90%; max-width: 400px; max-height: 80vh; display: flex; flex-direction: column; }
         .inbox-modal h3 { text-align: center; margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
         #inbox-message-list { overflow-y: auto; flex-grow: 1; margin-bottom: 15px; }
-        .inbox-message-item { background-color: #2a2a2a; padding: 12px; border-radius: 8px; margin-bottom: 10px; }
+        .inbox-message-item { background-color: #2a2a2a; padding: 12px; border-radius: 8px; margin-bottom: 10px; cursor: pointer;}
         .inbox-message-item p { margin: 0; line-height: 1.5; }
+        .inbox-message-item.read { opacity: 0.6; }
         .inbox-message-item small { color: var(--text-muted); font-size: 0.8em; }
         #closeInboxBtn { padding: 10px; border: none; border-radius: 8px; background-color: var(--primary-accent-color); color: white; cursor: pointer; }
         .sub-card { background-color: #222; padding: 20px; border-radius: 10px; margin-bottom: 25px; }
@@ -238,6 +239,10 @@
                         <h4>PG Coins</h4>
                         <p id="profile-pg-coins">0.000</p>
                     </div>
+                     <div class="profile-stat-item" style="grid-column: 1 / -1;">
+                        <h4>Lifetime Referrals</h4>
+                        <p id="profile-referrals">0</p>
+                    </div>
                 </div>
             </div>
         </section>
@@ -315,7 +320,7 @@
             </div>
             <h3 class="section-title" style="margin-top: 40px;">Your Referrals</h3>
             <div class="card" style="text-align: left;">
-                <p style="text-align: center;">Track the progress of the friends you've invited.</p>
+                <p style="text-align: center;">Track the progress of the friends you've invited. A referral is valid when they earn 500 Points & 0.5 PG Coin.</p>
                 <div id="my-referrals-list"></div>
             </div>
         </section>
@@ -345,23 +350,17 @@
                  <div class="sub-card">
                      <h4>Withdraw USDT</h4>
                      <div class="info-text" style="text-align: left; margin-bottom: 20px; line-height: 1.5;">
-                         <strong style="color: var(--text-light);">How to Withdraw:</strong><br>
-                         To be eligible for withdrawal, you must invite a certain number of friends who actively use the app.
-                         <br><br>
-                         &bull; A <strong>Valid Referral</strong> is a user you invited who has earned at least 500 Points.
-                         <br>
-                         &bull; The number of required valid referrals increases with each withdrawal you make. Check your current requirement below. Keep inviting to unlock withdrawals!
-                         <br>
-                         &bull; <strong style="color: var(--success-color);">Level 7+ users have no referral requirements for withdrawal.</strong>
+                        <strong style="color: var(--text-light);">Withdrawal Fees:</strong><br>
+                        Each withdrawal requires a fee of Valid Referrals and PG Coins, which will be deducted from your account.<br><br>
+                        &bull; For **$0.30 withdrawal**: Fee is **2 Valid Referrals** & **4 PG Coins**.<br>
+                        &bull; For **$0.50 withdrawal**: Fee is **4 Valid Referrals** & **7 PG Coins**.<br>
+                        &bull; For **$1.00+ withdrawal**: Fee is **7 Valid Referrals** & **9 PG Coins**.
                      </div>
                       <p>Your USDT Balance: <strong id="withdrawUsdtBalance">0.00</strong></p>
-                     <p id="referralCheck" class="info-text">Referral Check: <span style="color: #ffc107">Checking...</span></p>
+                      <p>Your Valid Referral Credits: <strong id="withdrawalReferralCredits">0</strong></p>
+                      <p>Your PG Coin Balance: <strong id="withdrawalPgCoinBalance">0.000</strong></p>
+                     
                      <form id="withdrawalForm">
-                         <div class="conversion-info" style="text-align: left;">
-                            Minimums: <br>
-                            &bull; $0.30 for Bkash <br>
-                            &bull; $0.50 for Binance (Optimism)
-                         </div>
                          <div class="form-group">
                             <label for="withdrawalMethod">Payment Method</label>
                             <select id="withdrawalMethod" required><option value="Bkash">Bkash</option><option value="Binance (Optimism)">Binance (Optimism)</option></select>
@@ -374,7 +373,7 @@
                             <label for="withdrawalAmount">Amount (USDT)</label>
                             <input type="number" id="withdrawalAmount" placeholder="e.g., 0.5" required step="0.01">
                          </div>
-                         <button type="submit" class="form-button" id="requestWithdrawalBtn" disabled>Request Withdrawal</button>
+                         <button type="submit" class="form-button" id="requestWithdrawalBtn">Request Withdrawal</button>
                      </form>
                  </div>
              </div>
@@ -394,7 +393,7 @@
     
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
-        import { getFirestore, collection, getDocs, query, where, orderBy, limit, addDoc, serverTimestamp, doc, getDoc, setDoc, updateDoc, runTransaction, increment, arrayUnion } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, query, where, orderBy, limit, addDoc, serverTimestamp, doc, getDoc, setDoc, updateDoc, runTransaction, increment, arrayUnion, writeBatch } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
         
         const firebaseConfig = {
             apiKey: "AIzaSyCKMa4NdIowD_8NioUbrn4L7g5M9y5Tts0",
@@ -422,6 +421,7 @@
         const AD_VISIT_LIMIT = 10; 
         const VIDEO_WATCH_LIMIT = 30; 
         const REFERRAL_POINTS_THRESHOLD = 500;
+        const REFERRAL_PG_COIN_THRESHOLD = 0.5;
         const REFERRAL_BONUS_POINTS = 1000;
         const REFERRAL_BONUS_PG_COIN = 0.5;
         const REFERRAL_BONUS_SPINS = 1;
@@ -451,13 +451,12 @@
 
         const levelBonuses = { 1: 0, 2: 0.02, 3: 0.05, 4: 0.08, 5: 0.15, 6: 0.20, 7: 0.30, 8: 0.40 };
 
-        function getWithdrawalRequirements(withdrawalCount = 0) {
-            const count = withdrawalCount || 0;
-            if (count === 0) return { referrals: 2, tier: 1 };
-            if (count === 1) return { referrals: 4, tier: 2 };
-            if (count === 2) return { referrals: 7, tier: 3 };
-            if (count === 3) return { referrals: 10, tier: 4 };
-            return { referrals: 15, tier: 5 };
+        function getWithdrawalFee(amount) {
+            if (amount < 0.3) return null; // Below minimum
+            if (amount >= 0.3 && amount < 0.5) return { referrals: 2, pgCoin: 4 };
+            if (amount >= 0.5 && amount < 1.0) return { referrals: 4, pgCoin: 7 };
+            if (amount >= 1.0) return { referrals: 7, pgCoin: 9 };
+            return null;
         }
 
         async function countValidReferrals(userId) {
@@ -468,7 +467,8 @@
                 snapshot.forEach(docSnap => {
                     const referee = docSnap.data();
                     const points = referee.lifetimePointsEarned || 0;
-                    if (points >= REFERRAL_POINTS_THRESHOLD) {
+                    const pg = referee.lifetimePgCoinEarned || 0;
+                    if (points >= REFERRAL_POINTS_THRESHOLD && pg >= REFERRAL_PG_COIN_THRESHOLD) {
                         validCount++;
                     }
                 });
@@ -536,8 +536,9 @@
             let userSnap = await getDoc(userRef);
 
             const fieldsToEnsure = {
-                balance: 0, usdtBalance: 0, pgCoin: 0, lifetimePointsEarned: 0, lifetimePgCoinEarned: 0, referralPointsEarned: 0, referralPgCoinEarned: 0,
-                referralCount: 0, completedTasks: [], adVisitsToday: 0, 
+                balance: 0, usdtBalance: 0, pgCoin: 0, lifetimePointsEarned: 0, lifetimePgCoinEarned: 0, 
+                referralPointsEarned: 0, referralPgCoinEarned: 0, referralCount: 0, validReferralCredits: 0,
+                completedTasks: [], adVisitsToday: 0, 
                 dailyTasks: { claimed: [], timeSpent: 0, lastReset: serverTimestamp() },
                 videoProgress: { dailyWatchedCount: 0, lastReset: serverTimestamp() },
                 readMessages: [],
@@ -586,7 +587,7 @@
                 } catch(e) { console.error("Could not update referrer count for existing user", e); }
             }
             
-            for (const key of ['balance', 'usdtBalance', 'pgCoin', 'lifetimePointsEarned', 'lifetimePgCoinEarned', 'referralCount', 'adVisitsToday', 'referralPointsEarned', 'referralPgCoinEarned']) {
+            for (const key of ['balance', 'usdtBalance', 'pgCoin', 'lifetimePointsEarned', 'lifetimePgCoinEarned', 'referralCount', 'adVisitsToday', 'referralPointsEarned', 'referralPgCoinEarned', 'validReferralCredits']) {
                 if (!userData.hasOwnProperty(key)) {
                     updatesForOldUsers[key] = fieldsToEnsure[key];
                 }
@@ -595,7 +596,7 @@
             if (!Array.isArray(userData.completedTasks)) updatesForOldUsers.completedTasks = [];
             if (!userData.videoProgress) updatesForOldUsers.videoProgress = fieldsToEnsure.videoProgress;
             if (!Array.isArray(userData.readMessages)) updatesForOldUsers.readMessages = [];
-            if (!userData.hasOwnProperty('referralBonusPaidOut')) updatesForOldUsers.referralBonusPaidOut = {}; // Changed to object
+            if (!userData.hasOwnProperty('referralBonusPaidOut')) updatesForOldUsers.referralBonusPaidOut = {}; 
             if (userData.telegramUsername !== (tgUser.username || 'N/A')) updatesForOldUsers.telegramUsername = tgUser.username || 'N/A';
             if (!userData.hasOwnProperty('withdrawalCount')) updatesForOldUsers.withdrawalCount = 0;
             if (!userData.lottery) updatesForOldUsers.lottery = fieldsToEnsure.lottery;
@@ -956,47 +957,11 @@
         async function renderConvertWithdrawUI() {
             if (!currentUser) return;
             
-            const referralCheckEl = document.getElementById('referralCheck');
-            const requestBtn = document.getElementById('requestWithdrawalBtn');
-
-            const usdtBalance = parseFloat(currentUser.usdtBalance || 0);
-            document.getElementById('withdrawUsdtBalance').textContent = usdtBalance.toFixed(2);
+            document.getElementById('withdrawUsdtBalance').textContent = (currentUser.usdtBalance || 0).toFixed(2);
+            document.getElementById('withdrawalReferralCredits').textContent = currentUser.validReferralCredits || 0;
+            document.getElementById('withdrawalPgCoinBalance').textContent = (currentUser.pgCoin || 0).toFixed(3);
+            
             updateConvertUI();
-            
-            let currentLevel = userLevels[0];
-            const totalPoints = currentUser.lifetimePointsEarned || 0;
-            const totalPgCoin = currentUser.lifetimePgCoinEarned || 0;
-            for (let i = userLevels.length - 1; i >= 0; i--) {
-                const levelInfo = userLevels[i];
-                if (totalPoints >= levelInfo.requiredPoints && totalPgCoin >= levelInfo.requiredPgCoin) {
-                    currentLevel = levelInfo;
-                    break;
-                }
-            }
-            
-            if (currentLevel.level >= 7) {
-                referralCheckEl.innerHTML = `✅ Level ${currentLevel.level}: Withdrawal requirements waived.`;
-                requestBtn.disabled = false;
-                return;
-            }
-
-            referralCheckEl.innerHTML = `Valid Referral Check: <span style="color: #ffc107">Checking...</span>`;
-            requestBtn.disabled = true;
-
-            try {
-                const withdrawalCount = currentUser.withdrawalCount || 0;
-                const requirements = getWithdrawalRequirements(withdrawalCount);
-                const currentValidReferrals = await countValidReferrals(currentUser.id);
-                const hasEnoughReferrals = currentValidReferrals >= requirements.referrals;
-
-                referralCheckEl.innerHTML = `Valid Referrals (Tier ${requirements.tier}): ${hasEnoughReferrals ? '✅' : '❌'} <span style="color: ${hasEnoughReferrals ? 'var(--success-color)' : '#dc3545'};">${currentValidReferrals}/${requirements.referrals}</span>`;
-                requestBtn.disabled = !hasEnoughReferrals;
-
-            } catch (error) {
-                console.error("Error checking withdrawal requirements:", error);
-                referralCheckEl.innerHTML = `Valid Referral Check: <span style="color: #dc3545">Error</span>`;
-                requestBtn.disabled = true;
-            }
         }
         
         function updateConvertUI() {
@@ -1061,47 +1026,73 @@
             e.preventDefault();
             const submitButton = e.target.querySelector('button[type="submit"]');
             submitButton.disabled = true; submitButton.textContent = 'Verifying...';
+
             const method = document.getElementById('withdrawalMethod').value;
             const amount = parseFloat(document.getElementById('withdrawalAmount').value);
-            const minAmount = (method === 'Bkash') ? 0.30 : 0.50;
+            
             try {
-                let currentLevel = userLevels[0];
-                const totalPoints = currentUser.lifetimePointsEarned || 0;
-                const totalPgCoin = currentUser.lifetimePgCoinEarned || 0;
-                for (let i = userLevels.length - 1; i >= 0; i--) {
-                    const levelInfo = userLevels[i];
-                    if (totalPoints >= levelInfo.requiredPoints && totalPgCoin >= levelInfo.requiredPgCoin) {
-                        currentLevel = levelInfo;
-                        break;
-                    }
+                // 1. Check for minimum withdrawal amount based on method
+                const minAmount = (method === 'Bkash') ? 0.30 : 0.50;
+                if (isNaN(amount) || amount < minAmount) {
+                    throw new Error(`Minimum withdrawal for ${method} is $${minAmount.toFixed(2)}.`);
                 }
-                const isHighLevel = currentLevel.level >= 7;
+                if (amount > currentUser.usdtBalance) {
+                    throw new Error("Insufficient USDT balance.");
+                }
 
-                if (isNaN(amount) || amount < minAmount) throw new Error(`Minimum withdrawal for ${method} is $${minAmount.toFixed(2)}.`);
-                if (amount > currentUser.usdtBalance) throw new Error("Insufficient USDT balance.");
-                
-                if (!isHighLevel) {
-                    const withdrawalCount = currentUser.withdrawalCount || 0;
-                    const requirements = getWithdrawalRequirements(withdrawalCount);
-                    const currentValidReferrals = await countValidReferrals(currentUser.id);
-                    if (currentValidReferrals < requirements.referrals) throw new Error(`You need ${requirements.referrals} valid referrals for your tier ${requirements.tier} withdrawal.`);
+                // 2. Get withdrawal fee
+                const fee = getWithdrawalFee(amount);
+                if (!fee) {
+                    throw new Error(`Invalid withdrawal amount specified.`);
+                }
+
+                // 3. Check if user has enough credits and PG coins for the fee
+                if ((currentUser.validReferralCredits || 0) < fee.referrals) {
+                    throw new Error(`Insufficient valid referral credits. Need ${fee.referrals}, you have ${currentUser.validReferralCredits || 0}.`);
+                }
+                if ((currentUser.pgCoin || 0) < fee.pgCoin) {
+                    throw new Error(`Insufficient PG Coins for fee. Need ${fee.pgCoin}, you have ${(currentUser.pgCoin || 0).toFixed(3)}.`);
                 }
                 
                 submitButton.textContent = 'Processing...';
-                const requestData = { userId: currentUser.id, telegramUsername: currentUser.telegramUsername, usdAmount: amount, method, details: document.getElementById('accountDetails').value, status: 'pending', createdAt: serverTimestamp() };
+                const requestData = { 
+                    userId: currentUser.id, 
+                    telegramUsername: currentUser.telegramUsername, 
+                    usdAmount: amount, 
+                    method, 
+                    details: document.getElementById('accountDetails').value, 
+                    status: 'pending', 
+                    createdAt: serverTimestamp() 
+                };
+
+                // 4. Run transaction to deduct balance, fees and create request
                 await runTransaction(db, async (transaction) => {
                     const userRef = doc(db, 'users', currentUser.id);
                     const userDoc = await transaction.get(userRef);
-                    if (!userDoc.exists() || userDoc.data().usdtBalance < amount) throw new Error("Insufficient USDT balance.");
+                    if (!userDoc.exists()) throw new Error("User not found.");
+                    
+                    const currentData = userDoc.data();
+                    if (currentData.usdtBalance < amount) throw new Error("Insufficient USDT balance.");
+                    if ((currentData.validReferralCredits || 0) < fee.referrals) throw new Error("Insufficient referral credits.");
+                    if (currentData.pgCoin < fee.pgCoin) throw new Error("Insufficient PG Coins for fee.");
+
                     transaction.set(doc(collection(db, 'withdrawals')), requestData);
-                    transaction.update(userRef, { usdtBalance: increment(-amount), withdrawalCount: increment(1) });
+                    transaction.update(userRef, { 
+                        usdtBalance: increment(-amount),
+                        validReferralCredits: increment(-fee.referrals),
+                        pgCoin: increment(-fee.pgCoin),
+                        withdrawalCount: increment(1) 
+                    });
                 });
+
                 await fetchAndUpdateCurrentUser();
                 e.target.reset();
                 showSuccessModal("Successfully Sent!", "Your withdrawal request is pending. Check status in History.");
+            
             } catch (error) {
                 alert(`An error occurred: ${error.message || "Please try again."}`);
             } finally {
+                submitButton.disabled = false;
                 submitButton.textContent = 'Request Withdrawal';
                 await renderConvertWithdrawUI();
             }
@@ -1161,13 +1152,17 @@
                 else { snapshot.forEach(docSnap => {
                         const referee = docSnap.data(); const refereeId = docSnap.id; const item = document.createElement('div');
                         item.className = 'leaderboard-item';
-                        const lifetimePoints = referee.lifetimePointsEarned || 0;
+                        const points = referee.lifetimePointsEarned || 0;
+                        const pg = referee.lifetimePgCoinEarned || 0;
                         const isBonusPaid = referee.referralBonusPaidOut?.[currentUser.id] === true;
                         let statusHtml;
                         if (isBonusPaid) { statusHtml = `<div class="count" style="color: var(--success-color);">Claimed</div>`;
-                        } else if (lifetimePoints >= REFERRAL_POINTS_THRESHOLD) { statusHtml = `<button class="form-button claim-referral-btn" data-referee-id="${refereeId}">Claim</button>`;
-                        } else { statusHtml = `<div class="count" style="color: var(--text-muted);">${formatPoints(lifetimePoints)}/${formatPoints(REFERRAL_POINTS_THRESHOLD)}</div>`; }
-                        item.innerHTML = `<div class="info" style="margin-left:0;"><strong>${referee.telegramUsername || 'User...'}</strong><br><small>Points: ${formatPoints(lifetimePoints)}</small></div>${statusHtml}`;
+                        } else if (points >= REFERRAL_POINTS_THRESHOLD && pg >= REFERRAL_PG_COIN_THRESHOLD) { 
+                            statusHtml = `<button class="form-button claim-referral-btn" data-referee-id="${refereeId}">Claim Reward</button>`;
+                        } else { 
+                            statusHtml = `<div class="count" style="color: var(--text-muted);">Pts: ${formatPoints(points)}/${formatPoints(REFERRAL_POINTS_THRESHOLD)}<br>PG: ${pg.toFixed(1)}/${REFERRAL_PG_COIN_THRESHOLD}</div>`; 
+                        }
+                        item.innerHTML = `<div class="info" style="margin-left:0;"><strong>${referee.telegramUsername || 'User...'}</strong></div>${statusHtml}`;
                         myReferralsContainer.appendChild(item);
                     }); }
             } catch(error) { myReferralsContainer.innerHTML = '<p style="color:red; text-align:center;">Could not load your referrals.</p>'; }
@@ -1184,8 +1179,10 @@
                     if (!refereeSnap.exists() || !referrerSnap.exists()) throw new Error("Referee or Referrer not found.");
                     
                     const refereeData = refereeSnap.data();
-                    if (refereeData.referralBonusPaidOut?.[currentUser.id] === true) throw new Error("Bonus already paid.");
-                    if ((refereeData.lifetimePointsEarned || 0) < REFERRAL_POINTS_THRESHOLD) throw new Error("Referee has not reached the threshold.");
+                    if (refereeData.referralBonusPaidOut?.[currentUser.id] === true) throw new Error("Bonus already claimed.");
+                    if ((refereeData.lifetimePointsEarned || 0) < REFERRAL_POINTS_THRESHOLD || (refereeData.lifetimePgCoinEarned || 0) < REFERRAL_PG_COIN_THRESHOLD) {
+                        throw new Error("Referee has not reached the threshold.");
+                    }
                     
                     const referrerData = referrerSnap.data();
                     let currentLevel = userLevels[0];
@@ -1208,16 +1205,17 @@
                         pgCoin: increment(REFERRAL_BONUS_PG_COIN),
                         lifetimePgCoinEarned: increment(REFERRAL_BONUS_PG_COIN),
                         'lottery.referralSpins': increment(REFERRAL_BONUS_SPINS),
-                        referralPointsEarned: increment(REFERRAL_BONUS_POINTS) 
+                        referralPointsEarned: increment(REFERRAL_BONUS_POINTS),
+                        validReferralCredits: increment(1)
                     });
                     transaction.update(refereeRef, { [`referralBonusPaidOut.${currentUser.id}`]: true });
                 });
-                showSuccessModal("Bonus Claimed!", `${REFERRAL_BONUS_POINTS} Points, ${REFERRAL_BONUS_PG_COIN} PG Coin, and ${REFERRAL_BONUS_SPINS} Spin added.`);
+                showSuccessModal("Bonus Claimed!", `${REFERRAL_BONUS_POINTS} Points, ${REFERRAL_BONUS_PG_COIN} PG, 1 Spin, and 1 Valid Referral Credit added.`);
                 await fetchAndUpdateCurrentUser();
-                button.textContent = 'Claimed'; button.style.backgroundColor = 'var(--success-color)';
+                await fetchLeaderboard(); // Refresh the list
             } catch (error) {
                 alert(`Error: ${error.message}`);
-                button.disabled = false; button.textContent = `Claim`;
+                button.disabled = false; button.textContent = `Claim Reward`;
             }
         }
         
@@ -1287,6 +1285,7 @@
             const totalPgCoin = currentUser.lifetimePgCoinEarned || 0;
             document.getElementById('profile-points').textContent = formatPoints(totalPoints);
             document.getElementById('profile-pg-coins').textContent = (currentUser.pgCoin || 0).toFixed(3);
+            document.getElementById('profile-referrals').textContent = currentUser.referralCount || 0;
             
             const avatarEl = document.getElementById('profile-avatar');
             const username = currentUser.telegramUsername || 'User';
@@ -1403,10 +1402,69 @@
                 isInterstitialAdVisible = false;
             }
         }
+        
+        // Inbox System Logic
+        async function checkForUnreadMessages() {
+            if (!currentUser) return;
+            const messagesRef = collection(db, 'messages');
+            const q = query(messagesRef, orderBy('createdAt', 'desc'), limit(20));
+            const snapshot = await getDocs(q);
+            const readMessages = currentUser.readMessages || [];
+            const unread = snapshot.docs.some(doc => !readMessages.includes(doc.id));
+            const dot = document.getElementById('inbox-notification-dot');
+            if (unread) dot.classList.add('visible');
+            else dot.classList.remove('visible');
+        }
 
-        async function checkForUnreadMessages() { /* ... unchanged ... */ }
-        document.getElementById('inbox-container').addEventListener('click', async () => { /* ... unchanged ... */ });
-        document.getElementById('closeInboxBtn').addEventListener('click', () => { /* ... unchanged ... */ });
+        async function openInbox() {
+            const listContainer = document.getElementById('inbox-message-list');
+            const modal = document.getElementById('inboxModalOverlay');
+            modal.classList.add('show');
+            listContainer.innerHTML = '<div class="loader"></div>';
+
+            const messagesRef = collection(db, 'messages');
+            const q = query(messagesRef, orderBy('createdAt', 'desc'), limit(20));
+            const snapshot = await getDocs(q);
+            listContainer.innerHTML = '';
+            
+            if (snapshot.empty) {
+                listContainer.innerHTML = '<p style="text-align:center;">Your inbox is empty.</p>';
+                return;
+            }
+            
+            const readMessages = currentUser.readMessages || [];
+            const messagesToMarkAsRead = [];
+
+            snapshot.forEach(docSnap => {
+                const message = docSnap.data();
+                const item = document.createElement('div');
+                item.className = 'inbox-message-item';
+                if(readMessages.includes(docSnap.id)) item.classList.add('read');
+
+                item.innerHTML = `
+                    <p>${message.text}</p>
+                    <small>${message.createdAt.toDate().toLocaleString()}</small>
+                `;
+                listContainer.appendChild(item);
+                if (!readMessages.includes(docSnap.id)) {
+                    messagesToMarkAsRead.push(docSnap.id);
+                }
+            });
+
+            if (messagesToMarkAsRead.length > 0) {
+                const userRef = doc(db, 'users', currentUser.id);
+                await updateDoc(userRef, {
+                    readMessages: arrayUnion(...messagesToMarkAsRead)
+                });
+                await fetchAndUpdateCurrentUser();
+                checkForUnreadMessages();
+            }
+        }
+
+        document.getElementById('inbox-container').addEventListener('click', openInbox);
+        document.getElementById('closeInboxBtn').addEventListener('click', () => {
+             document.getElementById('inboxModalOverlay').classList.remove('show');
+        });
 
         document.querySelectorAll('.nav-link').forEach(link => {
             link.addEventListener('click', async (e) => {
@@ -1448,25 +1506,16 @@
                 const adexiumWidget = new AdexiumWidget({ wid: '12c05dba-2642-46f2-950f-cee6575119c9', adFormat: 'interstitial' });
                 
                 setInterval(() => {
-                    if (isInterstitialAdVisible) {
-                        console.log("An ad is already visible, skipping timed Adexium ad.");
-                        return;
-                    }
-                    console.log("Attempting to show timed Adexium ad.");
+                    if (isInterstitialAdVisible) { return; }
+                    
                     isInterstitialAdVisible = true;
-                    // We must assume a `show()` method exists that returns a promise, similar to other ad networks.
                     if (typeof adexiumWidget.show === 'function') {
                         adexiumWidget.show()
                             .catch(err => console.error("Timed Adexium ad failed to show:", err))
-                            .finally(() => { 
-                                isInterstitialAdVisible = false;
-                                console.log("Adexium ad flow finished."); 
-                            });
+                            .finally(() => { isInterstitialAdVisible = false; });
                     } else {
-                        console.warn("Adexium widget does not have a manual .show() method. Cannot trigger timed ad.");
-                        isInterstitialAdVisible = false;
-                        // Fallback to autoMode if show() doesn't exist to not break functionality completely.
                         adexiumWidget.autoMode(); 
+                        isInterstitialAdVisible = false;
                     }
                 }, 3 * 60 * 1000); // 3 minutes
             } catch (e) {
@@ -1519,7 +1568,7 @@
         main();
     </script>
 
-    <!-- Adsterra Social Bar Ad -->
-    <script type='text/javascript' src='//ghettoformed.com/06/02/5f/06025f0d45975648f726adcf793432dc.js'></script>
+    <!-- Adsterra Social Bar Ad - Disabled as per user request because its frequency cannot be controlled via local script. -->
+    <!-- <script type='text/javascript' src='//ghettoformed.com/06/02/5f/06025f0d45975648f726adcf793432dc.js'></script> -->
 </body>
 </html>
