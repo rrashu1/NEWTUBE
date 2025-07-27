@@ -61,35 +61,24 @@
         .search-container button { padding: 10px 15px; border: none; border-radius: 8px; background-color: var(--primary-accent-color); color: var(--text-light); font-weight: bold; cursor: pointer; }
         .search-container button#clearSearchBtn { background-color: #444; }
         .item-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
-        .movie-item { background-color: var(--card-bg); border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; cursor: pointer; transition: transform 0.2s; } .movie-item:hover{ transform: scale(1.03); }
+        .movie-item, .ad-task-card { background-color: var(--card-bg); border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; }
+        .movie-item { cursor: pointer; transition: transform 0.2s; } .movie-item:hover{ transform: scale(1.03); }
         .thumbnail-container { width: 100%; aspect-ratio: 16/9; background-color: #333; position: relative; }
         .thumbnail-container img { width: 100%; height: 100%; object-fit: cover; }
         .player-container { width: 100%; aspect-ratio: 16/9; background: #000; }
         .player-container iframe { width: 100%; height: 100%; border: none; }
-        .movie-item-info { padding: 15px; flex-grow: 1; text-align:center;}
-        .movie-item-info h4 { margin: 0 0 8px; font-size: 1.1em; line-height: 1.3; }
-        .movie-reward { color: var(--success-color); font-weight: bold; font-size: 0.9em; margin: 0; }
-        
-        /* Updated Task Card Styles */
-        .task-card, .daily-task-card {
-            background-color: var(--card-bg); border-radius: 8px;
-            display: flex; flex-direction: row; align-items: center; justify-content: space-between;
-            padding: 15px; transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .task-card:hover { transform: translateY(-3px); box-shadow: 0 4px 12px rgba(0, 123, 255, 0.1); }
-        .task-card-info, .daily-task-info { text-align: left; flex-grow: 1; margin-right: 15px; }
-        .task-card-info h4, .daily-task-info h4 { margin: 0 0 5px; font-size: 1.1em; }
-        .task-card-info p, .daily-task-info p { margin: 0; color: var(--text-muted); font-size: 0.9em; }
+        .movie-item-info, .ad-task-card-info { padding: 15px; flex-grow: 1; text-align:center;}
+        .task-card-info { padding: 0; flex-grow: 1; text-align: left; }
+        .movie-item-info h4, .task-card h4, .ad-task-card h4 { margin: 0 0 8px; font-size: 1.1em; line-height: 1.3; }
+        .movie-reward, .ad-visits-left { color: var(--success-color); font-weight: bold; font-size: 0.9em; margin: 0; }
+        .task-card p, .ad-task-card p { margin: 8px 0 15px; color: var(--text-muted); font-weight: bold; }
+        .task-card-info p { margin: 5px 0 0; }
         .task-reward-points { color: var(--success-color); }
-        .task-reward-pg { color: #ff9900; }
-        .task-button, .daily-task-button {
-            width: auto; flex-shrink: 0; padding: 10px 25px; border-radius: 20px;
-            font-size: 1em; font-weight: bold; cursor: pointer;
-            background-color: var(--primary-accent-color); color: var(--text-light);
-            border: none; transition: background-color 0.2s;
-        }
-        .task-button:disabled, .daily-task-button:disabled { background-color: var(--disabled-color); cursor: not-allowed; }
-
+        .task-reward-pg { color: #ff9900; } /* Orange for PG Coin */
+        .ad-task-button { width: 100%; padding: 12px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; background-color: var(--primary-accent-color); color: var(--text-light); transition: background-color .2s; margin-top: auto; font-size: 1em;}
+        .task-button, .daily-task-button { width: auto; flex-shrink: 0; padding: 10px 20px; font-size: 0.9em; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; background-color: var(--primary-accent-color); color: var(--text-light); transition: background-color .2s; margin-top: 0; }
+        .task-button { padding: 8px 20px; }
+        .task-button:disabled, .ad-task-button:disabled, .daily-task-button:disabled { background-color: var(--disabled-color); cursor: not-allowed; }
         .card { max-width: 500px; margin: 20px auto; background-color: var(--card-bg); padding: 25px; border-radius: 12px; border: 1px solid var(--border-color); text-align: center; }
         .card-icon { width: 50px; height: 50px; margin: 0 auto 15px; color: var(--primary-accent-color); }
         .card h3 { margin-top: 0; font-size: 1.4em; } .card p { color: var(--text-muted); line-height: 1.6; }
@@ -128,12 +117,16 @@
         #closeInboxBtn { padding: 10px; border: none; border-radius: 8px; background-color: var(--primary-accent-color); color: white; cursor: pointer; }
         .sub-card { background-color: #222; padding: 20px; border-radius: 10px; margin-bottom: 25px; }
         .info-text { font-size: 0.9em; color: var(--text-muted); margin-top: 10px; }
-        
+        .daily-task-card, .task-card { background-color: var(--card-bg); border-radius: 8px; display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 15px; transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; }
+        .task-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15); }
+        .daily-task-info { text-align: left; }
+        .daily-task-info h4 { margin: 0 0 5px; }
+        .daily-task-info p { margin: 0; font-size: 0.9em; color: var(--success-color); }
         .task-category-selector { display: flex; justify-content: center; margin-bottom: 25px; border-bottom: 2px solid #282828; padding-bottom: 15px; }
         .task-category-selector .task-category-btn { background-color: transparent; border: 2px solid var(--primary-accent-color); color: var(--primary-accent-color); padding: 10px 20px; margin: 0 5px; border-radius: 25px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: all 0.3s ease; }
         .task-category-selector .task-category-btn.active, .task-category-selector .task-category-btn:hover { background-color: var(--primary-accent-color); color: white; }
         .task-category-container { display: none; } .task-category-container.active { display: block; }
-        #task-list.single-column-grid, #special-task-list.single-column-grid { grid-template-columns: 1fr; }
+        #task-list.item-grid, #special-task-list.item-grid { grid-template-columns: 1fr; gap: 10px; } /* Override grid for single-column list */
         
         /* Profile Section Styles */
         #profile-card { background-color: var(--card-bg); padding: 30px; border-radius: 15px; text-align: center; }
@@ -271,13 +264,13 @@
             </div>
             <div id="daily-rewards-container" class="task-category-container active">
                 <h3 class="section-title">Special 24-Hour Tasks</h3>
-                <div id="special-task-list" class="item-grid single-column-grid"></div>
+                <div id="special-task-list" class="item-grid"></div>
                 <h3 class="section-title" style="margin-top: 40px;">Daily Check-in Rewards</h3>
                 <div id="daily-task-list" class="item-grid" style="grid-template-columns: 1fr;"></div>
             </div>
             <div id="complete-tasks-container" class="task-category-container">
                 <h3 class="section-title">Complete Tasks</h3>
-                <div id="task-list" class="item-grid single-column-grid"></div>
+                <div id="task-list" class="item-grid"></div>
             </div>
         </section>
         
@@ -362,8 +355,8 @@
                  <div class="sub-card">
                      <h4>Withdraw USDT</h4>
                      <div class="info-text" style="text-align: left; margin-bottom: 20px; line-height: 1.5;">
-                        <strong style="color: var(--text-light);">Withdrawal Fee:</strong><br>
-                        Each withdrawal requires a fee of **2 Valid Referrals** & **3 PG Coins**, which will be deducted from your account.
+                        <strong style="color: var(--text-light);">Withdrawal Fees:</strong><br>
+                        Each withdrawal requires a fixed fee of **2 Valid Referrals** and **3 PG Coins**, which will be deducted from your account. This fee applies to all withdrawal amounts.
                      </div>
                       <p>Your USDT Balance: <strong id="withdrawUsdtBalance">0.00</strong></p>
                       <p>Your Valid Referral Credits: <strong id="withdrawalReferralCredits">0</strong></p>
@@ -438,8 +431,6 @@
         const PG_COIN_TO_USDT_RATE = 0.02;
         const MIN_POINTS_TO_CONVERT = 5000;
         const MIN_PG_COIN_TO_CONVERT = 5;
-        const WITHDRAWAL_FEE_REFS = 2;
-        const WITHDRAWAL_FEE_PG = 3;
         
         const dailyTasksConfig = [
             { id: 'daily_login', title: 'Daily Login Bonus', reward: 40, type: 'action' },
@@ -461,6 +452,13 @@
         ];
 
         const levelBonuses = { 1: 0, 2: 0.02, 3: 0.05, 4: 0.08, 5: 0.15, 6: 0.20, 7: 0.30, 8: 0.40 };
+
+        function getWithdrawalFee(amount) {
+            const minAmount = 0.30; // Absolute minimum withdrawal amount
+            if (amount < minAmount) return null;
+            // New requirement: A fixed fee for every withdrawal.
+            return { referrals: 2, pgCoin: 3 };
+        }
 
         async function countValidReferrals(userId) {
             const myReferralsQuery = query(collection(db, "users"), where("referredBy", "==", userId));
@@ -904,10 +902,10 @@
                 if (!taskUrl) { alert('Task URL is missing.'); return; }
                 if (visitDuration > 0) {
                     taskTimers[taskId] = Date.now();
-                    button.textContent = `Claim in ${visitDuration}s`;
+                    button.textContent = `Claim after ${visitDuration}s`;
                     button.dataset.state = 'claim';
                 } else {
-                    button.textContent = 'Claim';
+                    button.textContent = 'Claim Reward';
                     button.dataset.state = 'claim';
                 }
                 tg.openLink(taskUrl);
@@ -943,7 +941,7 @@
                     const errorMessages = { "ALREADY_COMPLETED": "You have already completed this task.", "TASK_LIMIT_REACHED": "This task has reached its completion limit."};
                     alert(errorMessages[error] || 'Failed to claim reward.');
                     button.disabled = (error === "ALREADY_COMPLETED" || error === "TASK_LIMIT_REACHED");
-                    button.textContent = button.disabled ? 'Done' : 'Claim';
+                    button.textContent = button.disabled ? 'Done' : 'Claim Reward';
                 }
             }
         }
@@ -1034,6 +1032,7 @@
             const amount = parseFloat(document.getElementById('withdrawalAmount').value);
             
             try {
+                // 1. Check for minimum withdrawal amount based on method
                 const minAmount = (method === 'Bkash') ? 0.30 : 0.50;
                 if (isNaN(amount) || amount < minAmount) {
                     throw new Error(`Minimum withdrawal for ${method} is $${minAmount.toFixed(2)}.`);
@@ -1042,11 +1041,18 @@
                     throw new Error("Insufficient USDT balance.");
                 }
 
-                if ((currentUser.validReferralCredits || 0) < WITHDRAWAL_FEE_REFS) {
-                    throw new Error(`Insufficient valid referral credits. Need ${WITHDRAWAL_FEE_REFS}, you have ${currentUser.validReferralCredits || 0}.`);
+                // 2. Get withdrawal fee
+                const fee = getWithdrawalFee(amount);
+                if (!fee) {
+                    throw new Error(`Invalid withdrawal amount specified.`);
                 }
-                if ((currentUser.pgCoin || 0) < WITHDRAWAL_FEE_PG) {
-                    throw new Error(`Insufficient PG Coins for fee. Need ${WITHDRAWAL_FEE_PG}, you have ${(currentUser.pgCoin || 0).toFixed(3)}.`);
+
+                // 3. Check if user has enough credits and PG coins for the fee
+                if ((currentUser.validReferralCredits || 0) < fee.referrals) {
+                    throw new Error(`Insufficient valid referral credits. Need ${fee.referrals}, you have ${currentUser.validReferralCredits || 0}.`);
+                }
+                if ((currentUser.pgCoin || 0) < fee.pgCoin) {
+                    throw new Error(`Insufficient PG Coins for fee. Need ${fee.pgCoin}, you have ${(currentUser.pgCoin || 0).toFixed(3)}.`);
                 }
                 
                 submitButton.textContent = 'Processing...';
@@ -1057,11 +1063,10 @@
                     method, 
                     details: document.getElementById('accountDetails').value, 
                     status: 'pending', 
-                    createdAt: serverTimestamp(),
-                    feeReferrals: WITHDRAWAL_FEE_REFS,
-                    feePgCoin: WITHDRAWAL_FEE_PG
+                    createdAt: serverTimestamp() 
                 };
-                
+
+                // 4. Run transaction to deduct balance, fees and create request
                 await runTransaction(db, async (transaction) => {
                     const userRef = doc(db, 'users', currentUser.id);
                     const userDoc = await transaction.get(userRef);
@@ -1069,14 +1074,14 @@
                     
                     const currentData = userDoc.data();
                     if (currentData.usdtBalance < amount) throw new Error("Insufficient USDT balance.");
-                    if ((currentData.validReferralCredits || 0) < WITHDRAWAL_FEE_REFS) throw new Error("Insufficient referral credits.");
-                    if (currentData.pgCoin < WITHDRAWAL_FEE_PG) throw new Error("Insufficient PG Coins for fee.");
+                    if ((currentData.validReferralCredits || 0) < fee.referrals) throw new Error("Insufficient referral credits.");
+                    if (currentData.pgCoin < fee.pgCoin) throw new Error("Insufficient PG Coins for fee.");
 
                     transaction.set(doc(collection(db, 'withdrawals')), requestData);
                     transaction.update(userRef, { 
                         usdtBalance: increment(-amount),
-                        validReferralCredits: increment(-WITHDRAWAL_FEE_REFS),
-                        pgCoin: increment(-WITHDRAWAL_FEE_PG),
+                        validReferralCredits: increment(-fee.referrals),
+                        pgCoin: increment(-fee.pgCoin),
                         withdrawalCount: increment(1) 
                     });
                 });
@@ -1438,7 +1443,7 @@
                 if(readMessages.includes(docSnap.id)) item.classList.add('read');
 
                 item.innerHTML = `
-                    <p>${message.content || message.text}</p>
+                    <p>${message.text}</p>
                     <small>${message.createdAt.toDate().toLocaleString()}</small>
                 `;
                 listContainer.appendChild(item);
@@ -1488,6 +1493,14 @@
                 }
             });
         });
+        
+        document.getElementById('ref-spin-button').addEventListener('click', () => {
+            if (currentUser.lottery?.referralSpins > 0) {
+                 handleSpin('referral');
+            } else {
+                 document.querySelector('.nav-link[data-tab-target="#referral-content"]').click();
+            }
+        });
 
         function manageAdTimers() {
             try {
@@ -1505,7 +1518,7 @@
                         adexiumWidget.autoMode(); 
                         isInterstitialAdVisible = false;
                     }
-                }, 3 * 60 * 1000);
+                }, 3 * 60 * 1000); // 3 minutes
             } catch (e) {
                 console.error("Failed to initialize Adexium for timed display:", e);
             }
@@ -1559,4 +1572,4 @@
     <!-- Adsterra Social Bar Ad - Disabled as per user request because its frequency cannot be controlled via local script. -->
     <!-- <script type='text/javascript' src='//ghettoformed.com/06/02/5f/06025f0d45975648f726adcf793432dc.js'></script> -->
 </body>
-</html>Your final update for this web bot. Now there will be 2 types of lotteries in the lottery section. Point Lottery and PG Coin Lottery. Users will be able to switch between the two with a button. The point lottery will be the same as before. Users can get spins by watching ads. PG Coin lottery users can get spins through referrals. For every referral, the user will get 1 spin. The structure of the rewards in the PG Coin lottery will be as follows: 80% chance of winning from 0.002 to 0.1 PG Coin, 10% chance of winning from 0.2 to 1 PG Coin, 8% chance of winning from 1.1 to 5 PG Coin, 1.9% chance of winning from 5.1 to 20 PG Coin, 0.1% chance of winning from 20.1 to 50 PG Coin. Update the code to implement this feature.
+</html>
