@@ -126,6 +126,7 @@
         .task-category-selector .task-category-btn { background-color: transparent; border: 2px solid var(--primary-accent-color); color: var(--primary-accent-color); padding: 10px 20px; margin: 0 5px; border-radius: 25px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: all 0.3s ease; }
         .task-category-selector .task-category-btn.active, .task-category-selector .task-category-btn:hover { background-color: var(--primary-accent-color); color: white; }
         .task-category-container { display: none; } .task-category-container.active { display: block; }
+        #ad-task-list.item-grid { grid-template-columns: 1fr; gap: 10px; } /* Override grid for single-column list */
         #task-list.item-grid, #special-task-list.item-grid { grid-template-columns: 1fr; gap: 10px; } /* Override grid for single-column list */
         
         /* Profile Section Styles */
@@ -253,7 +254,7 @@
         </section>
 
         <section id="ads-to-earn-content" class="content-section">
-             <h3 class="section-title">Watch Ads, Earn Points</h3>
+             <h3 class="section-title">Watch Ads, Earn Rewards</h3>
              <div id="ad-task-list" class="item-grid"></div>
         </section>
         
@@ -420,7 +421,8 @@
         let taskTimers = {};
         let isInterstitialAdVisible = false;
 
-        const AD_VISIT_LIMIT = 10; 
+        const AD_POINTS_LIMIT = 10;
+        const AD_PGCOIN_LIMIT = 10;
         const VIDEO_WATCH_LIMIT = 30; 
         const REFERRAL_POINTS_THRESHOLD = 500;
         const REFERRAL_PG_COIN_THRESHOLD = 0.5;
@@ -493,41 +495,25 @@
             if (!currentUser) return;
             const now = new Date();
             const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-            let updates = {};
-
-            const lastAdVisitDate = currentUser.lastAdVisitDate?.toDate();
-            const lastAdVisitTime = lastAdVisitDate ? new Date(lastAdVisitDate.getFullYear(), lastAdVisitDate.getMonth(), lastAdVisitDate.getDate()).getTime() : 0;
-            if (lastAdVisitTime < today) { updates.adVisitsToday = 0; }
-
             const lastDailyReset = currentUser.dailyTasks?.lastReset?.toDate();
             const lastDailyResetTime = lastDailyReset ? new Date(lastDailyReset.getFullYear(), lastDailyReset.getMonth(), lastDailyReset.getDate()).getTime() : 0;
-            if (!lastDailyReset || lastDailyResetTime < today) {
-                updates['dailyTasks.claimed'] = [];
-                updates['dailyTasks.timeSpent'] = 0;
-                updates['dailyTasks.lastReset'] = serverTimestamp();
-            }
-
-            const lastVideoReset = currentUser.videoProgress?.lastReset?.toDate();
-            const lastVideoResetTime = lastVideoReset ? new Date(lastVideoReset.getFullYear(), lastVideoReset.getMonth(), lastVideoReset.getDate()).getTime() : 0;
-            if(!currentUser.videoProgress || lastVideoResetTime < today) {
-                updates['videoProgress.dailyWatchedCount'] = 0;
-                updates['videoProgress.lastReset'] = serverTimestamp();
-            }
             
-            const lastLotteryReset = currentUser.lottery?.lastReset?.toDate();
-            const lastLotteryResetTime = lastLotteryReset ? new Date(lastLotteryReset.getFullYear(), lastLotteryReset.getMonth(), lastLotteryReset.getDate()).getTime() : 0;
-            if(!currentUser.lottery || lastLotteryResetTime < today) {
-                 updates['lottery.freeSpinsUsed'] = 0;
-                 updates['lottery.adSpinsUsed'] = 0;
-                 updates['lottery.lastReset'] = serverTimestamp();
-            }
-
-            if (Object.keys(updates).length > 0) {
+            if (!lastDailyReset || lastDailyResetTime < today) {
+                const updates = {
+                    'dailyTasks.claimed': [],
+                    'dailyTasks.timeSpent': 0,
+                    'dailyTasks.lastReset': serverTimestamp(),
+                    'adVisitsToday': 0,
+                    'pgCoinAdVisitsToday': 0,
+                    'videoProgress.dailyWatchedCount': 0,
+                    'lottery.freeSpinsUsed': 0,
+                    'lottery.adSpinsUsed': 0
+                };
                 try {
                     const userRef = doc(db, 'users', currentUser.id);
                     await updateDoc(userRef, updates);
                     await fetchAndUpdateCurrentUser(); 
-                } catch (error) { console.error("Error resetting limits:", error); }
+                } catch (error) { console.error("Error resetting daily limits:", error); }
             }
         }
 
@@ -539,12 +525,14 @@
             const fieldsToEnsure = {
                 balance: 0, usdtBalance: 0, pgCoin: 0, lifetimePointsEarned: 0, lifetimePgCoinEarned: 0, 
                 referralPointsEarned: 0, referralPgCoinEarned: 0, referralCount: 0, validReferralCredits: 0,
-                completedTasks: [], adVisitsToday: 0, 
+                completedTasks: [], 
+                adVisitsToday: 0, 
+                pgCoinAdVisitsToday: 0,
                 dailyTasks: { claimed: [], timeSpent: 0, lastReset: serverTimestamp() },
-                videoProgress: { dailyWatchedCount: 0, lastReset: serverTimestamp() },
+                videoProgress: { dailyWatchedCount: 0 },
                 readMessages: [],
                 withdrawalCount: 0,
-                lottery: { freeSpinsUsed: 0, adSpinsUsed: 0, referralSpins: 0, lastReset: serverTimestamp() }
+                lottery: { freeSpinsUsed: 0, adSpinsUsed: 0, referralSpins: 0 }
             };
             
             if (!userSnap.exists()) {
@@ -588,19 +576,22 @@
                 } catch(e) { console.error("Could not update referrer count for existing user", e); }
             }
             
-            for (const key of ['balance', 'usdtBalance', 'pgCoin', 'lifetimePointsEarned', 'lifetimePgCoinEarned', 'referralCount', 'adVisitsToday', 'referralPointsEarned', 'referralPgCoinEarned', 'validReferralCredits']) {
+            for (const key of ['balance', 'usdtBalance', 'pgCoin', 'lifetimePointsEarned', 'lifetimePgCoinEarned', 'referralCount', 'adVisitsToday', 'pgCoinAdVisitsToday', 'referralPointsEarned', 'referralPgCoinEarned', 'validReferralCredits']) {
                 if (!userData.hasOwnProperty(key)) {
                     updatesForOldUsers[key] = fieldsToEnsure[key];
                 }
             }
             if (!userData.dailyTasks) updatesForOldUsers.dailyTasks = fieldsToEnsure.dailyTasks;
+            else if (!userData.dailyTasks.hasOwnProperty('lastReset')) updatesForOldUsers['dailyTasks.lastReset'] = serverTimestamp();
             if (!Array.isArray(userData.completedTasks)) updatesForOldUsers.completedTasks = [];
             if (!userData.videoProgress) updatesForOldUsers.videoProgress = fieldsToEnsure.videoProgress;
+            if (userData.videoProgress?.hasOwnProperty('lastReset')) delete userData.videoProgress.lastReset; // cleanup old field
             if (!Array.isArray(userData.readMessages)) updatesForOldUsers.readMessages = [];
             if (!userData.hasOwnProperty('referralBonusPaidOut')) updatesForOldUsers.referralBonusPaidOut = {}; 
             if (userData.telegramUsername !== (tgUser.username || 'N/A')) updatesForOldUsers.telegramUsername = tgUser.username || 'N/A';
             if (!userData.hasOwnProperty('withdrawalCount')) updatesForOldUsers.withdrawalCount = 0;
             if (!userData.lottery) updatesForOldUsers.lottery = fieldsToEnsure.lottery;
+            if (userData.lottery?.hasOwnProperty('lastReset')) delete userData.lottery.lastReset; // cleanup old field
 
             if (Object.keys(updatesForOldUsers).length > 0) {
                 await updateDoc(userRef, updatesForOldUsers).catch(err => console.error("Error updating old user fields:", err));
@@ -782,35 +773,71 @@
         function setupAdsToEarn() {
             const adTaskListContainer = document.getElementById('ad-task-list');
             adTaskListContainer.innerHTML = '';
-            const visitsToday = currentUser.adVisitsToday || 0;
-            const visitsLeft = AD_VISIT_LIMIT - visitsToday;
-            const isLimitReached = visitsLeft <= 0;
-            const card = document.createElement('div');
-            card.className = 'ad-task-card';
-            card.innerHTML = `<div class="ad-task-card-info"><h4>Watch Ad & Earn</h4><p>Reward: 50 Points</p><p class="ad-visits-left">Today's Visits Left: ${visitsLeft > 0 ? visitsLeft : 0} / ${AD_VISIT_LIMIT}</p></div><button class="ad-task-button" ${isLimitReached ? 'disabled' : ''}>${isLimitReached ? 'Daily Limit Reached' : 'Watch Ad'}</button>`;
-            adTaskListContainer.appendChild(card);
+            if (!currentUser) return;
+            
+            // --- Ad Task 1: Earn Points ---
+            const pointsVisitsToday = currentUser.adVisitsToday || 0;
+            const pointsVisitsLeft = AD_POINTS_LIMIT - pointsVisitsToday;
+            const isPointsLimitReached = pointsVisitsLeft <= 0;
+            const pointsCard = document.createElement('div');
+            pointsCard.className = 'ad-task-card';
+            pointsCard.innerHTML = `
+                <div class="ad-task-card-info">
+                    <h4>Watch Ad & Earn Points</h4>
+                    <p>Reward: 50 Points</p>
+                    <p class="ad-visits-left">Today's Visits Left: ${pointsVisitsLeft > 0 ? pointsVisitsLeft : 0} / ${AD_POINTS_LIMIT}</p>
+                </div>
+                <button class="ad-task-button" data-ad-type="points" ${isPointsLimitReached ? 'disabled' : ''}>
+                    ${isPointsLimitReached ? 'Daily Limit Reached' : 'Watch Ad'}
+                </button>`;
+            adTaskListContainer.appendChild(pointsCard);
+            
+            // --- Ad Task 2: Earn PG Coin ---
+            const pgCoinVisitsToday = currentUser.pgCoinAdVisitsToday || 0;
+            const pgCoinVisitsLeft = AD_PGCOIN_LIMIT - pgCoinVisitsToday;
+            const isPgCoinLimitReached = pgCoinVisitsLeft <= 0;
+            const pgCoinCard = document.createElement('div');
+            pgCoinCard.className = 'ad-task-card';
+            pgCoinCard.innerHTML = `
+                <div class="ad-task-card-info">
+                    <h4>Watch Ad & Earn PG Coin</h4>
+                    <p>Reward: <span class="task-reward-pg">0.02 PG Coin</span></p>
+                    <p class="ad-visits-left">Today's Visits Left: ${pgCoinVisitsLeft > 0 ? pgCoinVisitsLeft : 0} / ${AD_PGCOIN_LIMIT}</p>
+                </div>
+                <button class="ad-task-button" data-ad-type="pgcoin" ${isPgCoinLimitReached ? 'disabled' : ''}>
+                    ${isPgCoinLimitReached ? 'Daily Limit Reached' : 'Watch Ad'}
+                </button>`;
+            adTaskListContainer.appendChild(pgCoinCard);
         }
         
         document.getElementById('ad-task-list').addEventListener('click', async (e) => {
             if (!e.target.matches('.ad-task-button') || e.target.disabled) return;
             const button = e.target;
-            button.disabled = true; button.textContent = 'Loading Ad...';
-            const grantAdReward = async () => {
-                if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-                try {
-                    await grantReward({ points: 50 });
-                    await updateDoc(doc(db, 'users', currentUser.id), { adVisitsToday: increment(1), lastAdVisitDate: serverTimestamp() });
-                    await fetchAndUpdateCurrentUser();
-                    setupAdsToEarn(); 
-                    showSuccessModal("Congratulations!", "You've earned 50 points.");
-                } catch (error) { console.error("Ad task reward error:", error); setupAdsToEarn(); }
-            };
+            const adType = button.dataset.adType;
+            
+            button.disabled = true;
+            button.textContent = 'Loading Ad...';
+            
             try {
                 await showRandomAdForTask();
-                await grantAdReward();
+                if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+
+                if (adType === 'points') {
+                    await grantReward({ points: 50 });
+                    await updateDoc(doc(db, 'users', currentUser.id), { adVisitsToday: increment(1) });
+                    showSuccessModal("Congratulations!", "You've earned 50 points.");
+                } else if (adType === 'pgcoin') {
+                    await grantReward({ pgCoin: 0.02 });
+                    await updateDoc(doc(db, 'users', currentUser.id), { pgCoinAdVisitsToday: increment(1) });
+                    showSuccessModal("Congratulations!", "You've earned 0.02 PG Coin.");
+                }
+                
+                await fetchAndUpdateCurrentUser();
+                setupAdsToEarn(); 
+
             } catch (err) {
-                alert('You need to watch the complete ad to earn points.');
-                setupAdsToEarn();
+                alert('You need to watch the complete ad to earn the reward.');
+                setupAdsToEarn(); // Reset button states
             }
         });
         
@@ -1470,6 +1497,8 @@
         document.querySelectorAll('.nav-link').forEach(link => {
             link.addEventListener('click', async (e) => {
                 e.preventDefault();
+                if (!currentUser) return; // Prevent navigation until user is loaded
+                
                 stopAndClearVideo();
                 document.querySelectorAll('.nav-link, .content-section').forEach(el => el.classList.remove('active'));
                 link.classList.add('active');
@@ -1481,7 +1510,7 @@
                 document.getElementById('menu-overlay').classList.remove('is-open');
 
                 switch(targetId) {
-                    case '#home-content': await fetchContent(); break;
+                    case '#home-content': /* Already fetched */ break;
                     case '#profile-content': renderProfile(); break;
                     case '#ads-to-earn-content': setupAdsToEarn(); break;
                     case '#task-content': await fetchTasks(); renderDailyTasks(); break;
@@ -1530,9 +1559,16 @@
                     document.body.innerHTML = `<div class="card" style="margin-top: 50px;"><h3>Error</h3><p>This app can only be launched from Telegram.</p></div>`; return;
                 }
                 tg.ready(); tg.expand();
-                await initializeUser(tg.initDataUnsafe.user, tg.initDataUnsafe.start_param);
-                document.querySelector('.nav-link[data-tab-target="#home-content"]').click();
                 
+                // --- PERFORMANCE OPTIMIZATION: Start fetches in parallel ---
+                const initializationPromise = initializeUser(tg.initDataUnsafe.user, tg.initDataUnsafe.start_param);
+                const contentPromise = fetchContent(); // Fetches videos
+                
+                // Wait for the essential user data before proceeding.
+                await initializationPromise;
+                // Video content continues to load in the background.
+
+                // Setup UI and event listeners that depend on `currentUser`
                 manageAdTimers();
 
                 const menuToggleBtn = document.getElementById('menu-toggle-button');
@@ -1569,7 +1605,5 @@
         main();
     </script>
 
-    <!-- Adsterra Social Bar Ad - Disabled as per user request because its frequency cannot be controlled via local script. -->
-    <!-- <script type='text/javascript' src='//ghettoformed.com/06/02/5f/06025f0d45975648f726adcf793432dc.js'></script> -->
 </body>
 </html>
