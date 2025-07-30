@@ -2,219 +2,402 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - NEWTUBE</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>NEWTUBE - Watch & Earn</title>
+    <script src="https://telegram.org/js/telegram-web-app.js?56"></script>
+    
+    <!-- Monetag Ads Library -->
+    <script src='//libtl.com/sdk.js' data-zone='9442539' data-sdk='show_9442539'></script>
+    <!-- GigaPub Ads SDK -->
+    <script src="https://ad.gigapub.tech/script?id=846"></script>
+    <!-- Adexium Ads SDK (New) -->
+    <script type="text/javascript" src="https://cdn.tgads.space/assets/js/adexium-widget.min.js"></script>
+    <!-- Fonts for Lottery -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&family=Roboto+Mono:wght@700&display=swap" rel="stylesheet">
+
+
     <style>
         :root {
-            --primary-color: #007bff; --secondary-color: #6c757d; --success-color: #28a745;
-            --danger-color: #dc3545; --light-bg: #f8f9fa; --dark-text: #343a40;
-            --white: #fff; --border-color: #dee2e6; --warning-color: #ffc107;
+            --primary-accent-color: #007BFF; 
+            --primary-accent-hover-color: #0056b3; 
+            --dark-bg: #000000;
+            --card-bg: #1a1a1a; --header-bg: #181818; --text-light: #ffffff; --text-muted: #b3b3b3;
+            --border-color: #282828; --success-color: #28a745; --disabled-color: #444;
         }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--light-bg); margin: 0; color: var(--dark-text); }
-        .admin-container { max-width: 1200px; margin: 0 auto; padding: 15px; }
-        .admin-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--border-color); padding-bottom: 10px; margin-bottom: 20px; }
-        .admin-header h1 { margin: 0; font-size: 1.8em; }
+        body { background-color: var(--dark-bg); color: var(--text-light); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 60px 0 0; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 15px; }
+        .main-header { background-color: var(--header-bg); padding: 10px 15px; border-bottom: 1px solid var(--border-color); position: fixed; top: 0; left: 0; right: 0; z-index: 1000; display: flex; justify-content: space-between; align-items: center; height: 40px; }
+        .site-title-container { display: flex; flex-direction: column; align-items: flex-start; }
+        .site-title { font-size: 1.2em; color: var(--primary-accent-color); font-weight: 700; text-transform: uppercase; margin: 0; padding: 0; line-height: 1; }
+        .user-id-container { display: flex; align-items: center; gap: 8px; cursor: pointer; margin-top: 1px; }
+        .user-id-display { font-size: 0.7em; color: var(--text-muted); font-weight: normal; }
+        .copy-user-id-btn { background: none; border: none; padding: 0; display: flex; align-items: center; justify-content: center; color: var(--text-muted); }
+        .copy-user-id-btn svg { width: 12px; height: 12px; }
+        .user-id-container:hover .user-id-display, .user-id-container:hover .copy-user-id-btn { color: var(--text-light); }
         
-        .menu-container { position: relative; }
-        .menu-button { background: none; border: none; font-size: 24px; cursor: pointer; padding: 5px 10px; }
-        .dropdown-menu { display: none; position: absolute; right: 0; background-color: var(--white); box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-radius: 8px; z-index: 1; min-width: 220px; overflow: hidden; }
-        .dropdown-menu.show { display: block; }
-        .dropdown-menu .nav-tab { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; padding: 12px 18px; background: none; border: none; border-bottom: 1px solid var(--border-color); cursor: pointer; font-size: 1em; }
-        .dropdown-menu .nav-tab:last-child { border-bottom: none; }
-        .dropdown-menu .nav-tab:hover { background-color: #f1f1f1; }
-        .dropdown-menu .nav-tab.active { background-color: var(--primary-color); color: var(--white); font-weight: bold; }
+        .header-right { display: flex; align-items: center; gap: 10px; }
+        .inbox-container { position: relative; cursor: pointer; }
+        #inbox-icon { width: 24px; height: 24px; color: var(--text-light); }
+        #inbox-notification-dot { position: absolute; top: -2px; right: -2px; width: 8px; height: 8px; background-color: var(--primary-accent-color); border-radius: 50%; border: 1px solid var(--header-bg); display: none; }
+        #inbox-notification-dot.visible { display: block; }
+        .balance-display { background-color: #2a2a2a; color: var(--primary-accent-color); padding: 5px 12px; border-radius: 20px; font-weight: bold; font-size: 0.9em; }
+        .menu-toggle-button { background: none; border: none; cursor: pointer; padding: 5px; display: flex; flex-direction: column; gap: 4px; }
+        .menu-toggle-button .bar { width: 22px; height: 2px; background-color: var(--text-light); border-radius: 2px; }
+        .side-menu { position: fixed; top: 0; right: -100%; width: 250px; height: 100%; background-color: var(--header-bg); z-index: 1001; transition: right 0.3s ease-in-out; display: flex; flex-direction: column; }
+        .side-menu.is-open { right: 0; }
+        .side-menu-header { padding: 15px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+        .side-menu-header h3 { margin: 0; } .close-menu-btn { background: none; border: none; font-size: 1.5em; color: var(--text-light); cursor: pointer; }
+        .side-menu-nav { list-style: none; padding: 0; margin: 0; flex-grow: 1; overflow-y: auto; }
+        .side-menu-nav a { display: block; padding: 15px 20px; color: var(--text-muted); text-decoration: none; font-weight: 500; border-bottom: 1px solid var(--border-color); transition: background-color 0.2s, color 0.2s; }
+        .side-menu-nav a:hover, .side-menu-nav a.active { background-color: var(--primary-accent-color); color: var(--text-light); }
+        .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; display: none; }
+        .menu-overlay.is-open { display: block; }
+        .content-section { display: none; padding-top: 25px; } .content-section.active { display: block; }
+        .section-title { font-size: 1.5em; margin-bottom: 20px; padding-bottom: 10px; color: var(--text-light); border-bottom: 2px solid var(--border-color); }
+        .search-container { display: flex; gap: 10px; margin-bottom: 20px; }
+        .search-container input { flex-grow: 1; padding: 10px; box-sizing: border-box; border-radius: 8px; border: 1px solid var(--border-color); background-color: #000; color: var(--text-light); font-size: 1em; }
+        .search-container button { padding: 10px 15px; border: none; border-radius: 8px; background-color: var(--primary-accent-color); color: var(--text-light); font-weight: bold; cursor: pointer; }
+        .search-container button#clearSearchBtn { background-color: #444; }
+        .item-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
+        .movie-item, .ad-task-card { background-color: var(--card-bg); border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; }
+        .movie-item { cursor: pointer; transition: transform 0.2s; } .movie-item:hover{ transform: scale(1.03); }
+        .thumbnail-container { width: 100%; aspect-ratio: 16/9; background-color: #333; position: relative; }
+        .thumbnail-container img { width: 100%; height: 100%; object-fit: cover; }
+        .player-container { width: 100%; aspect-ratio: 16/9; background: #000; }
+        .player-container iframe { width: 100%; height: 100%; border: none; }
+        .movie-item-info, .ad-task-card-info { padding: 15px; flex-grow: 1; text-align:center;}
+        .task-card-info { padding: 0; flex-grow: 1; text-align: left; }
+        .movie-item-info h4, .task-card h4, .ad-task-card h4 { margin: 0 0 8px; font-size: 1.1em; line-height: 1.3; }
+        .movie-reward, .ad-visits-left { color: var(--success-color); font-weight: bold; font-size: 0.9em; margin: 0; }
+        .task-card p, .ad-task-card p { margin: 8px 0 15px; color: var(--text-muted); font-weight: bold; }
+        .task-card-info p { margin: 5px 0 0; }
+        .task-reward-points { color: var(--success-color); }
+        .task-reward-pg { color: #ff9900; } /* Orange for PG Coin */
+        .ad-task-button { width: 100%; padding: 12px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; background-color: var(--primary-accent-color); color: var(--text-light); transition: background-color .2s; margin-top: auto; font-size: 1em;}
+        .task-button, .daily-task-button { width: auto; flex-shrink: 0; padding: 10px 20px; font-size: 0.9em; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; background-color: var(--primary-accent-color); color: var(--text-light); transition: background-color .2s; margin-top: 0; }
+        .task-button { padding: 8px 20px; }
+        .task-button:disabled, .ad-task-button:disabled, .daily-task-button:disabled { background-color: var(--disabled-color); cursor: not-allowed; }
+        .card { max-width: 500px; margin: 20px auto; background-color: var(--card-bg); padding: 25px; border-radius: 12px; border: 1px solid var(--border-color); text-align: center; }
+        .card-icon { width: 50px; height: 50px; margin: 0 auto 15px; color: var(--primary-accent-color); }
+        .card h3 { margin-top: 0; font-size: 1.4em; } .card p { color: var(--text-muted); line-height: 1.6; }
+        .form-group { margin-bottom: 15px; text-align: left; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 500; color: var(--text-muted); }
+        .form-group input, .form-group select { width: 100%; padding: 12px; box-sizing: border-box; border-radius: 8px; border: 1px solid var(--border-color); background-color: #000; color: var(--text-light); font-size: 1em; }
+        .form-button { width: 100%; padding: 12px; border: none; border-radius: 8px; background-color: var(--primary-accent-color); color: var(--text-light); font-weight: bold; font-size: 1em; cursor: pointer; transition: background-color 0.2s; }
+        .form-button:hover:not(:disabled) { background-color: var(--primary-accent-hover-color); }
+        .form-button:disabled { background-color: var(--disabled-color); cursor: not-allowed; }
+        .referral-link-wrapper { display: flex; gap: 10px; margin-top: 20px; }
+        .referral-link-wrapper input { flex-grow: 1; text-align: center; }
+        .referral-link-wrapper button { width: auto; flex-shrink: 0; padding: 0 15px; }
+        .loader { border: 4px solid var(--border-color); border-top: 4px solid var(--primary-accent-color); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 50px auto; }
+        .history-item, .leaderboard-item { background-color: #2a2a2a; padding: 15px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .leaderboard-item .rank { font-size: 1.2em; font-weight: bold; color: var(--primary-accent-color); min-width: 40px; text-align: center;}
+        .leaderboard-item .info { flex-grow: 1; margin-left: 15px; }
+        .leaderboard-item .info strong { color: var(--text-light); }
+        .leaderboard-item .info small { color: var(--text-muted); }
+        .leaderboard-item .count { font-size: 1.1em; font-weight: bold; color: var(--success-color); }
+        .claim-referral-btn { padding: 8px 12px; font-size: 0.9em; width: auto; flex-shrink: 0; }
+        .history-item .status-pending { color: #ffc107; } .history-item .status-approved { color: #28a745; } .history-item .status-rejected { color: #dc3545; }
+        .conversion-info { font-size: 0.9em; color: var(--text-muted); margin-bottom: 15px; }
+        .success-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 2000; display: none; justify-content: center; align-items: center; }
+        .success-modal-overlay.show { display: flex; }
+        .success-modal { background-color: var(--card-bg); color: var(--text-light); padding: 30px 40px; border-radius: 15px; text-align: center; transform: scale(0.9); opacity: 0; animation: modal-pop-in 0.3s forwards; }
+        .success-modal-icon { width: 70px; height: 70px; border-radius: 50%; background-color: var(--success-color); display: flex; justify-content: center; align-items: center; font-size: 40px; font-weight: bold; color: white; margin: 0 auto 20px; animation: icon-pop-in 0.5s 0.2s backwards; }
+        .success-modal h3 { margin: 0 0 10px; font-size: 1.6em; }
+        .success-modal p { margin: 0; color: var(--text-muted); font-size: 1em;}
+        .inbox-modal { background-color: var(--card-bg); color: var(--text-light); padding: 20px; border-radius: 15px; text-align: left; width: 90%; max-width: 400px; max-height: 80vh; display: flex; flex-direction: column; }
+        .inbox-modal h3 { text-align: center; margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
+        #inbox-message-list { overflow-y: auto; flex-grow: 1; margin-bottom: 15px; }
+        .inbox-message-item { background-color: #2a2a2a; padding: 12px; border-radius: 8px; margin-bottom: 10px; cursor: pointer;}
+        .inbox-message-item p { margin: 0; line-height: 1.5; }
+        .inbox-message-item.read { opacity: 0.6; }
+        .inbox-message-item small { color: var(--text-muted); font-size: 0.8em; }
+        #closeInboxBtn { padding: 10px; border: none; border-radius: 8px; background-color: var(--primary-accent-color); color: white; cursor: pointer; }
+        .sub-card { background-color: #222; padding: 20px; border-radius: 10px; margin-bottom: 25px; }
+        .info-text { font-size: 0.9em; color: var(--text-muted); margin-top: 10px; }
+        .daily-task-card, .task-card { background-color: var(--card-bg); border-radius: 8px; display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 15px; transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; }
+        .task-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15); }
+        .daily-task-info { text-align: left; }
+        .daily-task-info h4 { margin: 0 0 5px; }
+        .daily-task-info p { margin: 0; font-size: 0.9em; color: var(--success-color); }
+        .task-category-selector { display: flex; justify-content: center; margin-bottom: 25px; border-bottom: 2px solid #282828; padding-bottom: 15px; }
+        .task-category-selector .task-category-btn { background-color: transparent; border: 2px solid var(--primary-accent-color); color: var(--primary-accent-color); padding: 10px 20px; margin: 0 5px; border-radius: 25px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: all 0.3s ease; }
+        .task-category-selector .task-category-btn.active, .task-category-selector .task-category-btn:hover { background-color: var(--primary-accent-color); color: white; }
+        .task-category-container { display: none; } .task-category-container.active { display: block; }
+        #ad-task-list.item-grid { grid-template-columns: 1fr; gap: 10px; } /* Override grid for single-column list */
+        #task-list.item-grid, #special-task-list.item-grid { grid-template-columns: 1fr; gap: 10px; } /* Override grid for single-column list */
+        
+        /* Profile Section Styles */
+        #profile-card { background-color: var(--card-bg); padding: 30px; border-radius: 15px; text-align: center; }
+        #profile-avatar { 
+            width: 100px; height: 100px; border-radius: 50%; 
+            border: 4px solid var(--primary-accent-color); 
+            margin: 0 auto 20px; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #333;
+            font-size: 48px;
+            font-weight: bold;
+            color: var(--text-light);
+            background-size: cover;
+            background-position: center;
+        }
+        #profile-username { font-size: 1.8em; font-weight: bold; margin: 0 0 10px; }
+        #profile-userid { font-size: 1em; color: var(--text-muted); margin-bottom: 25px; }
+        #profile-stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+        .profile-stat-item { background-color: #222; padding: 20px; border-radius: 10px; }
+        .profile-stat-item h4 { margin: 0 0 8px; font-size: 1em; color: var(--text-muted); }
+        .profile-stat-item p { margin: 0; font-size: 1.4em; font-weight: bold; color: var(--primary-accent-color); }
 
-        .admin-section { display: none; background: var(--white); padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .admin-section.active { display: block; }
-        h2 { margin-top: 0; display: flex; justify-content: space-between; align-items: center; }
-        .count-badge { background-color: var(--secondary-color); color: white; font-size: 0.7em; padding: 4px 8px; border-radius: 10px; }
-        label { display: block; margin-bottom: 5px; font-weight: 500; }
-        input, select, textarea, button { width: 100%; padding: 12px; margin-bottom: 15px; box-sizing: border-box; border-radius: 5px; border: 1px solid var(--border-color); font-size: 1em; }
-        textarea { resize: vertical; min-height: 100px; }
-        button.submit-btn { background-color: var(--primary-color); color: var(--white); border: none; font-weight: bold; cursor: pointer; }
-        .list-item { padding: 15px; border-bottom: 1px solid var(--border-color); display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 15px; }
-        .item-info { flex-grow: 1; word-break: break-all; } .item-info p { margin: 2px 0; } .item-info strong { color: var(--primary-color); }
-        .item-actions { display: flex; gap: 10px; flex-shrink: 0;}
-        .action-btn { padding: 8px 12px; border: none; border-radius: 5px; color: white; cursor: pointer; font-weight: bold; }
-        .approve-btn { background-color: var(--success-color); } .reject-btn, .delete-btn { background-color: var(--danger-color); }
-        .edit-btn { background-color: var(--warning-color); }
-        .pg-coin-btn { background-color: var(--primary-color); } 
-        .send-msg-btn { background-color: var(--primary-color); }
-        #pending-count { background: var(--danger-color); color: white; border-radius: 50%; padding: 2px 8px; font-size: 0.8em; display: inline-block; margin-left: 8px; vertical-align: middle; }
-        #pending-count:empty { display: none; }
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); }
-        .modal-content { background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 400px; border-radius: 8px; }
-        .close-btn { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
-        .search-controls { display: flex; gap: 10px; margin-bottom: 20px; }
-        .search-controls input { flex-grow: 1; margin-bottom: 0; }
-        .search-controls button { width: auto; flex-shrink: 0; margin-bottom: 0; }
-        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
-        .dashboard-card { background-color: var(--white); padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid var(--border-color); text-align: center; }
-        .dashboard-card h3 { margin-top: 0; font-size: 1.1em; color: var(--secondary-color); }
-        .dashboard-card .count { font-size: 2.5em; font-weight: 700; color: var(--primary-color); margin: 10px 0; min-height: 48px; /* Prevents layout shift */ display: flex; justify-content: center; align-items: center; }
-        .loader { border: 4px solid var(--border-color); border-top: 4px solid var(--primary-color); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
+        /* Lottery Section Styles */
+        .lottery-container { background-color: var(--card-bg); padding: 25px; border-radius: 12px; text-align: center; width: 100%; max-width: 450px; margin: 0 auto; }
+        .lottery-container h1 { font-family: 'Hind Siliguri', sans-serif; }
+        #lottery-result-display { font-family: 'Roboto Mono', monospace; font-size: 3.5rem; font-weight: 700; color: #0056b3; background-color: #e7f3ff; padding: 15px; border-radius: 8px; margin-bottom: 25px; min-height: 80px; display: flex; justify-content: center; align-items: center; transition: all 0.3s ease; }
+        #lottery-result-display.tier-1 { color: #333; background-color: #f0f0f0; }
+        #lottery-result-display.tier-2 { color: #1e8449; background-color: #eafaf1; }
+        #lottery-result-display.tier-3 { color: #2980b9; background-color: #eaf2f8; }
+        #lottery-result-display.tier-4 { color: #884ea0; background-color: #f4eef7; }
+        #lottery-result-display.tier-5 { color: #d35400; background-color: #fbeee6; border: 2px solid #d35400;}
+        #lottery-result-display.tier-6 { color: #c0392b; background-color: #f9ebea; border: 2px solid #c0392b; text-shadow: 0 0 5px #ffdddd;}
+        .lottery-button { background-color: var(--primary-accent-color); color: white; border: none; padding: 12px 20px; font-size: 1rem; font-weight: 600; border-radius: 8px; cursor: pointer; transition: background-color 0.3s ease, transform 0.1s ease; width: 100%; margin-top: 15px; }
+        .lottery-button:hover:not(:disabled) { background-color: var(--primary-accent-hover-color); }
+        .lottery-button:disabled { background-color: var(--disabled-color); cursor: not-allowed; }
+        #lottery-info { color: var(--text-muted); font-size: 0.9rem; margin-top: 15px; min-height: 20px; }
+
+
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes modal-pop-in { to { transform: scale(1); opacity: 1; } }
+        @keyframes icon-pop-in { 0% { transform: scale(0); } 70% { transform: scale(1.1); } 100% { transform: scale(1); } }
     </style>
 </head>
 <body>
-    <div class="admin-container">
-        <header class="admin-header">
-            <h1>Admin Panel</h1>
-            <div class="menu-container">
-                <button class="menu-button" id="menuButton">☰</button>
-                <div class="dropdown-menu" id="dropdownMenu">
-                    <button class="nav-tab active" data-tab="dashboard">📊 Dashboard</button>
-                    <button class="nav-tab" data-tab="users">👥 Manage Users</button>
-                    <button class="nav-tab" data-tab="withdrawals">💰 Withdrawals <span id="pending-count"></span></button>
-                    <button class="nav-tab" data-tab="content">➕ Add Video</button>
-                    <button class="nav-tab" data-tab="manage-content">🎬 Manage Videos</button>
-                    <button class="nav-tab" data-tab="tasks">➕ Create Task</button>
-                    <button class="nav-tab" data-tab="manage-tasks">📋 Manage Tasks</button>
-                    <button class="nav-tab" data-tab="daily-tasks">☀️ Add Daily Task</button>
-                </div>
-            </div>
-        </header>
 
-        <!-- DASHBOARD SECTION -->
-        <div id="dashboard-section" class="admin-section active">
-            <h2>Dashboard</h2>
-            <div class="dashboard-grid">
-                <div class="dashboard-card">
-                    <h3>Total Users</h3>
-                    <p class="count" id="db-total-users">...</p>
-                </div>
-                <div class="dashboard-card">
-                    <h3>Users Joined Today</h3>
-                    <p class="count" id="db-users-today">...</p>
-                </div>
-                <div class="dashboard-card">
-                    <h3>Pending Withdrawals</h3>
-                    <p class="count" id="db-pending-withdrawals">...</p>
-                </div>
-                <div class="dashboard-card">
-                    <h3>Active Content</h3>
-                    <p class="count" id="db-active-content">...</p>
-                </div>
+    <header class="main-header">
+        <div class="site-title-container">
+            <h1 class="site-title">NEWTUBE</h1>
+            <div class="user-id-container" id="userIdContainer">
+                <span id="userIdDisplay" class="user-id-display"></span>
+                <button class="copy-user-id-btn" title="Copy User ID">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 448 512"><path fill="currentColor" d="M384 336H192c-8.8 0-16-7.2-16-16V64c0-8.8 7.2-16 16-16l140.1 0L400 115.9V320c0 8.8-7.2 16-16 16zM192 384H384c35.3 0 64-28.7 64-64V115.9c0-12.7-5.1-24.9-14.1-33.9L366.1 14.1c-9-9-21.2-14.1-33.9-14.1H192c-35.3 0-64 28.7-64 64V320c0 35.3 28.7 64 64 64zM64 128c-35.3 0-64 28.7-64 64V448c0 35.3 28.7 64 64 64H256c35.3 0 64-28.7 64-64V416H272v32c0 8.8-7.2 16-16 16H64c-8.8 0-16-7.2-16-16V192c0-8.8 7.2-16 16-16H96V128H64z"/></svg>
+                </button>
             </div>
         </div>
-
-        <!-- USERS SECTION -->
-        <div id="users-section" class="admin-section">
-            <h2>Manage Users <span id="user-count" class="count-badge"></span></h2>
-            <div class="search-controls">
-                <input type="text" id="userSearchInput" placeholder="Enter User ID or Telegram Username...">
-                <button id="userSearchBtn" class="submit-btn">Search</button>
-                <button id="clearUserSearchBtn" class="action-btn" style="background-color: var(--secondary-color); display: none;">Clear</button>
+        <div class="header-right">
+             <div class="inbox-container" id="inbox-container">
+                <svg id="inbox-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                <span id="inbox-notification-dot"></span>
             </div>
-            <div id="user-list-container"><div class="loader"></div></div>
+            <div class="balance-display">$: <span id="userUSDTBalanceDisplay">0.00</span></div>
+            <div class="balance-display">Pts: <span id="userBalanceDisplay">0</span></div>
+            <div class="balance-display">PG: <span id="userPgCoinDisplay">0.000</span></div>
+            <button class="menu-toggle-button" id="menu-toggle-button"><span class="bar"></span><span class="bar"></span><span class="bar"></span></button>
         </div>
+    </header>
 
-        <div id="content-section" class="admin-section">
-             <h2>Add New Video</h2>
-            <form id="addVideoForm">
-                <input type="text" id="videoTitle" placeholder="Video Title" required>
-                <input type="url" id="youtubeUrl" placeholder="Full YouTube Video URL" required>
-                <input type="url" id="thumbnailUrl" placeholder="Custom Thumbnail URL (from postimages.org)" required>
-                <button type="submit" class="submit-btn">Add Video</button>
-            </form>
-        </div>
+    <div class="menu-overlay" id="menu-overlay"></div>
+    <aside class="side-menu" id="side-menu">
+        <div class="side-menu-header"><h3>Menu</h3><button class="close-menu-btn" id="close-menu-btn">&times;</button></div>
+        <ul class="side-menu-nav">
+            <li><a href="#" class="nav-link active" data-tab-target="#home-content">Home</a></li>
+            <li><a href="#" class="nav-link" data-tab-target="#profile-content">Profile</a></li>
+            <li><a href="#" class="nav-link" data-tab-target="#ads-to-earn-content">Ads to Earn</a></li>
+            <li><a href="#" class="nav-link" data-tab-target="#task-content">Tasks</a></li>
+            <li><a href="#" class="nav-link" data-tab-target="#lottery-content">Daily Lottery</a></li>
+            <li><a href="#" class="nav-link" data-tab-target="#referral-content">Referral Program</a></li>
+            <li><a href="#" class="nav-link" data-tab-target="#leaderboard-content">Leaderboard</a></li>
+            <li><a href="#" class="nav-link" data-tab-target="#convert-withdraw-content">Convert & Withdraw</a></li>
+            <li><a href="#" class="nav-link" data-tab-target="#history-content">History</a></li>
+        </ul>
+    </aside>
+
+    <main class="container">
+        <section id="home-content" class="content-section active">
+            <h3 class="section-title">Trending Videos</h3>
+            <div class="search-container">
+                <input type="search" id="videoSearchInput" placeholder="Search for videos...">
+                <button id="videoSearchBtn">Search</button>
+                <button id="clearSearchBtn" style="display:none;">Clear</button>
+            </div>
+            <div class="item-grid" id="video-grid"></div>
+        </section>
+
+        <section id="profile-content" class="content-section">
+            <h3 class="section-title">Your Profile</h3>
+            <div id="profile-card">
+                <div id="profile-avatar"></div>
+                <h2 id="profile-username">Loading...</h2>
+                <p id="profile-userid">ID: Loading...</p>
+                
+                <div class="profile-stat-item" style="grid-column: 1 / -1; margin-bottom: 20px;">
+                    <h4>Your Level</h4>
+                    <p id="profile-level">Loading...</p>
+                </div>
+
+                <div id="profile-stats-grid">
+                    <div class="profile-stat-item">
+                        <h4>Total Points</h4>
+                        <p id="profile-points">0</p>
+                    </div>
+                    <div class="profile-stat-item">
+                        <h4>PG Coins</h4>
+                        <p id="profile-pg-coins">0.000</p>
+                    </div>
+                     <div class="profile-stat-item" style="grid-column: 1 / -1;">
+                        <h4>Lifetime Referrals</h4>
+                        <p id="profile-referrals">0</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="ads-to-earn-content" class="content-section">
+             <h3 class="section-title">Watch Ads, Earn Rewards</h3>
+             <div id="ad-task-list" class="item-grid"></div>
+        </section>
         
-        <div id="manage-content-section" class="admin-section">
-            <h2>Manage Videos</h2>
-            <div id="video-list-container"><div class="loader"></div></div>
-        </div>
+        <section id="task-content" class="content-section">
+            <div class="task-category-selector">
+                <button class="task-category-btn active" data-task-category="daily-rewards">Daily Rewards</button>
+                <button class="task-category-btn" data-task-category="complete-tasks">Complete Tasks</button>
+            </div>
+            <div id="daily-rewards-container" class="task-category-container active">
+                <h3 class="section-title">Special 24-Hour Tasks</h3>
+                <div id="special-task-list" class="item-grid"></div>
+                <h3 class="section-title" style="margin-top: 40px;">Daily Check-in Rewards</h3>
+                <div id="daily-task-list" class="item-grid" style="grid-template-columns: 1fr;"></div>
+            </div>
+            <div id="complete-tasks-container" class="task-category-container">
+                <h3 class="section-title">Complete Tasks</h3>
+                <div id="task-list" class="item-grid"></div>
+            </div>
+        </section>
         
-        <div id="manage-tasks-section" class="admin-section">
-            <h2>Manage Tasks</h2>
-            <div id="task-list-container"><div class="loader"></div></div>
-        </div>
+        <section id="lottery-content" class="content-section">
+            <div class="lottery-container">
+                <h3 class="section-title" style="border: none; text-align: center;">Lottery Spin Game</h3>
+                <p>Click a button below to test your luck!</p>
+                
+                <div id="lottery-result-display">?</div>
+                
+                <button id="free-spin-button" class="lottery-button">Free Daily Spin (1 left)</button>
+                <button id="ad-spin-button" class="lottery-button">Spin with Ad (3 left)</button>
+                <button id="ref-spin-button" class="lottery-button">Get More Spins (Refer)</button>
 
-        <div id="tasks-section" class="admin-section">
-            <h2>Create New Task</h2>
-            <form id="addTaskForm">
-                <label for="taskTitle">Task Title</label>
-                <input type="text" id="taskTitle" placeholder="e.g., Join Telegram Channel" required>
-                <label for="taskUrl">Task URL</label>
-                <input type="url" id="taskUrl" placeholder="Link to Telegram, FB, YT, Website" required>
-                <label for="visitTime">Visit Time (in seconds, 0 for no timer)</label>
-                <input type="number" id="visitTime" placeholder="e.g., 30" value="0" step="1" required>
-                <label for="userTaskLimit">How many times can ONE user do this task?</label>
-                <input type="number" id="userTaskLimit" placeholder="e.g., 1 for single completion" value="1" step="1" required>
-                <label for="taskLimit">Total Completion Limit</label>
-                <input type="number" id="taskLimit" placeholder="e.g., 100 (0 for unlimited)" step="1" required>
-                <label for="taskReward">Reward per Completion (Points)</label>
-                <input type="number" id="taskReward" placeholder="e.g., 20" step="1" min="20" required>
-                <!-- UPDATE: New field for PG Coin reward -->
-                <label for="taskRewardPg">Reward (PG Coin, optional)</label>
-                <input type="number" id="taskRewardPg" placeholder="e.g., 0.01 (0 for none)" step="0.01" min="0" value="0" required>
-                <button type="submit" class="submit-btn">Create Task</button>
-            </form>
-        </div>
+                <div id="lottery-info"></div>
+            </div>
+        </section>
 
-        <div id="daily-tasks-section" class="admin-section">
-            <h2>Add New Daily Task (Expires after 24 hours)</h2>
-            <form id="addDailyTaskForm">
-                <label for="dailyTaskTitle">Task Title</label>
-                <input type="text" id="dailyTaskTitle" placeholder="e.g., Visit Today's Sponsor" required>
-                <label for="dailyTaskUrl">Task URL</label>
-                <input type="url" id="dailyTaskUrl" placeholder="Link to the website/channel" required>
-                <label for="dailyTaskReward">Reward (Points)</label>
-                <input type="number" id="dailyTaskReward" placeholder="e.g., 30" step="1" min="1" required>
-                <button type="submit" class="submit-btn">Add Daily Task</button>
-            </form>
-            <h3 style="margin-top: 30px;">Active Daily Tasks</h3>
-            <div id="daily-task-list-container"><div class="loader"></div></div>
-        </div>
 
-        <div id="withdrawals-section" class="admin-section">
-            <h2>Pending Withdrawals</h2>
-            <div id="withdrawal-list-container"><div class="loader"></div></div>
-        </div>
+        <section id="referral-content" class="content-section">
+            <div class="card">
+                <svg class="card-icon" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+                <h3>Referral Program</h3>
+                <p>Invite friends to earn bonuses! For each successful referral, you get <strong>1000 Points</strong>, <strong>0.5 PG Coin</strong>, and <strong>1 Lottery Spin!</strong></p>
+                <div class="referral-link-wrapper"><input type="text" id="referralLinkInput" readonly value="Generating link..."><button id="copyReferralLinkBtn" class="form-button">Copy</button></div>
+                
+                <div class="sub-card" style="margin-top: 25px; text-align: left;">
+                    <h4 style="text-align: center;">Your Lifetime Referral Stats</h4>
+                    <div id="referral-stats-list">
+                        <div class="leaderboard-item" style="background: #222; margin-bottom: 5px;">
+                            <div class="info" style="margin-left: 0;"><strong>Total Referrals</strong></div>
+                            <div id="referral-stats-count" class="count">0</div>
+                        </div>
+                        <div class="leaderboard-item" style="background: #222; margin-bottom: 5px;">
+                            <div class="info" style="margin-left: 0;"><strong>Points Earned</strong></div>
+                            <div id="referral-stats-points" class="count">0</div>
+                        </div>
+                        <div class="leaderboard-item" style="background: #222; margin-bottom: 5px;">
+                            <div class="info" style="margin-left: 0;"><strong>Lottery Spins Earned</strong></div>
+                            <div id="referral-stats-spins" class="count">0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section id="leaderboard-content" class="content-section">
+            <h3 class="section-title">Lifetime Top Referrers</h3>
+            <div class="card" style="text-align: left; padding-bottom: 10px;">
+                <p style="text-align: center;">Users with the most referrals of all time are ranked here. Keep inviting to climb the ranks!</p>
+                <div id="leaderboard-list"></div>
+            </div>
+            <h3 class="section-title" style="margin-top: 40px;">Your Referrals</h3>
+            <div class="card" style="text-align: left;">
+                <p style="text-align: center;">Track the progress of the friends you've invited. A referral is valid when they earn 1000 Points.</p>
+                <div id="my-referrals-list"></div>
+            </div>
+        </section>
+        
+        <section id="convert-withdraw-content" class="content-section">
+             <div class="card">
+                 <h3 class="section-title" style="border: none; margin-bottom: 5px; text-align: center;">Convert & Withdraw</h3>
+                 <div class="sub-card">
+                     <h4>Convert to USDT</h4>
+                     <div class="form-group">
+                        <label for="convertSource">Convert From</label>
+                        <select id="convertSource">
+                            <option value="points">Points</option>
+                            <option value="pgcoin">PG Coin</option>
+                        </select>
+                     </div>
+                     <p id="convertRateInfo" class="conversion-info"></p>
+                     <p>Your Balance: <strong id="convertSourceBalance">0</strong></p>
+                     <div class="form-group">
+                         <label for="amountToConvert">Amount to Convert</label>
+                         <input type="number" id="amountToConvert" placeholder="">
+                     </div>
+                     <p class="info-text">You will receive: <strong id="usdtReceiveAmount">$0.00 USDT</strong></p>
+                     <button id="convertBtn" class="form-button">Convert</button>
+                 </div>
+
+                 <div class="sub-card">
+                     <h4>Withdraw USDT</h4>
+                     <div class="info-text" style="text-align: left; margin-bottom: 20px; line-height: 1.5;">
+                        <strong style="color: var(--text-light);">Withdrawal Fees:</strong><br>
+                        Each withdrawal requires a fixed fee of **2 Valid Referrals** and **3 PG Coins**, which will be deducted from your account. This fee applies to all withdrawal amounts.
+                     </div>
+                      <p>Your USDT Balance: <strong id="withdrawUsdtBalance">0.00</strong></p>
+                      <p>Your Valid Referral Credits: <strong id="withdrawalReferralCredits">0</strong></p>
+                      <p>Your PG Coin Balance: <strong id="withdrawalPgCoinBalance">0.000</strong></p>
+                     
+                     <form id="withdrawalForm">
+                         <div class="form-group">
+                            <label for="withdrawalMethod">Payment Method</label>
+                            <select id="withdrawalMethod" required><option value="Bkash">Bkash</option><option value="Binance (Optimism)">Binance (Optimism)</option></select>
+                         </div>
+                         <div class="form-group">
+                            <label for="accountDetails">Account Details</label>
+                            <input type="text" id="accountDetails" placeholder="Your Bkash Number or Binance Address" required>
+                         </div>
+                         <div class="form-group">
+                            <label for="withdrawalAmount">Amount (USDT)</label>
+                            <input type="number" id="withdrawalAmount" placeholder="e.g., 0.5" required step="0.01">
+                         </div>
+                         <button type="submit" class="form-button" id="requestWithdrawalBtn">Request Withdrawal</button>
+                     </form>
+                 </div>
+             </div>
+        </section>
+
+        <section id="history-content" class="content-section"><h3 class="section-title">Withdrawal History</h3><div id="history-list"></div></section>
+        
+    </main>
+    
+    <div id="successModalOverlay" class="success-modal-overlay"><div class="success-modal"><div class="success-modal-icon">✓</div><h3 id="successModalTitle">Success!</h3><p id="successModalMessage">Your request has been sent.</p></div></div>
+    
+    <div id="inboxModalOverlay" class="success-modal-overlay">
+        <div class="inbox-modal"><h3>Inbox</h3><div id="inbox-message-list"><div class="loader"></div></div><button id="closeInboxBtn" class="form-button" style="margin-top: 15px;">Close</button></div>
     </div>
     
-    <div id="editPointsModal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn" id="closePointsModalBtn">&times;</span>
-            <h2>Edit User Points</h2>
-            <form id="editPointsForm">
-                <input type="hidden" id="editPointsUserId">
-                <label for="pointsAmount">Points to Add/Subtract</label>
-                <input type="number" id="pointsAmount" placeholder="e.g., 1000 or -500" required>
-                <button type="submit" class="submit-btn">Update Points</button>
-            </form>
-        </div>
-    </div>
+    <script src="https://www.youtube.com/iframe_api" async></script>
     
-    <div id="editPgCoinModal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn" id="closePgCoinModalBtn">&times;</span>
-            <h2>Edit User PG Coin</h2>
-            <form id="editPgCoinForm">
-                <input type="hidden" id="editPgCoinUserId">
-                <label for="pgCoinAmount">PG Coin to Add/Subtract</label>
-                <input type="number" id="pgCoinAmount" placeholder="e.g., 0.5 or -0.1" step="0.001" required>
-                <button type="submit" class="submit-btn">Update PG Coin</button>
-            </form>
-        </div>
-    </div>
-
-    <div id="sendMessageModal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn" id="closeMessageModalBtn">&times;</span>
-            <h2>Send Message to User</h2>
-            <form id="sendMessageForm">
-                <input type="hidden" id="sendMessageUserId">
-                <label for="messageContent">Your Message</label>
-                <textarea id="messageContent" placeholder="Type your message here..." required></textarea>
-                <button type="submit" class="submit-btn">Send Message</button>
-            </form>
-        </div>
-    </div>
-
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, serverTimestamp, query, getDocs, orderBy, doc, getDoc, deleteDoc, updateDoc, where, increment, getCountFromServer, Timestamp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
-
+        import { getFirestore, collection, getDocs, query, where, orderBy, limit, addDoc, serverTimestamp, doc, getDoc, setDoc, updateDoc, runTransaction, increment, arrayUnion, writeBatch } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+        
         const firebaseConfig = {
             apiKey: "AIzaSyCKMa4NdIowD_8NioUbrn4L7g5M9y5Tts0",
             authDomain: "movie-zone-931d7.firebaseapp.com",
@@ -224,515 +407,1200 @@
             appId: "1:1006880112063:web:4a4cf5079ea365a6ce750a",
             measurementId: "G-TH1YSE4D9C"
         };
-
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        const tg = window.Telegram.WebApp;
 
-        function extractYouTubeID(url) {
-            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-            const match = url.match(regExp);
-            return (match && match[2].length === 11) ? match[2] : null;
+        let currentUser = null;
+        let player;
+        let currentPlayingItem = null;
+        let videoPlaybackInterval = null;
+        let dailyTimerInterval = null;
+        let timeSpentThisSession = 0;
+        let accumulatedWatchTime = 0;
+        let taskTimers = {};
+        let isInterstitialAdVisible = false;
+
+        const AD_POINTS_LIMIT = 10;
+        const AD_PGCOIN_LIMIT = 10;
+        const VIDEO_WATCH_LIMIT = 30; 
+        const REFERRAL_POINTS_THRESHOLD = 1000;
+        const REFERRAL_BONUS_POINTS = 1000;
+        const REFERRAL_BONUS_PG_COIN = 0.5;
+        const REFERRAL_BONUS_SPINS = 1;
+        const POINTS_TO_USDT_RATE = 0.02 / 1000;
+        const PG_COIN_TO_USDT_RATE = 0.02;
+        const MIN_POINTS_TO_CONVERT = 5000;
+        const MIN_PG_COIN_TO_CONVERT = 5;
+        
+        const dailyTasksConfig = [
+            { id: 'daily_login', title: 'Daily Login Bonus', reward: 40, type: 'action' },
+            { id: 'visit_channel', title: 'Visit Telegram Channel', reward: 10, type: 'action', url: 'https://t.me/newtube12' },
+            { id: 'stay_5m', title: 'Stay for 5 minutes', reward: 10, type: 'time', requirement: 300 },
+            { id: 'stay_15m', title: 'Stay for 15 minutes', reward: 20, type: 'time', requirement: 900 },
+            { id: 'stay_30m', title: 'Stay for 30 minutes', reward: 35, type: 'time', requirement: 1800 },
+        ];
+        
+        const userLevels = [
+            { level: 1, name: "Newbie", requiredPoints: 0, requiredPgCoin: 0 },
+            { level: 2, name: "Rookie", requiredPoints: 5000, requiredPgCoin: 0 },
+            { level: 3, name: "Apprentice", requiredPoints: 15000, requiredPgCoin: 0 },
+            { level: 4, name: "Journeyman", requiredPoints: 50000, requiredPgCoin: 8 },
+            { level: 5, name: "Expert", requiredPoints: 70000, requiredPgCoin: 20 },
+            { level: 6, name: "Master", requiredPoints: 150000, requiredPgCoin: 35 },
+            { level: 7, name: "Grandmaster", requiredPoints: 320000, requiredPgCoin: 70 },
+            { level: 8, name: "Legend", requiredPoints: 600000, requiredPgCoin: 200 }
+        ];
+
+        const levelBonuses = { 1: 0, 2: 0.02, 3: 0.05, 4: 0.08, 5: 0.15, 6: 0.20, 7: 0.30, 8: 0.40 };
+
+        function getWithdrawalFee(amount) {
+            const minAmount = 0.30; // Absolute minimum withdrawal amount
+            if (amount < minAmount) return null;
+            // New requirement: A fixed fee for every withdrawal.
+            return { referrals: 2, pgCoin: 3 };
         }
 
-        async function loadDashboardData() {
+        async function countValidReferrals(userId) {
+            const myReferralsQuery = query(collection(db, "users"), where("referredBy", "==", userId));
+            const snapshot = await getDocs(myReferralsQuery);
+            let validCount = 0;
+            if (!snapshot.empty) {
+                snapshot.forEach(docSnap => {
+                    const referee = docSnap.data();
+                    const points = referee.lifetimePointsEarned || 0;
+                    if (points >= REFERRAL_POINTS_THRESHOLD) {
+                        validCount++;
+                    }
+                });
+            }
+            return validCount;
+        }
+
+        async function fetchAndUpdateCurrentUser() {
+            if (!currentUser?.id) return;
             try {
-                document.getElementById('db-total-users').textContent = '...';
-                document.getElementById('db-users-today').textContent = '...';
-                document.getElementById('db-pending-withdrawals').textContent = '...';
-                document.getElementById('db-active-content').textContent = '...';
-                const usersColl = collection(db, 'users');
-                const videosColl = collection(db, 'videos');
-                const tasksColl = collection(db, 'tasks');
-                const withdrawalsColl = collection(db, 'withdrawals');
-                const userCountSnap = await getCountFromServer(usersColl);
-                document.getElementById('db-total-users').textContent = userCountSnap.data().count;
-                const twentyFourHoursAgo = Timestamp.fromMillis(Date.now() - 24 * 60 * 60 * 1000);
-                const todayQuery = query(usersColl, where('createdAt', '>=', twentyFourHoursAgo));
-                const todayCountSnap = await getCountFromServer(todayQuery);
-                document.getElementById('db-users-today').textContent = todayCountSnap.data().count;
-                const pendingQuery = query(withdrawalsColl, where('status', '==', 'pending'));
-                const pendingCountSnap = await getCountFromServer(pendingQuery);
-                const pendingCount = pendingCountSnap.data().count;
-                document.getElementById('db-pending-withdrawals').textContent = pendingCount;
-                document.getElementById('pending-count').textContent = pendingCount || '';
-                const videosCountSnap = await getCountFromServer(videosColl);
-                const tasksCountSnap = await getCountFromServer(tasksColl);
-                document.getElementById('db-active-content').textContent = videosCountSnap.data().count + tasksCountSnap.data().count;
-            } catch(error) {
-                console.error("Error loading dashboard data:", error);
-                alert("Failed to load dashboard data. Check console.");
+                const userRef = doc(db, 'users', currentUser.id);
+                const userSnap = await getDoc(userRef);
+                if (userSnap.exists()) {
+                    currentUser = { id: userSnap.id, ...userSnap.data() };
+                    updateBalanceUI(currentUser.balance, currentUser.usdtBalance, currentUser.pgCoin);
+                }
+            } catch (error) { console.error("Error fetching current user:", error); }
+        }
+        
+        async function checkAndResetDailies() {
+            if (!currentUser) return;
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+            const lastDailyReset = currentUser.dailyTasks?.lastReset?.toDate();
+            const lastDailyResetTime = lastDailyReset ? new Date(lastDailyReset.getFullYear(), lastDailyReset.getMonth(), lastDailyReset.getDate()).getTime() : 0;
+            
+            if (!lastDailyReset || lastDailyResetTime < today) {
+                const updates = {
+                    'dailyTasks.claimed': [],
+                    'dailyTasks.timeSpent': 0,
+                    'dailyTasks.lastReset': serverTimestamp(),
+                    'adVisitsToday': 0,
+                    'pgCoinAdVisitsToday': 0,
+                    'videoProgress.dailyWatchedCount': 0,
+                    'lottery.freeSpinsUsed': 0,
+                    'lottery.adSpinsUsed': 0
+                };
+                try {
+                    const userRef = doc(db, 'users', currentUser.id);
+                    await updateDoc(userRef, updates);
+                    await fetchAndUpdateCurrentUser(); 
+                } catch (error) { console.error("Error resetting daily limits:", error); }
             }
         }
 
-        const userListContainer = document.getElementById('user-list-container');
-        
-        function renderUserItem(docSnap) {
-            const user = docSnap.data();
-            const item = document.createElement('div');
-            item.className = 'list-item';
-            const pgCoin = parseFloat(user.pgCoin || 0).toFixed(3);
+        async function initializeUser(tgUser, referrerCode) {
+            const userId = String(tgUser.id);
+            const userRef = doc(db, 'users', userId);
+            let userSnap = await getDoc(userRef);
+
+            const fieldsToEnsure = {
+                balance: 0, usdtBalance: 0, pgCoin: 0, lifetimePointsEarned: 0, lifetimePgCoinEarned: 0, 
+                referralPointsEarned: 0, referralPgCoinEarned: 0, referralCount: 0, validReferralCredits: 0,
+                completedTasks: [], 
+                adVisitsToday: 0, 
+                pgCoinAdVisitsToday: 0,
+                dailyTasks: { claimed: [], timeSpent: 0, lastReset: serverTimestamp() },
+                videoProgress: { dailyWatchedCount: 0 },
+                readMessages: [],
+                withdrawalCount: 0,
+                lottery: { freeSpinsUsed: 0, adSpinsUsed: 0, referralSpins: 0 }
+            };
             
-            item.innerHTML = `
-                <div class="item-info">
-                    <p>User ID: <strong>${docSnap.id}</strong> | Username: @${user.telegramUsername || 'N/A'}</p>
-                    <p>Points: <strong>${Math.floor(user.balance || 0)}</strong> | PG Coin: <strong>${pgCoin}</strong> | Referrals: <strong>${user.referralCount || 0}</strong></p>
-                </div>
-                <div class="item-actions">
-                    <button class="action-btn edit-btn" data-id="${docSnap.id}">Edit Points</button>
-                    <button class="action-btn pg-coin-btn" data-id="${docSnap.id}">Edit PG Coin</button>
-                    <button class="action-btn send-msg-btn" data-id="${docSnap.id}">Send Message</button>
-                </div>`;
-            userListContainer.appendChild(item);
+            if (!userSnap.exists()) {
+                const defaultUserData = {
+                    ...fieldsToEnsure,
+                    createdAt: serverTimestamp(),
+                    telegramUsername: tgUser.username || 'N/A',
+                };
+                if (referrerCode && referrerCode !== userId) {
+                    defaultUserData.referredBy = referrerCode;
+                }
+                await setDoc(userRef, defaultUserData);
+
+                if (referrerCode && referrerCode !== userId) {
+                    try {
+                        const referrerRef = doc(db, 'users', referrerCode);
+                        const referrerSnap = await getDoc(referrerRef);
+                        if (referrerSnap.exists()) {
+                             await updateDoc(referrerRef, { 
+                                referralCount: increment(1),
+                             });
+                        }
+                    } catch (e) { console.error("Could not update referrer count", e); }
+                }
+                userSnap = await getDoc(userRef);
+            }
+            
+            let userData = userSnap.data();
+            let updatesForOldUsers = {};
+
+            if (!userData.referredBy && referrerCode && referrerCode !== userId) {
+                 try {
+                    const referrerRef = doc(db, 'users', referrerCode);
+                    const referrerSnap = await getDoc(referrerRef);
+                    if (referrerSnap.exists()) {
+                        updatesForOldUsers.referredBy = referrerCode;
+                        await updateDoc(referrerRef, { 
+                            referralCount: increment(1),
+                        });
+                    }
+                } catch(e) { console.error("Could not update referrer count for existing user", e); }
+            }
+            
+            for (const key of ['balance', 'usdtBalance', 'pgCoin', 'lifetimePointsEarned', 'lifetimePgCoinEarned', 'referralCount', 'adVisitsToday', 'pgCoinAdVisitsToday', 'referralPointsEarned', 'referralPgCoinEarned', 'validReferralCredits']) {
+                if (!userData.hasOwnProperty(key)) {
+                    updatesForOldUsers[key] = fieldsToEnsure[key];
+                }
+            }
+            if (!userData.dailyTasks) updatesForOldUsers.dailyTasks = fieldsToEnsure.dailyTasks;
+            else if (!userData.dailyTasks.hasOwnProperty('lastReset')) updatesForOldUsers['dailyTasks.lastReset'] = serverTimestamp();
+            if (!Array.isArray(userData.completedTasks)) updatesForOldUsers.completedTasks = [];
+            if (!userData.videoProgress) updatesForOldUsers.videoProgress = fieldsToEnsure.videoProgress;
+            if (userData.videoProgress?.hasOwnProperty('lastReset')) delete userData.videoProgress.lastReset; // cleanup old field
+            if (!Array.isArray(userData.readMessages)) updatesForOldUsers.readMessages = [];
+            if (!userData.hasOwnProperty('referralBonusPaidOut')) updatesForOldUsers.referralBonusPaidOut = {}; 
+            if (userData.telegramUsername !== (tgUser.username || 'N/A')) updatesForOldUsers.telegramUsername = tgUser.username || 'N/A';
+            if (!userData.hasOwnProperty('withdrawalCount')) updatesForOldUsers.withdrawalCount = 0;
+            if (!userData.lottery) updatesForOldUsers.lottery = fieldsToEnsure.lottery;
+            if (userData.lottery?.hasOwnProperty('lastReset')) delete userData.lottery.lastReset; // cleanup old field
+
+            if (Object.keys(updatesForOldUsers).length > 0) {
+                await updateDoc(userRef, updatesForOldUsers).catch(err => console.error("Error updating old user fields:", err));
+            }
+
+            const finalUserSnap = await getDoc(userRef);
+            currentUser = { id: finalUserSnap.id, ...finalUserSnap.data() };
+            
+            await checkAndResetDailies();
+            
+            document.getElementById('userIdDisplay').textContent = `ID: ${currentUser.id}`;
+
+            updateBalanceUI(currentUser.balance, currentUser.usdtBalance, currentUser.pgCoin);
+            generateReferralLink(currentUser.id);
+            checkForUnreadMessages();
+            startDailyTimer();
+        }
+        
+        function formatPoints(num) {
+            const n = Math.floor(num || 0);
+            if (n >= 1000000) return `${(n / 1000000).toFixed(1).replace(/\.0$/, '')}M`;
+            if (n >= 10000) return `${(n / 1000).toFixed(1).replace(/\.0$/, '')}K`;
+            return n;
         }
 
-        async function fetchAndDisplayUsers() {
-            userListContainer.innerHTML = '<div class="loader"></div>';
+        function updateBalanceUI(balance, usdtBalance, pgCoinBalance) {
+            const points = formatPoints(balance);
+            const usdt = parseFloat(usdtBalance || 0).toFixed(2);
+            const pgCoin = parseFloat(pgCoinBalance || 0).toFixed(3);
+            document.getElementById('userBalanceDisplay').textContent = points;
+            document.getElementById('userUSDTBalanceDisplay').textContent = usdt;
+            document.getElementById('userPgCoinDisplay').textContent = pgCoin;
+        }
+
+        function generateReferralLink(userId) {
+            const botUsername = "NewTube12_bot";
+            const webAppShortName = "newtubecash";
+            const referralLink = `https://t.me/${botUsername}/${webAppShortName}?startapp=${userId}`;
+            document.getElementById('referralLinkInput').value = referralLink;
+        }
+        
+        document.getElementById('copyReferralLinkBtn').addEventListener('click', () => {
+            const copyButton = document.getElementById('copyReferralLinkBtn');
+            navigator.clipboard.writeText(copyButton.previousElementSibling.value).then(() => {
+                copyButton.textContent = 'Copied!';
+                if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+                setTimeout(() => { copyButton.textContent = 'Copy'; }, 2000);
+            });
+        });
+
+        async function grantReward(rewards) {
+             if (!currentUser || (!rewards.points && !rewards.pgCoin)) return;
+
+             if (rewards.points && rewards.points > 0) {
+                let currentLevel = userLevels[0];
+                const totalPoints = currentUser.lifetimePointsEarned || 0;
+                const totalPgCoin = currentUser.lifetimePgCoinEarned || 0;
+                for (let i = userLevels.length - 1; i >= 0; i--) {
+                    const levelInfo = userLevels[i];
+                    if (totalPoints >= levelInfo.requiredPoints && totalPgCoin >= levelInfo.requiredPgCoin) {
+                        currentLevel = levelInfo;
+                        break;
+                    }
+                }
+                const bonusMultiplier = levelBonuses[currentLevel.level] || 0;
+                const bonusPoints = Math.floor(rewards.points * bonusMultiplier);
+                rewards.points += bonusPoints;
+             }
+             
+             const userRef = doc(db, 'users', currentUser.id);
+             const updates = {};
+             if (rewards.points) {
+                 updates.balance = increment(rewards.points);
+                 updates.lifetimePointsEarned = increment(rewards.points);
+             }
+             if (rewards.pgCoin) {
+                 updates.pgCoin = increment(rewards.pgCoin);
+                 updates.lifetimePgCoinEarned = increment(rewards.pgCoin);
+             }
+
+             if (Object.keys(updates).length > 0) {
+                 await updateDoc(userRef, updates);
+                 await fetchAndUpdateCurrentUser();
+             }
+        }
+        
+        async function renderVideos(snapshot) {
+            const grid = document.getElementById('video-grid');
+            grid.innerHTML = ''; 
+            if (snapshot.empty) {
+                grid.innerHTML = '<p style="text-align:center; grid-column: 1 / -1;">No videos found.</p>';
+                return;
+            }
+            snapshot.docs.forEach((docSnap) => {
+                const video = docSnap.data();
+                const item = document.createElement('article');
+                item.className = 'movie-item';
+                item.dataset.youtubeId = video.youtubeId;
+                item.dataset.videoId = docSnap.id;
+                
+                item.originalContent = `
+                    <div class="thumbnail-container">
+                        <img src="${video.thumbnailUrl}" alt="${video.title}" loading="lazy">
+                    </div>
+                    <div class="movie-item-info">
+                        <h4>${video.title}</h4>
+                        <p class="movie-reward">Watch to Earn Points</p>
+                    </div>`;
+                item.innerHTML = item.originalContent;
+                item.addEventListener('click', handleVideoClick);
+                grid.appendChild(item);
+            });
+        }
+
+        async function fetchContent() {
+            const grid = document.getElementById('video-grid');
+            grid.innerHTML = '<div class="loader"></div>';
             try {
-                const usersCollection = collection(db, 'users');
-                const countSnapshot = await getCountFromServer(usersCollection);
-                document.getElementById('user-count').textContent = `Total: ${countSnapshot.data().count}`;
-
-                const q = query(usersCollection, orderBy('createdAt', 'desc'));
+                const videosCollection = collection(db, 'videos');
+                const q = query(videosCollection, orderBy('createdAt', 'desc'), limit(VIDEO_WATCH_LIMIT));
                 const snapshot = await getDocs(q);
+                await renderVideos(snapshot);
+            } catch (error) { 
+                console.error("Error fetching content:", error); 
+                grid.innerHTML = '<p style="grid-column: 1 / -1;">Error loading content.</p>'; 
+            }
+        }
+        
+        async function handleVideoClick(event) {
+            if (!currentUser) { alert("User data not loaded yet."); return; }
 
-                userListContainer.innerHTML = '';
+            const dailyWatchedCount = currentUser.videoProgress?.dailyWatchedCount || 0;
+            if(dailyWatchedCount >= VIDEO_WATCH_LIMIT){
+                alert(`You have reached your daily video watch limit of ${VIDEO_WATCH_LIMIT}.`);
+                return;
+            }
+
+            if (currentPlayingItem) {
+                clearInterval(videoPlaybackInterval);
+                const originalContent = currentPlayingItem.originalContent;
+                if(originalContent) currentPlayingItem.innerHTML = originalContent;
+                if (player) { player.destroy(); player = null; }
+            }
+            const clickedItem = event.currentTarget;
+            if (currentPlayingItem === clickedItem) {
+                currentPlayingItem = null;
+                return;
+            }
+            currentPlayingItem = clickedItem;
+            const { youtubeId, videoId } = clickedItem.dataset;
+            const playerDivId = `player-${youtubeId}-${Date.now()}`;
+            
+            clickedItem.innerHTML = `<div id="${playerDivId}" class="player-container"></div>`;
+            
+            accumulatedWatchTime = 0;
+
+            player = new YT.Player(playerDivId, {
+                height: '100%', width: '100%', videoId: youtubeId,
+                playerVars: { 'autoplay': 1, 'controls': 1, 'rel': 0, 'fs': 1 },
+                events: { 'onStateChange': (e) => {
+                         if (e.data === YT.PlayerState.PLAYING && !videoPlaybackInterval) {
+                            videoPlaybackInterval = setInterval(() => grantReward({ points: 2 }), 60 * 1000);
+                        } else { clearInterval(videoPlaybackInterval); videoPlaybackInterval = null; }
+                    }
+                }
+            });
+        }
+        
+        function stopAndClearVideo() {
+            clearInterval(videoPlaybackInterval);
+            if (currentPlayingItem) {
+                const originalContent = currentPlayingItem.originalContent;
+                if(originalContent) currentPlayingItem.innerHTML = originalContent;
+            }
+            if (player) { try { player.destroy(); } catch (e) {} player = null; }
+            currentPlayingItem = null; videoPlaybackInterval = null;
+        }
+        
+        function setupAdsToEarn() {
+            const adTaskListContainer = document.getElementById('ad-task-list');
+            adTaskListContainer.innerHTML = '';
+            if (!currentUser) return;
+            
+            // --- Ad Task 1: Earn Points ---
+            const pointsVisitsToday = currentUser.adVisitsToday || 0;
+            const pointsVisitsLeft = AD_POINTS_LIMIT - pointsVisitsToday;
+            const isPointsLimitReached = pointsVisitsLeft <= 0;
+            const pointsCard = document.createElement('div');
+            pointsCard.className = 'ad-task-card';
+            pointsCard.innerHTML = `
+                <div class="ad-task-card-info">
+                    <h4>Watch Ad & Earn Points</h4>
+                    <p>Reward: 50 Points</p>
+                    <p class="ad-visits-left">Today's Visits Left: ${pointsVisitsLeft > 0 ? pointsVisitsLeft : 0} / ${AD_POINTS_LIMIT}</p>
+                </div>
+                <button class="ad-task-button" data-ad-type="points" ${isPointsLimitReached ? 'disabled' : ''}>
+                    ${isPointsLimitReached ? 'Daily Limit Reached' : 'Watch Ad'}
+                </button>`;
+            adTaskListContainer.appendChild(pointsCard);
+            
+            // --- Ad Task 2: Earn PG Coin ---
+            const pgCoinVisitsToday = currentUser.pgCoinAdVisitsToday || 0;
+            const pgCoinVisitsLeft = AD_PGCOIN_LIMIT - pgCoinVisitsToday;
+            const isPgCoinLimitReached = pgCoinVisitsLeft <= 0;
+            const pgCoinCard = document.createElement('div');
+            pgCoinCard.className = 'ad-task-card';
+            pgCoinCard.innerHTML = `
+                <div class="ad-task-card-info">
+                    <h4>Watch Ad & Earn PG Coin</h4>
+                    <p>Reward: <span class="task-reward-pg">0.02 PG Coin</span></p>
+                    <p class="ad-visits-left">Today's Visits Left: ${pgCoinVisitsLeft > 0 ? pgCoinVisitsLeft : 0} / ${AD_PGCOIN_LIMIT}</p>
+                </div>
+                <button class="ad-task-button" data-ad-type="pgcoin" ${isPgCoinLimitReached ? 'disabled' : ''}>
+                    ${isPgCoinLimitReached ? 'Daily Limit Reached' : 'Watch Ad'}
+                </button>`;
+            adTaskListContainer.appendChild(pgCoinCard);
+        }
+        
+        document.getElementById('ad-task-list').addEventListener('click', async (e) => {
+            if (!e.target.matches('.ad-task-button') || e.target.disabled) return;
+            const button = e.target;
+            const adType = button.dataset.adType;
+            
+            button.disabled = true;
+            button.textContent = 'Loading Ad...';
+            
+            try {
+                await showRandomAdForTask();
+                if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+
+                if (adType === 'points') {
+                    await grantReward({ points: 50 });
+                    await updateDoc(doc(db, 'users', currentUser.id), { adVisitsToday: increment(1) });
+                    showSuccessModal("Congratulations!", "You've earned 50 points.");
+                } else if (adType === 'pgcoin') {
+                    await grantReward({ pgCoin: 0.02 });
+                    await updateDoc(doc(db, 'users', currentUser.id), { pgCoinAdVisitsToday: increment(1) });
+                    showSuccessModal("Congratulations!", "You've earned 0.02 PG Coin.");
+                }
+                
+                await fetchAndUpdateCurrentUser();
+                setupAdsToEarn(); 
+
+            } catch (err) {
+                alert('You need to watch the complete ad to earn the reward.');
+                setupAdsToEarn(); // Reset button states
+            }
+        });
+        
+        async function fetchTasks() {
+            const taskListContainer = document.getElementById('task-list');
+            const specialTaskListContainer = document.getElementById('special-task-list');
+            taskListContainer.innerHTML = '<div class="loader"></div>';
+            specialTaskListContainer.innerHTML = '<div class="loader"></div>';
+            try {
+                const tasksRef = collection(db, 'tasks');
+                const q = query(tasksRef, orderBy("createdAt", "desc"));
+                const snapshot = await getDocs(q);
+                taskListContainer.innerHTML = '';
+                specialTaskListContainer.innerHTML = '';
+
                 if (snapshot.empty) {
-                    userListContainer.innerHTML = '<p>No users found.</p>';
+                    const noTaskMsg = '<p style="text-align:center; grid-column: 1 / -1;">No tasks available right now.</p>';
+                    taskListContainer.innerHTML = noTaskMsg;
+                    specialTaskListContainer.innerHTML = noTaskMsg;
                     return;
                 }
-                snapshot.forEach(docSnap => renderUserItem(docSnap));
-            } catch (error) {
-                console.error("Error fetching users:", error);
-                userListContainer.innerHTML = '<p style="color:red">Failed to load users.</p>';
-            }
-        }
-        
-        async function searchUser(searchTerm) {
-            userListContainer.innerHTML = '<div class="loader"></div>';
-            try {
-                const userRefById = doc(db, 'users', searchTerm);
-                const docSnapById = await getDoc(userRefById);
-                
-                userListContainer.innerHTML = '';
-                if (docSnapById.exists()) {
-                    renderUserItem(docSnapById);
-                    document.getElementById('user-count').textContent = 'Found: 1';
-                    return; 
-                }
 
-                const cleanedSearchTerm = searchTerm.startsWith('@') ? searchTerm.substring(1) : searchTerm;
-                const usersCollection = collection(db, 'users');
-                const q = query(usersCollection, where('telegramUsername', '==', cleanedSearchTerm));
-                const usernameSnapshot = await getDocs(q);
+                const now = Date.now();
+                let hasRegularTasks = false;
+                let hasSpecialTasks = false;
 
-                if (!usernameSnapshot.empty) {
-                    usernameSnapshot.forEach(docSnap => renderUserItem(docSnap));
-                    document.getElementById('user-count').textContent = `Found: ${usernameSnapshot.size}`;
-                } else {
-                    userListContainer.innerHTML = `<p>No user found with ID or Username: <strong>${searchTerm}</strong></p>`;
-                    document.getElementById('user-count').textContent = '';
-                }
-            } catch (error) {
-                console.error("Error searching user:", error);
-                userListContainer.innerHTML = `<p style="color:red">Failed to search for user. Note: Searching by username requires a Firestore index. Error: ${error.message}</p>`;
-            }
-        }
-
-        const userSearchInput = document.getElementById('userSearchInput');
-        const userSearchBtn = document.getElementById('userSearchBtn');
-        const clearUserSearchBtn = document.getElementById('clearUserSearchBtn');
-
-        userSearchBtn.addEventListener('click', () => {
-            const searchTerm = userSearchInput.value.trim();
-            if (searchTerm) {
-                searchUser(searchTerm);
-                clearUserSearchBtn.style.display = 'inline-block';
-            }
-        });
-        
-        userSearchInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                userSearchBtn.click();
-            }
-        });
-
-        clearUserSearchBtn.addEventListener('click', () => {
-            userSearchInput.value = '';
-            clearUserSearchBtn.style.display = 'none';
-            fetchAndDisplayUsers();
-        });
-
-        const pointsModal = document.getElementById('editPointsModal');
-        const messageModal = document.getElementById('sendMessageModal');
-        const pgCoinModal = document.getElementById('editPgCoinModal');
-
-        userListContainer.addEventListener('click', (e) => {
-            if (e.target.classList.contains('edit-btn')) {
-                document.getElementById('editPointsUserId').value = e.target.dataset.id;
-                pointsModal.style.display = 'block';
-            }
-            if (e.target.classList.contains('send-msg-btn')) {
-                document.getElementById('sendMessageUserId').value = e.target.dataset.id;
-                messageModal.style.display = 'block';
-            }
-            if (e.target.classList.contains('pg-coin-btn')) {
-                document.getElementById('editPgCoinUserId').value = e.target.dataset.id;
-                pgCoinModal.style.display = 'block';
-            }
-        });
-        
-        document.getElementById('closePointsModalBtn').onclick = () => { pointsModal.style.display = "none"; };
-        document.getElementById('closeMessageModalBtn').onclick = () => { messageModal.style.display = "none"; };
-        document.getElementById('closePgCoinModalBtn').onclick = () => { pgCoinModal.style.display = "none"; };
-        
-        window.onclick = (event) => {
-            if (event.target == pointsModal) { pointsModal.style.display = "none"; }
-            if (event.target == messageModal) { messageModal.style.display = "none"; }
-            if (event.target == pgCoinModal) { pgCoinModal.style.display = "none"; }
-        };
-        
-        document.getElementById('editPointsForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const button = e.target.querySelector('button');
-            button.disabled = true; button.textContent = 'Updating...';
-            const userId = document.getElementById('editPointsUserId').value;
-            const pointsToAdd = parseInt(document.getElementById('pointsAmount').value, 10);
-            if (isNaN(pointsToAdd)) { alert("Please enter a valid number."); return; }
-            await updateDoc(doc(db, 'users', userId), { balance: increment(pointsToAdd) });
-            alert(`Successfully updated points for user ${userId}.`);
-            pointsModal.style.display = "none";
-            e.target.reset();
-            button.disabled = false; button.textContent = 'Update Points';
-            fetchAndDisplayUsers();
-        });
-
-        document.getElementById('editPgCoinForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const button = e.target.querySelector('button');
-            button.disabled = true; button.textContent = 'Updating...';
-            const userId = document.getElementById('editPgCoinUserId').value;
-            const pgCoinToAdd = parseFloat(document.getElementById('pgCoinAmount').value);
-
-            if (isNaN(pgCoinToAdd)) { 
-                alert("Please enter a valid number for PG Coin."); 
-                button.disabled = false; button.textContent = 'Update PG Coin';
-                return; 
-            }
-
-            try {
-                await updateDoc(doc(db, 'users', userId), { pgCoin: increment(pgCoinToAdd) });
-                alert(`Successfully updated PG Coin for user ${userId}.`);
-                pgCoinModal.style.display = "none";
-                e.target.reset();
-                fetchAndDisplayUsers();
-            } catch (err) {
-                console.error("Error updating PG Coin:", err);
-                alert("Failed to update PG Coin. Check console for errors.");
-            } finally {
-                button.disabled = false; button.textContent = 'Update PG Coin';
-            }
-        });
-
-        document.getElementById('sendMessageForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const button = e.target.querySelector('button');
-            button.disabled = true; button.textContent = 'Sending...';
-            const userId = document.getElementById('sendMessageUserId').value;
-            const message = document.getElementById('messageContent').value;
-            
-            if (!message.trim()) { alert("Message cannot be empty."); return; }
-
-            try {
-                await addDoc(collection(db, 'messages'), {
-                    content: message,
-                    recipientId: userId,
-                    isGlobal: false,
-                    createdAt: serverTimestamp()
-                });
-                alert('Message sent successfully to user ' + userId);
-                messageModal.style.display = "none";
-                e.target.reset();
-            } catch (err) {
-                console.error("Error sending message:", err);
-                alert("Failed to send message. Please try again.");
-            } finally {
-                button.disabled = false; button.textContent = 'Send Message';
-            }
-        });
-
-        document.getElementById('addVideoForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const youtubeUrl = document.getElementById('youtubeUrl').value;
-            const youtubeId = extractYouTubeID(youtubeUrl);
-            if (!youtubeId) { alert("Invalid YouTube URL."); return; }
-            await addDoc(collection(db, 'videos'), {
-                title: document.getElementById('videoTitle').value,
-                youtubeId,
-                thumbnailUrl: document.getElementById('thumbnailUrl').value,
-                createdAt: serverTimestamp()
-            });
-            alert('Video added successfully!');
-            e.target.reset();
-        });
-
-        async function fetchAndDisplayVideos() {
-            const container = document.getElementById('video-list-container');
-            container.innerHTML = '<div class="loader"></div>';
-            try {
-                const q = query(collection(db, 'videos'), orderBy('createdAt', 'desc'));
-                const snapshot = await getDocs(q);
-                if (snapshot.empty) { container.innerHTML = '<p>No videos found.</p>'; return; }
-                container.innerHTML = '';
-                snapshot.forEach(docSnap => {
-                    const video = docSnap.data();
-                    const item = document.createElement('div');
-                    item.className = 'list-item';
-                    item.innerHTML = `
-                        <div class="item-info"><p><strong>${video.title}</strong></p></div>
-                        <div class="item-actions"><button class="action-btn delete-btn" data-id="${docSnap.id}" data-collection="videos">Delete</button></div>`;
-                    container.appendChild(item);
-                });
-            } catch (error) {
-                console.error("Error fetching videos:", error);
-                container.innerHTML = '<p style="color:red">Failed to load videos.</p>';
-            }
-        }
-        
-        document.getElementById('addTaskForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const rewardPoints = parseInt(document.getElementById('taskReward').value, 10);
-            const rewardPg = parseFloat(document.getElementById('taskRewardPg').value) || 0;
-            
-            if (rewardPoints < 20) {
-                alert("Minimum point reward must be 20.");
-                return;
-            }
-            if (rewardPg < 0) {
-                alert("PG Coin reward cannot be negative.");
-                return;
-            }
-            if (rewardPg > 0 && rewardPg < 0.01) {
-                alert("Minimum PG Coin reward must be 0.01 (or 0 for none).");
-                return;
-            }
-
-            try {
-                await addDoc(collection(db, 'tasks'), {
-                    title: document.getElementById('taskTitle').value,
-                    url: document.getElementById('taskUrl').value,
-                    visitDurationSeconds: parseInt(document.getElementById('visitTime').value, 10) || 0,
-                    userCompletionLimit: parseInt(document.getElementById('userTaskLimit').value, 10) || 1,
-                    limit: parseInt(document.getElementById('taskLimit').value, 10) || 0,
-                    rewardPoints: rewardPoints,
-                    rewardPg: rewardPg, // New field for PG Coin reward
-                    completionCount: 0,
-                    createdAt: serverTimestamp()
-                });
-                alert('Task created successfully!');
-                e.target.reset();
-                document.getElementById('taskRewardPg').value = "0"; // Reset PG field
-            } catch (error) {
-                console.error("Error creating task:", error);
-                alert("Failed to create task. Check console.");
-            }
-        });
-        
-        async function fetchAndDisplayTasks() {
-            const container = document.getElementById('task-list-container');
-            container.innerHTML = '<div class="loader"></div>';
-            try {
-                const q = query(collection(db, 'tasks'), orderBy('createdAt', 'desc'));
-                const snapshot = await getDocs(q);
-                if (snapshot.empty) { container.innerHTML = '<p>No tasks found.</p>'; return; }
-                container.innerHTML = '';
                 snapshot.forEach(docSnap => {
                     const task = docSnap.data();
-                    let rewardText = `${task.rewardPoints || task.reward || 0} Points`;
-                    if (task.rewardPg && task.rewardPg > 0) {
-                        rewardText += ` + ${task.rewardPg} PG`;
-                    }
-                    const item = document.createElement('div');
-                    item.className = 'list-item';
-                    item.innerHTML = `
-                        <div class="item-info">
-                            <p><strong>${task.title}</strong> (Time: ${task.visitDurationSeconds || 0}s)</p>
-                            <p>Completions: <strong>${task.completionCount || 0} / ${task.limit || '∞'}</strong> | Reward: ${rewardText} | User Limit: ${task.userCompletionLimit || 1}</p>
+                    const taskId = docSnap.id;
+                    const card = document.createElement('div');
+                    card.className = 'task-card';
+                    const isCompleted = currentUser.completedTasks?.includes(taskId);
+                    const completionCount = task.completionCount || 0;
+                    const taskLimit = task.limit || 0;
+                    const isLimitReached = (taskLimit > 0) && (completionCount >= taskLimit);
+                    
+                    let buttonText = 'Go'; let buttonDisabled = false; let buttonState = 'start';
+                    if (isCompleted) { buttonText = 'Done'; buttonDisabled = true; buttonState = 'done'; }
+                    else if (isLimitReached) { buttonText = 'Limit Reached'; buttonDisabled = true; buttonState = 'limit_reached'; }
+
+                    const rewardPoints = task.rewardPoints || task.reward || 0;
+                    const rewardPg = task.rewardPg || 0;
+
+                    let rewardHtml = '';
+                    if (rewardPoints > 0) rewardHtml += `<span class="task-reward-points">${rewardPoints} Points</span>`;
+                    if (rewardPg > 0) rewardHtml += (rewardHtml ? ' + ' : '') + `<span class="task-reward-pg">${rewardPg} PG</span>`;
+
+                    card.innerHTML = `
+                        <div class="task-card-info">
+                            <h4>${task.title}</h4>
+                            <p>Reward: ${rewardHtml}</p>
                         </div>
-                        <div class="item-actions"><button class="action-btn delete-btn" data-id="${docSnap.id}" data-collection="tasks">Delete</button></div>`;
-                    container.appendChild(item);
+                        <button class="task-button" data-task-id="${taskId}" data-task-url="${task.url}" data-reward-points="${rewardPoints}" data-reward-pg="${rewardPg}" data-visit-duration="${task.visitDurationSeconds || 0}" data-state="${buttonState}" ${buttonDisabled ? 'disabled' : ''}>
+                            ${buttonText}
+                        </button>`;
+
+                    if (task.isSpecial && task.expiresAt && task.expiresAt.toMillis() > now) {
+                        specialTaskListContainer.appendChild(card);
+                        hasSpecialTasks = true;
+                    } else if (!task.isSpecial) {
+                        taskListContainer.appendChild(card);
+                        hasRegularTasks = true;
+                    }
                 });
+
+                if (!hasRegularTasks) taskListContainer.innerHTML = '<p style="text-align:center; grid-column: 1 / -1;">No regular tasks available.</p>';
+                if (!hasSpecialTasks) specialTaskListContainer.innerHTML = '<p style="text-align:center; grid-column: 1 / -1;">No special tasks available now.</p>';
+
             } catch (error) {
                 console.error("Error fetching tasks:", error);
-                container.innerHTML = '<p style="color:red">Failed to load tasks.</p>';
+                const errorMsg = '<p style="color:red; text-align:center; grid-column: 1 / -1;">Could not load tasks.</p>';
+                taskListContainer.innerHTML = errorMsg;
+                specialTaskListContainer.innerHTML = errorMsg;
             }
         }
         
-        document.getElementById('addDailyTaskForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const title = document.getElementById('dailyTaskTitle').value;
-            const url = document.getElementById('dailyTaskUrl').value;
-            const reward = parseInt(document.getElementById('dailyTaskReward').value, 10);
-            
-            await addDoc(collection(db, 'daily_visit_tasks'), {
-                title,
-                url,
-                reward,
-                createdAt: serverTimestamp()
-            });
-            
-            alert('Daily visit task added successfully!');
-            e.target.reset();
-            fetchAndDisplayDailyTasks();
-        });
+        document.getElementById('task-list').addEventListener('click', handleTaskClick);
+        document.getElementById('special-task-list').addEventListener('click', handleTaskClick);
 
-        async function fetchAndDisplayDailyTasks() {
-            const container = document.getElementById('daily-task-list-container');
-            container.innerHTML = '<div class="loader"></div>';
-            try {
-                const twentyFourHoursAgo = Timestamp.fromMillis(Date.now() - 24 * 60 * 60 * 1000);
-                const q = query(collection(db, 'daily_visit_tasks'), where('createdAt', '>=', twentyFourHoursAgo), orderBy('createdAt', 'desc'));
-                const snapshot = await getDocs(q);
-                if (snapshot.empty) {
-                    container.innerHTML = '<p>No active daily tasks found.</p>';
-                    return;
+        async function handleTaskClick(e) {
+            if (!e.target.matches('.task-button') || e.target.disabled) return;
+            const button = e.target;
+            const { taskId, taskUrl, state } = button.dataset;
+            const rewardPoints = Number(button.dataset.rewardPoints) || 0;
+            const rewardPg = Number(button.dataset.rewardPg) || 0;
+            const visitDuration = parseInt(button.dataset.visitDuration, 10) || 0;
+
+            if (state === 'start') {
+                if (!taskUrl) { alert('Task URL is missing.'); return; }
+                if (visitDuration > 0) {
+                    taskTimers[taskId] = Date.now();
+                    button.textContent = `Claim after ${visitDuration}s`;
+                    button.dataset.state = 'claim';
+                } else {
+                    button.textContent = 'Claim Reward';
+                    button.dataset.state = 'claim';
                 }
-                container.innerHTML = '';
-                snapshot.forEach(docSnap => {
-                    const task = docSnap.data();
-                    const item = document.createElement('div');
-                    item.className = 'list-item';
-                    item.innerHTML = `
-                        <div class="item-info">
-                            <p><strong>${task.title}</strong></p>
-                            <p>Reward: ${task.reward} Points</p>
-                        </div>
-                        <div class="item-actions"><button class="action-btn delete-btn" data-id="${docSnap.id}" data-collection="daily_visit_tasks">Delete</button></div>`;
-                    container.appendChild(item);
-                });
-            } catch (error) {
-                console.error("Error fetching daily tasks:", error);
-                container.innerHTML = `<p style="color:red">Failed to load daily tasks. Error: ${error.message}</p>`;
-            }
-        }
-        
-        document.body.addEventListener('click', async (e) => {
-            if (e.target.classList.contains('delete-btn')) {
-                const collectionName = e.target.dataset.collection;
-                if (collectionName && confirm(`Are you sure you want to delete this item from ${collectionName}?`)) {
-                    await deleteDoc(doc(db, collectionName, e.target.dataset.id));
-                    e.target.closest('.list-item').remove();
-                }
-            }
-        });
-
-
-        async function fetchWithdrawals() {
-            const container = document.getElementById('withdrawal-list-container');
-            container.innerHTML = '<div class="loader"></div>';
-            try {
-                const q = query(collection(db, 'withdrawals'), where('status', '==', 'pending'), orderBy('createdAt', 'desc'));
-                const snapshot = await getDocs(q);
-                
-                if (snapshot.empty) {
-                    container.innerHTML = '<p>No pending requests found.</p>';
-                    return;
-                }
-                container.innerHTML = '';
-                snapshot.forEach(docSnap => {
-                    const request = docSnap.data();
-                    const item = document.createElement('div');
-                    item.className = 'list-item';
-                    item.innerHTML = `
-                        <div class="item-info">
-                            <p>User: <strong>${request.userId || 'N/A'}</strong> (@${request.telegramUsername || 'N/A'})</p>
-                            <p>Request: <strong>$${request.usdAmount || 'N/A'}</strong></p>
-                            <p>Method: ${request.method} | Details: <strong>${request.details}</strong></p>
-                            <p style="font-size: 0.8em; color: #6c757d;">${new Date(request.createdAt.seconds * 1000).toLocaleString()}</p>
-                        </div>
-                        <div class="item-actions">
-                            <button class="action-btn approve-btn" data-id="${docSnap.id}">Approve</button>
-                            <button class="action-btn reject-btn" data-id="${docSnap.id}" data-user-id="${request.userId}" data-amount="${request.usdAmount}" data-fee-refs="${request.feeReferrals || 0}" data-fee-pg="${request.feePgCoin || 0}">Reject</button>
-                        </div>`;
-                    container.appendChild(item);
-                });
-            } catch (error) {
-                console.error("Error fetching withdrawals:", error);
-                container.innerHTML = `<p style="color:red;">Error: ${error.message}. Ensure the required Firestore index is created.</p>`;
-            }
-        }
-        
-        document.getElementById('withdrawal-list-container').addEventListener('click', async (e) => {
-            if (e.target.matches('.action-btn')) {
-                const id = e.target.dataset.id;
-                e.target.disabled = true;
-                e.target.parentElement.querySelectorAll('.action-btn').forEach(btn => btn.disabled = true);
-                e.target.textContent = 'Processing...';
-
-                try {
-                    if (e.target.classList.contains('reject-btn')) {
-                        const userId = e.target.dataset.userId;
-                        const amount = parseFloat(e.target.dataset.amount);
-                        const feeRefs = parseInt(e.target.dataset.feeRefs, 10) || 0;
-                        const feePg = parseFloat(e.target.dataset.feePg) || 0;
-
-                        const userRef = doc(db, 'users', userId);
-                        await updateDoc(userRef, { 
-                            usdtBalance: increment(amount),
-                            validReferralCredits: increment(feeRefs),
-                            pgCoin: increment(feePg)
-                        });
-                        await updateDoc(doc(db, 'withdrawals', id), { status: 'rejected' });
-                        alert(`Request rejected. $${amount}, ${feeRefs} Refs, and ${feePg} PG returned to user.`);
-                    } else if (e.target.classList.contains('approve-btn')) {
-                        await updateDoc(doc(db, 'withdrawals', id), { status: 'approved' });
-                        alert(`Request approved.`);
+                tg.openLink(taskUrl);
+            } else if (state === 'claim') {
+                if (visitDuration > 0) {
+                    const startTime = taskTimers[taskId];
+                    if (!startTime || (Date.now() - startTime) / 1000 < visitDuration) {
+                        alert(`You must visit the site for at least ${visitDuration} seconds. Please try again.`);
+                        delete taskTimers[taskId];
+                        button.textContent = 'Go'; button.dataset.state = 'start';
+                        return;
                     }
-                    e.target.closest('.list-item').remove();
-                    loadDashboardData();
-                } catch(err) {
-                    console.error("Error processing withdrawal:", err);
-                    alert("Failed to process request.");
-                    e.target.disabled = false;
-                    e.target.textContent = e.target.classList.contains('approve-btn') ? 'Approve' : 'Reject';
-                    e.target.parentElement.querySelectorAll('.action-btn').forEach(btn => btn.disabled = false);
+                }
+                button.disabled = true; button.textContent = 'Verifying...';
+                try {
+                    await runTransaction(db, async (transaction) => {
+                        const userRef = doc(db, 'users', currentUser.id);
+                        const taskRef = doc(db, 'tasks', taskId);
+                        const userDoc = await transaction.get(userRef);
+                        const taskDoc = await transaction.get(taskRef);
+                        if (!userDoc.exists() || !taskDoc.exists()) throw "USER_OR_TASK_NOT_FOUND";
+                        if (userDoc.data().completedTasks?.includes(taskId)) throw "ALREADY_COMPLETED";
+                        const taskData = taskDoc.data();
+                        if ((taskData.limit || 0) > 0 && (taskData.completionCount || 0) >= taskData.limit) throw "TASK_LIMIT_REACHED";
+                        transaction.update(userRef, { completedTasks: arrayUnion(taskId) });
+                        transaction.update(taskRef, { completionCount: increment(1) });
+                    });
+                    delete taskTimers[taskId];
+                    await grantReward({ points: rewardPoints, pgCoin: rewardPg });
+                    showSuccessModal("Reward Claimed!", `Reward added to your balance.`);
+                    button.textContent = 'Done';
+                } catch (error) {
+                    const errorMessages = { "ALREADY_COMPLETED": "You have already completed this task.", "TASK_LIMIT_REACHED": "This task has reached its completion limit."};
+                    alert(errorMessages[error] || 'Failed to claim reward.');
+                    button.disabled = (error === "ALREADY_COMPLETED" || error === "TASK_LIMIT_REACHED");
+                    button.textContent = button.disabled ? 'Done' : 'Claim Reward';
                 }
             }
-        });
+        }
 
-        const menuButton = document.getElementById('menuButton');
-        const dropdownMenu = document.getElementById('dropdownMenu');
+        function showSuccessModal(title, message) {
+            const modal = document.getElementById('successModalOverlay');
+            document.getElementById('successModalTitle').textContent = title;
+            document.getElementById('successModalMessage').textContent = message;
+            modal.classList.add('show');
+            if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+            setTimeout(() => { modal.classList.remove('show'); }, 3000);
+        }
         
-        menuButton.addEventListener('click', () => {
-            dropdownMenu.classList.toggle('show');
+        async function renderConvertWithdrawUI() {
+            if (!currentUser) return;
+            
+            document.getElementById('withdrawUsdtBalance').textContent = (currentUser.usdtBalance || 0).toFixed(2);
+            document.getElementById('withdrawalReferralCredits').textContent = currentUser.validReferralCredits || 0;
+            document.getElementById('withdrawalPgCoinBalance').textContent = (currentUser.pgCoin || 0).toFixed(3);
+            
+            updateConvertUI();
+        }
+        
+        function updateConvertUI() {
+            if (!currentUser) return;
+            const source = document.getElementById('convertSource').value;
+            const rateInfoEl = document.getElementById('convertRateInfo');
+            const sourceBalanceEl = document.getElementById('convertSourceBalance');
+            const amountInput = document.getElementById('amountToConvert');
+            if (source === 'points') {
+                rateInfoEl.innerHTML = `Rate: 1000 Points = $0.02 USDT<br>Minimum to convert: ${MIN_POINTS_TO_CONVERT} Points`;
+                sourceBalanceEl.textContent = formatPoints(currentUser.balance || 0);
+                amountInput.placeholder = `e.g., ${MIN_POINTS_TO_CONVERT}`;
+            } else { // pgcoin
+                rateInfoEl.innerHTML = `Rate: 1 PG Coin = $0.02 USDT<br>Minimum to convert: ${MIN_PG_COIN_TO_CONVERT} PG Coin`;
+                sourceBalanceEl.textContent = (currentUser.pgCoin || 0).toFixed(3);
+                amountInput.placeholder = `e.g., ${MIN_PG_COIN_TO_CONVERT}`;
+            }
+            amountInput.value = '';
+            document.getElementById('usdtReceiveAmount').textContent = '$0.00 USDT';
+        }
+
+        document.getElementById('amountToConvert').addEventListener('input', (e) => {
+            const amount = parseFloat(e.target.value) || 0;
+            const source = document.getElementById('convertSource').value;
+            let usdtValue = 0;
+            if (source === 'points') usdtValue = amount * POINTS_TO_USDT_RATE;
+            else usdtValue = amount * PG_COIN_TO_USDT_RATE;
+            document.getElementById('usdtReceiveAmount').textContent = `$${usdtValue.toFixed(2)} USDT`;
         });
 
-        window.addEventListener('click', (e) => {
-            if (!menuButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
-                dropdownMenu.classList.remove('show');
+        document.getElementById('convertBtn').addEventListener('click', async () => {
+            const source = document.getElementById('convertSource').value;
+            const amountToConvert = parseFloat(document.getElementById('amountToConvert').value);
+            const button = document.getElementById('convertBtn');
+            let minAmount, balance, rate, fieldToDecrement;
+            if (source === 'points') {
+                minAmount = MIN_POINTS_TO_CONVERT; balance = currentUser.balance; rate = POINTS_TO_USDT_RATE; fieldToDecrement = 'balance';
+            } else {
+                minAmount = MIN_PG_COIN_TO_CONVERT; balance = currentUser.pgCoin; rate = PG_COIN_TO_USDT_RATE; fieldToDecrement = 'pgCoin';
+            }
+            if (isNaN(amountToConvert) || amountToConvert < minAmount) { alert(`Minimum conversion is ${minAmount} ${source}.`); return; }
+            if (amountToConvert > balance) { alert(`Insufficient ${source} balance.`); return; }
+            const usdtToReceive = amountToConvert * rate;
+            button.disabled = true; button.textContent = 'Converting...';
+            try {
+                const userRef = doc(db, 'users', currentUser.id);
+                await runTransaction(db, async (transaction) => {
+                    const userDoc = await transaction.get(userRef);
+                    if (!userDoc.exists() || userDoc.data()[fieldToDecrement] < amountToConvert) throw new Error("Insufficient balance.");
+                    const updates = { usdtBalance: increment(usdtToReceive) };
+                    updates[fieldToDecrement] = increment(-amountToConvert);
+                    transaction.update(userRef, updates);
+                });
+                await fetchAndUpdateCurrentUser();
+                renderConvertWithdrawUI();
+                showSuccessModal("Success!", `${amountToConvert} ${source} converted to $${usdtToReceive.toFixed(2)} USDT.`);
+            } catch (error) { alert(`Conversion failed: ${error.message}`);
+            } finally { button.disabled = false; button.textContent = 'Convert'; }
+        });
+
+        document.getElementById('withdrawalForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitButton = e.target.querySelector('button[type="submit"]');
+            submitButton.disabled = true; submitButton.textContent = 'Verifying...';
+
+            const method = document.getElementById('withdrawalMethod').value;
+            const amount = parseFloat(document.getElementById('withdrawalAmount').value);
+            
+            try {
+                // 1. Check for minimum withdrawal amount based on method
+                const minAmount = (method === 'Bkash') ? 0.30 : 0.50;
+                if (isNaN(amount) || amount < minAmount) {
+                    throw new Error(`Minimum withdrawal for ${method} is $${minAmount.toFixed(2)}.`);
+                }
+                if (amount > currentUser.usdtBalance) {
+                    throw new Error("Insufficient USDT balance.");
+                }
+
+                // 2. Get withdrawal fee
+                const fee = getWithdrawalFee(amount);
+                if (!fee) {
+                    throw new Error(`Invalid withdrawal amount specified.`);
+                }
+
+                // 3. Check if user has enough credits and PG coins for the fee
+                if ((currentUser.validReferralCredits || 0) < fee.referrals) {
+                    throw new Error(`Insufficient valid referral credits. Need ${fee.referrals}, you have ${currentUser.validReferralCredits || 0}.`);
+                }
+                if ((currentUser.pgCoin || 0) < fee.pgCoin) {
+                    throw new Error(`Insufficient PG Coins for fee. Need ${fee.pgCoin}, you have ${(currentUser.pgCoin || 0).toFixed(3)}.`);
+                }
+                
+                submitButton.textContent = 'Processing...';
+                const requestData = { 
+                    userId: currentUser.id, 
+                    telegramUsername: currentUser.telegramUsername, 
+                    usdAmount: amount, 
+                    method, 
+                    details: document.getElementById('accountDetails').value, 
+                    status: 'pending', 
+                    createdAt: serverTimestamp() 
+                };
+
+                // 4. Run transaction to deduct balance, fees and create request
+                await runTransaction(db, async (transaction) => {
+                    const userRef = doc(db, 'users', currentUser.id);
+                    const userDoc = await transaction.get(userRef);
+                    if (!userDoc.exists()) throw new Error("User not found.");
+                    
+                    const currentData = userDoc.data();
+                    if (currentData.usdtBalance < amount) throw new Error("Insufficient USDT balance.");
+                    if ((currentData.validReferralCredits || 0) < fee.referrals) throw new Error("Insufficient referral credits.");
+                    if (currentData.pgCoin < fee.pgCoin) throw new Error("Insufficient PG Coins for fee.");
+
+                    transaction.set(doc(collection(db, 'withdrawals')), requestData);
+                    transaction.update(userRef, { 
+                        usdtBalance: increment(-amount),
+                        validReferralCredits: increment(-fee.referrals),
+                        pgCoin: increment(-fee.pgCoin),
+                        withdrawalCount: increment(1) 
+                    });
+                });
+
+                await fetchAndUpdateCurrentUser();
+                e.target.reset();
+                showSuccessModal("Successfully Sent!", "Your withdrawal request is pending. Check status in History.");
+            
+            } catch (error) {
+                alert(`An error occurred: ${error.message || "Please try again."}`);
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = 'Request Withdrawal';
+                await renderConvertWithdrawUI();
+            }
+        });
+
+        async function displayWithdrawalHistory() {
+            const historyContainer = document.getElementById('history-list');
+            historyContainer.innerHTML = '<div class="loader"></div>';
+            try {
+                const q = query(collection(db, "withdrawals"), where("userId", "==", currentUser.id), orderBy("createdAt", "desc"), limit(50));
+                const snapshot = await getDocs(q);
+                historyContainer.innerHTML = '';
+                if (snapshot.empty) { historyContainer.innerHTML = '<p style="text-align:center;">No withdrawal history found.</p>'; return; }
+                snapshot.forEach(docSnap => {
+                    const data = docSnap.data();
+                    const item = document.createElement('div');
+                    item.className = 'history-item';
+                    const date = data.createdAt?.toDate().toLocaleDateString() || 'N/A';
+                    const status = data.status || 'pending';
+                    const amountText = `$${parseFloat(data.usdAmount || 0).toFixed(2)} USDT`;
+                    item.innerHTML = `<div><strong>${amountText}</strong><br><small>${data.method} - ${date}</small></div><strong class="status-${status}">${status.charAt(0).toUpperCase() + status.slice(1)}</strong>`;
+                    historyContainer.appendChild(item);
+                });
+            } catch (error) { console.error("Error fetching history:", error); historyContainer.innerHTML = '<p style="color:red;">Error loading history.</p>'; }
+        }
+        
+        function renderReferralStats() {
+            if (!currentUser) return;
+            document.getElementById('referral-stats-count').textContent = currentUser.referralCount || 0;
+            document.getElementById('referral-stats-points').textContent = formatPoints(currentUser.referralPointsEarned || 0);
+            document.getElementById('referral-stats-spins').textContent = currentUser.lottery?.referralSpins || 0;
+        }
+        
+        async function fetchLeaderboard() {
+            const listContainer = document.getElementById('leaderboard-list');
+            const myReferralsContainer = document.getElementById('my-referrals-list');
+            listContainer.innerHTML = '<div class="loader"></div>';
+            myReferralsContainer.innerHTML = '<div class="loader"></div>';
+            try {
+                const q = query(collection(db, "users"), where("referralCount", ">", 0), orderBy("referralCount", "desc"), limit(50));
+                const snapshot = await getDocs(q);
+                listContainer.innerHTML = '';
+                if (snapshot.empty) { listContainer.innerHTML = '<p style="text-align:center;">Leaderboard is empty!</p>'; }
+                else { let rank = 1; snapshot.forEach(docSnap => {
+                        const user = docSnap.data(); const item = document.createElement('div'); item.className = 'leaderboard-item';
+                        let rankDisplay;
+                        if (rank === 1) rankDisplay = '🥇'; else if (rank === 2) rankDisplay = '🥈'; else if (rank === 3) rankDisplay = '🥉'; else rankDisplay = `#${rank}`;
+                        item.innerHTML = `<div class="rank">${rankDisplay}</div><div class="info"><strong>${user.telegramUsername || 'User...'}</strong></div><div class="count">${user.referralCount || 0} Referrals</div>`;
+                        listContainer.appendChild(item); rank++;
+                    }); }
+            } catch (error) { listContainer.innerHTML = '<p style="color:red; text-align:center;">Could not load leaderboard.</p>'; }
+            try {
+                const q = query(collection(db, "users"), where("referredBy", "==", currentUser.id));
+                const snapshot = await getDocs(q);
+                myReferralsContainer.innerHTML = '';
+                if (snapshot.empty) { myReferralsContainer.innerHTML = '<p style="text-align:center;">You haven\'t referred anyone yet.</p>'; }
+                else { snapshot.forEach(docSnap => {
+                        const referee = docSnap.data(); const refereeId = docSnap.id; const item = document.createElement('div');
+                        item.className = 'leaderboard-item';
+                        const points = referee.lifetimePointsEarned || 0;
+                        const isBonusPaid = referee.referralBonusPaidOut?.[currentUser.id] === true;
+                        let statusHtml;
+                        if (isBonusPaid) { statusHtml = `<div class="count" style="color: var(--success-color);">Claimed</div>`;
+                        } else if (points >= REFERRAL_POINTS_THRESHOLD) { 
+                            statusHtml = `<button class="form-button claim-referral-btn" data-referee-id="${refereeId}">Claim Reward</button>`;
+                        } else { 
+                            statusHtml = `<div class="count" style="color: var(--text-muted);">Pts: ${formatPoints(points)} / ${formatPoints(REFERRAL_POINTS_THRESHOLD)}</div>`; 
+                        }
+                        item.innerHTML = `<div class="info" style="margin-left:0;"><strong>${referee.telegramUsername || 'User...'}</strong></div>${statusHtml}`;
+                        myReferralsContainer.appendChild(item);
+                    }); }
+            } catch(error) { myReferralsContainer.innerHTML = '<p style="color:red; text-align:center;">Could not load your referrals.</p>'; }
+        }
+
+        async function claimReferralBonus(refereeId, button) {
+            button.disabled = true; button.textContent = '...';
+            const referrerRef = doc(db, 'users', currentUser.id);
+            const refereeRef = doc(db, 'users', refereeId);
+            try {
+                await runTransaction(db, async (transaction) => {
+                    const refereeSnap = await transaction.get(refereeRef);
+                    const referrerSnap = await transaction.get(referrerRef);
+                    if (!refereeSnap.exists() || !referrerSnap.exists()) throw new Error("Referee or Referrer not found.");
+                    
+                    const refereeData = refereeSnap.data();
+                    if (refereeData.referralBonusPaidOut?.[currentUser.id] === true) throw new Error("Bonus already claimed.");
+                    if ((refereeData.lifetimePointsEarned || 0) < REFERRAL_POINTS_THRESHOLD) {
+                        throw new Error("Referee has not reached the threshold.");
+                    }
+                    
+                    const referrerData = referrerSnap.data();
+                    let currentLevel = userLevels[0];
+                    const totalPoints = referrerData.lifetimePointsEarned || 0;
+                    const totalPgCoin = referrerData.lifetimePgCoinEarned || 0;
+                    for (let i = userLevels.length - 1; i >= 0; i--) {
+                        const levelInfo = userLevels[i];
+                        if (totalPoints >= levelInfo.requiredPoints && totalPgCoin >= levelInfo.requiredPgCoin) {
+                            currentLevel = levelInfo;
+                            break;
+                        }
+                    }
+
+                    const bonusMultiplier = levelBonuses[currentLevel.level] || 0;
+                    const totalPointsToGrant = REFERRAL_BONUS_POINTS + Math.floor(REFERRAL_BONUS_POINTS * bonusMultiplier);
+
+                    transaction.update(referrerRef, { 
+                        balance: increment(totalPointsToGrant),
+                        lifetimePointsEarned: increment(totalPointsToGrant),
+                        pgCoin: increment(REFERRAL_BONUS_PG_COIN),
+                        lifetimePgCoinEarned: increment(REFERRAL_BONUS_PG_COIN),
+                        'lottery.referralSpins': increment(REFERRAL_BONUS_SPINS),
+                        referralPointsEarned: increment(REFERRAL_BONUS_POINTS),
+                        validReferralCredits: increment(1)
+                    });
+                    transaction.update(refereeRef, { [`referralBonusPaidOut.${currentUser.id}`]: true });
+                });
+                showSuccessModal("Bonus Claimed!", `${REFERRAL_BONUS_POINTS} Points, ${REFERRAL_BONUS_PG_COIN} PG, 1 Spin, and 1 Valid Referral Credit added.`);
+                await fetchAndUpdateCurrentUser();
+                await fetchLeaderboard(); // Refresh the list
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+                button.disabled = false; button.textContent = `Claim Reward`;
+            }
+        }
+        
+        document.getElementById('my-referrals-list').addEventListener('click', async (e) => {
+            if (e.target.matches('.claim-referral-btn') && !e.target.disabled) {
+                await claimReferralBonus(e.target.dataset.refereeId, e.target);
             }
         });
         
-        document.querySelectorAll('.nav-tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
-                tab.classList.add('active');
-                document.getElementById(`${tab.dataset.tab}-section`).classList.add('active');
-                dropdownMenu.classList.remove('show');
+        function startDailyTimer() {
+            if (dailyTimerInterval) clearInterval(dailyTimerInterval);
+            dailyTimerInterval = setInterval(async () => {
+                timeSpentThisSession++;
+                if (timeSpentThisSession > 0 && timeSpentThisSession % 60 === 0) {
+                    if (!currentUser?.id) return;
+                    await updateDoc(doc(db, 'users', currentUser.id), { 'dailyTasks.timeSpent': increment(60) });
+                    await fetchAndUpdateCurrentUser(); 
+                }
+                if (document.getElementById('task-content').classList.contains('active')) { renderDailyTasks(); }
+            }, 1000);
+        }
 
-                switch(tab.dataset.tab) {
-                    case 'dashboard': loadDashboardData(); break;
-                    case 'users': fetchAndDisplayUsers(); break;
-                    case 'manage-content': fetchAndDisplayVideos(); break;
-                    case 'manage-tasks': fetchAndDisplayTasks(); break;
-                    case 'withdrawals': fetchWithdrawals(); break;
-                    case 'daily-tasks': fetchAndDisplayDailyTasks(); break;
+        function renderDailyTasks() {
+            if (!currentUser) return;
+            const container = document.getElementById('daily-task-list');
+            container.innerHTML = '';
+            const claimedTasks = currentUser.dailyTasks?.claimed || [];
+            const timeSpent = (currentUser.dailyTasks?.timeSpent || 0) + timeSpentThisSession;
+            dailyTasksConfig.forEach(task => {
+                const card = document.createElement('div');
+                card.className = 'daily-task-card';
+                const isClaimed = claimedTasks.includes(task.id);
+                let canClaim = false; let buttonText = 'Claim';
+                if (task.type === 'time') {
+                    if (timeSpent >= task.requirement) { canClaim = true; } 
+                    else { const timeLeft = task.requirement - timeSpent; buttonText = `Wait ${Math.floor(timeLeft / 60)}m ${timeLeft % 60}s`; }
+                } else if (task.type === 'action') { canClaim = true; buttonText = task.url ? 'Go & Claim' : 'Claim'; }
+                if (isClaimed) { buttonText = 'Claimed'; }
+                card.innerHTML = `<div class="daily-task-info"><h4>${task.title}</h4><p>Reward: ${task.reward} Points</p></div>
+                    <button class="daily-task-button" data-task-id="${task.id}" data-task-type="${task.type}" data-task-url="${task.url || ''}" data-reward="${task.reward}" ${isClaimed || !canClaim ? 'disabled' : ''}>${buttonText}</button>`;
+                container.appendChild(card);
+            });
+        }
+
+        document.getElementById('daily-task-list').addEventListener('click', async (e) => {
+            if (!e.target.matches('.daily-task-button') || e.target.disabled) return;
+            const button = e.target;
+            const { taskId, taskType, taskUrl, reward } = e.target.dataset;
+            if (taskType === 'action' && taskUrl) { tg.openLink(taskUrl); }
+            button.disabled = true; button.textContent = '...';
+            try {
+                await grantReward({ points: Number(reward) });
+                await updateDoc(doc(db, 'users', currentUser.id), { 'dailyTasks.claimed': arrayUnion(taskId) });
+                await fetchAndUpdateCurrentUser();
+                renderDailyTasks();
+                showSuccessModal("Reward Claimed!", `You earned ${reward} points.`);
+            } catch (error) { alert("Failed to claim task."); button.disabled = false; renderDailyTasks(); }
+        });
+
+        // Profile Section Logic
+        function renderProfile() {
+            if (!currentUser) return;
+            
+            document.getElementById('profile-username').textContent = currentUser.telegramUsername || 'User';
+            document.getElementById('profile-userid').textContent = `ID: ${currentUser.id}`;
+            const totalPoints = currentUser.lifetimePointsEarned || 0;
+            const totalPgCoin = currentUser.lifetimePgCoinEarned || 0;
+            document.getElementById('profile-points').textContent = formatPoints(totalPoints);
+            document.getElementById('profile-pg-coins').textContent = (currentUser.pgCoin || 0).toFixed(3);
+            document.getElementById('profile-referrals').textContent = currentUser.referralCount || 0;
+            
+            const avatarEl = document.getElementById('profile-avatar');
+            const username = currentUser.telegramUsername || 'User';
+            if (currentUser.profilePictureUrl) {
+                avatarEl.style.backgroundImage = `url('${currentUser.profilePictureUrl}')`;
+                avatarEl.textContent = '';
+            } else {
+                const initial = username.charAt(0).toUpperCase();
+                let hash = 0;
+                for (let i = 0; i < username.length; i++) {
+                    hash = username.charCodeAt(i) + ((hash << 5) - hash);
+                }
+                const color = `hsl(${hash % 360}, 50%, 40%)`;
+                avatarEl.style.backgroundColor = color;
+                avatarEl.style.backgroundImage = 'none';
+                avatarEl.textContent = initial;
+            }
+
+            let currentLevel = userLevels[0];
+            for (let i = userLevels.length - 1; i >= 0; i--) {
+                const levelInfo = userLevels[i];
+                if (totalPoints >= levelInfo.requiredPoints && totalPgCoin >= levelInfo.requiredPgCoin) {
+                    currentLevel = levelInfo;
+                    break;
+                }
+            }
+            document.getElementById('profile-level').textContent = `Level ${currentLevel.level} - ${currentLevel.name}`;
+        }
+        
+        // Lottery Logic
+        const lotteryResultDisplay = document.getElementById('lottery-result-display');
+        const freeSpinButton = document.getElementById('free-spin-button');
+        const adSpinButton = document.getElementById('ad-spin-button');
+        const refSpinButton = document.getElementById('ref-spin-button');
+        const lotteryInfo = document.getElementById('lottery-info');
+        let isSpinning = false;
+
+        function updateLotteryUI() {
+            if (!currentUser) return;
+            const lotteryData = currentUser.lottery || { freeSpinsUsed: 0, adSpinsUsed: 0, referralSpins: 0 };
+            const freeSpinsLeft = 1 - (lotteryData.freeSpinsUsed || 0);
+            const adSpinsLeft = 3 - (lotteryData.adSpinsUsed || 0);
+            
+            freeSpinButton.textContent = `Free Daily Spin (${freeSpinsLeft > 0 ? freeSpinsLeft : 0} left)`;
+            freeSpinButton.disabled = freeSpinsLeft <= 0 || isSpinning;
+            
+            adSpinButton.textContent = `Spin with Ad (${adSpinsLeft > 0 ? adSpinsLeft : 0} left)`;
+            adSpinButton.disabled = adSpinsLeft <= 0 || isSpinning;
+
+            refSpinButton.textContent = `Spin with Referral (${lotteryData.referralSpins || 0} left)`;
+            refSpinButton.disabled = (lotteryData.referralSpins || 0) <= 0 || isSpinning;
+        }
+        
+        async function handleSpin(spinType) {
+            if (isSpinning) return;
+            isSpinning = true;
+            updateLotteryUI();
+            lotteryResultDisplay.className = 'tier-1';
+            
+            const animationInterval = setInterval(() => { lotteryResultDisplay.textContent = Math.floor(Math.random() * 9999); }, 50);
+
+            setTimeout(async () => {
+                clearInterval(animationInterval);
+                const rand = Math.random() * 100;
+                let number, tier, reward;
+                if (rand < 93) { number = Math.floor(Math.random() * 90) + 10; tier = 1; reward = number; } 
+                else if (rand < 97) { number = Math.floor(Math.random() * 500) + 100; tier = 2; reward = number; } 
+                else if (rand < 98.5) { number = Math.floor(Math.random() * 400) + 600; tier = 3; reward = number; }
+                else if (rand < 99.5) { number = Math.floor(Math.random() * 2000) + 1000; tier = 4; reward = number; }
+                else if (rand < 99.9) { number = Math.floor(Math.random() * 3000) + 3000; tier = 5; reward = number; } 
+                else { number = Math.floor(Math.random() * 90000) + 10000; tier = 6; reward = number; }
+
+                lotteryResultDisplay.textContent = number;
+                lotteryResultDisplay.className = `tier-${tier}`;
+                
+                await grantReward({ points: reward });
+                showSuccessModal("You Won!", `You have won ${reward} Points!`);
+
+                const userRef = doc(db, 'users', currentUser.id);
+                if (spinType === 'free') await updateDoc(userRef, { 'lottery.freeSpinsUsed': increment(1) });
+                else if (spinType === 'ad') await updateDoc(userRef, { 'lottery.adSpinsUsed': increment(1) });
+                else if (spinType === 'referral') await updateDoc(userRef, { 'lottery.referralSpins': increment(-1) });
+                
+                await fetchAndUpdateCurrentUser();
+                isSpinning = false;
+                updateLotteryUI();
+            }, 2000);
+        }
+
+        freeSpinButton.addEventListener('click', () => handleSpin('free'));
+        refSpinButton.addEventListener('click', () => handleSpin('referral'));
+        adSpinButton.addEventListener('click', async () => {
+            isSpinning = true;
+            updateLotteryUI();
+            adSpinButton.textContent = 'Loading Ad...';
+            try {
+                await showRandomAdForTask();
+                await handleSpin('ad');
+            } catch (err) {
+                alert('You must watch the complete ad to get a spin. Please try again.');
+                isSpinning = false;
+                updateLotteryUI();
+            }
+        });
+
+        const showMonetagAd = () => new Promise((res, rej) => typeof show_9442539 === 'function' ? show_9442539().then(res).catch(rej) : rej('Monetag SDK missing'));
+        const showGigaPubAd = () => new Promise((res, rej) => typeof window.showGiga === 'function' ? window.showGiga("main").then(res).catch(rej) : rej('GigaPub SDK missing'));
+        async function showRandomAdForTask() {
+            isInterstitialAdVisible = true;
+            const adNetworks = [showMonetagAd, showGigaPubAd];
+            try {
+                await adNetworks[Math.floor(Math.random() * adNetworks.length)]();
+            } finally {
+                isInterstitialAdVisible = false;
+            }
+        }
+        
+        // Inbox System Logic
+        async function checkForUnreadMessages() {
+            if (!currentUser) return;
+            const messagesRef = collection(db, 'messages');
+            const q = query(messagesRef, orderBy('createdAt', 'desc'), limit(20));
+            const snapshot = await getDocs(q);
+            const readMessages = currentUser.readMessages || [];
+            const unread = snapshot.docs.some(doc => !readMessages.includes(doc.id));
+            const dot = document.getElementById('inbox-notification-dot');
+            if (unread) dot.classList.add('visible');
+            else dot.classList.remove('visible');
+        }
+
+        async function openInbox() {
+            const listContainer = document.getElementById('inbox-message-list');
+            const modal = document.getElementById('inboxModalOverlay');
+            modal.classList.add('show');
+            listContainer.innerHTML = '<div class="loader"></div>';
+
+            const messagesRef = collection(db, 'messages');
+            const q = query(messagesRef, orderBy('createdAt', 'desc'), limit(20));
+            const snapshot = await getDocs(q);
+            listContainer.innerHTML = '';
+            
+            if (snapshot.empty) {
+                listContainer.innerHTML = '<p style="text-align:center;">Your inbox is empty.</p>';
+                return;
+            }
+            
+            const readMessages = currentUser.readMessages || [];
+            const messagesToMarkAsRead = [];
+
+            snapshot.forEach(docSnap => {
+                const message = docSnap.data();
+                const item = document.createElement('div');
+                item.className = 'inbox-message-item';
+                if(readMessages.includes(docSnap.id)) item.classList.add('read');
+
+                item.innerHTML = `
+                    <p>${message.text}</p>
+                    <small>${message.createdAt.toDate().toLocaleString()}</small>
+                `;
+                listContainer.appendChild(item);
+                if (!readMessages.includes(docSnap.id)) {
+                    messagesToMarkAsRead.push(docSnap.id);
+                }
+            });
+
+            if (messagesToMarkAsRead.length > 0) {
+                const userRef = doc(db, 'users', currentUser.id);
+                await updateDoc(userRef, {
+                    readMessages: arrayUnion(...messagesToMarkAsRead)
+                });
+                await fetchAndUpdateCurrentUser();
+                checkForUnreadMessages();
+            }
+        }
+
+        document.getElementById('inbox-container').addEventListener('click', openInbox);
+        document.getElementById('closeInboxBtn').addEventListener('click', () => {
+             document.getElementById('inboxModalOverlay').classList.remove('show');
+        });
+
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', async (e) => {
+                e.preventDefault();
+                if (!currentUser) return; // Prevent navigation until user is loaded
+                
+                stopAndClearVideo();
+                document.querySelectorAll('.nav-link, .content-section').forEach(el => el.classList.remove('active'));
+                link.classList.add('active');
+                const targetId = link.dataset.tabTarget;
+                const target = document.querySelector(targetId);
+                if(target) target.classList.add('active');
+                
+                document.getElementById('side-menu').classList.remove('is-open');
+                document.getElementById('menu-overlay').classList.remove('is-open');
+
+                switch(targetId) {
+                    case '#home-content': /* Already fetched */ break;
+                    case '#profile-content': renderProfile(); break;
+                    case '#ads-to-earn-content': setupAdsToEarn(); break;
+                    case '#task-content': await fetchTasks(); renderDailyTasks(); break;
+                    case '#lottery-content': updateLotteryUI(); break;
+                    case '#referral-content': renderReferralStats(); break;
+                    case '#leaderboard-content': await fetchLeaderboard(); break;
+                    case '#convert-withdraw-content': await renderConvertWithdrawUI(); break;
+                    case '#history-content': await displayWithdrawalHistory(); break;
                 }
             });
         });
+        
+        document.getElementById('ref-spin-button').addEventListener('click', () => {
+            if (currentUser.lottery?.referralSpins > 0) {
+                 handleSpin('referral');
+            } else {
+                 document.querySelector('.nav-link[data-tab-target="#referral-content"]').click();
+            }
+        });
 
-        loadDashboardData();
+        function manageAdTimers() {
+            try {
+                const adexiumWidget = new AdexiumWidget({ wid: '12c05dba-2642-46f2-950f-cee6575119c9', adFormat: 'interstitial' });
+                
+                setInterval(() => {
+                    if (isInterstitialAdVisible) { return; }
+                    
+                    isInterstitialAdVisible = true;
+                    if (typeof adexiumWidget.show === 'function') {
+                        adexiumWidget.show()
+                            .catch(err => console.error("Timed Adexium ad failed to show:", err))
+                            .finally(() => { isInterstitialAdVisible = false; });
+                    } else {
+                        adexiumWidget.autoMode(); 
+                        isInterstitialAdVisible = false;
+                    }
+                }, 3 * 60 * 1000); // 3 minutes
+            } catch (e) {
+                console.error("Failed to initialize Adexium for timed display:", e);
+            }
+        }
 
+        async function main() {
+            try {
+                if (!tg.initDataUnsafe?.user) {
+                    document.body.innerHTML = `<div class="card" style="margin-top: 50px;"><h3>Error</h3><p>This app can only be launched from Telegram.</p></div>`; return;
+                }
+                tg.ready(); tg.expand();
+                
+                // --- PERFORMANCE OPTIMIZATION: Start fetches in parallel ---
+                const initializationPromise = initializeUser(tg.initDataUnsafe.user, tg.initDataUnsafe.start_param);
+                const contentPromise = fetchContent(); // Fetches videos
+                
+                // Wait for the essential user data before proceeding.
+                await initializationPromise;
+                // Video content continues to load in the background.
+
+                // Setup UI and event listeners that depend on `currentUser`
+                manageAdTimers();
+
+                const menuToggleBtn = document.getElementById('menu-toggle-button');
+                const closeMenuBtn = document.getElementById('close-menu-btn');
+                const sideMenu = document.getElementById('side-menu');
+                const menuOverlay = document.getElementById('menu-overlay');
+                const toggleMenu = () => { sideMenu.classList.toggle('is-open'); menuOverlay.classList.toggle('is-open'); };
+                [menuToggleBtn, closeMenuBtn, menuOverlay].forEach(el => el.addEventListener('click', toggleMenu));
+                
+                const userIdContainer = document.getElementById('userIdContainer');
+                userIdContainer.addEventListener('click', () => {
+                    if (currentUser && currentUser.id) navigator.clipboard.writeText(currentUser.id).then(() => {
+                        const btn = userIdContainer.querySelector('button'); btn.title = 'Copied!';
+                        if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+                        setTimeout(() => { btn.title = 'Copy User ID'; }, 2000);
+                    });
+                });
+                
+                document.querySelectorAll('.task-category-btn').forEach(button => {
+                    button.addEventListener('click', () => {
+                        document.querySelectorAll('.task-category-btn, .task-category-container').forEach(el => el.classList.remove('active'));
+                        button.classList.add('active');
+                        document.getElementById(`${button.dataset.taskCategory}-container`).classList.add('active');
+                    });
+                });
+
+                document.getElementById('convertSource').addEventListener('change', updateConvertUI);
+
+            } catch (error) {
+                console.error("Initialization failed:", error);
+                document.body.innerHTML = `<div class="card" style="margin-top: 50px;"><h3>Application Error</h3><p>Could not initialize. Please restart.</p><p style="font-size: 0.8em; color: #888;">Error: ${error.message}</p></div>`;
+            }
+        }
+        main();
     </script>
+
 </body>
 </html>
