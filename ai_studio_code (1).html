@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - NEWTUBE</title>
+    <style>
+        :root {
+            --primary-color: #007bff; --secondary-color: #6c757d; --success-color: #28a745;
+            --danger-color: #dc3545; --light-bg: #f8f9fa; --dark-text: #343a40;
+            --white: #fff; --border-color: #dee2e6; --warning-color: #ffc107;
+        }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--light-bg); margin: 0; color: var(--dark-text); }
+        .admin-container { max-width: 1200px; margin: 0 auto; padding: 15px; }
+        .admin-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--border-color); padding-bottom: 10px; margin-bottom: 20px; }
+        .admin-header h1 { margin: 0; font-size: 1.8em; }
+        
+        .menu-container { position: relative; }
+        .menu-button { background: none; border: none; font-size: 24px; cursor: pointer; padding: 5px 10px; }
+        .dropdown-menu { display: none; position: absolute; right: 0; background-color: var(--white); box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-radius: 8px; z-index: 1; min-width: 220px; overflow: hidden; }
+        .dropdown-menu.show { display: block; }
+        .dropdown-menu .nav-tab { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; padding: 12px 18px; background: none; border: none; border-bottom: 1px solid var(--border-color); cursor: pointer; font-size: 1em; }
+        .dropdown-menu .nav-tab:last-child { border-bottom: none; }
+        .dropdown-menu .nav-tab:hover { background-color: #f1f1f1; }
+        .dropdown-menu .nav-tab.active { background-color: var(--primary-color); color: var(--white); font-weight: bold; }
+
+        .admin-section { display: none; background: var(--white); padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .admin-section.active { display: block; }
+        h2 { margin-top: 0; display: flex; justify-content: space-between; align-items: center; }
+        .count-badge { background-color: var(--secondary-color); color: white; font-size: 0.7em; padding: 4px 8px; border-radius: 10px; }
+        label { display: block; margin-bottom: 5px; font-weight: 500; }
+        input, select, textarea, button { width: 100%; padding: 12px; margin-bottom: 15px; box-sizing: border-box; border-radius: 5px; border: 1px solid var(--border-color); font-size: 1em; }
+        textarea { resize: vertical; min-height: 100px; }
+        button.submit-btn { background-color: var(--primary-color); color: var(--white); border: none; font-weight: bold; cursor: pointer; }
+        .list-item { padding: 15px; border-bottom: 1px solid var(--border-color); display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 15px; }
+        .item-info { flex-grow: 1; word-break: break-all; } .item-info p { margin: 2px 0; } .item-info strong { color: var(--primary-color); }
+        .item-actions { display: flex; gap: 10px; flex-shrink: 0;}
+        .action-btn { padding: 8px 12px; border: none; border-radius: 5px; color: white; cursor: pointer; font-weight: bold; }
+        .approve-btn { background-color: var(--success-color); } .reject-btn, .delete-btn { background-color: var(--danger-color); }
+        .edit-btn { background-color: var(--warning-color); }
+        .pg-coin-btn { background-color: var(--primary-color); } 
+        .send-msg-btn { background-color: var(--primary-color); }
+        #pending-count { background: var(--danger-color); color: white; border-radius: 50%; padding: 2px 8px; font-size: 0.8em; display: inline-block; margin-left: 8px; vertical-align: middle; }
+        #pending-count:empty { display: none; }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); }
+        .modal-content { background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 400px; border-radius: 8px; }
+        .close-btn { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .search-controls { display: flex; gap: 10px; margin-bottom: 20px; }
+        .search-controls input { flex-grow: 1; margin-bottom: 0; }
+        .search-controls button { width: auto; flex-shrink: 0; margin-bottom: 0; }
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+        .dashboard-card { background-color: var(--white); padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid var(--border-color); text-align: center; }
+        .dashboard-card h3 { margin-top: 0; font-size: 1.1em; color: var(--secondary-color); }
+        .dashboard-card .count { font-size: 2.5em; font-weight: 700; color: var(--primary-color); margin: 10px 0; min-height: 48px; /* Prevents layout shift */ display: flex; justify-content: center; align-items: center; }
+        .loader { border: 4px solid var(--border-color); border-top: 4px solid var(--primary-color); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <header class="admin-header">
+            <h1>Admin Panel</h1>
+            <div class="menu-container">
+                <button class="menu-button" id="menuButton">☰</button>
+                <div class="dropdown-menu" id="dropdownMenu">
+                    <button class="nav-tab active" data-tab="dashboard">📊 Dashboard</button>
+                    <button class="nav-tab" data-tab="users">👥 Manage Users</button>
+                    <button class="nav-tab" data-tab="withdrawals">💰 Withdrawals <span id="pending-count"></span></button>
+                    <button class="nav-tab" data-tab="content">➕ Add Video</button>
+                    <button class="nav-tab" data-tab="manage-content">🎬 Manage Videos</button>
+                    <button class="nav-tab" data-tab="tasks">➕ Create Task</button>
+                    <button class="nav-tab" data-tab="manage-tasks">📋 Manage Tasks</button>
+                    <button class="nav-tab" data-tab="daily-tasks">☀️ Add Daily Task</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- DASHBOARD SECTION -->
+        <div id="dashboard-section" class="admin-section active">
+            <h2>Dashboard</h2>
+            <div class="dashboard-grid">
+                <div class="dashboard-card">
+                    <h3>Total Users</h3>
+                    <p class="count" id="db-total-users">...</p>
+                </div>
+                <div class="dashboard-card">
+                    <h3>Users Joined Today</h3>
+                    <p class="count" id="db-users-today">...</p>
+                </div>
+                <div class="dashboard-card">
+                    <h3>Pending Withdrawals</h3>
+                    <p class="count" id="db-pending-withdrawals">...</p>
+                </div>
+                <div class="dashboard-card">
+                    <h3>Active Content</h3>
+                    <p class="count" id="db-active-content">...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- USERS SECTION -->
+        <div id="users-section" class="admin-section">
+            <h2>Manage Users <span id="user-count" class="count-badge"></span></h2>
+            <div class="search-controls">
+                <input type="text" id="userSearchInput" placeholder="Enter User ID or Telegram Username...">
+                <button id="userSearchBtn" class="submit-btn">Search</button>
+                <button id="clearUserSearchBtn" class="action-btn" style="background-color: var(--secondary-color); display: none;">Clear</button>
+            </div>
+            <div id="user-list-container"><div class="loader"></div></div>
+        </div>
+
+        <div id="content-section" class="admin-section">
+             <h2>Add New Video</h2>
+            <form id="addVideoForm">
+                <input type="text" id="videoTitle" placeholder="Video Title" required>
+                <input type="url" id="youtubeUrl" placeholder="Full YouTube Video URL" required>
+                <input type="url" id="thumbnailUrl" placeholder="Custom Thumbnail URL (from postimages.org)" required>
+                <button type="submit" class="submit-btn">Add Video</button>
+            </form>
+        </div>
+        
+        <div id="manage-content-section" class="admin-section">
+            <h2>Manage Videos</h2>
+            <div id="video-list-container"><div class="loader"></div></div>
+        </div>
+        
+        <div id="manage-tasks-section" class="admin-section">
+            <h2>Manage Tasks</h2>
+            <div id="task-list-container"><div class="loader"></div></div>
+        </div>
+
+        <div id="tasks-section" class="admin-section">
+            <h2>Create New Task</h2>
+            <form id="addTaskForm">
+                <label for="taskTitle">Task Title</label>
+                <input type="text" id="taskTitle" placeholder="e.g., Join Telegram Channel" required>
+                <label for="taskUrl">Task URL</label>
+                <input type="url" id="taskUrl" placeholder="Link to Telegram, FB, YT, Website" required>
+                <label for="visitTime">Visit Time (in seconds, 0 for no timer)</label>
+                <input type="number" id="visitTime" placeholder="e.g., 30" value="0" step="1" required>
+                <label for="userTaskLimit">How many times can ONE user do this task?</label>
+                <input type="number" id="userTaskLimit" placeholder="e.g., 1 for single completion" value="1" step="1" required>
+                <label for="taskLimit">Total Completion Limit</label>
+                <input type="number" id="taskLimit" placeholder="e.g., 100 (0 for unlimited)" step="1" required>
+                <label for="taskReward">Reward per Completion (Points)</label>
+                <input type="number" id="taskReward" placeholder="e.g., 20" step="1" min="20" required>
+                <!-- UPDATE: New field for PG Coin reward -->
+                <label for="taskRewardPg">Reward (PG Coin, optional)</label>
+                <input type="number" id="taskRewardPg" placeholder="e.g., 0.01 (0 for none)" step="0.01" min="0" value="0" required>
+                <button type="submit" class="submit-btn">Create Task</button>
+            </form>
+        </div>
+
+        <div id="daily-tasks-section" class="admin-section">
+            <h2>Add New Daily Task (Expires after 24 hours)</h2>
+            <form id="addDailyTaskForm">
+                <label for="dailyTaskTitle">Task Title</label>
+                <input type="text" id="dailyTaskTitle" placeholder="e.g., Visit Today's Sponsor" required>
+                <label for="dailyTaskUrl">Task URL</label>
+                <input type="url" id="dailyTaskUrl" placeholder="Link to the website/channel" required>
+                <label for="dailyTaskReward">Reward (Points)</label>
+                <input type="number" id="dailyTaskReward" placeholder="e.g., 30" step="1" min="1" required>
+                <button type="submit" class="submit-btn">Add Daily Task</button>
+            </form>
+            <h3 style="margin-top: 30px;">Active Daily Tasks</h3>
+            <div id="daily-task-list-container"><div class="loader"></div></div>
+        </div>
+
+        <div id="withdrawals-section" class="admin-section">
+            <h2>Pending Withdrawals</h2>
+            <div id="withdrawal-list-container"><div class="loader"></div></div>
+        </div>
+    </div>
+    
+    <div id="editPointsModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" id="closePointsModalBtn">&times;</span>
+            <h2>Edit User Points</h2>
+            <form id="editPointsForm">
+                <input type="hidden" id="editPointsUserId">
+                <label for="pointsAmount">Points to Add/Subtract</label>
+                <input type="number" id="pointsAmount" placeholder="e.g., 1000 or -500" required>
+                <button type="submit" class="submit-btn">Update Points</button>
+            </form>
+        </div>
+    </div>
+    
+    <div id="editPgCoinModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" id="closePgCoinModalBtn">&times;</span>
+            <h2>Edit User PG Coin</h2>
+            <form id="editPgCoinForm">
+                <input type="hidden" id="editPgCoinUserId">
+                <label for="pgCoinAmount">PG Coin to Add/Subtract</label>
+                <input type="number" id="pgCoinAmount" placeholder="e.g., 0.5 or -0.1" step="0.001" required>
+                <button type="submit" class="submit-btn">Update PG Coin</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="sendMessageModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" id="closeMessageModalBtn">&times;</span>
+            <h2>Send Message to User</h2>
+            <form id="sendMessageForm">
+                <input type="hidden" id="sendMessageUserId">
+                <label for="messageContent">Your Message</label>
+                <textarea id="messageContent" placeholder="Type your message here..." required></textarea>
+                <button type="submit" class="submit-btn">Send Message</button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, serverTimestamp, query, getDocs, orderBy, doc, getDoc, deleteDoc, updateDoc, where, increment, getCountFromServer, Timestamp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCKMa4NdIowD_8NioUbrn4L7g5M9y5Tts0",
+            authDomain: "movie-zone-931d7.firebaseapp.com",
+            projectId: "movie-zone-931d7",
+            storageBucket: "movie-zone-931d7.appspot.com",
+            messagingSenderId: "1006880112063",
+            appId: "1:1006880112063:web:4a4cf5079ea365a6ce750a",
+            measurementId: "G-TH1YSE4D9C"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        function extractYouTubeID(url) {
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : null;
+        }
+
+        async function loadDashboardData() {
+            try {
+                document.getElementById('db-total-users').textContent = '...';
+                document.getElementById('db-users-today').textContent = '...';
+                document.getElementById('db-pending-withdrawals').textContent = '...';
+                document.getElementById('db-active-content').textContent = '...';
+                const usersColl = collection(db, 'users');
+                const videosColl = collection(db, 'videos');
+                const tasksColl = collection(db, 'tasks');
+                const withdrawalsColl = collection(db, 'withdrawals');
+                const userCountSnap = await getCountFromServer(usersColl);
+                document.getElementById('db-total-users').textContent = userCountSnap.data().count;
+                const twentyFourHoursAgo = Timestamp.fromMillis(Date.now() - 24 * 60 * 60 * 1000);
+                const todayQuery = query(usersColl, where('createdAt', '>=', twentyFourHoursAgo));
+                const todayCountSnap = await getCountFromServer(todayQuery);
+                document.getElementById('db-users-today').textContent = todayCountSnap.data().count;
+                const pendingQuery = query(withdrawalsColl, where('status', '==', 'pending'));
+                const pendingCountSnap = await getCountFromServer(pendingQuery);
+                const pendingCount = pendingCountSnap.data().count;
+                document.getElementById('db-pending-withdrawals').textContent = pendingCount;
+                document.getElementById('pending-count').textContent = pendingCount || '';
+                const videosCountSnap = await getCountFromServer(videosColl);
+                const tasksCountSnap = await getCountFromServer(tasksColl);
+                document.getElementById('db-active-content').textContent = videosCountSnap.data().count + tasksCountSnap.data().count;
+            } catch(error) {
+                console.error("Error loading dashboard data:", error);
+                alert("Failed to load dashboard data. Check console.");
+            }
+        }
+
+        const userListContainer = document.getElementById('user-list-container');
+        
+        function renderUserItem(docSnap) {
+            const user = docSnap.data();
+            const item = document.createElement('div');
+            item.className = 'list-item';
+            const pgCoin = parseFloat(user.pgCoin || 0).toFixed(3);
+            
+            item.innerHTML = `
+                <div class="item-info">
+                    <p>User ID: <strong>${docSnap.id}</strong> | Username: @${user.telegramUsername || 'N/A'}</p>
+                    <p>Points: <strong>${Math.floor(user.balance || 0)}</strong> | PG Coin: <strong>${pgCoin}</strong> | Referrals: <strong>${user.referralCount || 0}</strong></p>
+                </div>
+                <div class="item-actions">
+                    <button class="action-btn edit-btn" data-id="${docSnap.id}">Edit Points</button>
+                    <button class="action-btn pg-coin-btn" data-id="${docSnap.id}">Edit PG Coin</button>
+                    <button class="action-btn send-msg-btn" data-id="${docSnap.id}">Send Message</button>
+                </div>`;
+            userListContainer.appendChild(item);
+        }
+
+        async function fetchAndDisplayUsers() {
+            userListContainer.innerHTML = '<div class="loader"></div>';
+            try {
+                const usersCollection = collection(db, 'users');
+                const countSnapshot = await getCountFromServer(usersCollection);
+                document.getElementById('user-count').textContent = `Total: ${countSnapshot.data().count}`;
+
+                const q = query(usersCollection, orderBy('createdAt', 'desc'));
+                const snapshot = await getDocs(q);
+
+                userListContainer.innerHTML = '';
+                if (snapshot.empty) {
+                    userListContainer.innerHTML = '<p>No users found.</p>';
+                    return;
+                }
+                snapshot.forEach(docSnap => renderUserItem(docSnap));
+            } catch (error) {
+                console.error("Error fetching users:", error);
+                userListContainer.innerHTML = '<p style="color:red">Failed to load users.</p>';
+            }
+        }
+        
+        async function searchUser(searchTerm) {
+            userListContainer.innerHTML = '<div class="loader"></div>';
+            try {
+                const userRefById = doc(db, 'users', searchTerm);
+                const docSnapById = await getDoc(userRefById);
+                
+                userListContainer.innerHTML = '';
+                if (docSnapById.exists()) {
+                    renderUserItem(docSnapById);
+                    document.getElementById('user-count').textContent = 'Found: 1';
+                    return; 
+                }
+
+                const cleanedSearchTerm = searchTerm.startsWith('@') ? searchTerm.substring(1) : searchTerm;
+                const usersCollection = collection(db, 'users');
+                const q = query(usersCollection, where('telegramUsername', '==', cleanedSearchTerm));
+                const usernameSnapshot = await getDocs(q);
+
+                if (!usernameSnapshot.empty) {
+                    usernameSnapshot.forEach(docSnap => renderUserItem(docSnap));
+                    document.getElementById('user-count').textContent = `Found: ${usernameSnapshot.size}`;
+                } else {
+                    userListContainer.innerHTML = `<p>No user found with ID or Username: <strong>${searchTerm}</strong></p>`;
+                    document.getElementById('user-count').textContent = '';
+                }
+            } catch (error) {
+                console.error("Error searching user:", error);
+                userListContainer.innerHTML = `<p style="color:red">Failed to search for user. Note: Searching by username requires a Firestore index. Error: ${error.message}</p>`;
+            }
+        }
+
+        const userSearchInput = document.getElementById('userSearchInput');
+        const userSearchBtn = document.getElementById('userSearchBtn');
+        const clearUserSearchBtn = document.getElementById('clearUserSearchBtn');
+
+        userSearchBtn.addEventListener('click', () => {
+            const searchTerm = userSearchInput.value.trim();
+            if (searchTerm) {
+                searchUser(searchTerm);
+                clearUserSearchBtn.style.display = 'inline-block';
+            }
+        });
+        
+        userSearchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                userSearchBtn.click();
+            }
+        });
+
+        clearUserSearchBtn.addEventListener('click', () => {
+            userSearchInput.value = '';
+            clearUserSearchBtn.style.display = 'none';
+            fetchAndDisplayUsers();
+        });
+
+        const pointsModal = document.getElementById('editPointsModal');
+        const messageModal = document.getElementById('sendMessageModal');
+        const pgCoinModal = document.getElementById('editPgCoinModal');
+
+        userListContainer.addEventListener('click', (e) => {
+            if (e.target.classList.contains('edit-btn')) {
+                document.getElementById('editPointsUserId').value = e.target.dataset.id;
+                pointsModal.style.display = 'block';
+            }
+            if (e.target.classList.contains('send-msg-btn')) {
+                document.getElementById('sendMessageUserId').value = e.target.dataset.id;
+                messageModal.style.display = 'block';
+            }
+            if (e.target.classList.contains('pg-coin-btn')) {
+                document.getElementById('editPgCoinUserId').value = e.target.dataset.id;
+                pgCoinModal.style.display = 'block';
+            }
+        });
+        
+        document.getElementById('closePointsModalBtn').onclick = () => { pointsModal.style.display = "none"; };
+        document.getElementById('closeMessageModalBtn').onclick = () => { messageModal.style.display = "none"; };
+        document.getElementById('closePgCoinModalBtn').onclick = () => { pgCoinModal.style.display = "none"; };
+        
+        window.onclick = (event) => {
+            if (event.target == pointsModal) { pointsModal.style.display = "none"; }
+            if (event.target == messageModal) { messageModal.style.display = "none"; }
+            if (event.target == pgCoinModal) { pgCoinModal.style.display = "none"; }
+        };
+        
+        document.getElementById('editPointsForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const button = e.target.querySelector('button');
+            button.disabled = true; button.textContent = 'Updating...';
+            const userId = document.getElementById('editPointsUserId').value;
+            const pointsToAdd = parseInt(document.getElementById('pointsAmount').value, 10);
+            if (isNaN(pointsToAdd)) { alert("Please enter a valid number."); return; }
+            await updateDoc(doc(db, 'users', userId), { balance: increment(pointsToAdd) });
+            alert(`Successfully updated points for user ${userId}.`);
+            pointsModal.style.display = "none";
+            e.target.reset();
+            button.disabled = false; button.textContent = 'Update Points';
+            fetchAndDisplayUsers();
+        });
+
+        document.getElementById('editPgCoinForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const button = e.target.querySelector('button');
+            button.disabled = true; button.textContent = 'Updating...';
+            const userId = document.getElementById('editPgCoinUserId').value;
+            const pgCoinToAdd = parseFloat(document.getElementById('pgCoinAmount').value);
+
+            if (isNaN(pgCoinToAdd)) { 
+                alert("Please enter a valid number for PG Coin."); 
+                button.disabled = false; button.textContent = 'Update PG Coin';
+                return; 
+            }
+
+            try {
+                await updateDoc(doc(db, 'users', userId), { pgCoin: increment(pgCoinToAdd) });
+                alert(`Successfully updated PG Coin for user ${userId}.`);
+                pgCoinModal.style.display = "none";
+                e.target.reset();
+                fetchAndDisplayUsers();
+            } catch (err) {
+                console.error("Error updating PG Coin:", err);
+                alert("Failed to update PG Coin. Check console for errors.");
+            } finally {
+                button.disabled = false; button.textContent = 'Update PG Coin';
+            }
+        });
+
+        document.getElementById('sendMessageForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const button = e.target.querySelector('button');
+            button.disabled = true; button.textContent = 'Sending...';
+            const userId = document.getElementById('sendMessageUserId').value;
+            const message = document.getElementById('messageContent').value;
+            
+            if (!message.trim()) { alert("Message cannot be empty."); return; }
+
+            try {
+                await addDoc(collection(db, 'messages'), {
+                    content: message,
+                    recipientId: userId,
+                    isGlobal: false,
+                    createdAt: serverTimestamp()
+                });
+                alert('Message sent successfully to user ' + userId);
+                messageModal.style.display = "none";
+                e.target.reset();
+            } catch (err) {
+                console.error("Error sending message:", err);
+                alert("Failed to send message. Please try again.");
+            } finally {
+                button.disabled = false; button.textContent = 'Send Message';
+            }
+        });
+
+        document.getElementById('addVideoForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const youtubeUrl = document.getElementById('youtubeUrl').value;
+            const youtubeId = extractYouTubeID(youtubeUrl);
+            if (!youtubeId) { alert("Invalid YouTube URL."); return; }
+            await addDoc(collection(db, 'videos'), {
+                title: document.getElementById('videoTitle').value,
+                youtubeId,
+                thumbnailUrl: document.getElementById('thumbnailUrl').value,
+                createdAt: serverTimestamp()
+            });
+            alert('Video added successfully!');
+            e.target.reset();
+        });
+
+        async function fetchAndDisplayVideos() {
+            const container = document.getElementById('video-list-container');
+            container.innerHTML = '<div class="loader"></div>';
+            try {
+                const q = query(collection(db, 'videos'), orderBy('createdAt', 'desc'));
+                const snapshot = await getDocs(q);
+                if (snapshot.empty) { container.innerHTML = '<p>No videos found.</p>'; return; }
+                container.innerHTML = '';
+                snapshot.forEach(docSnap => {
+                    const video = docSnap.data();
+                    const item = document.createElement('div');
+                    item.className = 'list-item';
+                    item.innerHTML = `
+                        <div class="item-info"><p><strong>${video.title}</strong></p></div>
+                        <div class="item-actions"><button class="action-btn delete-btn" data-id="${docSnap.id}" data-collection="videos">Delete</button></div>`;
+                    container.appendChild(item);
+                });
+            } catch (error) {
+                console.error("Error fetching videos:", error);
+                container.innerHTML = '<p style="color:red">Failed to load videos.</p>';
+            }
+        }
+        
+        document.getElementById('addTaskForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const rewardPoints = parseInt(document.getElementById('taskReward').value, 10);
+            const rewardPg = parseFloat(document.getElementById('taskRewardPg').value) || 0;
+            
+            if (rewardPoints < 20) {
+                alert("Minimum point reward must be 20.");
+                return;
+            }
+            if (rewardPg < 0) {
+                alert("PG Coin reward cannot be negative.");
+                return;
+            }
+            if (rewardPg > 0 && rewardPg < 0.01) {
+                alert("Minimum PG Coin reward must be 0.01 (or 0 for none).");
+                return;
+            }
+
+            try {
+                await addDoc(collection(db, 'tasks'), {
+                    title: document.getElementById('taskTitle').value,
+                    url: document.getElementById('taskUrl').value,
+                    visitDurationSeconds: parseInt(document.getElementById('visitTime').value, 10) || 0,
+                    userCompletionLimit: parseInt(document.getElementById('userTaskLimit').value, 10) || 1,
+                    limit: parseInt(document.getElementById('taskLimit').value, 10) || 0,
+                    rewardPoints: rewardPoints,
+                    rewardPg: rewardPg, // New field for PG Coin reward
+                    completionCount: 0,
+                    createdAt: serverTimestamp()
+                });
+                alert('Task created successfully!');
+                e.target.reset();
+                document.getElementById('taskRewardPg').value = "0"; // Reset PG field
+            } catch (error) {
+                console.error("Error creating task:", error);
+                alert("Failed to create task. Check console.");
+            }
+        });
+        
+        async function fetchAndDisplayTasks() {
+            const container = document.getElementById('task-list-container');
+            container.innerHTML = '<div class="loader"></div>';
+            try {
+                const q = query(collection(db, 'tasks'), orderBy('createdAt', 'desc'));
+                const snapshot = await getDocs(q);
+                if (snapshot.empty) { container.innerHTML = '<p>No tasks found.</p>'; return; }
+                container.innerHTML = '';
+                snapshot.forEach(docSnap => {
+                    const task = docSnap.data();
+                    let rewardText = `${task.rewardPoints || task.reward || 0} Points`;
+                    if (task.rewardPg && task.rewardPg > 0) {
+                        rewardText += ` + ${task.rewardPg} PG`;
+                    }
+                    const item = document.createElement('div');
+                    item.className = 'list-item';
+                    item.innerHTML = `
+                        <div class="item-info">
+                            <p><strong>${task.title}</strong> (Time: ${task.visitDurationSeconds || 0}s)</p>
+                            <p>Completions: <strong>${task.completionCount || 0} / ${task.limit || '∞'}</strong> | Reward: ${rewardText} | User Limit: ${task.userCompletionLimit || 1}</p>
+                        </div>
+                        <div class="item-actions"><button class="action-btn delete-btn" data-id="${docSnap.id}" data-collection="tasks">Delete</button></div>`;
+                    container.appendChild(item);
+                });
+            } catch (error) {
+                console.error("Error fetching tasks:", error);
+                container.innerHTML = '<p style="color:red">Failed to load tasks.</p>';
+            }
+        }
+        
+        document.getElementById('addDailyTaskForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const title = document.getElementById('dailyTaskTitle').value;
+            const url = document.getElementById('dailyTaskUrl').value;
+            const reward = parseInt(document.getElementById('dailyTaskReward').value, 10);
+            
+            await addDoc(collection(db, 'daily_visit_tasks'), {
+                title,
+                url,
+                reward,
+                createdAt: serverTimestamp()
+            });
+            
+            alert('Daily visit task added successfully!');
+            e.target.reset();
+            fetchAndDisplayDailyTasks();
+        });
+
+        async function fetchAndDisplayDailyTasks() {
+            const container = document.getElementById('daily-task-list-container');
+            container.innerHTML = '<div class="loader"></div>';
+            try {
+                const twentyFourHoursAgo = Timestamp.fromMillis(Date.now() - 24 * 60 * 60 * 1000);
+                const q = query(collection(db, 'daily_visit_tasks'), where('createdAt', '>=', twentyFourHoursAgo), orderBy('createdAt', 'desc'));
+                const snapshot = await getDocs(q);
+                if (snapshot.empty) {
+                    container.innerHTML = '<p>No active daily tasks found.</p>';
+                    return;
+                }
+                container.innerHTML = '';
+                snapshot.forEach(docSnap => {
+                    const task = docSnap.data();
+                    const item = document.createElement('div');
+                    item.className = 'list-item';
+                    item.innerHTML = `
+                        <div class="item-info">
+                            <p><strong>${task.title}</strong></p>
+                            <p>Reward: ${task.reward} Points</p>
+                        </div>
+                        <div class="item-actions"><button class="action-btn delete-btn" data-id="${docSnap.id}" data-collection="daily_visit_tasks">Delete</button></div>`;
+                    container.appendChild(item);
+                });
+            } catch (error) {
+                console.error("Error fetching daily tasks:", error);
+                container.innerHTML = `<p style="color:red">Failed to load daily tasks. Error: ${error.message}</p>`;
+            }
+        }
+        
+        document.body.addEventListener('click', async (e) => {
+            if (e.target.classList.contains('delete-btn')) {
+                const collectionName = e.target.dataset.collection;
+                if (collectionName && confirm(`Are you sure you want to delete this item from ${collectionName}?`)) {
+                    await deleteDoc(doc(db, collectionName, e.target.dataset.id));
+                    e.target.closest('.list-item').remove();
+                }
+            }
+        });
+
+
+        async function fetchWithdrawals() {
+            const container = document.getElementById('withdrawal-list-container');
+            container.innerHTML = '<div class="loader"></div>';
+            try {
+                const q = query(collection(db, 'withdrawals'), where('status', '==', 'pending'), orderBy('createdAt', 'desc'));
+                const snapshot = await getDocs(q);
+                
+                if (snapshot.empty) {
+                    container.innerHTML = '<p>No pending requests found.</p>';
+                    return;
+                }
+                container.innerHTML = '';
+                snapshot.forEach(docSnap => {
+                    const request = docSnap.data();
+                    const item = document.createElement('div');
+                    item.className = 'list-item';
+                    item.innerHTML = `
+                        <div class="item-info">
+                            <p>User: <strong>${request.userId || 'N/A'}</strong> (@${request.telegramUsername || 'N/A'})</p>
+                            <p>Request: <strong>$${request.usdAmount || 'N/A'}</strong></p>
+                            <p>Method: ${request.method} | Details: <strong>${request.details}</strong></p>
+                            <p style="font-size: 0.8em; color: #6c757d;">${new Date(request.createdAt.seconds * 1000).toLocaleString()}</p>
+                        </div>
+                        <div class="item-actions">
+                            <button class="action-btn approve-btn" data-id="${docSnap.id}">Approve</button>
+                            <button class="action-btn reject-btn" data-id="${docSnap.id}" data-user-id="${request.userId}" data-amount="${request.usdAmount}" data-fee-refs="${request.feeReferrals || 0}" data-fee-pg="${request.feePgCoin || 0}">Reject</button>
+                        </div>`;
+                    container.appendChild(item);
+                });
+            } catch (error) {
+                console.error("Error fetching withdrawals:", error);
+                container.innerHTML = `<p style="color:red;">Error: ${error.message}. Ensure the required Firestore index is created.</p>`;
+            }
+        }
+        
+        document.getElementById('withdrawal-list-container').addEventListener('click', async (e) => {
+            if (e.target.matches('.action-btn')) {
+                const id = e.target.dataset.id;
+                e.target.disabled = true;
+                e.target.parentElement.querySelectorAll('.action-btn').forEach(btn => btn.disabled = true);
+                e.target.textContent = 'Processing...';
+
+                try {
+                    if (e.target.classList.contains('reject-btn')) {
+                        const userId = e.target.dataset.userId;
+                        const amount = parseFloat(e.target.dataset.amount);
+                        const feeRefs = parseInt(e.target.dataset.feeRefs, 10) || 0;
+                        const feePg = parseFloat(e.target.dataset.feePg) || 0;
+
+                        const userRef = doc(db, 'users', userId);
+                        await updateDoc(userRef, { 
+                            usdtBalance: increment(amount),
+                            validReferralCredits: increment(feeRefs),
+                            pgCoin: increment(feePg)
+                        });
+                        await updateDoc(doc(db, 'withdrawals', id), { status: 'rejected' });
+                        alert(`Request rejected. $${amount}, ${feeRefs} Refs, and ${feePg} PG returned to user.`);
+                    } else if (e.target.classList.contains('approve-btn')) {
+                        await updateDoc(doc(db, 'withdrawals', id), { status: 'approved' });
+                        alert(`Request approved.`);
+                    }
+                    e.target.closest('.list-item').remove();
+                    loadDashboardData();
+                } catch(err) {
+                    console.error("Error processing withdrawal:", err);
+                    alert("Failed to process request.");
+                    e.target.disabled = false;
+                    e.target.textContent = e.target.classList.contains('approve-btn') ? 'Approve' : 'Reject';
+                    e.target.parentElement.querySelectorAll('.action-btn').forEach(btn => btn.disabled = false);
+                }
+            }
+        });
+
+        const menuButton = document.getElementById('menuButton');
+        const dropdownMenu = document.getElementById('dropdownMenu');
+        
+        menuButton.addEventListener('click', () => {
+            dropdownMenu.classList.toggle('show');
+        });
+
+        window.addEventListener('click', (e) => {
+            if (!menuButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                dropdownMenu.classList.remove('show');
+            }
+        });
+        
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById(`${tab.dataset.tab}-section`).classList.add('active');
+                dropdownMenu.classList.remove('show');
+
+                switch(tab.dataset.tab) {
+                    case 'dashboard': loadDashboardData(); break;
+                    case 'users': fetchAndDisplayUsers(); break;
+                    case 'manage-content': fetchAndDisplayVideos(); break;
+                    case 'manage-tasks': fetchAndDisplayTasks(); break;
+                    case 'withdrawals': fetchWithdrawals(); break;
+                    case 'daily-tasks': fetchAndDisplayDailyTasks(); break;
+                }
+            });
+        });
+
+        loadDashboardData();
+
+    </script>
+</body>
+</html>
