@@ -155,13 +155,22 @@
         /* Lottery Section Styles */
         .lottery-container { background-color: var(--card-bg); padding: 25px; border-radius: 12px; text-align: center; width: 100%; max-width: 450px; margin: 0 auto; }
         .lottery-container h1 { font-family: 'Hind Siliguri', sans-serif; }
-        #lottery-result-display { font-family: 'Roboto Mono', monospace; font-size: 3.5rem; font-weight: 700; color: #0056b3; background-color: #e7f3ff; padding: 15px; border-radius: 8px; margin-bottom: 25px; min-height: 80px; display: flex; justify-content: center; align-items: center; transition: all 0.3s ease; }
-        #lottery-result-display.tier-1 { color: #333; background-color: #f0f0f0; }
-        #lottery-result-display.tier-2 { color: #1e8449; background-color: #eafaf1; }
-        #lottery-result-display.tier-3 { color: #2980b9; background-color: #eaf2f8; }
-        #lottery-result-display.tier-4 { color: #884ea0; background-color: #f4eef7; }
-        #lottery-result-display.tier-5 { color: #d35400; background-color: #fbeee6; border: 2px solid #d35400;}
-        #lottery-result-display.tier-6 { color: #c0392b; background-color: #f9ebea; border: 2px solid #c0392b; text-shadow: 0 0 5px #ffdddd;}
+        #lottery-result-display { 
+            font-family: 'Roboto Mono', monospace; 
+            font-size: 3.5rem; 
+            font-weight: 700; 
+            color: var(--primary-accent-color); 
+            background-color: #000;
+            padding: 15px; 
+            border-radius: 8px; 
+            margin-bottom: 25px; 
+            min-height: 80px; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            transition: all 0.3s ease;
+            border: 2px solid var(--primary-accent-color);
+        }
         .lottery-button { background-color: var(--primary-accent-color); color: white; border: none; padding: 12px 20px; font-size: 1rem; font-weight: 600; border-radius: 8px; cursor: pointer; transition: background-color 0.3s ease, transform 0.1s ease; width: 100%; margin-top: 15px; }
         .lottery-button:hover:not(:disabled) { background-color: var(--primary-accent-hover-color); }
         .lottery-button:disabled { background-color: var(--disabled-color); cursor: not-allowed; }
@@ -279,6 +288,9 @@
             <div class="lottery-container">
                 <h3 class="section-title" style="border: none; text-align: center;">Lottery Spin Game</h3>
                 <p>Click a button below to test your luck!</p>
+                <p class="info-text" style="font-size: 1.1em; color: var(--primary-accent-color); font-weight: 600; line-height: 1.5;">
+                    প্রতিটি স্পিনে 1 থেকে 10 মিলিয়ন পয়েন্ট জেতার সুযোগ! <br>10 মিলিয়ন পয়েন্টের মূল্য $100! <br>বেশি বেশি রেফার করে আপনার স্পিন এবং জেতার সম্ভাবনা বাড়ান!
+                </p>
                 
                 <div id="lottery-result-display">?</div>
                 
@@ -316,6 +328,12 @@
                     </div>
                 </div>
             </div>
+
+            <h3 class="section-title" style="margin-top: 40px;">Your Referrals & Rewards</h3>
+            <div class="card" style="text-align: left;">
+                <p style="text-align: center;">Track the progress of the friends you've invited. A referral is valid when they earn 1000 Points. Claim your reward when they reach the goal!</p>
+                <div id="my-referrals-list"></div>
+            </div>
         </section>
         
         <section id="leaderboard-content" class="content-section">
@@ -323,11 +341,6 @@
             <div class="card" style="text-align: left; padding-bottom: 10px;">
                 <p style="text-align: center;">Users with the most referrals of all time are ranked here. Keep inviting to climb the ranks!</p>
                 <div id="leaderboard-list"></div>
-            </div>
-            <h3 class="section-title" style="margin-top: 40px;">Your Referrals</h3>
-            <div class="card" style="text-align: left;">
-                <p style="text-align: center;">Track the progress of the friends you've invited. A referral is valid when they earn 1000 Points.</p>
-                <div id="my-referrals-list"></div>
             </div>
         </section>
         
@@ -1368,7 +1381,7 @@
             if (isSpinning) return;
             isSpinning = true;
             updateLotteryUI();
-            lotteryResultDisplay.className = 'tier-1';
+            lotteryResultDisplay.className = '';
             
             const animationInterval = setInterval(() => { lotteryResultDisplay.textContent = Math.floor(Math.random() * 9999); }, 50);
 
@@ -1384,7 +1397,6 @@
                 else { number = Math.floor(Math.random() * 90000) + 10000; tier = 6; reward = number; }
 
                 lotteryResultDisplay.textContent = number;
-                lotteryResultDisplay.className = `tier-${tier}`;
                 
                 await grantReward({ points: reward });
                 showSuccessModal("You Won!", `You have won ${reward} Points!`);
@@ -1512,7 +1524,10 @@
                     case '#ads-to-earn-content': setupAdsToEarn(); break;
                     case '#task-content': await fetchTasks(); renderDailyTasks(); break;
                     case '#lottery-content': updateLotteryUI(); break;
-                    case '#referral-content': renderReferralStats(); break;
+                    case '#referral-content': 
+                        renderReferralStats(); 
+                        await fetchLeaderboard(); // Fetches top list and own referrals list
+                        break;
                     case '#leaderboard-content': await fetchLeaderboard(); break;
                     case '#convert-withdraw-content': await renderConvertWithdrawUI(); break;
                     case '#history-content': await displayWithdrawalHistory(); break;
