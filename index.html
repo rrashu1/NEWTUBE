@@ -12,6 +12,8 @@
     <script src="https://ad.gigapub.tech/script?id=846"></script>
     <!-- Adexium Ads SDK (New) -->
     <script type="text/javascript" src="https://cdn.tgads.space/assets/js/adexium-widget.min.js"></script>
+    <!-- RichInfo Ads SDK (New) -->
+    <script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
     <!-- Fonts for Lottery -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -106,7 +108,7 @@
         .success-modal { background-color: var(--card-bg); color: var(--text-light); padding: 30px 40px; border-radius: 15px; text-align: center; transform: scale(0.9); opacity: 0; animation: modal-pop-in 0.3s forwards; }
         .success-modal-icon { width: 70px; height: 70px; border-radius: 50%; background-color: var(--success-color); display: flex; justify-content: center; align-items: center; font-size: 40px; font-weight: bold; color: white; margin: 0 auto 20px; animation: icon-pop-in 0.5s 0.2s backwards; }
         .success-modal h3 { margin: 0 0 10px; font-size: 1.6em; }
-        .success-modal p { margin: 0; color: var(--text-muted); font-size: 1em;}
+        .success-modal p { margin: 0; color: var(--text-muted); font-size: 1em; white-space: pre-wrap;}
         .inbox-modal { background-color: var(--card-bg); color: var(--text-light); padding: 20px; border-radius: 15px; text-align: left; width: 90%; max-width: 400px; max-height: 80vh; display: flex; flex-direction: column; }
         .inbox-modal h3 { text-align: center; margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
         #inbox-message-list { overflow-y: auto; flex-grow: 1; margin-bottom: 15px; }
@@ -119,16 +121,9 @@
         .info-text { font-size: 0.9em; color: var(--text-muted); margin-top: 10px; }
         .daily-task-card, .task-card { background-color: var(--card-bg); border-radius: 8px; display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 15px; transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; }
         .task-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15); }
-        .daily-task-info { text-align: left; }
-        .daily-task-info h4 { margin: 0 0 5px; }
-        .daily-task-info p { margin: 0; font-size: 0.9em; color: var(--success-color); }
-        .task-category-selector { display: flex; justify-content: center; margin-bottom: 25px; border-bottom: 2px solid #282828; padding-bottom: 15px; }
-        .task-category-selector .task-category-btn { background-color: transparent; border: 2px solid var(--primary-accent-color); color: var(--primary-accent-color); padding: 10px 20px; margin: 0 5px; border-radius: 25px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: all 0.3s ease; }
-        .task-category-selector .task-category-btn.active, .task-category-selector .task-category-btn:hover { background-color: var(--primary-accent-color); color: white; }
-        .task-category-container { display: none; } .task-category-container.active { display: block; }
-        #ad-task-list.item-grid { grid-template-columns: 1fr; gap: 10px; } /* Override grid for single-column list */
-        #task-list.item-grid, #special-task-list.item-grid { grid-template-columns: 1fr; gap: 10px; } /* Override grid for single-column list */
-        
+        #daily-login-task-container .task-card { margin-bottom: 20px; }
+        #ad-task-list.item-grid, #task-list.item-grid { grid-template-columns: 1fr; gap: 10px; } 
+
         /* Profile Section Styles */
         #profile-card { background-color: var(--card-bg); padding: 30px; border-radius: 15px; text-align: center; }
         #profile-avatar { 
@@ -268,20 +263,9 @@
         </section>
         
         <section id="task-content" class="content-section">
-            <div class="task-category-selector">
-                <button class="task-category-btn active" data-task-category="daily-rewards">Daily Rewards</button>
-                <button class="task-category-btn" data-task-category="complete-tasks">Complete Tasks</button>
-            </div>
-            <div id="daily-rewards-container" class="task-category-container active">
-                <h3 class="section-title">Special 24-Hour Tasks</h3>
-                <div id="special-task-list" class="item-grid"></div>
-                <h3 class="section-title" style="margin-top: 40px;">Daily Check-in Rewards</h3>
-                <div id="daily-task-list" class="item-grid" style="grid-template-columns: 1fr;"></div>
-            </div>
-            <div id="complete-tasks-container" class="task-category-container">
-                <h3 class="section-title">Complete Tasks</h3>
-                <div id="task-list" class="item-grid"></div>
-            </div>
+            <div id="daily-login-task-container"></div>
+            <h3 class="section-title">Complete Tasks to Earn</h3>
+            <div id="task-list" class="item-grid"></div>
         </section>
         
         <section id="lottery-content" class="content-section">
@@ -289,7 +273,7 @@
                 <h3 class="section-title" style="border: none; text-align: center;">Lottery Spin Game</h3>
                 <p>Click a button below to test your luck!</p>
                 <p class="info-text" style="font-size: 1.1em; color: var(--primary-accent-color); font-weight: 600; line-height: 1.5;">
-                    প্রতিটি স্পিনে 1 থেকে 10 মিলিয়ন পয়েন্ট জেতার সুযোগ! <br>10 মিলিয়ন পয়েন্টের মূল্য $100! <br>বেশি বেশি রেফার করে আপনার স্পিন এবং জেতার সম্ভাবনা বাড়ান!
+                    Get a chance to win up to 10 million points in each spin! <br>10 million points are worth $100! <br>Increase your spins and chances of winning by referring more friends!
                 </p>
                 
                 <div id="lottery-result-display">?</div>
@@ -369,8 +353,8 @@
                  <div class="sub-card">
                      <h4>Withdraw USDT</h4>
                      <div class="info-text" style="text-align: left; margin-bottom: 20px; line-height: 1.5;">
-                        <strong style="color: var(--text-light);">Withdrawal Fees:</strong><br>
-                        Each withdrawal requires a fixed fee of **2 Valid Referrals** and **3 PG Coins**, which will be deducted from your account. This fee applies to all withdrawal amounts.
+                        <strong style="color: var(--text-light);">Withdrawal Requirements:</strong><br>
+                        To ensure a fair and sustainable platform, each withdrawal has a fixed fee of <strong>2 Valid Referral Credits</strong> and <strong>3 PG Coins</strong>. This fee will be deducted from your account upon requesting a withdrawal.
                      </div>
                       <p>Your USDT Balance: <strong id="withdrawUsdtBalance">0.00</strong></p>
                       <p>Your Valid Referral Credits: <strong id="withdrawalReferralCredits">0</strong></p>
@@ -391,6 +375,22 @@
                          </div>
                          <button type="submit" class="form-button" id="requestWithdrawalBtn">Request Withdrawal</button>
                      </form>
+                 </div>
+
+                 <div class="sub-card">
+                     <h4>Buy Valid Referral Credits</h4>
+                     <div class="info-text" style="text-align: left; margin-bottom: 20px; line-height: 1.5;">
+                        <strong style="color: var(--text-light);">Buy Credits with PG Coins:</strong><br>
+                        If you don't have enough valid referrals, you can buy credits. The cost is <strong>5 PG Coins</strong> per credit.
+                     </div>
+                     <p>Your PG Coin Balance: <strong id="buyCreditsPgCoinBalance">0.000</strong></p>
+                     
+                     <div class="form-group">
+                        <label for="creditsToBuy">Number of Credits to Buy</label>
+                        <input type="number" id="creditsToBuy" placeholder="e.g., 2" min="1" step="1">
+                     </div>
+                     <p class="info-text">Total Cost: <strong id="buyCreditsCost">0 PG Coins</strong></p>
+                     <button id="buyCreditsBtn" class="form-button">Buy Credits</button>
                  </div>
              </div>
         </section>
@@ -428,9 +428,6 @@
         let player;
         let currentPlayingItem = null;
         let videoPlaybackInterval = null;
-        let dailyTimerInterval = null;
-        let timeSpentThisSession = 0;
-        let accumulatedWatchTime = 0;
         let taskTimers = {};
         let isInterstitialAdVisible = false;
 
@@ -446,48 +443,99 @@
         const MIN_POINTS_TO_CONVERT = 5000;
         const MIN_PG_COIN_TO_CONVERT = 5;
         
-        const dailyTasksConfig = [
-            { id: 'daily_login', title: 'Daily Login Bonus', reward: 40, type: 'action' },
-            { id: 'visit_channel', title: 'Visit Telegram Channel', reward: 10, type: 'action', url: 'https://t.me/newtube12' },
-            { id: 'stay_5m', title: 'Stay for 5 minutes', reward: 10, type: 'time', requirement: 300 },
-            { id: 'stay_15m', title: 'Stay for 15 minutes', reward: 20, type: 'time', requirement: 900 },
-            { id: 'stay_30m', title: 'Stay for 30 minutes', reward: 35, type: 'time', requirement: 1800 },
-        ];
-        
         const userLevels = [
-            { level: 1, name: "Newbie", requiredPoints: 0, requiredPgCoin: 0 },
-            { level: 2, name: "Rookie", requiredPoints: 5000, requiredPgCoin: 0 },
-            { level: 3, name: "Apprentice", requiredPoints: 15000, requiredPgCoin: 0 },
-            { level: 4, name: "Journeyman", requiredPoints: 50000, requiredPgCoin: 8 },
-            { level: 5, name: "Expert", requiredPoints: 70000, requiredPgCoin: 20 },
-            { level: 6, name: "Master", requiredPoints: 150000, requiredPgCoin: 35 },
-            { level: 7, name: "Grandmaster", requiredPoints: 320000, requiredPgCoin: 70 },
-            { level: 8, name: "Legend", requiredPoints: 600000, requiredPgCoin: 200 }
+            { level: 1, name: "Newbie",      requiredPoints: 0,       requiredPgCoin: 0,   requiredReferrals: 0 },
+            { level: 2, name: "Rookie",      requiredPoints: 5000,    requiredPgCoin: 0,   requiredReferrals: 0 },
+            { level: 3, name: "Apprentice",  requiredPoints: 15000,   requiredPgCoin: 0,   requiredReferrals: 0 },
+            { level: 4, name: "Journeyman",  requiredPoints: 50000,   requiredPgCoin: 8,   requiredReferrals: 25 },
+            { level: 5, name: "Expert",      requiredPoints: 70000,   requiredPgCoin: 20,  requiredReferrals: 50 },
+            { level: 6, name: "Master",      requiredPoints: 120000,  requiredPgCoin: 35,  requiredReferrals: 75 },
+            { level: 7, name: "Grandmaster", requiredPoints: 320000,  requiredPgCoin: 70,  requiredReferrals: 120 },
+            { level: 8, name: "Legend",      requiredPoints: 500000,  requiredPgCoin: 200, requiredReferrals: 180 }
         ];
 
         const levelBonuses = { 1: 0, 2: 0.02, 3: 0.05, 4: 0.08, 5: 0.15, 6: 0.20, 7: 0.30, 8: 0.40 };
 
+        const levelUpRewards = {
+            2: { points: 1500, pgCoin: 1 },
+            3: { points: 3500, pgCoin: 3 },
+            4: { points: 7000, pgCoin: 6 },
+            5: { points: 12000, pgCoin: 10 },
+            6: { points: 25000, pgCoin: 20 },
+            7: { points: 60000, pgCoin: 70 },
+            8: { points: 120000, pgCoin: 250 },
+        };
+
         function getWithdrawalFee(amount) {
             const minAmount = 0.30; // Absolute minimum withdrawal amount
             if (amount < minAmount) return null;
-            // New requirement: A fixed fee for every withdrawal.
             return { referrals: 2, pgCoin: 3 };
         }
-
-        async function countValidReferrals(userId) {
-            const myReferralsQuery = query(collection(db, "users"), where("referredBy", "==", userId));
-            const snapshot = await getDocs(myReferralsQuery);
-            let validCount = 0;
-            if (!snapshot.empty) {
-                snapshot.forEach(docSnap => {
-                    const referee = docSnap.data();
-                    const points = referee.lifetimePointsEarned || 0;
-                    if (points >= REFERRAL_POINTS_THRESHOLD) {
-                        validCount++;
-                    }
-                });
+        
+        function getUserLevel(userData) {
+            if (!userData) return userLevels[0]; // Return level 1 if no user data
+            const totalPoints = userData.lifetimePointsEarned || 0;
+            const totalPgCoin = userData.lifetimePgCoinEarned || 0;
+            const totalReferrals = userData.referralCount || 0;
+            
+            let currentLevel = userLevels[0];
+            for (let i = userLevels.length - 1; i >= 0; i--) {
+                const levelInfo = userLevels[i];
+                if (totalPoints >= levelInfo.requiredPoints && 
+                    totalPgCoin >= levelInfo.requiredPgCoin &&
+                    totalReferrals >= levelInfo.requiredReferrals) {
+                    currentLevel = levelInfo;
+                    break;
+                }
             }
-            return validCount;
+            return currentLevel;
+        }
+
+        async function checkAndGrantLevelUpRewards() {
+            if (!currentUser) return;
+
+            const userRef = doc(db, 'users', currentUser.id);
+            const currentLevelInfo = getUserLevel(currentUser);
+            const claimedRewards = currentUser.claimedLevelUpRewards || [];
+            
+            const rewardsToClaim = [];
+            for (let i = 2; i <= currentLevelInfo.level; i++) {
+                if (!claimedRewards.includes(i) && levelUpRewards[i]) {
+                    rewardsToClaim.push(i);
+                }
+            }
+            
+            if (rewardsToClaim.length === 0) return;
+
+            try {
+                const batch = writeBatch(db);
+                let totalPointsReward = 0;
+                let totalPgCoinReward = 0;
+                let rewardMessages = [];
+
+                rewardsToClaim.forEach(level => {
+                    const reward = levelUpRewards[level];
+                    totalPointsReward += reward.points;
+                    totalPgCoinReward += reward.pgCoin;
+                    rewardMessages.push(`Level ${level} Reward: ${formatPoints(reward.points)} Pts, ${reward.pgCoin} PG`);
+                });
+                
+                batch.update(userRef, {
+                    balance: increment(totalPointsReward),
+                    pgCoin: increment(totalPgCoinReward),
+                    lifetimePointsEarned: increment(totalPointsReward),
+                    lifetimePgCoinEarned: increment(totalPgCoinReward),
+                    claimedLevelUpRewards: arrayUnion(...rewardsToClaim)
+                });
+
+                await batch.commit();
+                
+                showSuccessModal("Level Up! 🎉", `You've received a bonus!\n${rewardMessages.join('\n')}`);
+                await fetchAndUpdateCurrentUser();
+
+            } catch (error) {
+                console.error("Error granting level up reward:", error);
+            }
         }
 
         async function fetchAndUpdateCurrentUser() {
@@ -506,19 +554,14 @@
             if (!currentUser) return;
             const now = new Date();
             const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-            const lastDailyReset = currentUser.dailyTasks?.lastReset?.toDate();
+            const lastDailyReset = currentUser.lastDailyReset?.toDate();
             const lastDailyResetTime = lastDailyReset ? new Date(lastDailyReset.getFullYear(), lastDailyReset.getMonth(), lastDailyReset.getDate()).getTime() : 0;
             
             if (!lastDailyReset || lastDailyResetTime < today) {
                 const updates = {
-                    'dailyTasks.claimed': [],
-                    'dailyTasks.timeSpent': 0,
-                    'dailyTasks.lastReset': serverTimestamp(),
-                    'adVisitsToday': 0,
-                    'pgCoinAdVisitsToday': 0,
-                    'videoProgress.dailyWatchedCount': 0,
-                    'lottery.freeSpinsUsed': 0,
-                    'lottery.adSpinsUsed': 0
+                    'lastDailyReset': serverTimestamp(),
+                    'adVisitsToday': 0, 'pgCoinAdVisitsToday': 0, 'videoProgress.dailyWatchedCount': 0,
+                    'lottery.freeSpinsUsed': 0, 'lottery.adSpinsUsed': 0
                 };
                 try {
                     const userRef = doc(db, 'users', currentUser.id);
@@ -536,21 +579,16 @@
             const fieldsToEnsure = {
                 balance: 0, usdtBalance: 0, pgCoin: 0, lifetimePointsEarned: 0, lifetimePgCoinEarned: 0, 
                 referralPointsEarned: 0, referralPgCoinEarned: 0, referralCount: 0, validReferralCredits: 0,
-                completedTasks: [], 
-                adVisitsToday: 0, 
-                pgCoinAdVisitsToday: 0,
-                dailyTasks: { claimed: [], timeSpent: 0, lastReset: serverTimestamp() },
+                completedTasks: [], claimedLevelUpRewards: [], adVisitsToday: 0, pgCoinAdVisitsToday: 0,
+                lastDailyReset: serverTimestamp(), lastDailyLoginClaim: null,
                 videoProgress: { dailyWatchedCount: 0 },
-                readMessages: [],
-                withdrawalCount: 0,
+                readMessages: [], withdrawalCount: 0,
                 lottery: { freeSpinsUsed: 0, adSpinsUsed: 0, referralSpins: 0 }
             };
             
             if (!userSnap.exists()) {
                 const defaultUserData = {
-                    ...fieldsToEnsure,
-                    createdAt: serverTimestamp(),
-                    telegramUsername: tgUser.username || 'N/A',
+                    ...fieldsToEnsure, createdAt: serverTimestamp(), telegramUsername: tgUser.username || 'N/A',
                 };
                 if (referrerCode && referrerCode !== userId) {
                     defaultUserData.referredBy = referrerCode;
@@ -562,9 +600,7 @@
                         const referrerRef = doc(db, 'users', referrerCode);
                         const referrerSnap = await getDoc(referrerRef);
                         if (referrerSnap.exists()) {
-                             await updateDoc(referrerRef, { 
-                                referralCount: increment(1),
-                             });
+                             await updateDoc(referrerRef, { referralCount: increment(1) });
                         }
                     } catch (e) { console.error("Could not update referrer count", e); }
                 }
@@ -580,29 +616,21 @@
                     const referrerSnap = await getDoc(referrerRef);
                     if (referrerSnap.exists()) {
                         updatesForOldUsers.referredBy = referrerCode;
-                        await updateDoc(referrerRef, { 
-                            referralCount: increment(1),
-                        });
+                        await updateDoc(referrerRef, { referralCount: increment(1) });
                     }
                 } catch(e) { console.error("Could not update referrer count for existing user", e); }
             }
             
-            for (const key of ['balance', 'usdtBalance', 'pgCoin', 'lifetimePointsEarned', 'lifetimePgCoinEarned', 'referralCount', 'adVisitsToday', 'pgCoinAdVisitsToday', 'referralPointsEarned', 'referralPgCoinEarned', 'validReferralCredits']) {
+            for (const key in fieldsToEnsure) {
                 if (!userData.hasOwnProperty(key)) {
-                    updatesForOldUsers[key] = fieldsToEnsure[key];
+                     if(typeof fieldsToEnsure[key] === 'object' && !Array.isArray(fieldsToEnsure[key]) && fieldsToEnsure[key] !== null) {
+                        if (!userData[key]) updatesForOldUsers[key] = fieldsToEnsure[key];
+                     } else {
+                        updatesForOldUsers[key] = fieldsToEnsure[key];
+                     }
                 }
             }
-            if (!userData.dailyTasks) updatesForOldUsers.dailyTasks = fieldsToEnsure.dailyTasks;
-            else if (!userData.dailyTasks.hasOwnProperty('lastReset')) updatesForOldUsers['dailyTasks.lastReset'] = serverTimestamp();
-            if (!Array.isArray(userData.completedTasks)) updatesForOldUsers.completedTasks = [];
-            if (!userData.videoProgress) updatesForOldUsers.videoProgress = fieldsToEnsure.videoProgress;
-            if (userData.videoProgress?.hasOwnProperty('lastReset')) delete userData.videoProgress.lastReset; // cleanup old field
-            if (!Array.isArray(userData.readMessages)) updatesForOldUsers.readMessages = [];
-            if (!userData.hasOwnProperty('referralBonusPaidOut')) updatesForOldUsers.referralBonusPaidOut = {}; 
-            if (userData.telegramUsername !== (tgUser.username || 'N/A')) updatesForOldUsers.telegramUsername = tgUser.username || 'N/A';
-            if (!userData.hasOwnProperty('withdrawalCount')) updatesForOldUsers.withdrawalCount = 0;
-            if (!userData.lottery) updatesForOldUsers.lottery = fieldsToEnsure.lottery;
-            if (userData.lottery?.hasOwnProperty('lastReset')) delete userData.lottery.lastReset; // cleanup old field
+            if (!Array.isArray(userData.claimedLevelUpRewards)) updatesForOldUsers.claimedLevelUpRewards = [];
 
             if (Object.keys(updatesForOldUsers).length > 0) {
                 await updateDoc(userRef, updatesForOldUsers).catch(err => console.error("Error updating old user fields:", err));
@@ -614,11 +642,10 @@
             await checkAndResetDailies();
             
             document.getElementById('userIdDisplay').textContent = `ID: ${currentUser.id}`;
-
             updateBalanceUI(currentUser.balance, currentUser.usdtBalance, currentUser.pgCoin);
             generateReferralLink(currentUser.id);
             checkForUnreadMessages();
-            startDailyTimer();
+            await checkAndGrantLevelUpRewards();
         }
         
         function formatPoints(num) {
@@ -657,17 +684,8 @@
              if (!currentUser || (!rewards.points && !rewards.pgCoin)) return;
 
              if (rewards.points && rewards.points > 0) {
-                let currentLevel = userLevels[0];
-                const totalPoints = currentUser.lifetimePointsEarned || 0;
-                const totalPgCoin = currentUser.lifetimePgCoinEarned || 0;
-                for (let i = userLevels.length - 1; i >= 0; i--) {
-                    const levelInfo = userLevels[i];
-                    if (totalPoints >= levelInfo.requiredPoints && totalPgCoin >= levelInfo.requiredPgCoin) {
-                        currentLevel = levelInfo;
-                        break;
-                    }
-                }
-                const bonusMultiplier = levelBonuses[currentLevel.level] || 0;
+                const currentLevelInfo = getUserLevel(currentUser);
+                const bonusMultiplier = levelBonuses[currentLevelInfo.level] || 0;
                 const bonusPoints = Math.floor(rewards.points * bonusMultiplier);
                 rewards.points += bonusPoints;
              }
@@ -686,6 +704,7 @@
              if (Object.keys(updates).length > 0) {
                  await updateDoc(userRef, updates);
                  await fetchAndUpdateCurrentUser();
+                 await checkAndGrantLevelUpRewards();
              }
         }
         
@@ -757,15 +776,34 @@
             
             clickedItem.innerHTML = `<div id="${playerDivId}" class="player-container"></div>`;
             
-            accumulatedWatchTime = 0;
-
             player = new YT.Player(playerDivId, {
                 height: '100%', width: '100%', videoId: youtubeId,
                 playerVars: { 'autoplay': 1, 'controls': 1, 'rel': 0, 'fs': 1 },
-                events: { 'onStateChange': (e) => {
-                         if (e.data === YT.PlayerState.PLAYING && !videoPlaybackInterval) {
-                            videoPlaybackInterval = setInterval(() => grantReward({ points: 2 }), 60 * 1000);
-                        } else { clearInterval(videoPlaybackInterval); videoPlaybackInterval = null; }
+                events: {
+                    'onStateChange': (e) => {
+                         if (e.data === YT.PlayerState.PLAYING) {
+                             if (!videoPlaybackInterval) {
+                                try {
+                                    if (window.TelegramAdsController && typeof window.TelegramAdsController.showBanner === 'function') {
+                                        window.TelegramAdsController.showBanner();
+                                    }
+                                } catch (adError) { console.error("Banner Ad Error:", adError); }
+
+                                videoPlaybackInterval = setInterval(async () => {
+                                    const rewardPoints = Math.floor(Math.random() * 15) + 1;
+                                    await grantReward({ points: rewardPoints });
+                                    showSuccessModal("Reward!", `You've earned ${rewardPoints} points for watching!`);
+                                    try {
+                                        if (window.TelegramAdsController && typeof window.TelegramAdsController.showPush === 'function') {
+                                            await window.TelegramAdsController.showPush();
+                                        }
+                                    } catch (adError) { console.error("Push Ad Error:", adError); }
+                                }, 3 * 60 * 1000); // 3 minutes
+                            }
+                        } else {
+                            clearInterval(videoPlaybackInterval);
+                            videoPlaybackInterval = null;
+                        }
                     }
                 }
             });
@@ -786,7 +824,6 @@
             adTaskListContainer.innerHTML = '';
             if (!currentUser) return;
             
-            // --- Ad Task 1: Earn Points ---
             const pointsVisitsToday = currentUser.adVisitsToday || 0;
             const pointsVisitsLeft = AD_POINTS_LIMIT - pointsVisitsToday;
             const isPointsLimitReached = pointsVisitsLeft <= 0;
@@ -803,7 +840,6 @@
                 </button>`;
             adTaskListContainer.appendChild(pointsCard);
             
-            // --- Ad Task 2: Earn PG Coin ---
             const pgCoinVisitsToday = currentUser.pgCoinAdVisitsToday || 0;
             const pgCoinVisitsLeft = AD_PGCOIN_LIMIT - pgCoinVisitsToday;
             const isPgCoinLimitReached = pgCoinVisitsLeft <= 0;
@@ -848,35 +884,74 @@
 
             } catch (err) {
                 alert('You need to watch the complete ad to earn the reward.');
-                setupAdsToEarn(); // Reset button states
+                setupAdsToEarn(); 
             }
         });
         
+        async function renderDailyLoginTask() {
+            const container = document.getElementById('daily-login-task-container');
+            if (!container) return;
+            container.innerHTML = '';
+            if (!currentUser) return;
+
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+            const lastClaim = currentUser.lastDailyLoginClaim?.toDate();
+            const lastClaimTime = lastClaim ? new Date(lastClaim.getFullYear(), lastClaim.getMonth(), lastClaim.getDate()).getTime() : 0;
+            const isClaimedToday = lastClaimTime >= today;
+
+            const card = document.createElement('div');
+            card.className = 'task-card';
+            card.innerHTML = `
+                <div class="task-card-info">
+                    <h4>Daily Login Bonus</h4>
+                    <p>Reward: <span class="task-reward-points">40 Points</span></p>
+                </div>
+                <button class="task-button" id="dailyLoginClaimBtn" ${isClaimedToday ? 'disabled' : ''}>
+                    ${isClaimedToday ? 'Claimed Today' : 'Claim'}
+                </button>
+            `;
+            container.innerHTML = `<h3 class="section-title">Daily Reward</h3>`;
+            container.appendChild(card);
+            
+            if (!isClaimedToday) {
+                document.getElementById('dailyLoginClaimBtn').addEventListener('click', claimDailyLoginBonus);
+            }
+        }
+
+        async function claimDailyLoginBonus() {
+            const button = document.getElementById('dailyLoginClaimBtn');
+            if (button) {
+                button.disabled = true;
+                button.textContent = '...';
+            }
+            try {
+                await grantReward({ points: 40 });
+                await updateDoc(doc(db, 'users', currentUser.id), { lastDailyLoginClaim: serverTimestamp() });
+                await fetchAndUpdateCurrentUser();
+                showSuccessModal("Reward Claimed!", "You earned 40 points for your daily login.");
+                renderDailyLoginTask(); 
+            } catch (error) {
+                alert('Failed to claim daily login bonus. Please try again.');
+                if (button) button.disabled = false;
+            }
+        }
+
         async function fetchTasks() {
             const taskListContainer = document.getElementById('task-list');
-            const specialTaskListContainer = document.getElementById('special-task-list');
             taskListContainer.innerHTML = '<div class="loader"></div>';
-            specialTaskListContainer.innerHTML = '<div class="loader"></div>';
             try {
                 const tasksRef = collection(db, 'tasks');
                 const q = query(tasksRef, orderBy("createdAt", "desc"));
                 const snapshot = await getDocs(q);
                 taskListContainer.innerHTML = '';
-                specialTaskListContainer.innerHTML = '';
 
-                if (snapshot.empty) {
-                    const noTaskMsg = '<p style="text-align:center; grid-column: 1 / -1;">No tasks available right now.</p>';
-                    taskListContainer.innerHTML = noTaskMsg;
-                    specialTaskListContainer.innerHTML = noTaskMsg;
-                    return;
-                }
-
-                const now = Date.now();
-                let hasRegularTasks = false;
-                let hasSpecialTasks = false;
-
+                let hasTasks = false;
                 snapshot.forEach(docSnap => {
                     const task = docSnap.data();
+                    if (task.isSpecial) return; 
+
+                    hasTasks = true;
                     const taskId = docSnap.id;
                     const card = document.createElement('div');
                     card.className = 'task-card';
@@ -904,29 +979,20 @@
                         <button class="task-button" data-task-id="${taskId}" data-task-url="${task.url}" data-reward-points="${rewardPoints}" data-reward-pg="${rewardPg}" data-visit-duration="${task.visitDurationSeconds || 0}" data-state="${buttonState}" ${buttonDisabled ? 'disabled' : ''}>
                             ${buttonText}
                         </button>`;
-
-                    if (task.isSpecial && task.expiresAt && task.expiresAt.toMillis() > now) {
-                        specialTaskListContainer.appendChild(card);
-                        hasSpecialTasks = true;
-                    } else if (!task.isSpecial) {
-                        taskListContainer.appendChild(card);
-                        hasRegularTasks = true;
-                    }
+                    taskListContainer.appendChild(card);
                 });
-
-                if (!hasRegularTasks) taskListContainer.innerHTML = '<p style="text-align:center; grid-column: 1 / -1;">No regular tasks available.</p>';
-                if (!hasSpecialTasks) specialTaskListContainer.innerHTML = '<p style="text-align:center; grid-column: 1 / -1;">No special tasks available now.</p>';
+                
+                if (!hasTasks) {
+                    taskListContainer.innerHTML = '<p style="text-align:center; grid-column: 1 / -1;">No tasks available right now.</p>';
+                }
 
             } catch (error) {
                 console.error("Error fetching tasks:", error);
-                const errorMsg = '<p style="color:red; text-align:center; grid-column: 1 / -1;">Could not load tasks.</p>';
-                taskListContainer.innerHTML = errorMsg;
-                specialTaskListContainer.innerHTML = errorMsg;
+                taskListContainer.innerHTML = '<p style="color:red; text-align:center; grid-column: 1 / -1;">Could not load tasks.</p>';
             }
         }
         
         document.getElementById('task-list').addEventListener('click', handleTaskClick);
-        document.getElementById('special-task-list').addEventListener('click', handleTaskClick);
 
         async function handleTaskClick(e) {
             if (!e.target.matches('.task-button') || e.target.disabled) return;
@@ -990,7 +1056,7 @@
             document.getElementById('successModalMessage').textContent = message;
             modal.classList.add('show');
             if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-            setTimeout(() => { modal.classList.remove('show'); }, 3000);
+            setTimeout(() => { modal.classList.remove('show'); }, 4000);
         }
         
         async function renderConvertWithdrawUI() {
@@ -1001,6 +1067,7 @@
             document.getElementById('withdrawalPgCoinBalance').textContent = (currentUser.pgCoin || 0).toFixed(3);
             
             updateConvertUI();
+            updateBuyCreditsUI();
         }
         
         function updateConvertUI() {
@@ -1020,6 +1087,58 @@
             }
             amountInput.value = '';
             document.getElementById('usdtReceiveAmount').textContent = '$0.00 USDT';
+        }
+
+        function updateBuyCreditsUI() {
+            if (!currentUser) return;
+            document.getElementById('buyCreditsPgCoinBalance').textContent = (currentUser.pgCoin || 0).toFixed(3);
+            const creditsToBuy = parseInt(document.getElementById('creditsToBuy').value) || 0;
+            const cost = creditsToBuy * 5;
+            document.getElementById('buyCreditsCost').textContent = `${cost} PG Coins`;
+        }
+
+        async function handleBuyCredits() {
+            const button = document.getElementById('buyCreditsBtn');
+            button.disabled = true;
+            button.textContent = 'Processing...';
+
+            const creditsToBuy = parseInt(document.getElementById('creditsToBuy').value);
+            if (isNaN(creditsToBuy) || creditsToBuy <= 0) {
+                alert('Please enter a valid number of credits to buy.');
+                button.disabled = false;
+                button.textContent = 'Buy Credits';
+                return;
+            }
+            const cost = creditsToBuy * 5;
+            if ((currentUser.pgCoin || 0) < cost) {
+                alert('Insufficient PG Coin balance.');
+                button.disabled = false;
+                button.textContent = 'Buy Credits';
+                return;
+            }
+            
+            try {
+                await runTransaction(db, async (transaction) => {
+                    const userRef = doc(db, 'users', currentUser.id);
+                    const userDoc = await transaction.get(userRef);
+                    if (!userDoc.exists()) throw new Error("User not found.");
+                    if ((userDoc.data().pgCoin || 0) < cost) throw new Error("Insufficient PG Coin balance.");
+                    transaction.update(userRef, {
+                        pgCoin: increment(-cost),
+                        validReferralCredits: increment(creditsToBuy)
+                    });
+                });
+                await fetchAndUpdateCurrentUser();
+                await renderConvertWithdrawUI();
+                showSuccessModal("Purchase Successful!", `You bought ${creditsToBuy} valid referral credit(s).`);
+            } catch (error) {
+                alert(`Purchase failed: ${error.message}`);
+            } finally {
+                button.disabled = false;
+                button.textContent = 'Buy Credits';
+                document.getElementById('creditsToBuy').value = '';
+                updateBuyCreditsUI();
+            }
         }
 
         document.getElementById('amountToConvert').addEventListener('input', (e) => {
@@ -1070,41 +1189,22 @@
             const amount = parseFloat(document.getElementById('withdrawalAmount').value);
             
             try {
-                // 1. Check for minimum withdrawal amount based on method
                 const minAmount = (method === 'Bkash') ? 0.30 : 0.50;
-                if (isNaN(amount) || amount < minAmount) {
-                    throw new Error(`Minimum withdrawal for ${method} is $${minAmount.toFixed(2)}.`);
-                }
-                if (amount > currentUser.usdtBalance) {
-                    throw new Error("Insufficient USDT balance.");
-                }
+                if (isNaN(amount) || amount < minAmount) throw new Error(`Minimum withdrawal for ${method} is $${minAmount.toFixed(2)}.`);
+                if (amount > currentUser.usdtBalance) throw new Error("Insufficient USDT balance.");
 
-                // 2. Get withdrawal fee
                 const fee = getWithdrawalFee(amount);
-                if (!fee) {
-                    throw new Error(`Invalid withdrawal amount specified.`);
-                }
+                if (!fee) throw new Error(`Invalid withdrawal amount specified.`);
 
-                // 3. Check if user has enough credits and PG coins for the fee
-                if ((currentUser.validReferralCredits || 0) < fee.referrals) {
-                    throw new Error(`Insufficient valid referral credits. Need ${fee.referrals}, you have ${currentUser.validReferralCredits || 0}.`);
-                }
-                if ((currentUser.pgCoin || 0) < fee.pgCoin) {
-                    throw new Error(`Insufficient PG Coins for fee. Need ${fee.pgCoin}, you have ${(currentUser.pgCoin || 0).toFixed(3)}.`);
-                }
+                if ((currentUser.validReferralCredits || 0) < fee.referrals) throw new Error(`Insufficient valid referral credits. Need ${fee.referrals}, you have ${currentUser.validReferralCredits || 0}.`);
+                if ((currentUser.pgCoin || 0) < fee.pgCoin) throw new Error(`Insufficient PG Coins for fee. Need ${fee.pgCoin}, you have ${(currentUser.pgCoin || 0).toFixed(3)}.`);
                 
                 submitButton.textContent = 'Processing...';
                 const requestData = { 
-                    userId: currentUser.id, 
-                    telegramUsername: currentUser.telegramUsername, 
-                    usdAmount: amount, 
-                    method, 
-                    details: document.getElementById('accountDetails').value, 
-                    status: 'pending', 
-                    createdAt: serverTimestamp() 
+                    userId: currentUser.id, telegramUsername: currentUser.telegramUsername, usdAmount: amount, method, 
+                    details: document.getElementById('accountDetails').value, status: 'pending', createdAt: serverTimestamp() 
                 };
 
-                // 4. Run transaction to deduct balance, fees and create request
                 await runTransaction(db, async (transaction) => {
                     const userRef = doc(db, 'users', currentUser.id);
                     const userDoc = await transaction.get(userRef);
@@ -1218,39 +1318,25 @@
                     
                     const refereeData = refereeSnap.data();
                     if (refereeData.referralBonusPaidOut?.[currentUser.id] === true) throw new Error("Bonus already claimed.");
-                    if ((refereeData.lifetimePointsEarned || 0) < REFERRAL_POINTS_THRESHOLD) {
-                        throw new Error("Referee has not reached the threshold.");
-                    }
+                    if ((refereeData.lifetimePointsEarned || 0) < REFERRAL_POINTS_THRESHOLD) throw new Error("Referee has not reached the threshold.");
                     
                     const referrerData = referrerSnap.data();
-                    let currentLevel = userLevels[0];
-                    const totalPoints = referrerData.lifetimePointsEarned || 0;
-                    const totalPgCoin = referrerData.lifetimePgCoinEarned || 0;
-                    for (let i = userLevels.length - 1; i >= 0; i--) {
-                        const levelInfo = userLevels[i];
-                        if (totalPoints >= levelInfo.requiredPoints && totalPgCoin >= levelInfo.requiredPgCoin) {
-                            currentLevel = levelInfo;
-                            break;
-                        }
-                    }
-
-                    const bonusMultiplier = levelBonuses[currentLevel.level] || 0;
+                    const currentLevelInfo = getUserLevel(referrerData);
+                    const bonusMultiplier = levelBonuses[currentLevelInfo.level] || 0;
                     const totalPointsToGrant = REFERRAL_BONUS_POINTS + Math.floor(REFERRAL_BONUS_POINTS * bonusMultiplier);
 
                     transaction.update(referrerRef, { 
-                        balance: increment(totalPointsToGrant),
-                        lifetimePointsEarned: increment(totalPointsToGrant),
-                        pgCoin: increment(REFERRAL_BONUS_PG_COIN),
-                        lifetimePgCoinEarned: increment(REFERRAL_BONUS_PG_COIN),
+                        balance: increment(totalPointsToGrant), lifetimePointsEarned: increment(totalPointsToGrant),
+                        pgCoin: increment(REFERRAL_BONUS_PG_COIN), lifetimePgCoinEarned: increment(REFERRAL_BONUS_PG_COIN),
                         'lottery.referralSpins': increment(REFERRAL_BONUS_SPINS),
-                        referralPointsEarned: increment(REFERRAL_BONUS_POINTS),
-                        validReferralCredits: increment(1)
+                        referralPointsEarned: increment(REFERRAL_BONUS_POINTS), validReferralCredits: increment(1)
                     });
                     transaction.update(refereeRef, { [`referralBonusPaidOut.${currentUser.id}`]: true });
                 });
                 showSuccessModal("Bonus Claimed!", `${REFERRAL_BONUS_POINTS} Points, ${REFERRAL_BONUS_PG_COIN} PG, 1 Spin, and 1 Valid Referral Credit added.`);
                 await fetchAndUpdateCurrentUser();
-                await fetchLeaderboard(); // Refresh the list
+                await checkAndGrantLevelUpRewards();
+                await fetchLeaderboard();
             } catch (error) {
                 alert(`Error: ${error.message}`);
                 button.disabled = false; button.textContent = `Claim Reward`;
@@ -1262,66 +1348,13 @@
                 await claimReferralBonus(e.target.dataset.refereeId, e.target);
             }
         });
-        
-        function startDailyTimer() {
-            if (dailyTimerInterval) clearInterval(dailyTimerInterval);
-            dailyTimerInterval = setInterval(async () => {
-                timeSpentThisSession++;
-                if (timeSpentThisSession > 0 && timeSpentThisSession % 60 === 0) {
-                    if (!currentUser?.id) return;
-                    await updateDoc(doc(db, 'users', currentUser.id), { 'dailyTasks.timeSpent': increment(60) });
-                    await fetchAndUpdateCurrentUser(); 
-                }
-                if (document.getElementById('task-content').classList.contains('active')) { renderDailyTasks(); }
-            }, 1000);
-        }
 
-        function renderDailyTasks() {
-            if (!currentUser) return;
-            const container = document.getElementById('daily-task-list');
-            container.innerHTML = '';
-            const claimedTasks = currentUser.dailyTasks?.claimed || [];
-            const timeSpent = (currentUser.dailyTasks?.timeSpent || 0) + timeSpentThisSession;
-            dailyTasksConfig.forEach(task => {
-                const card = document.createElement('div');
-                card.className = 'daily-task-card';
-                const isClaimed = claimedTasks.includes(task.id);
-                let canClaim = false; let buttonText = 'Claim';
-                if (task.type === 'time') {
-                    if (timeSpent >= task.requirement) { canClaim = true; } 
-                    else { const timeLeft = task.requirement - timeSpent; buttonText = `Wait ${Math.floor(timeLeft / 60)}m ${timeLeft % 60}s`; }
-                } else if (task.type === 'action') { canClaim = true; buttonText = task.url ? 'Go & Claim' : 'Claim'; }
-                if (isClaimed) { buttonText = 'Claimed'; }
-                card.innerHTML = `<div class="daily-task-info"><h4>${task.title}</h4><p>Reward: ${task.reward} Points</p></div>
-                    <button class="daily-task-button" data-task-id="${task.id}" data-task-type="${task.type}" data-task-url="${task.url || ''}" data-reward="${task.reward}" ${isClaimed || !canClaim ? 'disabled' : ''}>${buttonText}</button>`;
-                container.appendChild(card);
-            });
-        }
-
-        document.getElementById('daily-task-list').addEventListener('click', async (e) => {
-            if (!e.target.matches('.daily-task-button') || e.target.disabled) return;
-            const button = e.target;
-            const { taskId, taskType, taskUrl, reward } = e.target.dataset;
-            if (taskType === 'action' && taskUrl) { tg.openLink(taskUrl); }
-            button.disabled = true; button.textContent = '...';
-            try {
-                await grantReward({ points: Number(reward) });
-                await updateDoc(doc(db, 'users', currentUser.id), { 'dailyTasks.claimed': arrayUnion(taskId) });
-                await fetchAndUpdateCurrentUser();
-                renderDailyTasks();
-                showSuccessModal("Reward Claimed!", `You earned ${reward} points.`);
-            } catch (error) { alert("Failed to claim task."); button.disabled = false; renderDailyTasks(); }
-        });
-
-        // Profile Section Logic
         function renderProfile() {
             if (!currentUser) return;
             
             document.getElementById('profile-username').textContent = currentUser.telegramUsername || 'User';
             document.getElementById('profile-userid').textContent = `ID: ${currentUser.id}`;
-            const totalPoints = currentUser.lifetimePointsEarned || 0;
-            const totalPgCoin = currentUser.lifetimePgCoinEarned || 0;
-            document.getElementById('profile-points').textContent = formatPoints(totalPoints);
+            document.getElementById('profile-points').textContent = formatPoints(currentUser.lifetimePointsEarned || 0);
             document.getElementById('profile-pg-coins').textContent = (currentUser.pgCoin || 0).toFixed(3);
             document.getElementById('profile-referrals').textContent = currentUser.referralCount || 0;
             
@@ -1342,18 +1375,10 @@
                 avatarEl.textContent = initial;
             }
 
-            let currentLevel = userLevels[0];
-            for (let i = userLevels.length - 1; i >= 0; i--) {
-                const levelInfo = userLevels[i];
-                if (totalPoints >= levelInfo.requiredPoints && totalPgCoin >= levelInfo.requiredPgCoin) {
-                    currentLevel = levelInfo;
-                    break;
-                }
-            }
-            document.getElementById('profile-level').textContent = `Level ${currentLevel.level} - ${currentLevel.name}`;
+            const currentLevelInfo = getUserLevel(currentUser);
+            document.getElementById('profile-level').textContent = `Level ${currentLevelInfo.level} - ${currentLevelInfo.name}`;
         }
         
-        // Lottery Logic
         const lotteryResultDisplay = document.getElementById('lottery-result-display');
         const freeSpinButton = document.getElementById('free-spin-button');
         const adSpinButton = document.getElementById('ad-spin-button');
@@ -1440,7 +1465,6 @@
             }
         }
         
-        // Inbox System Logic
         async function checkForUnreadMessages() {
             if (!currentUser) return;
             const messagesRef = collection(db, 'messages');
@@ -1506,7 +1530,7 @@
         document.querySelectorAll('.nav-link').forEach(link => {
             link.addEventListener('click', async (e) => {
                 e.preventDefault();
-                if (!currentUser) return; // Prevent navigation until user is loaded
+                if (!currentUser) return;
                 
                 stopAndClearVideo();
                 document.querySelectorAll('.nav-link, .content-section').forEach(el => el.classList.remove('active'));
@@ -1519,15 +1543,12 @@
                 document.getElementById('menu-overlay').classList.remove('is-open');
 
                 switch(targetId) {
-                    case '#home-content': /* Already fetched */ break;
+                    case '#home-content': break;
                     case '#profile-content': renderProfile(); break;
                     case '#ads-to-earn-content': setupAdsToEarn(); break;
-                    case '#task-content': await fetchTasks(); renderDailyTasks(); break;
+                    case '#task-content': await renderDailyLoginTask(); await fetchTasks(); break;
                     case '#lottery-content': updateLotteryUI(); break;
-                    case '#referral-content': 
-                        renderReferralStats(); 
-                        await fetchLeaderboard(); // Fetches top list and own referrals list
-                        break;
+                    case '#referral-content': renderReferralStats(); await fetchLeaderboard(); break;
                     case '#leaderboard-content': await fetchLeaderboard(); break;
                     case '#convert-withdraw-content': await renderConvertWithdrawUI(); break;
                     case '#history-content': await displayWithdrawalHistory(); break;
@@ -1559,7 +1580,7 @@
                         adexiumWidget.autoMode(); 
                         isInterstitialAdVisible = false;
                     }
-                }, 3 * 60 * 1000); // 3 minutes
+                }, 3 * 60 * 1000); 
             } catch (e) {
                 console.error("Failed to initialize Adexium for timed display:", e);
             }
@@ -1572,15 +1593,19 @@
                 }
                 tg.ready(); tg.expand();
                 
-                // --- PERFORMANCE OPTIMIZATION: Start fetches in parallel ---
                 const initializationPromise = initializeUser(tg.initDataUnsafe.user, tg.initDataUnsafe.start_param);
-                const contentPromise = fetchContent(); // Fetches videos
+                const contentPromise = fetchContent(); 
                 
-                // Wait for the essential user data before proceeding.
                 await initializationPromise;
-                // Video content continues to load in the background.
 
-                // Setup UI and event listeners that depend on `currentUser`
+                if (typeof TelegramAdsController !== 'undefined') {
+                    window.TelegramAdsController = new TelegramAdsController();
+                    window.TelegramAdsController.initialize({
+                        pubId: "978188",
+                        appId: "3041",
+                    });
+                }
+
                 manageAdTimers();
 
                 const menuToggleBtn = document.getElementById('menu-toggle-button');
@@ -1599,15 +1624,9 @@
                     });
                 });
                 
-                document.querySelectorAll('.task-category-btn').forEach(button => {
-                    button.addEventListener('click', () => {
-                        document.querySelectorAll('.task-category-btn, .task-category-container').forEach(el => el.classList.remove('active'));
-                        button.classList.add('active');
-                        document.getElementById(`${button.dataset.taskCategory}-container`).classList.add('active');
-                    });
-                });
-
                 document.getElementById('convertSource').addEventListener('change', updateConvertUI);
+                document.getElementById('creditsToBuy').addEventListener('input', updateBuyCreditsUI);
+                document.getElementById('buyCreditsBtn').addEventListener('click', handleBuyCredits);
 
             } catch (error) {
                 console.error("Initialization failed:", error);
