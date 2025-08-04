@@ -363,11 +363,14 @@
                      <form id="withdrawalForm">
                          <div class="form-group">
                             <label for="withdrawalMethod">Payment Method</label>
-                            <select id="withdrawalMethod" required><option value="Bkash">Bkash</option><option value="Binance (Optimism)">Binance (Optimism)</option></select>
+                            <select id="withdrawalMethod" required>
+                                <option value="Bkash">Bkash</option>
+                                <option value="Binance (Optimism)">Binance ID</option>
+                            </select>
                          </div>
                          <div class="form-group">
                             <label for="accountDetails">Account Details</label>
-                            <input type="text" id="accountDetails" placeholder="Your Bkash Number or Binance Address" required>
+                            <input type="text" id="accountDetails" placeholder="Your Bkash Number or Binance ID" required>
                          </div>
                          <div class="form-group">
                             <label for="withdrawalAmount">Amount (USDT)</label>
@@ -467,7 +470,7 @@
         };
 
         function getWithdrawalFee(amount) {
-            const minAmount = 0.30; // Absolute minimum withdrawal amount
+            const minAmount = 0.20; // Absolute minimum withdrawal amount, updated
             if (amount < minAmount) return null;
             return { referrals: 2, pgCoin: 3 };
         }
@@ -783,22 +786,11 @@
                     'onStateChange': (e) => {
                          if (e.data === YT.PlayerState.PLAYING) {
                              if (!videoPlaybackInterval) {
-                                try {
-                                    if (window.TelegramAdsController && typeof window.TelegramAdsController.showBanner === 'function') {
-                                        window.TelegramAdsController.showBanner();
-                                    }
-                                } catch (adError) { console.error("Banner Ad Error:", adError); }
-
                                 videoPlaybackInterval = setInterval(async () => {
                                     const rewardPoints = Math.floor(Math.random() * 15) + 1;
                                     await grantReward({ points: rewardPoints });
                                     showSuccessModal("Reward!", `You've earned ${rewardPoints} points for watching!`);
-                                    try {
-                                        if (window.TelegramAdsController && typeof window.TelegramAdsController.showPush === 'function') {
-                                            await window.TelegramAdsController.showPush();
-                                        }
-                                    } catch (adError) { console.error("Push Ad Error:", adError); }
-                                }, 3 * 60 * 1000); // 3 minutes
+                                }, 3 * 60 * 1000); // 3 minutes reward
                             }
                         } else {
                             clearInterval(videoPlaybackInterval);
@@ -811,12 +803,13 @@
         
         function stopAndClearVideo() {
             clearInterval(videoPlaybackInterval);
+            videoPlaybackInterval = null;
             if (currentPlayingItem) {
                 const originalContent = currentPlayingItem.originalContent;
                 if(originalContent) currentPlayingItem.innerHTML = originalContent;
             }
             if (player) { try { player.destroy(); } catch (e) {} player = null; }
-            currentPlayingItem = null; videoPlaybackInterval = null;
+            currentPlayingItem = null;
         }
         
         function setupAdsToEarn() {
@@ -1189,8 +1182,18 @@
             const amount = parseFloat(document.getElementById('withdrawalAmount').value);
             
             try {
-                const minAmount = (method === 'Bkash') ? 0.30 : 0.50;
-                if (isNaN(amount) || amount < minAmount) throw new Error(`Minimum withdrawal for ${method} is $${minAmount.toFixed(2)}.`);
+                let minAmount;
+                let methodNameForDisplay = method;
+                if (method === 'Bkash') {
+                    minAmount = 0.20;
+                } else if (method === 'Binance (Optimism)') {
+                    minAmount = 0.30;
+                    methodNameForDisplay = 'Binance ID';
+                } else {
+                    throw new Error(`Withdrawal method "${method}" is not supported yet.`);
+                }
+                
+                if (isNaN(amount) || amount < minAmount) throw new Error(`Minimum withdrawal for ${methodNameForDisplay} is $${minAmount.toFixed(2)}.`);
                 if (amount > currentUser.usdtBalance) throw new Error("Insufficient USDT balance.");
 
                 const fee = getWithdrawalFee(amount);
@@ -1252,7 +1255,9 @@
                     const date = data.createdAt?.toDate().toLocaleDateString() || 'N/A';
                     const status = data.status || 'pending';
                     const amountText = `$${parseFloat(data.usdAmount || 0).toFixed(2)} USDT`;
-                    item.innerHTML = `<div><strong>${amountText}</strong><br><small>${data.method} - ${date}</small></div><strong class="status-${status}">${status.charAt(0).toUpperCase() + status.slice(1)}</strong>`;
+                    let methodDisplay = data.method;
+                    if(methodDisplay === 'Binance (Optimism)') methodDisplay = 'Binance ID';
+                    item.innerHTML = `<div><strong>${amountText}</strong><br><small>${methodDisplay} - ${date}</small></div><strong class="status-${status}">${status.charAt(0).toUpperCase() + status.slice(1)}</strong>`;
                     historyContainer.appendChild(item);
                 });
             } catch (error) { console.error("Error fetching history:", error); historyContainer.innerHTML = '<p style="color:red;">Error loading history.</p>'; }
