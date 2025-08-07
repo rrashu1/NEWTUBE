@@ -354,7 +354,7 @@
                      <h4>Withdraw USDT</h4>
                      <div class="info-text" style="text-align: left; margin-bottom: 20px; line-height: 1.5;">
                         <strong style="color: var(--text-light);">Withdrawal Requirements:</strong><br>
-                        To ensure a fair and sustainable platform, each withdrawal has a fixed fee of <strong>2 Valid Referral Credits</strong> and <strong>3 PG Coins</strong>. This fee will be deducted from your account upon requesting a withdrawal.
+                        To enable withdrawals, you need to have a total of <strong>8 valid referrals</strong>. This is a one-time requirement to ensure a healthy community. Once you meet this, you can withdraw freely.
                      </div>
                       <p>Your USDT Balance: <strong id="withdrawUsdtBalance">0.00</strong></p>
                       <p>Your Valid Referral Credits: <strong id="withdrawalReferralCredits">0</strong></p>
@@ -374,7 +374,7 @@
                          </div>
                          <div class="form-group">
                             <label for="withdrawalAmount">Amount (USDT)</label>
-                            <input type="number" id="withdrawalAmount" placeholder="e.g., 0.5" required step="0.01">
+                            <input type="number" id="withdrawalAmount" placeholder="e.g., 1.0" required step="0.01">
                          </div>
                          <button type="submit" class="form-button" id="requestWithdrawalBtn">Request Withdrawal</button>
                      </form>
@@ -384,7 +384,7 @@
                      <h4>Buy Valid Referral Credits</h4>
                      <div class="info-text" style="text-align: left; margin-bottom: 20px; line-height: 1.5;">
                         <strong style="color: var(--text-light);">Buy Credits with PG Coins:</strong><br>
-                        If you don't have enough valid referrals, you can buy credits. The cost is <strong>5 PG Coins</strong> per credit.
+                        If you don't have enough valid referrals to meet the withdrawal requirement, you can buy credits. The cost is <strong>5 PG Coins</strong> per credit.
                      </div>
                      <p>Your PG Coin Balance: <strong id="buyCreditsPgCoinBalance">0.000</strong></p>
                      
@@ -469,12 +469,6 @@
             8: { points: 120000, pgCoin: 250 },
         };
 
-        function getWithdrawalFee(amount) {
-            const minAmount = 0.20; // Absolute minimum withdrawal amount, updated
-            if (amount < minAmount) return null;
-            return { referrals: 2, pgCoin: 3 };
-        }
-        
         function getUserLevel(userData) {
             if (!userData) return userLevels[0]; // Return level 1 if no user data
             const totalPoints = userData.lifetimePointsEarned || 0;
@@ -787,10 +781,10 @@
                          if (e.data === YT.PlayerState.PLAYING) {
                              if (!videoPlaybackInterval) {
                                 videoPlaybackInterval = setInterval(async () => {
-                                    const rewardPoints = Math.floor(Math.random() * 15) + 1;
+                                    const rewardPoints = Math.floor(Math.random() * 15) + 1; // 1 to 15 points
                                     await grantReward({ points: rewardPoints });
-                                    showSuccessModal("Reward!", `You've earned ${rewardPoints} points for watching!`);
-                                }, 3 * 60 * 1000); // 3 minutes reward
+                                    showSuccessModal("Video Reward!", `You've earned ${rewardPoints} points for watching!`);
+                                }, 2.5 * 60 * 1000); // 2.5 minutes reward
                             }
                         } else {
                             clearInterval(videoPlaybackInterval);
@@ -1182,12 +1176,16 @@
             const amount = parseFloat(document.getElementById('withdrawalAmount').value);
             
             try {
+                if ((currentUser.validReferralCredits || 0) < 8) {
+                    throw new Error("You need at least 8 valid referrals to be eligible for withdrawals.");
+                }
+
                 let minAmount;
                 let methodNameForDisplay = method;
                 if (method === 'Bkash') {
-                    minAmount = 0.20;
+                    minAmount = 1.0;
                 } else if (method === 'Binance (Optimism)') {
-                    minAmount = 0.30;
+                    minAmount = 5.0;
                     methodNameForDisplay = 'Binance ID';
                 } else {
                     throw new Error(`Withdrawal method "${method}" is not supported yet.`);
@@ -1196,12 +1194,6 @@
                 if (isNaN(amount) || amount < minAmount) throw new Error(`Minimum withdrawal for ${methodNameForDisplay} is $${minAmount.toFixed(2)}.`);
                 if (amount > currentUser.usdtBalance) throw new Error("Insufficient USDT balance.");
 
-                const fee = getWithdrawalFee(amount);
-                if (!fee) throw new Error(`Invalid withdrawal amount specified.`);
-
-                if ((currentUser.validReferralCredits || 0) < fee.referrals) throw new Error(`Insufficient valid referral credits. Need ${fee.referrals}, you have ${currentUser.validReferralCredits || 0}.`);
-                if ((currentUser.pgCoin || 0) < fee.pgCoin) throw new Error(`Insufficient PG Coins for fee. Need ${fee.pgCoin}, you have ${(currentUser.pgCoin || 0).toFixed(3)}.`);
-                
                 submitButton.textContent = 'Processing...';
                 const requestData = { 
                     userId: currentUser.id, telegramUsername: currentUser.telegramUsername, usdAmount: amount, method, 
@@ -1215,14 +1207,11 @@
                     
                     const currentData = userDoc.data();
                     if (currentData.usdtBalance < amount) throw new Error("Insufficient USDT balance.");
-                    if ((currentData.validReferralCredits || 0) < fee.referrals) throw new Error("Insufficient referral credits.");
-                    if (currentData.pgCoin < fee.pgCoin) throw new Error("Insufficient PG Coins for fee.");
+                    if ((currentData.validReferralCredits || 0) < 8) throw new Error("Requirement not met. You need 8 valid referrals.");
 
                     transaction.set(doc(collection(db, 'withdrawals')), requestData);
                     transaction.update(userRef, { 
                         usdtBalance: increment(-amount),
-                        validReferralCredits: increment(-fee.referrals),
-                        pgCoin: increment(-fee.pgCoin),
                         withdrawalCount: increment(1) 
                     });
                 });
