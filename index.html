@@ -3,112 +3,190 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>NEWTUBE - Watch & Earn</title>
+    <title>newRux - Watch & Earn</title>
     <script src="https://telegram.org/js/telegram-web-app.js?56"></script>
     
     <!-- Monetag Ads Library -->
     <script src='//libtl.com/sdk.js' data-zone='9442539' data-sdk='show_9442539'></script>
     <!-- GigaPub Ads SDK -->
     <script src="https://ad.gigapub.tech/script?id=846"></script>
-    <!-- Adexium Ads SDK (New) -->
+    <!-- Adexium Ads SDK -->
     <script type="text/javascript" src="https://cdn.tgads.space/assets/js/adexium-widget.min.js"></script>
-    <!-- RichInfo Ads SDK (New) -->
-    <script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
-    <!-- Fonts for Lottery -->
+    
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&family=Roboto+Mono:wght@700&display=swap" rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Roboto+Mono:wght@700&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            --primary-accent-color: #007BFF; 
-            --primary-accent-hover-color: #0056b3; 
-            --dark-bg: #000000;
-            --card-bg: #1a1a1a; --header-bg: #181818; --text-light: #ffffff; --text-muted: #b3b3b3;
-            --border-color: #282828; --success-color: #28a745; --disabled-color: #444;
+            --primary-accent-color: #388bff; 
+            --primary-accent-hover-color: #2a7de8; 
+            --dark-bg: #0d1117;
+            --card-bg: #161b22;
+            --header-bg: #161b22;
+            --text-light: #e6edf3;
+            --text-muted: #8b949e;
+            --border-color: #30363d;
+            --success-color: #28a745;
+            --disabled-color: #21262d;
         }
-        body { background-color: var(--dark-bg); color: var(--text-light); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 60px 0 0; }
-        .container { max-width: 1200px; margin: 0 auto; padding: 0 15px; }
-        .main-header { background-color: var(--header-bg); padding: 10px 15px; border-bottom: 1px solid var(--border-color); position: fixed; top: 0; left: 0; right: 0; z-index: 1000; display: flex; justify-content: space-between; align-items: center; height: 40px; }
-        .site-title-container { display: flex; flex-direction: column; align-items: flex-start; }
-        .site-title { font-size: 1.2em; color: var(--primary-accent-color); font-weight: 700; text-transform: uppercase; margin: 0; padding: 0; line-height: 1; }
-        .user-id-container { display: flex; align-items: center; gap: 8px; cursor: pointer; margin-top: 1px; }
-        .user-id-display { font-size: 0.7em; color: var(--text-muted); font-weight: normal; }
+        
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: linear-gradient(180deg, rgba(13,17,23,1) 0%, rgba(3,11,26,1) 100%);
+            color: var(--text-light);
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 70px 0 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        .main-header {
+            background-color: rgba(22, 27, 34, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 10px 15px;
+            border-bottom: 1px solid var(--border-color);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 50px;
+        }
+        
+        .site-title-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .site-title {
+            font-size: 1.5em;
+            color: var(--primary-accent-color);
+            font-weight: 700;
+            text-transform: uppercase;
+            margin: 0;
+            padding: 0;
+            line-height: 1;
+            text-shadow: 0 0 10px rgba(56, 139, 255, 0.5);
+        }
+
+        .user-id-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            margin-top: 4px;
+        }
+        
+        .user-id-display {
+            font-size: 0.7em;
+            color: var(--text-muted);
+            font-family: 'Roboto Mono', monospace;
+        }
+        
         .copy-user-id-btn { background: none; border: none; padding: 0; display: flex; align-items: center; justify-content: center; color: var(--text-muted); }
         .copy-user-id-btn svg { width: 12px; height: 12px; }
         .user-id-container:hover .user-id-display, .user-id-container:hover .copy-user-id-btn { color: var(--text-light); }
         
         .header-right { display: flex; align-items: center; gap: 10px; }
         .inbox-container { position: relative; cursor: pointer; }
-        #inbox-icon { width: 24px; height: 24px; color: var(--text-light); }
-        #inbox-notification-dot { position: absolute; top: -2px; right: -2px; width: 8px; height: 8px; background-color: var(--primary-accent-color); border-radius: 50%; border: 1px solid var(--header-bg); display: none; }
+        #inbox-icon { width: 28px; height: 28px; color: var(--text-light); }
+        #inbox-notification-dot { position: absolute; top: 0px; right: 0px; width: 9px; height: 9px; background-color: var(--primary-accent-color); border-radius: 50%; border: 2px solid var(--header-bg); display: none; }
         #inbox-notification-dot.visible { display: block; }
-        .balance-display { background-color: #2a2a2a; color: var(--primary-accent-color); padding: 5px 12px; border-radius: 20px; font-weight: bold; font-size: 0.9em; }
-        .menu-toggle-button { background: none; border: none; cursor: pointer; padding: 5px; display: flex; flex-direction: column; gap: 4px; }
-        .menu-toggle-button .bar { width: 22px; height: 2px; background-color: var(--text-light); border-radius: 2px; }
-        .side-menu { position: fixed; top: 0; right: -100%; width: 250px; height: 100%; background-color: var(--header-bg); z-index: 1001; transition: right 0.3s ease-in-out; display: flex; flex-direction: column; }
-        .side-menu.is-open { right: 0; }
-        .side-menu-header { padding: 15px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
-        .side-menu-header h3 { margin: 0; } .close-menu-btn { background: none; border: none; font-size: 1.5em; color: var(--text-light); cursor: pointer; }
-        .side-menu-nav { list-style: none; padding: 0; margin: 0; flex-grow: 1; overflow-y: auto; }
-        .side-menu-nav a { display: block; padding: 15px 20px; color: var(--text-muted); text-decoration: none; font-weight: 500; border-bottom: 1px solid var(--border-color); transition: background-color 0.2s, color 0.2s; }
-        .side-menu-nav a:hover, .side-menu-nav a.active { background-color: var(--primary-accent-color); color: var(--text-light); }
-        .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; display: none; }
-        .menu-overlay.is-open { display: block; }
-        .content-section { display: none; padding-top: 25px; } .content-section.active { display: block; }
-        .section-title { font-size: 1.5em; margin-bottom: 20px; padding-bottom: 10px; color: var(--text-light); border-bottom: 2px solid var(--border-color); }
+        
+        .balance-display {
+            background-color: var(--dark-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-light);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+        .balance-display span {
+            color: var(--primary-accent-color);
+            font-family: 'Roboto Mono', monospace;
+        }
+
+        .content-section {
+            padding-top: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .section-title {
+            font-size: 1.6em;
+            font-weight: 700;
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            color: var(--text-light);
+            border-bottom: 2px solid var(--border-color);
+            text-align: center;
+        }
+        
         .search-container { display: flex; gap: 10px; margin-bottom: 20px; }
-        .search-container input { flex-grow: 1; padding: 10px; box-sizing: border-box; border-radius: 8px; border: 1px solid var(--border-color); background-color: #000; color: var(--text-light); font-size: 1em; }
-        .search-container button { padding: 10px 15px; border: none; border-radius: 8px; background-color: var(--primary-accent-color); color: var(--text-light); font-weight: bold; cursor: pointer; }
-        .search-container button#clearSearchBtn { background-color: #444; }
-        .item-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
-        .movie-item, .ad-task-card { background-color: var(--card-bg); border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; }
-        .movie-item { cursor: pointer; transition: transform 0.2s; } .movie-item:hover{ transform: scale(1.03); }
+        .search-container input { flex-grow: 1; padding: 12px; box-sizing: border-box; border-radius: 8px; border: 1px solid var(--border-color); background-color: var(--dark-bg); color: var(--text-light); font-size: 1em; }
+        .search-container button { padding: 12px 20px; border: none; border-radius: 8px; background-color: var(--primary-accent-color); color: var(--text-light); font-weight: bold; cursor: pointer; }
+        
+        .item-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .movie-item, .ad-task-card { background-color: var(--card-bg); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; border: 1px solid var(--border-color); }
+        .movie-item { cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
+        .movie-item:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.2), 0 0 15px rgba(56, 139, 255, 0.2); }
+        
         .thumbnail-container { width: 100%; aspect-ratio: 16/9; background-color: #333; position: relative; }
         .thumbnail-container img { width: 100%; height: 100%; object-fit: cover; }
         .player-container { width: 100%; aspect-ratio: 16/9; background: #000; }
         .player-container iframe { width: 100%; height: 100%; border: none; }
-        .movie-item-info, .ad-task-card-info { padding: 15px; flex-grow: 1; text-align:center;}
+        .movie-item-info, .ad-task-card-info { padding: 15px; flex-grow: 1; text-align:center; }
         .task-card-info { padding: 0; flex-grow: 1; text-align: left; }
         .movie-item-info h4, .task-card h4, .ad-task-card h4 { margin: 0 0 8px; font-size: 1.1em; line-height: 1.3; }
         .movie-reward, .ad-visits-left { color: var(--success-color); font-weight: bold; font-size: 0.9em; margin: 0; }
-        .task-card p, .ad-task-card p { margin: 8px 0 15px; color: var(--text-muted); font-weight: bold; }
-        .task-card-info p { margin: 5px 0 0; }
-        .task-reward-points { color: var(--success-color); }
-        .task-reward-pg { color: #ff9900; } /* Orange for PG Coin */
-        .ad-task-button { width: 100%; padding: 12px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; background-color: var(--primary-accent-color); color: var(--text-light); transition: background-color .2s; margin-top: auto; font-size: 1em;}
-        .task-button, .daily-task-button { width: auto; flex-shrink: 0; padding: 10px 20px; font-size: 0.9em; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; background-color: var(--primary-accent-color); color: var(--text-light); transition: background-color .2s; margin-top: 0; }
-        .task-button { padding: 8px 20px; }
-        .task-button:disabled, .ad-task-button:disabled, .daily-task-button:disabled { background-color: var(--disabled-color); cursor: not-allowed; }
+        
+        .task-reward-pg, .movie-reward { color: #ff9900; } /* Orange for PG Coin */
+        
+        .ad-task-button, .task-button, .daily-task-button {
+            width: auto; flex-shrink: 0; padding: 10px 20px; font-size: 0.9em; border: none; border-radius: 8px;
+            font-weight: 600; cursor: pointer; background-color: var(--primary-accent-color);
+            color: var(--text-light); transition: background-color .2s;
+        }
+        .ad-task-button { width: 100%; font-size: 1em; padding: 12px; margin-top: auto; }
+        .task-button:disabled, .ad-task-button:disabled, .daily-task-button:disabled { background-color: var(--disabled-color); cursor: not-allowed; color: var(--text-muted); }
+        
         .card { max-width: 500px; margin: 20px auto; background-color: var(--card-bg); padding: 25px; border-radius: 12px; border: 1px solid var(--border-color); text-align: center; }
         .card-icon { width: 50px; height: 50px; margin: 0 auto 15px; color: var(--primary-accent-color); }
         .card h3 { margin-top: 0; font-size: 1.4em; } .card p { color: var(--text-muted); line-height: 1.6; }
         .form-group { margin-bottom: 15px; text-align: left; }
         .form-group label { display: block; margin-bottom: 5px; font-weight: 500; color: var(--text-muted); }
-        .form-group input, .form-group select { width: 100%; padding: 12px; box-sizing: border-box; border-radius: 8px; border: 1px solid var(--border-color); background-color: #000; color: var(--text-light); font-size: 1em; }
+        .form-group input, .form-group select { width: 100%; padding: 12px; box-sizing: border-box; border-radius: 8px; border: 1px solid var(--border-color); background-color: var(--dark-bg); color: var(--text-light); font-size: 1em; }
         .form-button { width: 100%; padding: 12px; border: none; border-radius: 8px; background-color: var(--primary-accent-color); color: var(--text-light); font-weight: bold; font-size: 1em; cursor: pointer; transition: background-color 0.2s; }
         .form-button:hover:not(:disabled) { background-color: var(--primary-accent-hover-color); }
         .form-button:disabled { background-color: var(--disabled-color); cursor: not-allowed; }
+        
         .referral-link-wrapper { display: flex; gap: 10px; margin-top: 20px; }
         .referral-link-wrapper input { flex-grow: 1; text-align: center; }
         .referral-link-wrapper button { width: auto; flex-shrink: 0; padding: 0 15px; }
         .loader { border: 4px solid var(--border-color); border-top: 4px solid var(--primary-accent-color); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 50px auto; }
-        .history-item, .leaderboard-item { background-color: #2a2a2a; padding: 15px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-        .leaderboard-item .rank { font-size: 1.2em; font-weight: bold; color: var(--primary-accent-color); min-width: 40px; text-align: center;}
-        .leaderboard-item .info { flex-grow: 1; margin-left: 15px; }
-        .leaderboard-item .info strong { color: var(--text-light); }
-        .leaderboard-item .info small { color: var(--text-muted); }
-        .leaderboard-item .count { font-size: 1.1em; font-weight: bold; color: var(--success-color); }
-        .claim-referral-btn { padding: 8px 12px; font-size: 0.9em; width: auto; flex-shrink: 0; }
+        .history-item { background-color: #21262d; padding: 15px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
         .history-item .status-pending { color: #ffc107; } .history-item .status-approved { color: #28a745; } .history-item .status-rejected { color: #dc3545; }
-        .conversion-info { font-size: 0.9em; color: var(--text-muted); margin-bottom: 15px; }
-        .success-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 2000; display: none; justify-content: center; align-items: center; }
+        
+        .success-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); z-index: 2000; display: none; justify-content: center; align-items: center; }
         .success-modal-overlay.show { display: flex; }
         .success-modal { background-color: var(--card-bg); color: var(--text-light); padding: 30px 40px; border-radius: 15px; text-align: center; transform: scale(0.9); opacity: 0; animation: modal-pop-in 0.3s forwards; }
         .success-modal-icon { width: 70px; height: 70px; border-radius: 50%; background-color: var(--success-color); display: flex; justify-content: center; align-items: center; font-size: 40px; font-weight: bold; color: white; margin: 0 auto 20px; animation: icon-pop-in 0.5s 0.2s backwards; }
         .success-modal h3 { margin: 0 0 10px; font-size: 1.6em; }
-        .success-modal p { margin: 0; color: var(--text-muted); font-size: 1em; white-space: pre-wrap;}
+        .success-modal p { margin: 0; color: var(--text-muted); font-size: 1em;}
         .inbox-modal { background-color: var(--card-bg); color: var(--text-light); padding: 20px; border-radius: 15px; text-align: left; width: 90%; max-width: 400px; max-height: 80vh; display: flex; flex-direction: column; }
         .inbox-modal h3 { text-align: center; margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
         #inbox-message-list { overflow-y: auto; flex-grow: 1; margin-bottom: 15px; }
@@ -116,61 +194,27 @@
         .inbox-message-item p { margin: 0; line-height: 1.5; }
         .inbox-message-item.read { opacity: 0.6; }
         .inbox-message-item small { color: var(--text-muted); font-size: 0.8em; }
-        #closeInboxBtn { padding: 10px; border: none; border-radius: 8px; background-color: var(--primary-accent-color); color: white; cursor: pointer; }
-        .sub-card { background-color: #222; padding: 20px; border-radius: 10px; margin-bottom: 25px; }
+        
+        .sub-card { background-color: var(--dark-bg); padding: 20px; border-radius: 10px; margin-bottom: 25px; border: 1px solid var(--border-color); }
         .info-text { font-size: 0.9em; color: var(--text-muted); margin-top: 10px; }
-        .daily-task-card, .task-card { background-color: var(--card-bg); border-radius: 8px; display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 15px; transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; }
-        .task-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15); }
-        #daily-login-task-container .task-card { margin-bottom: 20px; }
-        #ad-task-list.item-grid, #task-list.item-grid { grid-template-columns: 1fr; gap: 10px; } 
+        .daily-task-card, .task-card { background-color: var(--card-bg); border-radius: 8px; display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 15px; transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; border: 1px solid var(--border-color); }
+        .task-card:hover { transform: translateY(-3px); box-shadow: 0 4px 12px rgba(56, 139, 255, 0.15); }
+        .daily-task-info { text-align: left; }
+        .daily-task-info h4 { margin: 0 0 5px; }
+        
+        #ad-task-list.item-grid, #task-list.item-grid, #special-task-list.item-grid, #daily-task-list.item-grid { grid-template-columns: 1fr; gap: 10px; }
 
         /* Profile Section Styles */
-        #profile-card { background-color: var(--card-bg); padding: 30px; border-radius: 15px; text-align: center; }
-        #profile-avatar { 
-            width: 100px; height: 100px; border-radius: 50%; 
-            border: 4px solid var(--primary-accent-color); 
-            margin: 0 auto 20px; 
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: #333;
-            font-size: 48px;
-            font-weight: bold;
-            color: var(--text-light);
-            background-size: cover;
-            background-position: center;
-        }
+        #profile-card { background-color: var(--card-bg); padding: 30px; border-radius: 15px; text-align: center; border: 1px solid var(--border-color); }
+        #profile-avatar { width: 100px; height: 100px; border-radius: 50%; border: 4px solid var(--primary-accent-color); margin: 0 auto 20px; display: flex; justify-content: center; align-items: center; background-color: #333; font-size: 48px; font-weight: bold; color: var(--text-light); background-size: cover; background-position: center; }
         #profile-username { font-size: 1.8em; font-weight: bold; margin: 0 0 10px; }
-        #profile-userid { font-size: 1em; color: var(--text-muted); margin-bottom: 25px; }
+        #profile-userid { font-family: 'Roboto Mono', monospace; font-size: 1em; color: var(--text-muted); margin-bottom: 25px; }
         #profile-stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
-        .profile-stat-item { background-color: #222; padding: 20px; border-radius: 10px; }
+        .profile-stat-item { background-color: var(--dark-bg); padding: 20px; border-radius: 10px; border: 1px solid var(--border-color); }
         .profile-stat-item h4 { margin: 0 0 8px; font-size: 1em; color: var(--text-muted); }
-        .profile-stat-item p { margin: 0; font-size: 1.4em; font-weight: bold; color: var(--primary-accent-color); }
-
-        /* Lottery Section Styles */
-        .lottery-container { background-color: var(--card-bg); padding: 25px; border-radius: 12px; text-align: center; width: 100%; max-width: 450px; margin: 0 auto; }
-        .lottery-container h1 { font-family: 'Hind Siliguri', sans-serif; }
-        #lottery-result-display { 
-            font-family: 'Roboto Mono', monospace; 
-            font-size: 3.5rem; 
-            font-weight: 700; 
-            color: var(--primary-accent-color); 
-            background-color: #000;
-            padding: 15px; 
-            border-radius: 8px; 
-            margin-bottom: 25px; 
-            min-height: 80px; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            transition: all 0.3s ease;
-            border: 2px solid var(--primary-accent-color);
-        }
-        .lottery-button { background-color: var(--primary-accent-color); color: white; border: none; padding: 12px 20px; font-size: 1rem; font-weight: 600; border-radius: 8px; cursor: pointer; transition: background-color 0.3s ease, transform 0.1s ease; width: 100%; margin-top: 15px; }
-        .lottery-button:hover:not(:disabled) { background-color: var(--primary-accent-hover-color); }
-        .lottery-button:disabled { background-color: var(--disabled-color); cursor: not-allowed; }
-        #lottery-info { color: var(--text-muted); font-size: 0.9rem; margin-top: 15px; min-height: 20px; }
-
+        .profile-stat-item p { margin: 0; font-size: 1.4em; font-weight: bold; color: var(--primary-accent-color); font-family: 'Roboto Mono', monospace; }
+        
+        #history-container { display: none; margin-top: 30px; }
 
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         @keyframes modal-pop-in { to { transform: scale(1); opacity: 1; } }
@@ -181,7 +225,7 @@
 
     <header class="main-header">
         <div class="site-title-container">
-            <h1 class="site-title">NEWTUBE</h1>
+            <h1 class="site-title">newRux</h1>
             <div class="user-id-container" id="userIdContainer">
                 <span id="userIdDisplay" class="user-id-display"></span>
                 <button class="copy-user-id-btn" title="Copy User ID">
@@ -195,30 +239,43 @@
                 <span id="inbox-notification-dot"></span>
             </div>
             <div class="balance-display">$: <span id="userUSDTBalanceDisplay">0.00</span></div>
-            <div class="balance-display">Pts: <span id="userBalanceDisplay">0</span></div>
             <div class="balance-display">PG: <span id="userPgCoinDisplay">0.000</span></div>
-            <button class="menu-toggle-button" id="menu-toggle-button"><span class="bar"></span><span class="bar"></span><span class="bar"></span></button>
         </div>
     </header>
 
-    <div class="menu-overlay" id="menu-overlay"></div>
-    <aside class="side-menu" id="side-menu">
-        <div class="side-menu-header"><h3>Menu</h3><button class="close-menu-btn" id="close-menu-btn">&times;</button></div>
-        <ul class="side-menu-nav">
-            <li><a href="#" class="nav-link active" data-tab-target="#home-content">Home</a></li>
-            <li><a href="#" class="nav-link" data-tab-target="#profile-content">Profile</a></li>
-            <li><a href="#" class="nav-link" data-tab-target="#ads-to-earn-content">Ads to Earn</a></li>
-            <li><a href="#" class="nav-link" data-tab-target="#task-content">Tasks</a></li>
-            <li><a href="#" class="nav-link" data-tab-target="#lottery-content">Daily Lottery</a></li>
-            <li><a href="#" class="nav-link" data-tab-target="#referral-content">Referral Program</a></li>
-            <li><a href="#" class="nav-link" data-tab-target="#leaderboard-content">Leaderboard</a></li>
-            <li><a href="#" class="nav-link" data-tab-target="#convert-withdraw-content">Convert & Withdraw</a></li>
-            <li><a href="#" class="nav-link" data-tab-target="#history-content">History</a></li>
-        </ul>
-    </aside>
-
     <main class="container">
-        <section id="home-content" class="content-section active">
+        
+        <section id="profile-content" class="content-section">
+            <div id="profile-card">
+                <div id="profile-avatar"></div>
+                <h2 id="profile-username">Loading...</h2>
+                <p id="profile-userid">ID: Loading...</p>
+                <div id="profile-stats-grid">
+                    <div class="profile-stat-item">
+                        <h4>PG Coins</h4>
+                        <p id="profile-pg-coins">0.000</p>
+                    </div>
+                     <div class="profile-stat-item">
+                        <h4>Referrals</h4>
+                        <p id="profile-referrals">0</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="task-content" class="content-section">
+            <h3 class="section-title">Complete Tasks</h3>
+            <div id="special-task-list" class="item-grid"></div>
+            <div id="daily-task-list" class="item-grid" style="margin-top: 20px;"></div>
+            <div id="task-list" class="item-grid" style="margin-top: 20px;"></div>
+        </section>
+
+        <section id="ads-to-earn-content" class="content-section">
+             <h3 class="section-title">Watch Ads, Earn Rewards</h3>
+             <div id="ad-task-list" class="item-grid"></div>
+        </section>
+        
+        <section id="home-content" class="content-section">
             <h3 class="section-title">Trending Videos</h3>
             <div class="search-container">
                 <input type="search" id="videoSearchInput" placeholder="Search for videos...">
@@ -228,178 +285,59 @@
             <div class="item-grid" id="video-grid"></div>
         </section>
 
-        <section id="profile-content" class="content-section">
-            <h3 class="section-title">Your Profile</h3>
-            <div id="profile-card">
-                <div id="profile-avatar"></div>
-                <h2 id="profile-username">Loading...</h2>
-                <p id="profile-userid">ID: Loading...</p>
-                
-                <div class="profile-stat-item" style="grid-column: 1 / -1; margin-bottom: 20px;">
-                    <h4>Your Level</h4>
-                    <p id="profile-level">Loading...</p>
-                </div>
-
-                <div id="profile-stats-grid">
-                    <div class="profile-stat-item">
-                        <h4>Total Points</h4>
-                        <p id="profile-points">0</p>
-                    </div>
-                    <div class="profile-stat-item">
-                        <h4>PG Coins</h4>
-                        <p id="profile-pg-coins">0.000</p>
-                    </div>
-                     <div class="profile-stat-item" style="grid-column: 1 / -1;">
-                        <h4>Lifetime Referrals</h4>
-                        <p id="profile-referrals">0</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="ads-to-earn-content" class="content-section">
-             <h3 class="section-title">Watch Ads, Earn Rewards</h3>
-             <div id="ad-task-list" class="item-grid"></div>
-        </section>
-        
-        <section id="task-content" class="content-section">
-            <div id="daily-login-task-container"></div>
-            <h3 class="section-title">Complete Tasks to Earn</h3>
-            <div id="task-list" class="item-grid"></div>
-        </section>
-        
-        <section id="lottery-content" class="content-section">
-            <div class="lottery-container">
-                <h3 class="section-title" style="border: none; text-align: center;">Lottery Spin Game</h3>
-                <p>Click a button below to test your luck!</p>
-                <p class="info-text" style="font-size: 1.1em; color: var(--primary-accent-color); font-weight: 600; line-height: 1.5;">
-                    Get a chance to win up to 10 million points in each spin! <br>10 million points are worth $100! <br>Increase your spins and chances of winning by referring more friends!
-                </p>
-                
-                <div id="lottery-result-display">?</div>
-                
-                <button id="free-spin-button" class="lottery-button">Free Daily Spin (1 left)</button>
-                <button id="ad-spin-button" class="lottery-button">Spin with Ad (3 left)</button>
-                <button id="ref-spin-button" class="lottery-button">Get More Spins (Refer)</button>
-
-                <div id="lottery-info"></div>
-            </div>
-        </section>
-
-
         <section id="referral-content" class="content-section">
-            <div class="card">
-                <svg class="card-icon" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
-                <h3>Referral Program</h3>
-                <p>Invite friends to earn bonuses! For each successful referral, you get <strong>1000 Points</strong>, <strong>0.5 PG Coin</strong>, and <strong>1 Lottery Spin!</strong></p>
-                <div class="referral-link-wrapper"><input type="text" id="referralLinkInput" readonly value="Generating link..."><button id="copyReferralLinkBtn" class="form-button">Copy</button></div>
-                
-                <div class="sub-card" style="margin-top: 25px; text-align: left;">
-                    <h4 style="text-align: center;">Your Lifetime Referral Stats</h4>
-                    <div id="referral-stats-list">
-                        <div class="leaderboard-item" style="background: #222; margin-bottom: 5px;">
-                            <div class="info" style="margin-left: 0;"><strong>Total Referrals</strong></div>
-                            <div id="referral-stats-count" class="count">0</div>
-                        </div>
-                        <div class="leaderboard-item" style="background: #222; margin-bottom: 5px;">
-                            <div class="info" style="margin-left: 0;"><strong>Points Earned</strong></div>
-                            <div id="referral-stats-points" class="count">0</div>
-                        </div>
-                        <div class="leaderboard-item" style="background: #222; margin-bottom: 5px;">
-                            <div class="info" style="margin-left: 0;"><strong>Lottery Spins Earned</strong></div>
-                            <div id="referral-stats-spins" class="count">0</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <h3 class="section-title" style="margin-top: 40px;">Your Referrals & Rewards</h3>
-            <div class="card" style="text-align: left;">
-                <p style="text-align: center;">Track the progress of the friends you've invited. A referral is valid when they earn 1000 Points. Claim your reward when they reach the goal!</p>
-                <div id="my-referrals-list"></div>
-            </div>
-        </section>
-        
-        <section id="leaderboard-content" class="content-section">
-            <h3 class="section-title">Lifetime Top Referrers</h3>
-            <div class="card" style="text-align: left; padding-bottom: 10px;">
-                <p style="text-align: center;">Users with the most referrals of all time are ranked here. Keep inviting to climb the ranks!</p>
-                <div id="leaderboard-list"></div>
-            </div>
-        </section>
-        
-        <section id="convert-withdraw-content" class="content-section">
              <div class="card">
-                 <h3 class="section-title" style="border: none; margin-bottom: 5px; text-align: center;">Convert & Withdraw</h3>
+                <svg class="card-icon" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+                <h3 class="section-title" style="border:none;">Referral Program</h3>
+                <p>Invite friends to earn bonuses! For each successful referral, you get <strong>0.5 PG Coin</strong> & <strong>$0.10 USDT</strong>.</p>
+                <div class="referral-link-wrapper"><input type="text" id="referralLinkInput" readonly value="Generating link..."><button id="copyReferralLinkBtn" class="form-button">Copy</button></div>
+             </div>
+        </section>
+        
+        <section id="withdraw-content" class="content-section">
+             <div class="card">
+                 <h3 class="section-title" style="border: none; margin-bottom: 5px; text-align: center;">Withdraw Funds</h3>
+                 <p>1 USDT = 120 BDT | 25 PG Coin = 50 BDT</p>
                  <div class="sub-card">
-                     <h4>Convert to USDT</h4>
-                     <div class="form-group">
-                        <label for="convertSource">Convert From</label>
-                        <select id="convertSource">
-                            <option value="points">Points</option>
-                            <option value="pgcoin">PG Coin</option>
-                        </select>
-                     </div>
-                     <p id="convertRateInfo" class="conversion-info"></p>
-                     <p>Your Balance: <strong id="convertSourceBalance">0</strong></p>
-                     <div class="form-group">
-                         <label for="amountToConvert">Amount to Convert</label>
-                         <input type="number" id="amountToConvert" placeholder="">
-                     </div>
-                     <p class="info-text">You will receive: <strong id="usdtReceiveAmount">$0.00 USDT</strong></p>
-                     <button id="convertBtn" class="form-button">Convert</button>
-                 </div>
-
-                 <div class="sub-card">
-                     <h4>Withdraw USDT</h4>
-                     <div class="info-text" style="text-align: left; margin-bottom: 20px; line-height: 1.5;">
-                        <strong style="color: var(--text-light);">Withdrawal Requirements:</strong><br>
-                        To enable withdrawals, you need to have a total of <strong>8 valid referrals</strong>. This is a one-time requirement to ensure a healthy community. Once you meet this, you can withdraw freely.
-                     </div>
-                      <p>Your USDT Balance: <strong id="withdrawUsdtBalance">0.00</strong></p>
-                      <p>Your Valid Referral Credits: <strong id="withdrawalReferralCredits">0</strong></p>
-                      <p>Your PG Coin Balance: <strong id="withdrawalPgCoinBalance">0.000</strong></p>
+                     <h4>Request a Withdrawal</h4>
+                     <p>Your Balance: <strong id="withdrawBalanceDisplay">0.000 PG</strong></p>
                      
                      <form id="withdrawalForm">
+                         <div class="form-group">
+                            <label for="withdrawalCurrency">Withdraw Currency</label>
+                            <select id="withdrawalCurrency" required>
+                                <option value="pgcoin">PG Coin</option>
+                                <option value="usdt">USDT</option>
+                            </select>
+                         </div>
                          <div class="form-group">
                             <label for="withdrawalMethod">Payment Method</label>
                             <select id="withdrawalMethod" required>
                                 <option value="Bkash">Bkash</option>
-                                <option value="Binance (Optimism)">Binance ID</option>
+                                <option value="Binance UID">Binance UID</option>
                             </select>
                          </div>
                          <div class="form-group">
-                            <label for="accountDetails">Account Details</label>
-                            <input type="text" id="accountDetails" placeholder="Your Bkash Number or Binance ID" required>
+                            <label for="accountDetails">Account Details (Bkash Number or UID)</label>
+                            <input type="text" id="accountDetails" placeholder="Your account details" required>
                          </div>
                          <div class="form-group">
-                            <label for="withdrawalAmount">Amount (USDT)</label>
-                            <input type="number" id="withdrawalAmount" placeholder="e.g., 1.0" required step="0.01">
+                            <label for="withdrawalAmount">Amount</label>
+                            <input type="number" id="withdrawalAmount" placeholder="e.g., 25" required step="any">
                          </div>
+                         <p class="info-text" id="minWithdrawalInfo">Minimum withdrawal: 25 PG Coin</p>
                          <button type="submit" class="form-button" id="requestWithdrawalBtn">Request Withdrawal</button>
                      </form>
                  </div>
 
-                 <div class="sub-card">
-                     <h4>Buy Valid Referral Credits</h4>
-                     <div class="info-text" style="text-align: left; margin-bottom: 20px; line-height: 1.5;">
-                        <strong style="color: var(--text-light);">Buy Credits with PG Coins:</strong><br>
-                        If you don't have enough valid referrals to meet the withdrawal requirement, you can buy credits. The cost is <strong>5 PG Coins</strong> per credit.
-                     </div>
-                     <p>Your PG Coin Balance: <strong id="buyCreditsPgCoinBalance">0.000</strong></p>
-                     
-                     <div class="form-group">
-                        <label for="creditsToBuy">Number of Credits to Buy</label>
-                        <input type="number" id="creditsToBuy" placeholder="e.g., 2" min="1" step="1">
-                     </div>
-                     <p class="info-text">Total Cost: <strong id="buyCreditsCost">0 PG Coins</strong></p>
-                     <button id="buyCreditsBtn" class="form-button">Buy Credits</button>
+                 <button class="form-button" id="toggleHistoryBtn" style="background-color: var(--border-color);">Show/Hide History</button>
+
+                 <div id="history-container" class="sub-card" style="display:none; margin-top: 20px;">
+                    <h4>Withdrawal History</h4>
+                    <div id="history-list"></div>
                  </div>
              </div>
         </section>
-
-        <section id="history-content" class="content-section"><h3 class="section-title">Withdrawal History</h3><div id="history-list"></div></section>
-        
     </main>
     
     <div id="successModalOverlay" class="success-modal-overlay"><div class="success-modal"><div class="success-modal-icon">✓</div><h3 id="successModalTitle">Success!</h3><p id="successModalMessage">Your request has been sent.</p></div></div>
@@ -412,7 +350,7 @@
     
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
-        import { getFirestore, collection, getDocs, query, where, orderBy, limit, addDoc, serverTimestamp, doc, getDoc, setDoc, updateDoc, runTransaction, increment, arrayUnion, writeBatch } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, query, where, orderBy, limit, addDoc, serverTimestamp, doc, getDoc, setDoc, updateDoc, runTransaction, increment, arrayUnion } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
         
         const firebaseConfig = {
             apiKey: "AIzaSyCKMa4NdIowD_8NioUbrn4L7g5M9y5Tts0",
@@ -434,107 +372,20 @@
         let taskTimers = {};
         let isInterstitialAdVisible = false;
 
-        const AD_POINTS_LIMIT = 10;
-        const AD_PGCOIN_LIMIT = 10;
-        const VIDEO_WATCH_LIMIT = 30; 
-        const REFERRAL_POINTS_THRESHOLD = 1000;
-        const REFERRAL_BONUS_POINTS = 1000;
+        // --- NEW CONSTANTS ---
+        const AD_LIMIT = 15;
+        const AD_REWARD_PG = 0.02;
+        const VIDEO_WATCH_REWARD_PG = 0.001; // PG per minute of watching
         const REFERRAL_BONUS_PG_COIN = 0.5;
-        const REFERRAL_BONUS_SPINS = 1;
-        const POINTS_TO_USDT_RATE = 0.02 / 1000;
-        const PG_COIN_TO_USDT_RATE = 0.02;
-        const MIN_POINTS_TO_CONVERT = 5000;
-        const MIN_PG_COIN_TO_CONVERT = 5;
+        const REFERRAL_BONUS_USDT = 0.1;
+        const MIN_WITHDRAWAL_PG = 25;
+        const MIN_WITHDRAWAL_USDT = 1;
         
-        const userLevels = [
-            { level: 1, name: "Newbie",      requiredPoints: 0,       requiredPgCoin: 0,   requiredReferrals: 0 },
-            { level: 2, name: "Rookie",      requiredPoints: 5000,    requiredPgCoin: 0,   requiredReferrals: 0 },
-            { level: 3, name: "Apprentice",  requiredPoints: 15000,   requiredPgCoin: 0,   requiredReferrals: 0 },
-            { level: 4, name: "Journeyman",  requiredPoints: 50000,   requiredPgCoin: 8,   requiredReferrals: 25 },
-            { level: 5, name: "Expert",      requiredPoints: 70000,   requiredPgCoin: 20,  requiredReferrals: 50 },
-            { level: 6, name: "Master",      requiredPoints: 120000,  requiredPgCoin: 35,  requiredReferrals: 75 },
-            { level: 7, name: "Grandmaster", requiredPoints: 320000,  requiredPgCoin: 70,  requiredReferrals: 120 },
-            { level: 8, name: "Legend",      requiredPoints: 500000,  requiredPgCoin: 200, requiredReferrals: 180 }
+        const dailyTasksConfig = [
+            { id: 'daily_login', title: 'Daily Login Bonus', rewardPg: 0.1, type: 'action' },
+            { id: 'visit_channel', title: 'Visit Telegram Channel', rewardPg: 0.05, type: 'action', url: 'https://t.me/newtube12' },
         ];
-
-        const levelBonuses = { 1: 0, 2: 0.02, 3: 0.05, 4: 0.08, 5: 0.15, 6: 0.20, 7: 0.30, 8: 0.40 };
-
-        const levelUpRewards = {
-            2: { points: 1500, pgCoin: 1 },
-            3: { points: 3500, pgCoin: 3 },
-            4: { points: 7000, pgCoin: 6 },
-            5: { points: 12000, pgCoin: 10 },
-            6: { points: 25000, pgCoin: 20 },
-            7: { points: 60000, pgCoin: 70 },
-            8: { points: 120000, pgCoin: 250 },
-        };
-
-        function getUserLevel(userData) {
-            if (!userData) return userLevels[0]; // Return level 1 if no user data
-            const totalPoints = userData.lifetimePointsEarned || 0;
-            const totalPgCoin = userData.lifetimePgCoinEarned || 0;
-            const totalReferrals = userData.referralCount || 0;
-            
-            let currentLevel = userLevels[0];
-            for (let i = userLevels.length - 1; i >= 0; i--) {
-                const levelInfo = userLevels[i];
-                if (totalPoints >= levelInfo.requiredPoints && 
-                    totalPgCoin >= levelInfo.requiredPgCoin &&
-                    totalReferrals >= levelInfo.requiredReferrals) {
-                    currentLevel = levelInfo;
-                    break;
-                }
-            }
-            return currentLevel;
-        }
-
-        async function checkAndGrantLevelUpRewards() {
-            if (!currentUser) return;
-
-            const userRef = doc(db, 'users', currentUser.id);
-            const currentLevelInfo = getUserLevel(currentUser);
-            const claimedRewards = currentUser.claimedLevelUpRewards || [];
-            
-            const rewardsToClaim = [];
-            for (let i = 2; i <= currentLevelInfo.level; i++) {
-                if (!claimedRewards.includes(i) && levelUpRewards[i]) {
-                    rewardsToClaim.push(i);
-                }
-            }
-            
-            if (rewardsToClaim.length === 0) return;
-
-            try {
-                const batch = writeBatch(db);
-                let totalPointsReward = 0;
-                let totalPgCoinReward = 0;
-                let rewardMessages = [];
-
-                rewardsToClaim.forEach(level => {
-                    const reward = levelUpRewards[level];
-                    totalPointsReward += reward.points;
-                    totalPgCoinReward += reward.pgCoin;
-                    rewardMessages.push(`Level ${level} Reward: ${formatPoints(reward.points)} Pts, ${reward.pgCoin} PG`);
-                });
-                
-                batch.update(userRef, {
-                    balance: increment(totalPointsReward),
-                    pgCoin: increment(totalPgCoinReward),
-                    lifetimePointsEarned: increment(totalPointsReward),
-                    lifetimePgCoinEarned: increment(totalPgCoinReward),
-                    claimedLevelUpRewards: arrayUnion(...rewardsToClaim)
-                });
-
-                await batch.commit();
-                
-                showSuccessModal("Level Up! 🎉", `You've received a bonus!\n${rewardMessages.join('\n')}`);
-                await fetchAndUpdateCurrentUser();
-
-            } catch (error) {
-                console.error("Error granting level up reward:", error);
-            }
-        }
-
+        
         async function fetchAndUpdateCurrentUser() {
             if (!currentUser?.id) return;
             try {
@@ -542,7 +393,7 @@
                 const userSnap = await getDoc(userRef);
                 if (userSnap.exists()) {
                     currentUser = { id: userSnap.id, ...userSnap.data() };
-                    updateBalanceUI(currentUser.balance, currentUser.usdtBalance, currentUser.pgCoin);
+                    updateBalanceUI(currentUser.usdtBalance, currentUser.pgCoin);
                 }
             } catch (error) { console.error("Error fetching current user:", error); }
         }
@@ -551,14 +402,14 @@
             if (!currentUser) return;
             const now = new Date();
             const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-            const lastDailyReset = currentUser.lastDailyReset?.toDate();
+            const lastDailyReset = currentUser.dailyTasks?.lastReset?.toDate();
             const lastDailyResetTime = lastDailyReset ? new Date(lastDailyReset.getFullYear(), lastDailyReset.getMonth(), lastDailyReset.getDate()).getTime() : 0;
             
             if (!lastDailyReset || lastDailyResetTime < today) {
                 const updates = {
-                    'lastDailyReset': serverTimestamp(),
-                    'adVisitsToday': 0, 'pgCoinAdVisitsToday': 0, 'videoProgress.dailyWatchedCount': 0,
-                    'lottery.freeSpinsUsed': 0, 'lottery.adSpinsUsed': 0
+                    'dailyTasks.claimed': [],
+                    'dailyTasks.lastReset': serverTimestamp(),
+                    'pgCoinAdVisitsToday': 0,
                 };
                 try {
                     const userRef = doc(db, 'users', currentUser.id);
@@ -574,18 +425,19 @@
             let userSnap = await getDoc(userRef);
 
             const fieldsToEnsure = {
-                balance: 0, usdtBalance: 0, pgCoin: 0, lifetimePointsEarned: 0, lifetimePgCoinEarned: 0, 
-                referralPointsEarned: 0, referralPgCoinEarned: 0, referralCount: 0, validReferralCredits: 0,
-                completedTasks: [], claimedLevelUpRewards: [], adVisitsToday: 0, pgCoinAdVisitsToday: 0,
-                lastDailyReset: serverTimestamp(), lastDailyLoginClaim: null,
-                videoProgress: { dailyWatchedCount: 0 },
-                readMessages: [], withdrawalCount: 0,
-                lottery: { freeSpinsUsed: 0, adSpinsUsed: 0, referralSpins: 0 }
+                usdtBalance: 0, pgCoin: 0, lifetimePgCoinEarned: 0, 
+                referralCount: 0, referralBonusPaidOut: {},
+                completedTasks: [], 
+                pgCoinAdVisitsToday: 0,
+                dailyTasks: { claimed: [], lastReset: serverTimestamp() },
+                readMessages: []
             };
             
             if (!userSnap.exists()) {
                 const defaultUserData = {
-                    ...fieldsToEnsure, createdAt: serverTimestamp(), telegramUsername: tgUser.username || 'N/A',
+                    ...fieldsToEnsure,
+                    createdAt: serverTimestamp(),
+                    telegramUsername: tgUser.username || 'N/A',
                 };
                 if (referrerCode && referrerCode !== userId) {
                     defaultUserData.referredBy = referrerCode;
@@ -594,11 +446,7 @@
 
                 if (referrerCode && referrerCode !== userId) {
                     try {
-                        const referrerRef = doc(db, 'users', referrerCode);
-                        const referrerSnap = await getDoc(referrerRef);
-                        if (referrerSnap.exists()) {
-                             await updateDoc(referrerRef, { referralCount: increment(1) });
-                        }
+                        await updateDoc(doc(db, 'users', referrerCode), { referralCount: increment(1) });
                     } catch (e) { console.error("Could not update referrer count", e); }
                 }
                 userSnap = await getDoc(userRef);
@@ -607,27 +455,19 @@
             let userData = userSnap.data();
             let updatesForOldUsers = {};
 
-            if (!userData.referredBy && referrerCode && referrerCode !== userId) {
-                 try {
-                    const referrerRef = doc(db, 'users', referrerCode);
-                    const referrerSnap = await getDoc(referrerRef);
-                    if (referrerSnap.exists()) {
-                        updatesForOldUsers.referredBy = referrerCode;
-                        await updateDoc(referrerRef, { referralCount: increment(1) });
-                    }
-                } catch(e) { console.error("Could not update referrer count for existing user", e); }
-            }
-            
+            // Ensure all new fields exist for old users
             for (const key in fieldsToEnsure) {
                 if (!userData.hasOwnProperty(key)) {
-                     if(typeof fieldsToEnsure[key] === 'object' && !Array.isArray(fieldsToEnsure[key]) && fieldsToEnsure[key] !== null) {
-                        if (!userData[key]) updatesForOldUsers[key] = fieldsToEnsure[key];
-                     } else {
-                        updatesForOldUsers[key] = fieldsToEnsure[key];
-                     }
+                    updatesForOldUsers[key] = fieldsToEnsure[key];
                 }
             }
-            if (!Array.isArray(userData.claimedLevelUpRewards)) updatesForOldUsers.claimedLevelUpRewards = [];
+            // Remove old point-based fields if they exist
+            ['balance', 'lifetimePointsEarned', 'referralPointsEarned', 'validReferralCredits', 'lottery', 'adVisitsToday', 'videoProgress'].forEach(oldKey => {
+                if (userData.hasOwnProperty(oldKey)) {
+                    updatesForOldUsers[oldKey] = firebase.firestore.FieldValue.delete(); // This needs to be handled differently in v9
+                }
+            });
+
 
             if (Object.keys(updatesForOldUsers).length > 0) {
                 await updateDoc(userRef, updatesForOldUsers).catch(err => console.error("Error updating old user fields:", err));
@@ -638,32 +478,23 @@
             
             await checkAndResetDailies();
             
-            document.getElementById('userIdDisplay').textContent = `ID: ${currentUser.id}`;
-            updateBalanceUI(currentUser.balance, currentUser.usdtBalance, currentUser.pgCoin);
+            document.getElementById('userIdDisplay').textContent = `${currentUser.id}`;
+
+            updateBalanceUI(currentUser.usdtBalance, currentUser.pgCoin);
             generateReferralLink(currentUser.id);
             checkForUnreadMessages();
-            await checkAndGrantLevelUpRewards();
-        }
-        
-        function formatPoints(num) {
-            const n = Math.floor(num || 0);
-            if (n >= 1000000) return `${(n / 1000000).toFixed(1).replace(/\.0$/, '')}M`;
-            if (n >= 10000) return `${(n / 1000).toFixed(1).replace(/\.0$/, '')}K`;
-            return n;
         }
 
-        function updateBalanceUI(balance, usdtBalance, pgCoinBalance) {
-            const points = formatPoints(balance);
+        function updateBalanceUI(usdtBalance, pgCoinBalance) {
             const usdt = parseFloat(usdtBalance || 0).toFixed(2);
             const pgCoin = parseFloat(pgCoinBalance || 0).toFixed(3);
-            document.getElementById('userBalanceDisplay').textContent = points;
             document.getElementById('userUSDTBalanceDisplay').textContent = usdt;
             document.getElementById('userPgCoinDisplay').textContent = pgCoin;
         }
 
         function generateReferralLink(userId) {
-            const botUsername = "NewTube12_bot";
-            const webAppShortName = "newtubecash";
+            const botUsername = "newRux_bot"; // Change this to your bot's username
+            const webAppShortName = "newruxapp"; // Change this to your web app short name
             const referralLink = `https://t.me/${botUsername}/${webAppShortName}?startapp=${userId}`;
             document.getElementById('referralLinkInput').value = referralLink;
         }
@@ -678,30 +509,21 @@
         });
 
         async function grantReward(rewards) {
-             if (!currentUser || (!rewards.points && !rewards.pgCoin)) return;
-
-             if (rewards.points && rewards.points > 0) {
-                const currentLevelInfo = getUserLevel(currentUser);
-                const bonusMultiplier = levelBonuses[currentLevelInfo.level] || 0;
-                const bonusPoints = Math.floor(rewards.points * bonusMultiplier);
-                rewards.points += bonusPoints;
-             }
+             if (!currentUser || (!rewards.pgCoin && !rewards.usdt)) return;
              
              const userRef = doc(db, 'users', currentUser.id);
              const updates = {};
-             if (rewards.points) {
-                 updates.balance = increment(rewards.points);
-                 updates.lifetimePointsEarned = increment(rewards.points);
-             }
              if (rewards.pgCoin) {
                  updates.pgCoin = increment(rewards.pgCoin);
                  updates.lifetimePgCoinEarned = increment(rewards.pgCoin);
+             }
+             if(rewards.usdt) {
+                 updates.usdtBalance = increment(rewards.usdt);
              }
 
              if (Object.keys(updates).length > 0) {
                  await updateDoc(userRef, updates);
                  await fetchAndUpdateCurrentUser();
-                 await checkAndGrantLevelUpRewards();
              }
         }
         
@@ -717,7 +539,6 @@
                 const item = document.createElement('article');
                 item.className = 'movie-item';
                 item.dataset.youtubeId = video.youtubeId;
-                item.dataset.videoId = docSnap.id;
                 
                 item.originalContent = `
                     <div class="thumbnail-container">
@@ -725,7 +546,7 @@
                     </div>
                     <div class="movie-item-info">
                         <h4>${video.title}</h4>
-                        <p class="movie-reward">Watch to Earn Points</p>
+                        <p class="movie-reward">Watch to Earn PG Coin</p>
                     </div>`;
                 item.innerHTML = item.originalContent;
                 item.addEventListener('click', handleVideoClick);
@@ -738,7 +559,7 @@
             grid.innerHTML = '<div class="loader"></div>';
             try {
                 const videosCollection = collection(db, 'videos');
-                const q = query(videosCollection, orderBy('createdAt', 'desc'), limit(VIDEO_WATCH_LIMIT));
+                const q = query(videosCollection, orderBy('createdAt', 'desc'), limit(20));
                 const snapshot = await getDocs(q);
                 await renderVideos(snapshot);
             } catch (error) { 
@@ -749,12 +570,6 @@
         
         async function handleVideoClick(event) {
             if (!currentUser) { alert("User data not loaded yet."); return; }
-
-            const dailyWatchedCount = currentUser.videoProgress?.dailyWatchedCount || 0;
-            if(dailyWatchedCount >= VIDEO_WATCH_LIMIT){
-                alert(`You have reached your daily video watch limit of ${VIDEO_WATCH_LIMIT}.`);
-                return;
-            }
 
             if (currentPlayingItem) {
                 clearInterval(videoPlaybackInterval);
@@ -768,7 +583,7 @@
                 return;
             }
             currentPlayingItem = clickedItem;
-            const { youtubeId, videoId } = clickedItem.dataset;
+            const { youtubeId } = clickedItem.dataset;
             const playerDivId = `player-${youtubeId}-${Date.now()}`;
             
             clickedItem.innerHTML = `<div id="${playerDivId}" class="player-container"></div>`;
@@ -776,78 +591,41 @@
             player = new YT.Player(playerDivId, {
                 height: '100%', width: '100%', videoId: youtubeId,
                 playerVars: { 'autoplay': 1, 'controls': 1, 'rel': 0, 'fs': 1 },
-                events: {
-                    'onStateChange': (e) => {
-                         if (e.data === YT.PlayerState.PLAYING) {
-                             if (!videoPlaybackInterval) {
-                                videoPlaybackInterval = setInterval(async () => {
-                                    const rewardPoints = Math.floor(Math.random() * 15) + 1; // 1 to 15 points
-                                    await grantReward({ points: rewardPoints });
-                                    showSuccessModal("Video Reward!", `You've earned ${rewardPoints} points for watching!`);
-                                }, 2.5 * 60 * 1000); // 2.5 minutes reward
-                            }
-                        } else {
-                            clearInterval(videoPlaybackInterval);
-                            videoPlaybackInterval = null;
-                        }
+                events: { 'onStateChange': (e) => {
+                         if (e.data === YT.PlayerState.PLAYING && !videoPlaybackInterval) {
+                            videoPlaybackInterval = setInterval(() => grantReward({ pgCoin: VIDEO_WATCH_REWARD_PG }), 60 * 1000);
+                        } else { clearInterval(videoPlaybackInterval); videoPlaybackInterval = null; }
                     }
                 }
             });
         }
-        
-        function stopAndClearVideo() {
-            clearInterval(videoPlaybackInterval);
-            videoPlaybackInterval = null;
-            if (currentPlayingItem) {
-                const originalContent = currentPlayingItem.originalContent;
-                if(originalContent) currentPlayingItem.innerHTML = originalContent;
-            }
-            if (player) { try { player.destroy(); } catch (e) {} player = null; }
-            currentPlayingItem = null;
-        }
-        
+
         function setupAdsToEarn() {
             const adTaskListContainer = document.getElementById('ad-task-list');
             adTaskListContainer.innerHTML = '';
             if (!currentUser) return;
             
-            const pointsVisitsToday = currentUser.adVisitsToday || 0;
-            const pointsVisitsLeft = AD_POINTS_LIMIT - pointsVisitsToday;
-            const isPointsLimitReached = pointsVisitsLeft <= 0;
-            const pointsCard = document.createElement('div');
-            pointsCard.className = 'ad-task-card';
-            pointsCard.innerHTML = `
-                <div class="ad-task-card-info">
-                    <h4>Watch Ad & Earn Points</h4>
-                    <p>Reward: 50 Points</p>
-                    <p class="ad-visits-left">Today's Visits Left: ${pointsVisitsLeft > 0 ? pointsVisitsLeft : 0} / ${AD_POINTS_LIMIT}</p>
-                </div>
-                <button class="ad-task-button" data-ad-type="points" ${isPointsLimitReached ? 'disabled' : ''}>
-                    ${isPointsLimitReached ? 'Daily Limit Reached' : 'Watch Ad'}
-                </button>`;
-            adTaskListContainer.appendChild(pointsCard);
-            
-            const pgCoinVisitsToday = currentUser.pgCoinAdVisitsToday || 0;
-            const pgCoinVisitsLeft = AD_PGCOIN_LIMIT - pgCoinVisitsToday;
-            const isPgCoinLimitReached = pgCoinVisitsLeft <= 0;
-            const pgCoinCard = document.createElement('div');
-            pgCoinCard.className = 'ad-task-card';
-            pgCoinCard.innerHTML = `
+            const visitsToday = currentUser.pgCoinAdVisitsToday || 0;
+            const visitsLeft = AD_LIMIT - visitsToday;
+            const isLimitReached = visitsLeft <= 0;
+
+            const card = document.createElement('div');
+            card.className = 'ad-task-card';
+            card.innerHTML = `
                 <div class="ad-task-card-info">
                     <h4>Watch Ad & Earn PG Coin</h4>
-                    <p>Reward: <span class="task-reward-pg">0.02 PG Coin</span></p>
-                    <p class="ad-visits-left">Today's Visits Left: ${pgCoinVisitsLeft > 0 ? pgCoinVisitsLeft : 0} / ${AD_PGCOIN_LIMIT}</p>
+                    <p>Reward: <span class="task-reward-pg">${AD_REWARD_PG} PG Coin</span></p>
+                    <p class="ad-visits-left">Today's Ads Left: ${visitsLeft > 0 ? visitsLeft : 0} / ${AD_LIMIT}</p>
                 </div>
-                <button class="ad-task-button" data-ad-type="pgcoin" ${isPgCoinLimitReached ? 'disabled' : ''}>
-                    ${isPgCoinLimitReached ? 'Daily Limit Reached' : 'Watch Ad'}
+                <button class="ad-task-button" ${isLimitReached ? 'disabled' : ''}>
+                    ${isLimitReached ? 'Daily Limit Reached' : 'Watch Ad'}
                 </button>`;
-            adTaskListContainer.appendChild(pgCoinCard);
+            adTaskListContainer.appendChild(card);
         }
         
         document.getElementById('ad-task-list').addEventListener('click', async (e) => {
             if (!e.target.matches('.ad-task-button') || e.target.disabled) return;
             const button = e.target;
-            const adType = button.dataset.adType;
             
             button.disabled = true;
             button.textContent = 'Loading Ad...';
@@ -856,141 +634,90 @@
                 await showRandomAdForTask();
                 if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
 
-                if (adType === 'points') {
-                    await grantReward({ points: 50 });
-                    await updateDoc(doc(db, 'users', currentUser.id), { adVisitsToday: increment(1) });
-                    showSuccessModal("Congratulations!", "You've earned 50 points.");
-                } else if (adType === 'pgcoin') {
-                    await grantReward({ pgCoin: 0.02 });
-                    await updateDoc(doc(db, 'users', currentUser.id), { pgCoinAdVisitsToday: increment(1) });
-                    showSuccessModal("Congratulations!", "You've earned 0.02 PG Coin.");
-                }
+                await grantReward({ pgCoin: AD_REWARD_PG });
+                await updateDoc(doc(db, 'users', currentUser.id), { pgCoinAdVisitsToday: increment(1) });
+                showSuccessModal("Congratulations!", `You've earned ${AD_REWARD_PG} PG Coin.`);
                 
                 await fetchAndUpdateCurrentUser();
                 setupAdsToEarn(); 
 
             } catch (err) {
                 alert('You need to watch the complete ad to earn the reward.');
-                setupAdsToEarn(); 
+                setupAdsToEarn(); // Reset button states
             }
         });
         
-        async function renderDailyLoginTask() {
-            const container = document.getElementById('daily-login-task-container');
-            if (!container) return;
-            container.innerHTML = '';
-            if (!currentUser) return;
-
-            const now = new Date();
-            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-            const lastClaim = currentUser.lastDailyLoginClaim?.toDate();
-            const lastClaimTime = lastClaim ? new Date(lastClaim.getFullYear(), lastClaim.getMonth(), lastClaim.getDate()).getTime() : 0;
-            const isClaimedToday = lastClaimTime >= today;
-
-            const card = document.createElement('div');
-            card.className = 'task-card';
-            card.innerHTML = `
-                <div class="task-card-info">
-                    <h4>Daily Login Bonus</h4>
-                    <p>Reward: <span class="task-reward-points">40 Points</span></p>
-                </div>
-                <button class="task-button" id="dailyLoginClaimBtn" ${isClaimedToday ? 'disabled' : ''}>
-                    ${isClaimedToday ? 'Claimed Today' : 'Claim'}
-                </button>
-            `;
-            container.innerHTML = `<h3 class="section-title">Daily Reward</h3>`;
-            container.appendChild(card);
-            
-            if (!isClaimedToday) {
-                document.getElementById('dailyLoginClaimBtn').addEventListener('click', claimDailyLoginBonus);
-            }
-        }
-
-        async function claimDailyLoginBonus() {
-            const button = document.getElementById('dailyLoginClaimBtn');
-            if (button) {
-                button.disabled = true;
-                button.textContent = '...';
-            }
-            try {
-                await grantReward({ points: 40 });
-                await updateDoc(doc(db, 'users', currentUser.id), { lastDailyLoginClaim: serverTimestamp() });
-                await fetchAndUpdateCurrentUser();
-                showSuccessModal("Reward Claimed!", "You earned 40 points for your daily login.");
-                renderDailyLoginTask(); 
-            } catch (error) {
-                alert('Failed to claim daily login bonus. Please try again.');
-                if (button) button.disabled = false;
-            }
-        }
-
         async function fetchTasks() {
             const taskListContainer = document.getElementById('task-list');
+            const specialTaskListContainer = document.getElementById('special-task-list');
             taskListContainer.innerHTML = '<div class="loader"></div>';
+            specialTaskListContainer.innerHTML = '<div class="loader"></div>';
             try {
                 const tasksRef = collection(db, 'tasks');
                 const q = query(tasksRef, orderBy("createdAt", "desc"));
                 const snapshot = await getDocs(q);
                 taskListContainer.innerHTML = '';
+                specialTaskListContainer.innerHTML = '';
 
-                let hasTasks = false;
+                const now = Date.now();
+                let hasRegularTasks = false, hasSpecialTasks = false;
+
                 snapshot.forEach(docSnap => {
                     const task = docSnap.data();
-                    if (task.isSpecial) return; 
-
-                    hasTasks = true;
                     const taskId = docSnap.id;
                     const card = document.createElement('div');
                     card.className = 'task-card';
                     const isCompleted = currentUser.completedTasks?.includes(taskId);
-                    const completionCount = task.completionCount || 0;
-                    const taskLimit = task.limit || 0;
-                    const isLimitReached = (taskLimit > 0) && (completionCount >= taskLimit);
+                    const isLimitReached = (task.limit > 0) && ((task.completionCount || 0) >= task.limit);
                     
                     let buttonText = 'Go'; let buttonDisabled = false; let buttonState = 'start';
                     if (isCompleted) { buttonText = 'Done'; buttonDisabled = true; buttonState = 'done'; }
                     else if (isLimitReached) { buttonText = 'Limit Reached'; buttonDisabled = true; buttonState = 'limit_reached'; }
 
-                    const rewardPoints = task.rewardPoints || task.reward || 0;
                     const rewardPg = task.rewardPg || 0;
+                    const rewardUsdt = task.rewardUsdt || 0;
 
                     let rewardHtml = '';
-                    if (rewardPoints > 0) rewardHtml += `<span class="task-reward-points">${rewardPoints} Points</span>`;
-                    if (rewardPg > 0) rewardHtml += (rewardHtml ? ' + ' : '') + `<span class="task-reward-pg">${rewardPg} PG</span>`;
+                    if (rewardPg > 0) rewardHtml += `<span class="task-reward-pg">${rewardPg} PG</span>`;
+                    if (rewardUsdt > 0) rewardHtml += (rewardHtml ? ' + ' : '') + `<span style="color:var(--success-color);">$${rewardUsdt.toFixed(2)}</span>`;
 
                     card.innerHTML = `
                         <div class="task-card-info">
                             <h4>${task.title}</h4>
                             <p>Reward: ${rewardHtml}</p>
                         </div>
-                        <button class="task-button" data-task-id="${taskId}" data-task-url="${task.url}" data-reward-points="${rewardPoints}" data-reward-pg="${rewardPg}" data-visit-duration="${task.visitDurationSeconds || 0}" data-state="${buttonState}" ${buttonDisabled ? 'disabled' : ''}>
+                        <button class="task-button" data-task-id="${taskId}" data-task-url="${task.url}" data-reward-pg="${rewardPg}" data-reward-usdt="${rewardUsdt}" data-visit-duration="${task.visitDurationSeconds || 0}" data-state="${buttonState}" ${buttonDisabled ? 'disabled' : ''}>
                             ${buttonText}
                         </button>`;
-                    taskListContainer.appendChild(card);
+                    
+                    const targetContainer = task.isSpecial && task.expiresAt && task.expiresAt.toMillis() > now ? specialTaskListContainer : taskListContainer;
+                    targetContainer.appendChild(card);
+                    if (targetContainer === specialTaskListContainer) hasSpecialTasks = true; else hasRegularTasks = true;
                 });
-                
-                if (!hasTasks) {
-                    taskListContainer.innerHTML = '<p style="text-align:center; grid-column: 1 / -1;">No tasks available right now.</p>';
-                }
+
+                if (!hasRegularTasks) taskListContainer.innerHTML = '<p style="text-align:center; grid-column: 1 / -1;">No tasks available.</p>';
+                if (!hasSpecialTasks) specialTaskListContainer.innerHTML = '<p style="text-align:center; grid-column: 1 / -1;">No special tasks available.</p>';
 
             } catch (error) {
                 console.error("Error fetching tasks:", error);
-                taskListContainer.innerHTML = '<p style="color:red; text-align:center; grid-column: 1 / -1;">Could not load tasks.</p>';
+                const errorMsg = '<p style="color:red; text-align:center; grid-column: 1 / -1;">Could not load tasks.</p>';
+                taskListContainer.innerHTML = errorMsg;
+                specialTaskListContainer.innerHTML = errorMsg;
             }
         }
         
         document.getElementById('task-list').addEventListener('click', handleTaskClick);
+        document.getElementById('special-task-list').addEventListener('click', handleTaskClick);
 
         async function handleTaskClick(e) {
             if (!e.target.matches('.task-button') || e.target.disabled) return;
             const button = e.target;
             const { taskId, taskUrl, state } = button.dataset;
-            const rewardPoints = Number(button.dataset.rewardPoints) || 0;
             const rewardPg = Number(button.dataset.rewardPg) || 0;
+            const rewardUsdt = Number(button.dataset.rewardUsdt) || 0;
             const visitDuration = parseInt(button.dataset.visitDuration, 10) || 0;
 
             if (state === 'start') {
-                if (!taskUrl) { alert('Task URL is missing.'); return; }
                 if (visitDuration > 0) {
                     taskTimers[taskId] = Date.now();
                     button.textContent = `Claim after ${visitDuration}s`;
@@ -1004,7 +731,7 @@
                 if (visitDuration > 0) {
                     const startTime = taskTimers[taskId];
                     if (!startTime || (Date.now() - startTime) / 1000 < visitDuration) {
-                        alert(`You must visit the site for at least ${visitDuration} seconds. Please try again.`);
+                        alert(`You must visit the site for at least ${visitDuration} seconds.`);
                         delete taskTimers[taskId];
                         button.textContent = 'Go'; button.dataset.state = 'start';
                         return;
@@ -1015,217 +742,101 @@
                     await runTransaction(db, async (transaction) => {
                         const userRef = doc(db, 'users', currentUser.id);
                         const taskRef = doc(db, 'tasks', taskId);
-                        const userDoc = await transaction.get(userRef);
-                        const taskDoc = await transaction.get(taskRef);
-                        if (!userDoc.exists() || !taskDoc.exists()) throw "USER_OR_TASK_NOT_FOUND";
-                        if (userDoc.data().completedTasks?.includes(taskId)) throw "ALREADY_COMPLETED";
-                        const taskData = taskDoc.data();
-                        if ((taskData.limit || 0) > 0 && (taskData.completionCount || 0) >= taskData.limit) throw "TASK_LIMIT_REACHED";
                         transaction.update(userRef, { completedTasks: arrayUnion(taskId) });
                         transaction.update(taskRef, { completionCount: increment(1) });
                     });
                     delete taskTimers[taskId];
-                    await grantReward({ points: rewardPoints, pgCoin: rewardPg });
+                    await grantReward({ pgCoin: rewardPg, usdt: rewardUsdt });
                     showSuccessModal("Reward Claimed!", `Reward added to your balance.`);
                     button.textContent = 'Done';
                 } catch (error) {
-                    const errorMessages = { "ALREADY_COMPLETED": "You have already completed this task.", "TASK_LIMIT_REACHED": "This task has reached its completion limit."};
-                    alert(errorMessages[error] || 'Failed to claim reward.');
-                    button.disabled = (error === "ALREADY_COMPLETED" || error === "TASK_LIMIT_REACHED");
-                    button.textContent = button.disabled ? 'Done' : 'Claim Reward';
+                    alert('Failed to claim reward. You may have already completed this task.');
+                    button.disabled = true; button.textContent = 'Done';
                 }
             }
         }
 
         function showSuccessModal(title, message) {
-            const modal = document.getElementById('successModalOverlay');
             document.getElementById('successModalTitle').textContent = title;
             document.getElementById('successModalMessage').textContent = message;
-            modal.classList.add('show');
+            document.getElementById('successModalOverlay').classList.add('show');
             if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-            setTimeout(() => { modal.classList.remove('show'); }, 4000);
+            setTimeout(() => { document.getElementById('successModalOverlay').classList.remove('show'); }, 3000);
         }
-        
-        async function renderConvertWithdrawUI() {
+
+        function renderWithdrawUI() {
             if (!currentUser) return;
+            const currency = document.getElementById('withdrawalCurrency').value;
+            const balanceDisplay = document.getElementById('withdrawBalanceDisplay');
+            const minInfo = document.getElementById('minWithdrawalInfo');
             
-            document.getElementById('withdrawUsdtBalance').textContent = (currentUser.usdtBalance || 0).toFixed(2);
-            document.getElementById('withdrawalReferralCredits').textContent = currentUser.validReferralCredits || 0;
-            document.getElementById('withdrawalPgCoinBalance').textContent = (currentUser.pgCoin || 0).toFixed(3);
-            
-            updateConvertUI();
-            updateBuyCreditsUI();
-        }
-        
-        function updateConvertUI() {
-            if (!currentUser) return;
-            const source = document.getElementById('convertSource').value;
-            const rateInfoEl = document.getElementById('convertRateInfo');
-            const sourceBalanceEl = document.getElementById('convertSourceBalance');
-            const amountInput = document.getElementById('amountToConvert');
-            if (source === 'points') {
-                rateInfoEl.innerHTML = `Rate: 1000 Points = $0.02 USDT<br>Minimum to convert: ${MIN_POINTS_TO_CONVERT} Points`;
-                sourceBalanceEl.textContent = formatPoints(currentUser.balance || 0);
-                amountInput.placeholder = `e.g., ${MIN_POINTS_TO_CONVERT}`;
-            } else { // pgcoin
-                rateInfoEl.innerHTML = `Rate: 1 PG Coin = $0.02 USDT<br>Minimum to convert: ${MIN_PG_COIN_TO_CONVERT} PG Coin`;
-                sourceBalanceEl.textContent = (currentUser.pgCoin || 0).toFixed(3);
-                amountInput.placeholder = `e.g., ${MIN_PG_COIN_TO_CONVERT}`;
-            }
-            amountInput.value = '';
-            document.getElementById('usdtReceiveAmount').textContent = '$0.00 USDT';
-        }
-
-        function updateBuyCreditsUI() {
-            if (!currentUser) return;
-            document.getElementById('buyCreditsPgCoinBalance').textContent = (currentUser.pgCoin || 0).toFixed(3);
-            const creditsToBuy = parseInt(document.getElementById('creditsToBuy').value) || 0;
-            const cost = creditsToBuy * 5;
-            document.getElementById('buyCreditsCost').textContent = `${cost} PG Coins`;
-        }
-
-        async function handleBuyCredits() {
-            const button = document.getElementById('buyCreditsBtn');
-            button.disabled = true;
-            button.textContent = 'Processing...';
-
-            const creditsToBuy = parseInt(document.getElementById('creditsToBuy').value);
-            if (isNaN(creditsToBuy) || creditsToBuy <= 0) {
-                alert('Please enter a valid number of credits to buy.');
-                button.disabled = false;
-                button.textContent = 'Buy Credits';
-                return;
-            }
-            const cost = creditsToBuy * 5;
-            if ((currentUser.pgCoin || 0) < cost) {
-                alert('Insufficient PG Coin balance.');
-                button.disabled = false;
-                button.textContent = 'Buy Credits';
-                return;
-            }
-            
-            try {
-                await runTransaction(db, async (transaction) => {
-                    const userRef = doc(db, 'users', currentUser.id);
-                    const userDoc = await transaction.get(userRef);
-                    if (!userDoc.exists()) throw new Error("User not found.");
-                    if ((userDoc.data().pgCoin || 0) < cost) throw new Error("Insufficient PG Coin balance.");
-                    transaction.update(userRef, {
-                        pgCoin: increment(-cost),
-                        validReferralCredits: increment(creditsToBuy)
-                    });
-                });
-                await fetchAndUpdateCurrentUser();
-                await renderConvertWithdrawUI();
-                showSuccessModal("Purchase Successful!", `You bought ${creditsToBuy} valid referral credit(s).`);
-            } catch (error) {
-                alert(`Purchase failed: ${error.message}`);
-            } finally {
-                button.disabled = false;
-                button.textContent = 'Buy Credits';
-                document.getElementById('creditsToBuy').value = '';
-                updateBuyCreditsUI();
+            if (currency === 'pgcoin') {
+                balanceDisplay.textContent = `${(currentUser.pgCoin || 0).toFixed(3)} PG`;
+                minInfo.textContent = `Minimum withdrawal: ${MIN_WITHDRAWAL_PG} PG Coin`;
+            } else { // usdt
+                balanceDisplay.textContent = `$${(currentUser.usdtBalance || 0).toFixed(2)} USDT`;
+                minInfo.textContent = `Minimum withdrawal: $${MIN_WITHDRAWAL_USDT.toFixed(2)} USDT`;
             }
         }
 
-        document.getElementById('amountToConvert').addEventListener('input', (e) => {
-            const amount = parseFloat(e.target.value) || 0;
-            const source = document.getElementById('convertSource').value;
-            let usdtValue = 0;
-            if (source === 'points') usdtValue = amount * POINTS_TO_USDT_RATE;
-            else usdtValue = amount * PG_COIN_TO_USDT_RATE;
-            document.getElementById('usdtReceiveAmount').textContent = `$${usdtValue.toFixed(2)} USDT`;
-        });
-
-        document.getElementById('convertBtn').addEventListener('click', async () => {
-            const source = document.getElementById('convertSource').value;
-            const amountToConvert = parseFloat(document.getElementById('amountToConvert').value);
-            const button = document.getElementById('convertBtn');
-            let minAmount, balance, rate, fieldToDecrement;
-            if (source === 'points') {
-                minAmount = MIN_POINTS_TO_CONVERT; balance = currentUser.balance; rate = POINTS_TO_USDT_RATE; fieldToDecrement = 'balance';
-            } else {
-                minAmount = MIN_PG_COIN_TO_CONVERT; balance = currentUser.pgCoin; rate = PG_COIN_TO_USDT_RATE; fieldToDecrement = 'pgCoin';
-            }
-            if (isNaN(amountToConvert) || amountToConvert < minAmount) { alert(`Minimum conversion is ${minAmount} ${source}.`); return; }
-            if (amountToConvert > balance) { alert(`Insufficient ${source} balance.`); return; }
-            const usdtToReceive = amountToConvert * rate;
-            button.disabled = true; button.textContent = 'Converting...';
-            try {
-                const userRef = doc(db, 'users', currentUser.id);
-                await runTransaction(db, async (transaction) => {
-                    const userDoc = await transaction.get(userRef);
-                    if (!userDoc.exists() || userDoc.data()[fieldToDecrement] < amountToConvert) throw new Error("Insufficient balance.");
-                    const updates = { usdtBalance: increment(usdtToReceive) };
-                    updates[fieldToDecrement] = increment(-amountToConvert);
-                    transaction.update(userRef, updates);
-                });
-                await fetchAndUpdateCurrentUser();
-                renderConvertWithdrawUI();
-                showSuccessModal("Success!", `${amountToConvert} ${source} converted to $${usdtToReceive.toFixed(2)} USDT.`);
-            } catch (error) { alert(`Conversion failed: ${error.message}`);
-            } finally { button.disabled = false; button.textContent = 'Convert'; }
-        });
+        document.getElementById('withdrawalCurrency').addEventListener('change', renderWithdrawUI);
 
         document.getElementById('withdrawalForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const submitButton = e.target.querySelector('button[type="submit"]');
-            submitButton.disabled = true; submitButton.textContent = 'Verifying...';
+            submitButton.disabled = true; submitButton.textContent = 'Processing...';
 
+            const currency = document.getElementById('withdrawalCurrency').value;
             const method = document.getElementById('withdrawalMethod').value;
             const amount = parseFloat(document.getElementById('withdrawalAmount').value);
+            const details = document.getElementById('accountDetails').value;
             
             try {
-                if ((currentUser.validReferralCredits || 0) < 8) {
-                    throw new Error("You need at least 8 valid referrals to be eligible for withdrawals.");
+                let minAmount, balance, fieldToDecrement;
+                if (currency === 'pgcoin') {
+                    minAmount = MIN_WITHDRAWAL_PG;
+                    balance = currentUser.pgCoin || 0;
+                    fieldToDecrement = 'pgCoin';
+                } else { // usdt
+                    minAmount = MIN_WITHDRAWAL_USDT;
+                    balance = currentUser.usdtBalance || 0;
+                    fieldToDecrement = 'usdtBalance';
                 }
 
-                let minAmount;
-                let methodNameForDisplay = method;
-                if (method === 'Bkash') {
-                    minAmount = 1.0;
-                } else if (method === 'Binance (Optimism)') {
-                    minAmount = 5.0;
-                    methodNameForDisplay = 'Binance ID';
-                } else {
-                    throw new Error(`Withdrawal method "${method}" is not supported yet.`);
-                }
-                
-                if (isNaN(amount) || amount < minAmount) throw new Error(`Minimum withdrawal for ${methodNameForDisplay} is $${minAmount.toFixed(2)}.`);
-                if (amount > currentUser.usdtBalance) throw new Error("Insufficient USDT balance.");
+                if (isNaN(amount) || amount < minAmount) throw new Error(`Minimum withdrawal is ${minAmount} ${currency}.`);
+                if (amount > balance) throw new Error(`Insufficient ${currency} balance.`);
 
-                submitButton.textContent = 'Processing...';
                 const requestData = { 
-                    userId: currentUser.id, telegramUsername: currentUser.telegramUsername, usdAmount: amount, method, 
-                    details: document.getElementById('accountDetails').value, status: 'pending', createdAt: serverTimestamp() 
+                    userId: currentUser.id, 
+                    telegramUsername: currentUser.telegramUsername, 
+                    amount: amount, 
+                    currency: currency,
+                    method, 
+                    details, 
+                    status: 'pending', 
+                    createdAt: serverTimestamp() 
                 };
 
                 await runTransaction(db, async (transaction) => {
                     const userRef = doc(db, 'users', currentUser.id);
                     const userDoc = await transaction.get(userRef);
-                    if (!userDoc.exists()) throw new Error("User not found.");
+                    if (!userDoc.exists() || (userDoc.data()[fieldToDecrement] || 0) < amount) throw new Error("Balance check failed.");
                     
-                    const currentData = userDoc.data();
-                    if (currentData.usdtBalance < amount) throw new Error("Insufficient USDT balance.");
-                    if ((currentData.validReferralCredits || 0) < 8) throw new Error("Requirement not met. You need 8 valid referrals.");
-
                     transaction.set(doc(collection(db, 'withdrawals')), requestData);
-                    transaction.update(userRef, { 
-                        usdtBalance: increment(-amount),
-                        withdrawalCount: increment(1) 
-                    });
+                    transaction.update(userRef, { [fieldToDecrement]: increment(-amount) });
                 });
 
                 await fetchAndUpdateCurrentUser();
                 e.target.reset();
-                showSuccessModal("Successfully Sent!", "Your withdrawal request is pending. Check status in History.");
+                renderWithdrawUI();
+                await displayWithdrawalHistory();
+                showSuccessModal("Request Sent!", "Your withdrawal request is pending review.");
             
             } catch (error) {
-                alert(`An error occurred: ${error.message || "Please try again."}`);
+                alert(`Error: ${error.message || "Please try again."}`);
             } finally {
                 submitButton.disabled = false;
                 submitButton.textContent = 'Request Withdrawal';
-                await renderConvertWithdrawUI();
             }
         });
 
@@ -1233,218 +844,74 @@
             const historyContainer = document.getElementById('history-list');
             historyContainer.innerHTML = '<div class="loader"></div>';
             try {
-                const q = query(collection(db, "withdrawals"), where("userId", "==", currentUser.id), orderBy("createdAt", "desc"), limit(50));
+                const q = query(collection(db, "withdrawals"), where("userId", "==", currentUser.id), orderBy("createdAt", "desc"), limit(20));
                 const snapshot = await getDocs(q);
                 historyContainer.innerHTML = '';
-                if (snapshot.empty) { historyContainer.innerHTML = '<p style="text-align:center;">No withdrawal history found.</p>'; return; }
+                if (snapshot.empty) { historyContainer.innerHTML = '<p style="text-align:center;">No history found.</p>'; return; }
                 snapshot.forEach(docSnap => {
                     const data = docSnap.data();
                     const item = document.createElement('div');
                     item.className = 'history-item';
                     const date = data.createdAt?.toDate().toLocaleDateString() || 'N/A';
                     const status = data.status || 'pending';
-                    const amountText = `$${parseFloat(data.usdAmount || 0).toFixed(2)} USDT`;
-                    let methodDisplay = data.method;
-                    if(methodDisplay === 'Binance (Optimism)') methodDisplay = 'Binance ID';
-                    item.innerHTML = `<div><strong>${amountText}</strong><br><small>${methodDisplay} - ${date}</small></div><strong class="status-${status}">${status.charAt(0).toUpperCase() + status.slice(1)}</strong>`;
+                    const amountText = data.currency === 'usdt' ? `$${data.amount.toFixed(2)}` : `${data.amount} PG`;
+                    item.innerHTML = `<div><strong>${amountText}</strong><br><small>${data.method} - ${date}</small></div><strong class="status-${status}">${status.charAt(0).toUpperCase() + status.slice(1)}</strong>`;
                     historyContainer.appendChild(item);
                 });
             } catch (error) { console.error("Error fetching history:", error); historyContainer.innerHTML = '<p style="color:red;">Error loading history.</p>'; }
         }
         
-        function renderReferralStats() {
-            if (!currentUser) return;
-            document.getElementById('referral-stats-count').textContent = currentUser.referralCount || 0;
-            document.getElementById('referral-stats-points').textContent = formatPoints(currentUser.referralPointsEarned || 0);
-            document.getElementById('referral-stats-spins').textContent = currentUser.lottery?.referralSpins || 0;
-        }
-        
-        async function fetchLeaderboard() {
-            const listContainer = document.getElementById('leaderboard-list');
-            const myReferralsContainer = document.getElementById('my-referrals-list');
-            listContainer.innerHTML = '<div class="loader"></div>';
-            myReferralsContainer.innerHTML = '<div class="loader"></div>';
-            try {
-                const q = query(collection(db, "users"), where("referralCount", ">", 0), orderBy("referralCount", "desc"), limit(50));
-                const snapshot = await getDocs(q);
-                listContainer.innerHTML = '';
-                if (snapshot.empty) { listContainer.innerHTML = '<p style="text-align:center;">Leaderboard is empty!</p>'; }
-                else { let rank = 1; snapshot.forEach(docSnap => {
-                        const user = docSnap.data(); const item = document.createElement('div'); item.className = 'leaderboard-item';
-                        let rankDisplay;
-                        if (rank === 1) rankDisplay = '🥇'; else if (rank === 2) rankDisplay = '🥈'; else if (rank === 3) rankDisplay = '🥉'; else rankDisplay = `#${rank}`;
-                        item.innerHTML = `<div class="rank">${rankDisplay}</div><div class="info"><strong>${user.telegramUsername || 'User...'}</strong></div><div class="count">${user.referralCount || 0} Referrals</div>`;
-                        listContainer.appendChild(item); rank++;
-                    }); }
-            } catch (error) { listContainer.innerHTML = '<p style="color:red; text-align:center;">Could not load leaderboard.</p>'; }
-            try {
-                const q = query(collection(db, "users"), where("referredBy", "==", currentUser.id));
-                const snapshot = await getDocs(q);
-                myReferralsContainer.innerHTML = '';
-                if (snapshot.empty) { myReferralsContainer.innerHTML = '<p style="text-align:center;">You haven\'t referred anyone yet.</p>'; }
-                else { snapshot.forEach(docSnap => {
-                        const referee = docSnap.data(); const refereeId = docSnap.id; const item = document.createElement('div');
-                        item.className = 'leaderboard-item';
-                        const points = referee.lifetimePointsEarned || 0;
-                        const isBonusPaid = referee.referralBonusPaidOut?.[currentUser.id] === true;
-                        let statusHtml;
-                        if (isBonusPaid) { statusHtml = `<div class="count" style="color: var(--success-color);">Claimed</div>`;
-                        } else if (points >= REFERRAL_POINTS_THRESHOLD) { 
-                            statusHtml = `<button class="form-button claim-referral-btn" data-referee-id="${refereeId}">Claim Reward</button>`;
-                        } else { 
-                            statusHtml = `<div class="count" style="color: var(--text-muted);">Pts: ${formatPoints(points)} / ${formatPoints(REFERRAL_POINTS_THRESHOLD)}</div>`; 
-                        }
-                        item.innerHTML = `<div class="info" style="margin-left:0;"><strong>${referee.telegramUsername || 'User...'}</strong></div>${statusHtml}`;
-                        myReferralsContainer.appendChild(item);
-                    }); }
-            } catch(error) { myReferralsContainer.innerHTML = '<p style="color:red; text-align:center;">Could not load your referrals.</p>'; }
-        }
-
-        async function claimReferralBonus(refereeId, button) {
-            button.disabled = true; button.textContent = '...';
-            const referrerRef = doc(db, 'users', currentUser.id);
-            const refereeRef = doc(db, 'users', refereeId);
-            try {
-                await runTransaction(db, async (transaction) => {
-                    const refereeSnap = await transaction.get(refereeRef);
-                    const referrerSnap = await transaction.get(referrerRef);
-                    if (!refereeSnap.exists() || !referrerSnap.exists()) throw new Error("Referee or Referrer not found.");
-                    
-                    const refereeData = refereeSnap.data();
-                    if (refereeData.referralBonusPaidOut?.[currentUser.id] === true) throw new Error("Bonus already claimed.");
-                    if ((refereeData.lifetimePointsEarned || 0) < REFERRAL_POINTS_THRESHOLD) throw new Error("Referee has not reached the threshold.");
-                    
-                    const referrerData = referrerSnap.data();
-                    const currentLevelInfo = getUserLevel(referrerData);
-                    const bonusMultiplier = levelBonuses[currentLevelInfo.level] || 0;
-                    const totalPointsToGrant = REFERRAL_BONUS_POINTS + Math.floor(REFERRAL_BONUS_POINTS * bonusMultiplier);
-
-                    transaction.update(referrerRef, { 
-                        balance: increment(totalPointsToGrant), lifetimePointsEarned: increment(totalPointsToGrant),
-                        pgCoin: increment(REFERRAL_BONUS_PG_COIN), lifetimePgCoinEarned: increment(REFERRAL_BONUS_PG_COIN),
-                        'lottery.referralSpins': increment(REFERRAL_BONUS_SPINS),
-                        referralPointsEarned: increment(REFERRAL_BONUS_POINTS), validReferralCredits: increment(1)
-                    });
-                    transaction.update(refereeRef, { [`referralBonusPaidOut.${currentUser.id}`]: true });
-                });
-                showSuccessModal("Bonus Claimed!", `${REFERRAL_BONUS_POINTS} Points, ${REFERRAL_BONUS_PG_COIN} PG, 1 Spin, and 1 Valid Referral Credit added.`);
-                await fetchAndUpdateCurrentUser();
-                await checkAndGrantLevelUpRewards();
-                await fetchLeaderboard();
-            } catch (error) {
-                alert(`Error: ${error.message}`);
-                button.disabled = false; button.textContent = `Claim Reward`;
-            }
-        }
-        
-        document.getElementById('my-referrals-list').addEventListener('click', async (e) => {
-            if (e.target.matches('.claim-referral-btn') && !e.target.disabled) {
-                await claimReferralBonus(e.target.dataset.refereeId, e.target);
-            }
-        });
-
         function renderProfile() {
             if (!currentUser) return;
             
             document.getElementById('profile-username').textContent = currentUser.telegramUsername || 'User';
             document.getElementById('profile-userid').textContent = `ID: ${currentUser.id}`;
-            document.getElementById('profile-points').textContent = formatPoints(currentUser.lifetimePointsEarned || 0);
             document.getElementById('profile-pg-coins').textContent = (currentUser.pgCoin || 0).toFixed(3);
             document.getElementById('profile-referrals').textContent = currentUser.referralCount || 0;
             
             const avatarEl = document.getElementById('profile-avatar');
             const username = currentUser.telegramUsername || 'User';
-            if (currentUser.profilePictureUrl) {
-                avatarEl.style.backgroundImage = `url('${currentUser.profilePictureUrl}')`;
-                avatarEl.textContent = '';
-            } else {
-                const initial = username.charAt(0).toUpperCase();
-                let hash = 0;
-                for (let i = 0; i < username.length; i++) {
-                    hash = username.charCodeAt(i) + ((hash << 5) - hash);
-                }
-                const color = `hsl(${hash % 360}, 50%, 40%)`;
-                avatarEl.style.backgroundColor = color;
-                avatarEl.style.backgroundImage = 'none';
-                avatarEl.textContent = initial;
-            }
-
-            const currentLevelInfo = getUserLevel(currentUser);
-            document.getElementById('profile-level').textContent = `Level ${currentLevelInfo.level} - ${currentLevelInfo.name}`;
+            const initial = username.charAt(0).toUpperCase();
+            let hash = 0;
+            for (let i = 0; i < username.length; i++) hash = username.charCodeAt(i) + ((hash << 5) - hash);
+            avatarEl.style.backgroundColor = `hsl(${hash % 360}, 50%, 40%)`;
+            avatarEl.textContent = initial;
         }
         
-        const lotteryResultDisplay = document.getElementById('lottery-result-display');
-        const freeSpinButton = document.getElementById('free-spin-button');
-        const adSpinButton = document.getElementById('ad-spin-button');
-        const refSpinButton = document.getElementById('ref-spin-button');
-        const lotteryInfo = document.getElementById('lottery-info');
-        let isSpinning = false;
-
-        function updateLotteryUI() {
+        function renderDailyTasks() {
             if (!currentUser) return;
-            const lotteryData = currentUser.lottery || { freeSpinsUsed: 0, adSpinsUsed: 0, referralSpins: 0 };
-            const freeSpinsLeft = 1 - (lotteryData.freeSpinsUsed || 0);
-            const adSpinsLeft = 3 - (lotteryData.adSpinsUsed || 0);
-            
-            freeSpinButton.textContent = `Free Daily Spin (${freeSpinsLeft > 0 ? freeSpinsLeft : 0} left)`;
-            freeSpinButton.disabled = freeSpinsLeft <= 0 || isSpinning;
-            
-            adSpinButton.textContent = `Spin with Ad (${adSpinsLeft > 0 ? adSpinsLeft : 0} left)`;
-            adSpinButton.disabled = adSpinsLeft <= 0 || isSpinning;
-
-            refSpinButton.textContent = `Spin with Referral (${lotteryData.referralSpins || 0} left)`;
-            refSpinButton.disabled = (lotteryData.referralSpins || 0) <= 0 || isSpinning;
-        }
-        
-        async function handleSpin(spinType) {
-            if (isSpinning) return;
-            isSpinning = true;
-            updateLotteryUI();
-            lotteryResultDisplay.className = '';
-            
-            const animationInterval = setInterval(() => { lotteryResultDisplay.textContent = Math.floor(Math.random() * 9999); }, 50);
-
-            setTimeout(async () => {
-                clearInterval(animationInterval);
-                const rand = Math.random() * 100;
-                let number, tier, reward;
-                if (rand < 93) { number = Math.floor(Math.random() * 90) + 10; tier = 1; reward = number; } 
-                else if (rand < 97) { number = Math.floor(Math.random() * 500) + 100; tier = 2; reward = number; } 
-                else if (rand < 98.5) { number = Math.floor(Math.random() * 400) + 600; tier = 3; reward = number; }
-                else if (rand < 99.5) { number = Math.floor(Math.random() * 2000) + 1000; tier = 4; reward = number; }
-                else if (rand < 99.9) { number = Math.floor(Math.random() * 3000) + 3000; tier = 5; reward = number; } 
-                else { number = Math.floor(Math.random() * 90000) + 10000; tier = 6; reward = number; }
-
-                lotteryResultDisplay.textContent = number;
-                
-                await grantReward({ points: reward });
-                showSuccessModal("You Won!", `You have won ${reward} Points!`);
-
-                const userRef = doc(db, 'users', currentUser.id);
-                if (spinType === 'free') await updateDoc(userRef, { 'lottery.freeSpinsUsed': increment(1) });
-                else if (spinType === 'ad') await updateDoc(userRef, { 'lottery.adSpinsUsed': increment(1) });
-                else if (spinType === 'referral') await updateDoc(userRef, { 'lottery.referralSpins': increment(-1) });
-                
-                await fetchAndUpdateCurrentUser();
-                isSpinning = false;
-                updateLotteryUI();
-            }, 2000);
+            const container = document.getElementById('daily-task-list');
+            container.innerHTML = '';
+            const claimedTasks = currentUser.dailyTasks?.claimed || [];
+            dailyTasksConfig.forEach(task => {
+                const card = document.createElement('div');
+                card.className = 'daily-task-card';
+                const isClaimed = claimedTasks.includes(task.id);
+                card.innerHTML = `
+                    <div class="daily-task-info">
+                        <h4>${task.title}</h4>
+                        <p style="color:var(--text-muted);">Reward: <span class="task-reward-pg">${task.rewardPg} PG</span></p>
+                    </div>
+                    <button class="daily-task-button" data-task-id="${task.id}" data-task-url="${task.url || ''}" data-reward-pg="${task.rewardPg}" ${isClaimed ? 'disabled' : ''}>
+                        ${isClaimed ? 'Claimed' : 'Claim'}
+                    </button>`;
+                container.appendChild(card);
+            });
         }
 
-        freeSpinButton.addEventListener('click', () => handleSpin('free'));
-        refSpinButton.addEventListener('click', () => handleSpin('referral'));
-        adSpinButton.addEventListener('click', async () => {
-            isSpinning = true;
-            updateLotteryUI();
-            adSpinButton.textContent = 'Loading Ad...';
+        document.getElementById('daily-task-list').addEventListener('click', async (e) => {
+            if (!e.target.matches('.daily-task-button') || e.target.disabled) return;
+            const button = e.target;
+            const { taskId, taskUrl, rewardPg } = e.target.dataset;
+            if (taskUrl && taskUrl !== 'undefined') { tg.openLink(taskUrl); }
+            button.disabled = true; button.textContent = '...';
             try {
-                await showRandomAdForTask();
-                await handleSpin('ad');
-            } catch (err) {
-                alert('You must watch the complete ad to get a spin. Please try again.');
-                isSpinning = false;
-                updateLotteryUI();
-            }
+                await grantReward({ pgCoin: Number(rewardPg) });
+                await updateDoc(doc(db, 'users', currentUser.id), { 'dailyTasks.claimed': arrayUnion(taskId) });
+                await fetchAndUpdateCurrentUser();
+                renderDailyTasks();
+                showSuccessModal("Reward Claimed!", `You earned ${rewardPg} PG Coin.`);
+            } catch (error) { alert("Failed to claim task."); button.disabled = false; renderDailyTasks(); }
         });
 
         const showMonetagAd = () => new Promise((res, rej) => typeof show_9442539 === 'function' ? show_9442539().then(res).catch(rej) : rej('Monetag SDK missing'));
@@ -1462,30 +929,20 @@
         async function checkForUnreadMessages() {
             if (!currentUser) return;
             const messagesRef = collection(db, 'messages');
-            const q = query(messagesRef, orderBy('createdAt', 'desc'), limit(20));
+            const q = query(messagesRef, orderBy('createdAt', 'desc'), limit(10));
             const snapshot = await getDocs(q);
             const readMessages = currentUser.readMessages || [];
             const unread = snapshot.docs.some(doc => !readMessages.includes(doc.id));
-            const dot = document.getElementById('inbox-notification-dot');
-            if (unread) dot.classList.add('visible');
-            else dot.classList.remove('visible');
+            document.getElementById('inbox-notification-dot').classList.toggle('visible', unread);
         }
 
         async function openInbox() {
             const listContainer = document.getElementById('inbox-message-list');
-            const modal = document.getElementById('inboxModalOverlay');
-            modal.classList.add('show');
+            document.getElementById('inboxModalOverlay').classList.add('show');
             listContainer.innerHTML = '<div class="loader"></div>';
 
-            const messagesRef = collection(db, 'messages');
-            const q = query(messagesRef, orderBy('createdAt', 'desc'), limit(20));
-            const snapshot = await getDocs(q);
-            listContainer.innerHTML = '';
-            
-            if (snapshot.empty) {
-                listContainer.innerHTML = '<p style="text-align:center;">Your inbox is empty.</p>';
-                return;
-            }
+            const snapshot = await getDocs(query(collection(db, 'messages'), orderBy('createdAt', 'desc'), limit(20)));
+            listContainer.innerHTML = snapshot.empty ? '<p style="text-align:center;">Your inbox is empty.</p>' : '';
             
             const readMessages = currentUser.readMessages || [];
             const messagesToMarkAsRead = [];
@@ -1495,89 +952,27 @@
                 const item = document.createElement('div');
                 item.className = 'inbox-message-item';
                 if(readMessages.includes(docSnap.id)) item.classList.add('read');
-
-                item.innerHTML = `
-                    <p>${message.text}</p>
-                    <small>${message.createdAt.toDate().toLocaleString()}</small>
-                `;
+                item.innerHTML = `<p>${message.text}</p><small>${message.createdAt.toDate().toLocaleString()}</small>`;
                 listContainer.appendChild(item);
-                if (!readMessages.includes(docSnap.id)) {
-                    messagesToMarkAsRead.push(docSnap.id);
-                }
+                if (!readMessages.includes(docSnap.id)) messagesToMarkAsRead.push(docSnap.id);
             });
 
             if (messagesToMarkAsRead.length > 0) {
-                const userRef = doc(db, 'users', currentUser.id);
-                await updateDoc(userRef, {
-                    readMessages: arrayUnion(...messagesToMarkAsRead)
-                });
+                await updateDoc(doc(db, 'users', currentUser.id), { readMessages: arrayUnion(...messagesToMarkAsRead) });
                 await fetchAndUpdateCurrentUser();
                 checkForUnreadMessages();
             }
         }
 
-        document.getElementById('inbox-container').addEventListener('click', openInbox);
-        document.getElementById('closeInboxBtn').addEventListener('click', () => {
-             document.getElementById('inboxModalOverlay').classList.remove('show');
-        });
-
-        document.querySelectorAll('.nav-link').forEach(link => {
-            link.addEventListener('click', async (e) => {
-                e.preventDefault();
-                if (!currentUser) return;
-                
-                stopAndClearVideo();
-                document.querySelectorAll('.nav-link, .content-section').forEach(el => el.classList.remove('active'));
-                link.classList.add('active');
-                const targetId = link.dataset.tabTarget;
-                const target = document.querySelector(targetId);
-                if(target) target.classList.add('active');
-                
-                document.getElementById('side-menu').classList.remove('is-open');
-                document.getElementById('menu-overlay').classList.remove('is-open');
-
-                switch(targetId) {
-                    case '#home-content': break;
-                    case '#profile-content': renderProfile(); break;
-                    case '#ads-to-earn-content': setupAdsToEarn(); break;
-                    case '#task-content': await renderDailyLoginTask(); await fetchTasks(); break;
-                    case '#lottery-content': updateLotteryUI(); break;
-                    case '#referral-content': renderReferralStats(); await fetchLeaderboard(); break;
-                    case '#leaderboard-content': await fetchLeaderboard(); break;
-                    case '#convert-withdraw-content': await renderConvertWithdrawUI(); break;
-                    case '#history-content': await displayWithdrawalHistory(); break;
-                }
-            });
-        });
-        
-        document.getElementById('ref-spin-button').addEventListener('click', () => {
-            if (currentUser.lottery?.referralSpins > 0) {
-                 handleSpin('referral');
-            } else {
-                 document.querySelector('.nav-link[data-tab-target="#referral-content"]').click();
-            }
-        });
-
         function manageAdTimers() {
             try {
                 const adexiumWidget = new AdexiumWidget({ wid: '12c05dba-2642-46f2-950f-cee6575119c9', adFormat: 'interstitial' });
-                
                 setInterval(() => {
-                    if (isInterstitialAdVisible) { return; }
-                    
+                    if (isInterstitialAdVisible) return;
                     isInterstitialAdVisible = true;
-                    if (typeof adexiumWidget.show === 'function') {
-                        adexiumWidget.show()
-                            .catch(err => console.error("Timed Adexium ad failed to show:", err))
-                            .finally(() => { isInterstitialAdVisible = false; });
-                    } else {
-                        adexiumWidget.autoMode(); 
-                        isInterstitialAdVisible = false;
-                    }
-                }, 3 * 60 * 1000); 
-            } catch (e) {
-                console.error("Failed to initialize Adexium for timed display:", e);
-            }
+                    adexiumWidget.show().catch(err => {}).finally(() => { isInterstitialAdVisible = false; });
+                }, 3 * 60 * 1000); // 3 minutes
+            } catch (e) { console.error("Failed to init Adexium:", e); }
         }
 
         async function main() {
@@ -1587,41 +982,37 @@
                 }
                 tg.ready(); tg.expand();
                 
-                const initializationPromise = initializeUser(tg.initDataUnsafe.user, tg.initDataUnsafe.start_param);
-                const contentPromise = fetchContent(); 
+                await initializeUser(tg.initDataUnsafe.user, tg.initDataUnsafe.start_param);
                 
-                await initializationPromise;
-
-                if (typeof TelegramAdsController !== 'undefined') {
-                    window.TelegramAdsController = new TelegramAdsController();
-                    window.TelegramAdsController.initialize({
-                        pubId: "978188",
-                        appId: "3041",
-                    });
-                }
-
+                // Fetch all content after user is initialized
+                renderProfile();
+                await fetchTasks();
+                renderDailyTasks();
+                setupAdsToEarn();
+                await fetchContent();
+                renderWithdrawUI();
+                await displayWithdrawalHistory();
+                
                 manageAdTimers();
 
-                const menuToggleBtn = document.getElementById('menu-toggle-button');
-                const closeMenuBtn = document.getElementById('close-menu-btn');
-                const sideMenu = document.getElementById('side-menu');
-                const menuOverlay = document.getElementById('menu-overlay');
-                const toggleMenu = () => { sideMenu.classList.toggle('is-open'); menuOverlay.classList.toggle('is-open'); };
-                [menuToggleBtn, closeMenuBtn, menuOverlay].forEach(el => el.addEventListener('click', toggleMenu));
-                
-                const userIdContainer = document.getElementById('userIdContainer');
-                userIdContainer.addEventListener('click', () => {
-                    if (currentUser && currentUser.id) navigator.clipboard.writeText(currentUser.id).then(() => {
-                        const btn = userIdContainer.querySelector('button'); btn.title = 'Copied!';
+                document.getElementById('userIdContainer').addEventListener('click', () => {
+                    navigator.clipboard.writeText(currentUser.id).then(() => {
+                        const btn = document.querySelector('.copy-user-id-btn'); btn.title = 'Copied!';
                         if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
                         setTimeout(() => { btn.title = 'Copy User ID'; }, 2000);
                     });
                 });
-                
-                document.getElementById('convertSource').addEventListener('change', updateConvertUI);
-                document.getElementById('creditsToBuy').addEventListener('input', updateBuyCreditsUI);
-                document.getElementById('buyCreditsBtn').addEventListener('click', handleBuyCredits);
 
+                document.getElementById('toggleHistoryBtn').addEventListener('click', () => {
+                    const historyContainer = document.getElementById('history-container');
+                    historyContainer.style.display = historyContainer.style.display === 'none' ? 'block' : 'none';
+                });
+
+                document.getElementById('inbox-container').addEventListener('click', openInbox);
+                document.getElementById('closeInboxBtn').addEventListener('click', () => {
+                     document.getElementById('inboxModalOverlay').classList.remove('show');
+                });
+                
             } catch (error) {
                 console.error("Initialization failed:", error);
                 document.body.innerHTML = `<div class="card" style="margin-top: 50px;"><h3>Application Error</h3><p>Could not initialize. Please restart.</p><p style="font-size: 0.8em; color: #888;">Error: ${error.message}</p></div>`;
