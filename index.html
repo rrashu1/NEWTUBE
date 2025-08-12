@@ -10,211 +10,129 @@
     <script src='//libtl.com/sdk.js' data-zone='9442539' data-sdk='show_9442539'></script>
     <!-- GigaPub Ads SDK -->
     <script src="https://ad.gigapub.tech/script?id=846"></script>
-    <!-- Adexium Ads SDK -->
+    <!-- Adexium Ads SDK (New) -->
     <script type="text/javascript" src="https://cdn.tgads.space/assets/js/adexium-widget.min.js"></script>
-    
-    <!-- Fonts -->
+    <!-- RichInfo Ads SDK (New) -->
+    <script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
+    <!-- Fonts for Lottery -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Roboto+Mono:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&family=Roboto+Mono:wght@700&display=swap" rel="stylesheet">
+
 
     <style>
         :root {
-            --primary-accent-color: #388bff; 
-            --primary-accent-hover-color: #2a7de8; 
-            --dark-bg: #0d1117;
-            --card-bg: #161b22;
-            --header-bg: #161b22;
-            --text-light: #e6edf3;
-            --text-muted: #8b949e;
-            --border-color: #30363d;
-            --success-color: #28a745;
-            --disabled-color: #21262d;
-        }
-        
-        html {
-            scroll-behavior: smooth;
+            --primary-accent-color: #64ffda; /* A modern, vibrant accent for the new theme */
+            --primary-accent-hover-color: #00e0b8; 
+            --dark-bg: #0a192f; /* The new blue background */
+            --card-bg: #112240; 
+            --header-bg: #0a192f; 
+            --text-light: #ccd6f6; 
+            --text-muted: #8892b0;
+            --border-color: #233554; 
+            --success-color: #64ffda; 
+            --disabled-color: #44567d;
         }
 
-        body {
-            background: linear-gradient(180deg, rgba(13,17,23,1) 0%, rgba(3,11,26,1) 100%);
-            color: var(--text-light);
-            font-family: 'Poppins', sans-serif;
-            margin: 0;
-            padding: 70px 0 20px;
+        @keyframes vfx-glow {
+            0%, 100% { text-shadow: 0 0 3px rgba(100, 255, 218, 0.4); }
+            50% { text-shadow: 0 0 8px rgba(100, 255, 218, 0.7); }
         }
 
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 0 15px;
-        }
-
-        .main-header {
-            background-color: rgba(22, 27, 34, 0.8);
-            backdrop-filter: blur(10px);
-            padding: 10px 15px;
-            border-bottom: 1px solid var(--border-color);
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            height: 50px;
-        }
-        
-        .site-title-container {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-        }
-        
-        .site-title {
-            font-size: 1.5em;
-            color: var(--primary-accent-color);
-            font-weight: 700;
-            text-transform: uppercase;
-            margin: 0;
-            padding: 0;
-            line-height: 1;
-            text-shadow: 0 0 10px rgba(56, 139, 255, 0.5);
-        }
-
-        .user-id-container {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            margin-top: 4px;
-        }
-        
-        .user-id-display {
-            font-size: 0.7em;
-            color: var(--text-muted);
-            font-family: 'Roboto Mono', monospace;
-        }
-        
+        body { background-color: var(--dark-bg); color: var(--text-light); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 60px 0 20px; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 15px; }
+        .main-header { background-color: var(--header-bg); padding: 10px 15px; border-bottom: 1px solid var(--border-color); position: fixed; top: 0; left: 0; right: 0; z-index: 1000; display: flex; justify-content: space-between; align-items: center; height: 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+        .site-title-container { display: flex; flex-direction: column; align-items: flex-start; cursor: pointer; }
+        .site-title { font-size: 1.3em; color: var(--primary-accent-color); font-weight: 700; text-transform: uppercase; margin: 0; padding: 0; line-height: 1; animation: vfx-glow 3s ease-in-out infinite; }
+        .user-id-container { display: flex; align-items: center; gap: 8px; cursor: pointer; margin-top: 1px; }
+        .user-id-display { font-size: 0.7em; color: var(--text-muted); font-weight: normal; }
         .copy-user-id-btn { background: none; border: none; padding: 0; display: flex; align-items: center; justify-content: center; color: var(--text-muted); }
         .copy-user-id-btn svg { width: 12px; height: 12px; }
         .user-id-container:hover .user-id-display, .user-id-container:hover .copy-user-id-btn { color: var(--text-light); }
         
         .header-right { display: flex; align-items: center; gap: 10px; }
         .inbox-container { position: relative; cursor: pointer; }
-        #inbox-icon { width: 28px; height: 28px; color: var(--text-light); }
-        #inbox-notification-dot { position: absolute; top: 0px; right: 0px; width: 9px; height: 9px; background-color: var(--primary-accent-color); border-radius: 50%; border: 2px solid var(--header-bg); display: none; }
+        #inbox-icon { width: 24px; height: 24px; color: var(--text-light); }
+        #inbox-notification-dot { position: absolute; top: -2px; right: -2px; width: 8px; height: 8px; background-color: var(--primary-accent-color); border-radius: 50%; border: 1px solid var(--header-bg); display: none; }
         #inbox-notification-dot.visible { display: block; }
+        .balance-display { background-color: var(--card-bg); color: var(--primary-accent-color); padding: 5px 12px; border-radius: 20px; font-weight: bold; font-size: 0.9em; border: 1px solid var(--border-color); }
         
-        .balance-display {
-            background-color: var(--dark-bg);
-            border: 1px solid var(--border-color);
-            color: var(--text-light);
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 0.9em;
-        }
-        .balance-display span {
-            color: var(--primary-accent-color);
-            font-family: 'Roboto Mono', monospace;
-        }
-
-        .content-section {
-            padding-top: 25px;
-            margin-bottom: 40px;
-        }
-        
-        .section-title {
-            font-size: 1.6em;
-            font-weight: 700;
-            margin-bottom: 25px;
-            padding-bottom: 10px;
-            color: var(--text-light);
-            border-bottom: 2px solid var(--border-color);
-            text-align: center;
-        }
-        
+        .content-section { display: block; padding-top: 40px; }
+        .section-title { font-size: 1.6em; margin-bottom: 20px; padding-bottom: 10px; color: var(--text-light); border-bottom: 2px solid var(--border-color); animation: vfx-glow 4s ease-in-out infinite alternate; }
         .search-container { display: flex; gap: 10px; margin-bottom: 20px; }
-        .search-container input { flex-grow: 1; padding: 12px; box-sizing: border-box; border-radius: 8px; border: 1px solid var(--border-color); background-color: var(--dark-bg); color: var(--text-light); font-size: 1em; }
-        .search-container button { padding: 12px 20px; border: none; border-radius: 8px; background-color: var(--primary-accent-color); color: var(--text-light); font-weight: bold; cursor: pointer; }
-        
-        .item-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-        .movie-item, .ad-task-card { background-color: var(--card-bg); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; border: 1px solid var(--border-color); }
-        .movie-item { cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
-        .movie-item:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.2), 0 0 15px rgba(56, 139, 255, 0.2); }
-        
+        .search-container input { flex-grow: 1; padding: 10px; box-sizing: border-box; border-radius: 8px; border: 1px solid var(--border-color); background-color: #000; color: var(--text-light); font-size: 1em; }
+        .search-container button { padding: 10px 15px; border: none; border-radius: 8px; background-color: var(--primary-accent-color); color: var(--dark-bg); font-weight: bold; cursor: pointer; }
+        .search-container button#clearSearchBtn { background-color: #444; color: var(--text-light); }
+        .item-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
+        .movie-item, .ad-task-card { background-color: var(--card-bg); border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; }
+        .movie-item { cursor: pointer; transition: transform 0.2s; } .movie-item:hover{ transform: scale(1.03); }
         .thumbnail-container { width: 100%; aspect-ratio: 16/9; background-color: #333; position: relative; }
         .thumbnail-container img { width: 100%; height: 100%; object-fit: cover; }
         .player-container { width: 100%; aspect-ratio: 16/9; background: #000; }
         .player-container iframe { width: 100%; height: 100%; border: none; }
-        .movie-item-info, .ad-task-card-info { padding: 15px; flex-grow: 1; text-align:center; }
+        .movie-item-info, .ad-task-card-info { padding: 15px; flex-grow: 1; text-align:center;}
         .task-card-info { padding: 0; flex-grow: 1; text-align: left; }
         .movie-item-info h4, .task-card h4, .ad-task-card h4 { margin: 0 0 8px; font-size: 1.1em; line-height: 1.3; }
         .movie-reward, .ad-visits-left { color: var(--success-color); font-weight: bold; font-size: 0.9em; margin: 0; }
-        
-        .task-reward-pg, .movie-reward { color: #ff9900; } /* Orange for PG Coin */
-        
-        .ad-task-button, .task-button, .daily-task-button {
-            width: auto; flex-shrink: 0; padding: 10px 20px; font-size: 0.9em; border: none; border-radius: 8px;
-            font-weight: 600; cursor: pointer; background-color: var(--primary-accent-color);
-            color: var(--text-light); transition: background-color .2s;
-        }
-        .ad-task-button { width: 100%; font-size: 1em; padding: 12px; margin-top: auto; }
-        .task-button:disabled, .ad-task-button:disabled, .daily-task-button:disabled { background-color: var(--disabled-color); cursor: not-allowed; color: var(--text-muted); }
-        
+        .task-card p, .ad-task-card p { margin: 8px 0 15px; color: var(--text-muted); font-weight: bold; }
+        .task-card-info p { margin: 5px 0 0; }
+        .task-reward-pg { color: #ff9900; } /* Orange for PG Coin */
+        .ad-task-button { width: 100%; padding: 12px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; background-color: var(--primary-accent-color); color: var(--dark-bg); transition: background-color .2s; margin-top: auto; font-size: 1em;}
+        .task-button, .daily-task-button { width: auto; flex-shrink: 0; padding: 10px 20px; font-size: 0.9em; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; background-color: var(--primary-accent-color); color: var(--dark-bg); transition: background-color .2s; margin-top: 0; }
+        .task-button { padding: 8px 20px; }
+        .task-button:disabled, .ad-task-button:disabled, .daily-task-button:disabled { background-color: var(--disabled-color); color: var(--text-muted); cursor: not-allowed; }
         .card { max-width: 500px; margin: 20px auto; background-color: var(--card-bg); padding: 25px; border-radius: 12px; border: 1px solid var(--border-color); text-align: center; }
         .card-icon { width: 50px; height: 50px; margin: 0 auto 15px; color: var(--primary-accent-color); }
         .card h3 { margin-top: 0; font-size: 1.4em; } .card p { color: var(--text-muted); line-height: 1.6; }
         .form-group { margin-bottom: 15px; text-align: left; }
         .form-group label { display: block; margin-bottom: 5px; font-weight: 500; color: var(--text-muted); }
-        .form-group input, .form-group select { width: 100%; padding: 12px; box-sizing: border-box; border-radius: 8px; border: 1px solid var(--border-color); background-color: var(--dark-bg); color: var(--text-light); font-size: 1em; }
-        .form-button { width: 100%; padding: 12px; border: none; border-radius: 8px; background-color: var(--primary-accent-color); color: var(--text-light); font-weight: bold; font-size: 1em; cursor: pointer; transition: background-color 0.2s; }
+        .form-group input, .form-group select { width: 100%; padding: 12px; box-sizing: border-box; border-radius: 8px; border: 1px solid var(--border-color); background-color: #000; color: var(--text-light); font-size: 1em; }
+        .form-button { width: 100%; padding: 12px; border: none; border-radius: 8px; background-color: var(--primary-accent-color); color: var(--dark-bg); font-weight: bold; font-size: 1em; cursor: pointer; transition: background-color 0.2s; }
         .form-button:hover:not(:disabled) { background-color: var(--primary-accent-hover-color); }
-        .form-button:disabled { background-color: var(--disabled-color); cursor: not-allowed; }
-        
+        .form-button:disabled { background-color: var(--disabled-color); color: var(--text-muted); cursor: not-allowed; }
         .referral-link-wrapper { display: flex; gap: 10px; margin-top: 20px; }
         .referral-link-wrapper input { flex-grow: 1; text-align: center; }
         .referral-link-wrapper button { width: auto; flex-shrink: 0; padding: 0 15px; }
         .loader { border: 4px solid var(--border-color); border-top: 4px solid var(--primary-accent-color); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 50px auto; }
-        .history-item { background-color: #21262d; padding: 15px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-        .history-item .status-pending { color: #ffc107; } .history-item .status-approved { color: #28a745; } .history-item .status-rejected { color: #dc3545; }
-        
-        .success-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); z-index: 2000; display: none; justify-content: center; align-items: center; }
+        .history-item, .leaderboard-item { background-color: #233554; padding: 15px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .history-item .status-pending { color: #ffc107; } .history-item .status-approved { color: #64ffda; } .history-item .status-rejected { color: #dc3545; }
+        .success-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 2000; display: none; justify-content: center; align-items: center; }
         .success-modal-overlay.show { display: flex; }
         .success-modal { background-color: var(--card-bg); color: var(--text-light); padding: 30px 40px; border-radius: 15px; text-align: center; transform: scale(0.9); opacity: 0; animation: modal-pop-in 0.3s forwards; }
-        .success-modal-icon { width: 70px; height: 70px; border-radius: 50%; background-color: var(--success-color); display: flex; justify-content: center; align-items: center; font-size: 40px; font-weight: bold; color: white; margin: 0 auto 20px; animation: icon-pop-in 0.5s 0.2s backwards; }
+        .success-modal-icon { width: 70px; height: 70px; border-radius: 50%; background-color: var(--success-color); display: flex; justify-content: center; align-items: center; font-size: 40px; font-weight: bold; color: var(--dark-bg); margin: 0 auto 20px; animation: icon-pop-in 0.5s 0.2s backwards; }
         .success-modal h3 { margin: 0 0 10px; font-size: 1.6em; }
-        .success-modal p { margin: 0; color: var(--text-muted); font-size: 1em;}
+        .success-modal p { margin: 0; color: var(--text-muted); font-size: 1em; white-space: pre-wrap;}
         .inbox-modal { background-color: var(--card-bg); color: var(--text-light); padding: 20px; border-radius: 15px; text-align: left; width: 90%; max-width: 400px; max-height: 80vh; display: flex; flex-direction: column; }
         .inbox-modal h3 { text-align: center; margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
         #inbox-message-list { overflow-y: auto; flex-grow: 1; margin-bottom: 15px; }
-        .inbox-message-item { background-color: #2a2a2a; padding: 12px; border-radius: 8px; margin-bottom: 10px; cursor: pointer;}
+        .inbox-message-item { background-color: #233554; padding: 12px; border-radius: 8px; margin-bottom: 10px; cursor: pointer;}
         .inbox-message-item p { margin: 0; line-height: 1.5; }
         .inbox-message-item.read { opacity: 0.6; }
         .inbox-message-item small { color: var(--text-muted); font-size: 0.8em; }
-        
-        .sub-card { background-color: var(--dark-bg); padding: 20px; border-radius: 10px; margin-bottom: 25px; border: 1px solid var(--border-color); }
+        #closeInboxBtn { padding: 10px; border: none; border-radius: 8px; background-color: var(--primary-accent-color); color: var(--dark-bg); cursor: pointer; }
+        .sub-card { background-color: #112240; padding: 20px; border-radius: 10px; margin-bottom: 25px; border: 1px solid var(--border-color);}
         .info-text { font-size: 0.9em; color: var(--text-muted); margin-top: 10px; }
-        .daily-task-card, .task-card { background-color: var(--card-bg); border-radius: 8px; display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 15px; transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; border: 1px solid var(--border-color); }
-        .task-card:hover { transform: translateY(-3px); box-shadow: 0 4px 12px rgba(56, 139, 255, 0.15); }
-        .daily-task-info { text-align: left; }
-        .daily-task-info h4 { margin: 0 0 5px; }
-        
-        #ad-task-list.item-grid, #task-list.item-grid, #special-task-list.item-grid, #daily-task-list.item-grid { grid-template-columns: 1fr; gap: 10px; }
+        .daily-task-card, .task-card { background-color: var(--card-bg); border-radius: 8px; display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 15px; transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; }
+        .task-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(100, 255, 218, 0.1); }
+        #daily-login-task-container .task-card { margin-bottom: 20px; }
+        #ad-task-list.item-grid, #task-list.item-grid { grid-template-columns: 1fr; gap: 10px; } 
 
-        /* Profile Section Styles */
         #profile-card { background-color: var(--card-bg); padding: 30px; border-radius: 15px; text-align: center; border: 1px solid var(--border-color); }
         #profile-avatar { width: 100px; height: 100px; border-radius: 50%; border: 4px solid var(--primary-accent-color); margin: 0 auto 20px; display: flex; justify-content: center; align-items: center; background-color: #333; font-size: 48px; font-weight: bold; color: var(--text-light); background-size: cover; background-position: center; }
         #profile-username { font-size: 1.8em; font-weight: bold; margin: 0 0 10px; }
-        #profile-userid { font-family: 'Roboto Mono', monospace; font-size: 1em; color: var(--text-muted); margin-bottom: 25px; }
+        #profile-userid { font-size: 1em; color: var(--text-muted); margin-bottom: 25px; }
         #profile-stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
-        .profile-stat-item { background-color: var(--dark-bg); padding: 20px; border-radius: 10px; border: 1px solid var(--border-color); }
-        .profile-stat-item h4 { margin: 0 0 8px; font-size: 1em; color: var(--text-muted); }
-        .profile-stat-item p { margin: 0; font-size: 1.4em; font-weight: bold; color: var(--primary-accent-color); font-family: 'Roboto Mono', monospace; }
-        
-        #history-container { display: none; margin-top: 30px; }
+        .profile-stat-item { background-color: #0a192f; padding: 20px; border-radius: 10px; border: 1px solid var(--border-color); }
+        .profile-stat-item h4 { margin: 0 0 8px; font-size: 1em; color: var(--text-muted); text-transform: uppercase; }
+        .profile-stat-item p { margin: 0; font-size: 1.4em; font-weight: bold; color: var(--primary-accent-color); }
+
+        .lottery-container { background-color: var(--card-bg); padding: 25px; border-radius: 12px; text-align: center; width: 100%; max-width: 450px; margin: 0 auto; border: 1px solid var(--border-color); }
+        .lottery-container h1 { font-family: 'Hind Siliguri', sans-serif; }
+        #lottery-result-display { font-family: 'Roboto Mono', monospace; font-size: 3.5rem; font-weight: 700; color: var(--primary-accent-color); background-color: #000; padding: 15px; border-radius: 8px; margin-bottom: 25px; min-height: 80px; display: flex; justify-content: center; align-items: center; transition: all 0.3s ease; border: 2px solid var(--primary-accent-color); }
+        .lottery-button { background-color: var(--primary-accent-color); color: var(--dark-bg); border: none; padding: 12px 20px; font-size: 1rem; font-weight: 600; border-radius: 8px; cursor: pointer; transition: background-color 0.3s ease, transform 0.1s ease; width: 100%; margin-top: 15px; }
+        .lottery-button:hover:not(:disabled) { background-color: var(--primary-accent-hover-color); }
+        .lottery-button:disabled { background-color: var(--disabled-color); color: var(--text-muted); cursor: not-allowed; }
+        #lottery-info { color: var(--text-muted); font-size: 0.9rem; margin-top: 15px; min-height: 20px; }
 
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         @keyframes modal-pop-in { to { transform: scale(1); opacity: 1; } }
@@ -224,14 +142,8 @@
 <body>
 
     <header class="main-header">
-        <div class="site-title-container">
+        <div class="site-title-container" id="profile-shortcut">
             <h1 class="site-title">newRux</h1>
-            <div class="user-id-container" id="userIdContainer">
-                <span id="userIdDisplay" class="user-id-display"></span>
-                <button class="copy-user-id-btn" title="Copy User ID">
-                    <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 448 512"><path fill="currentColor" d="M384 336H192c-8.8 0-16-7.2-16-16V64c0-8.8 7.2-16 16-16l140.1 0L400 115.9V320c0 8.8-7.2 16-16 16zM192 384H384c35.3 0 64-28.7 64-64V115.9c0-12.7-5.1-24.9-14.1-33.9L366.1 14.1c-9-9-21.2-14.1-33.9-14.1H192c-35.3 0-64 28.7-64 64V320c0 35.3 28.7 64 64 64zM64 128c-35.3 0-64 28.7-64 64V448c0 35.3 28.7 64 64 64H256c35.3 0 64-28.7 64-64V416H272v32c0 8.8-7.2 16-16 16H64c-8.8 0-16-7.2-16-16V192c0-8.8 7.2-16 16-16H96V128H64z"/></svg>
-                </button>
-            </div>
         </div>
         <div class="header-right">
              <div class="inbox-container" id="inbox-container">
@@ -245,36 +157,77 @@
 
     <main class="container">
         
-        <section id="profile-content" class="content-section">
-            <div id="profile-card">
-                <div id="profile-avatar"></div>
-                <h2 id="profile-username">Loading...</h2>
-                <p id="profile-userid">ID: Loading...</p>
-                <div id="profile-stats-grid">
-                    <div class="profile-stat-item">
-                        <h4>PG Coins</h4>
-                        <p id="profile-pg-coins">0.000</p>
-                    </div>
-                     <div class="profile-stat-item">
-                        <h4>Referrals</h4>
-                        <p id="profile-referrals">0</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
         <section id="task-content" class="content-section">
-            <h3 class="section-title">Complete Tasks</h3>
-            <div id="special-task-list" class="item-grid"></div>
-            <div id="daily-task-list" class="item-grid" style="margin-top: 20px;"></div>
-            <div id="task-list" class="item-grid" style="margin-top: 20px;"></div>
+            <div id="daily-login-task-container"></div>
+            <h3 class="section-title">Complete Tasks to Earn</h3>
+            <div id="task-list" class="item-grid"></div>
         </section>
 
         <section id="ads-to-earn-content" class="content-section">
              <h3 class="section-title">Watch Ads, Earn Rewards</h3>
              <div id="ad-task-list" class="item-grid"></div>
         </section>
-        
+
+        <section id="withdrawal-content" class="content-section">
+             <div class="card" style="max-width: none;">
+                 <h3 class="section-title" style="border: none; margin-bottom: 5px; text-align: center;">Withdrawal</h3>
+                 
+                 <div class="sub-card">
+                     <h4>Request a Withdrawal</h4>
+                     <div class="info-text" style="text-align: left; margin-bottom: 20px; line-height: 1.5;">
+                        <strong style="color: var(--text-light);">Current Rates & Minimums:</strong><br>
+                        - <strong>bKash:</strong> Minimum 50 BDT (Requires 25 PG Coin)<br>
+                        - <strong>Binance UID:</strong> Minimum 1.00 USDT
+                     </div>
+                      <p>Your USDT Balance: <strong id="withdrawUsdtBalance">0.00</strong></p>
+                      <p>Your PG Coin Balance: <strong id="withdrawalPgCoinBalance">0.000</strong></p>
+                     
+                     <form id="withdrawalForm">
+                         <div class="form-group">
+                            <label for="withdrawalMethod">Payment Method</label>
+                            <select id="withdrawalMethod" required>
+                                <option value="Bkash">bKash</option>
+                                <option value="Binance UID">Binance UID</option>
+                            </select>
+                         </div>
+                         <div class="form-group">
+                            <label for="accountDetails">Account Details</label>
+                            <input type="text" id="accountDetails" placeholder="Your bKash Number or Binance UID" required>
+                         </div>
+                         <div class="form-group">
+                            <label for="withdrawalAmount">Amount</label>
+                            <input type="number" id="withdrawalAmount" placeholder="e.g., 50 for bKash, 1.5 for Binance" required step="0.01">
+                         </div>
+                         <button type="submit" class="form-button" id="requestWithdrawalBtn">Request Withdrawal</button>
+                     </form>
+                 </div>
+
+                 <div class="sub-card">
+                    <h3 class="section-title" style="border: none; text-align: center; margin-bottom: 15px;">Withdrawal History</h3>
+                    <div id="history-list"></div>
+                 </div>
+
+             </div>
+        </section>
+
+        <section id="referral-content" class="content-section">
+            <div class="card">
+                <svg class="card-icon" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+                <h3>Referral Program</h3>
+                <p>Invite friends to earn bonuses! For each successful referral, you get <strong>0.5 PG Coin</strong> and <strong>1 Game Token!</strong></p>
+                <div class="referral-link-wrapper"><input type="text" id="referralLinkInput" readonly value="Generating link..."><button id="copyReferralLinkBtn" class="form-button">Copy</button></div>
+                
+                <div class="sub-card" style="margin-top: 25px; text-align: left;">
+                    <h4 style="text-align: center;">Your Lifetime Referral Stats</h4>
+                    <div id="referral-stats-list" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div class="profile-stat-item" style="padding: 15px;"><h4>Total Referrals</h4><p id="referral-stats-count">0</p></div>
+                        <div class="profile-stat-item" style="padding: 15px;"><h4>PG Earned</h4><p id="referral-stats-pg-earned">0.0</p></div>
+                        <div class="profile-stat-item" style="padding: 15px; grid-column: 1 / -1;"><h4>Game Tokens</h4><p id="referral-stats-tokens">0</p></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <section id="home-content" class="content-section">
             <h3 class="section-title">Trending Videos</h3>
             <div class="search-container">
@@ -285,59 +238,53 @@
             <div class="item-grid" id="video-grid"></div>
         </section>
 
-        <section id="referral-content" class="content-section">
-             <div class="card">
-                <svg class="card-icon" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
-                <h3 class="section-title" style="border:none;">Referral Program</h3>
-                <p>Invite friends to earn bonuses! For each successful referral, you get <strong>0.5 PG Coin</strong> & <strong>$0.10 USDT</strong>.</p>
-                <div class="referral-link-wrapper"><input type="text" id="referralLinkInput" readonly value="Generating link..."><button id="copyReferralLinkBtn" class="form-button">Copy</button></div>
-             </div>
+        <section id="profile-content" class="content-section">
+            <h3 class="section-title">Your Profile</h3>
+            <div id="profile-card">
+                <div id="profile-avatar"></div>
+                <h2 id="profile-username">Loading...</h2>
+                <div class="user-id-container" id="userIdContainer" style="justify-content: center; margin-bottom: 25px;">
+                    <span id="userIdDisplay" class="user-id-display">ID: Loading...</span>
+                    <button class="copy-user-id-btn" title="Copy User ID">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 448 512"><path fill="currentColor" d="M384 336H192c-8.8 0-16-7.2-16-16V64c0-8.8 7.2-16 16-16l140.1 0L400 115.9V320c0 8.8-7.2 16-16 16zM192 384H384c35.3 0 64-28.7 64-64V115.9c0-12.7-5.1-24.9-14.1-33.9L366.1 14.1c-9-9-21.2-14.1-33.9-14.1H192c-35.3 0-64 28.7-64 64V320c0 35.3 28.7 64 64 64zM64 128c-35.3 0-64 28.7-64 64V448c0 35.3 28.7 64 64 64H256c35.3 0 64-28.7 64-64V416H272v32c0 8.8-7.2 16-16 16H64c-8.8 0-16-7.2-16-16V192c0-8.8 7.2-16 16-16H96V128H64z"/></svg>
+                    </button>
+                </div>
+                
+                <div id="profile-stats-grid">
+                    <div class="profile-stat-item">
+                        <h4>Lifetime Referrals</h4>
+                        <p id="profile-referrals">0</p>
+                    </div>
+                    <div class="profile-stat-item">
+                        <h4>Earned PG Coin</h4>
+                        <p id="profile-pg-coins">0.000</p>
+                    </div>
+                     <div class="profile-stat-item" style="grid-column: 1 / -1;">
+                        <h4>Earned USDT</h4>
+                        <p id="profile-usdt-earned">$0.00</p>
+                    </div>
+                </div>
+            </div>
         </section>
         
-        <section id="withdraw-content" class="content-section">
-             <div class="card">
-                 <h3 class="section-title" style="border: none; margin-bottom: 5px; text-align: center;">Withdraw Funds</h3>
-                 <p>1 USDT = 120 BDT | 25 PG Coin = 50 BDT</p>
-                 <div class="sub-card">
-                     <h4>Request a Withdrawal</h4>
-                     <p>Your Balance: <strong id="withdrawBalanceDisplay">0.000 PG</strong></p>
-                     
-                     <form id="withdrawalForm">
-                         <div class="form-group">
-                            <label for="withdrawalCurrency">Withdraw Currency</label>
-                            <select id="withdrawalCurrency" required>
-                                <option value="pgcoin">PG Coin</option>
-                                <option value="usdt">USDT</option>
-                            </select>
-                         </div>
-                         <div class="form-group">
-                            <label for="withdrawalMethod">Payment Method</label>
-                            <select id="withdrawalMethod" required>
-                                <option value="Bkash">Bkash</option>
-                                <option value="Binance UID">Binance UID</option>
-                            </select>
-                         </div>
-                         <div class="form-group">
-                            <label for="accountDetails">Account Details (Bkash Number or UID)</label>
-                            <input type="text" id="accountDetails" placeholder="Your account details" required>
-                         </div>
-                         <div class="form-group">
-                            <label for="withdrawalAmount">Amount</label>
-                            <input type="number" id="withdrawalAmount" placeholder="e.g., 25" required step="any">
-                         </div>
-                         <p class="info-text" id="minWithdrawalInfo">Minimum withdrawal: 25 PG Coin</p>
-                         <button type="submit" class="form-button" id="requestWithdrawalBtn">Request Withdrawal</button>
-                     </form>
-                 </div>
+        <section id="lottery-content" class="content-section">
+            <div class="lottery-container">
+                <h3 class="section-title" style="border: none; text-align: center;">Lottery Spin Game</h3>
+                <p>Test your luck and win PG Coins!</p>
+                <p class="info-text" style="font-size: 1.1em; color: var(--primary-accent-color); font-weight: 600; line-height: 1.5;">
+                    Get a chance to win up to 10 PG Coins in each spin! <br>Increase your spins by referring more friends!
+                </p>
+                
+                <div id="lottery-result-display">?</div>
+                
+                <button id="free-spin-button" class="lottery-button">Free Daily Spin (1 left)</button>
+                <button id="ad-spin-button" class="lottery-button">Spin with Ad (3 left)</button>
+                <button id="ref-spin-button" class="lottery-button">Get More Spins (Refer)</button>
 
-                 <button class="form-button" id="toggleHistoryBtn" style="background-color: var(--border-color);">Show/Hide History</button>
-
-                 <div id="history-container" class="sub-card" style="display:none; margin-top: 20px;">
-                    <h4>Withdrawal History</h4>
-                    <div id="history-list"></div>
-                 </div>
-             </div>
+                <div id="lottery-info"></div>
+            </div>
         </section>
+        
     </main>
     
     <div id="successModalOverlay" class="success-modal-overlay"><div class="success-modal"><div class="success-modal-icon">✓</div><h3 id="successModalTitle">Success!</h3><p id="successModalMessage">Your request has been sent.</p></div></div>
@@ -372,19 +319,10 @@
         let taskTimers = {};
         let isInterstitialAdVisible = false;
 
-        // --- NEW CONSTANTS ---
-        const AD_LIMIT = 15;
-        const AD_REWARD_PG = 0.02;
-        const VIDEO_WATCH_REWARD_PG = 0.001; // PG per minute of watching
+        const AD_PGCOIN_LIMIT = 15;
+        const VIDEO_WATCH_LIMIT = 30; 
         const REFERRAL_BONUS_PG_COIN = 0.5;
-        const REFERRAL_BONUS_USDT = 0.1;
-        const MIN_WITHDRAWAL_PG = 25;
-        const MIN_WITHDRAWAL_USDT = 1;
-        
-        const dailyTasksConfig = [
-            { id: 'daily_login', title: 'Daily Login Bonus', rewardPg: 0.1, type: 'action' },
-            { id: 'visit_channel', title: 'Visit Telegram Channel', rewardPg: 0.05, type: 'action', url: 'https://t.me/newtube12' },
-        ];
+        const REFERRAL_BONUS_GAME_TOKENS = 1;
         
         async function fetchAndUpdateCurrentUser() {
             if (!currentUser?.id) return;
@@ -402,14 +340,14 @@
             if (!currentUser) return;
             const now = new Date();
             const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-            const lastDailyReset = currentUser.dailyTasks?.lastReset?.toDate();
+            const lastDailyReset = currentUser.lastDailyReset?.toDate();
             const lastDailyResetTime = lastDailyReset ? new Date(lastDailyReset.getFullYear(), lastDailyReset.getMonth(), lastDailyReset.getDate()).getTime() : 0;
             
             if (!lastDailyReset || lastDailyResetTime < today) {
                 const updates = {
-                    'dailyTasks.claimed': [],
-                    'dailyTasks.lastReset': serverTimestamp(),
-                    'pgCoinAdVisitsToday': 0,
+                    'lastDailyReset': serverTimestamp(),
+                    'pgCoinAdVisitsToday': 0, 'videoProgress.dailyWatchedCount': 0,
+                    'lottery.freeSpinsUsed': 0, 'lottery.adSpinsUsed': 0
                 };
                 try {
                     const userRef = doc(db, 'users', currentUser.id);
@@ -425,19 +363,18 @@
             let userSnap = await getDoc(userRef);
 
             const fieldsToEnsure = {
-                usdtBalance: 0, pgCoin: 0, lifetimePgCoinEarned: 0, 
-                referralCount: 0, referralBonusPaidOut: {},
-                completedTasks: [], 
-                pgCoinAdVisitsToday: 0,
-                dailyTasks: { claimed: [], lastReset: serverTimestamp() },
-                readMessages: []
+                usdtBalance: 0, pgCoin: 0, lifetimePgCoinEarned: 0, lifetimeUsdtEarned: 0,
+                referralPgCoinEarned: 0, referralGameTokensEarned: 0, referralCount: 0, gameTokens: 0,
+                completedTasks: [], pgCoinAdVisitsToday: 0,
+                lastDailyReset: serverTimestamp(), lastDailyLoginClaim: null,
+                videoProgress: { dailyWatchedCount: 0 },
+                readMessages: [], withdrawalCount: 0,
+                lottery: { freeSpinsUsed: 0, adSpinsUsed: 0, referralSpins: 0 }
             };
             
             if (!userSnap.exists()) {
                 const defaultUserData = {
-                    ...fieldsToEnsure,
-                    createdAt: serverTimestamp(),
-                    telegramUsername: tgUser.username || 'N/A',
+                    ...fieldsToEnsure, createdAt: serverTimestamp(), telegramUsername: tgUser.username || 'N/A',
                 };
                 if (referrerCode && referrerCode !== userId) {
                     defaultUserData.referredBy = referrerCode;
@@ -446,28 +383,37 @@
 
                 if (referrerCode && referrerCode !== userId) {
                     try {
-                        await updateDoc(doc(db, 'users', referrerCode), { referralCount: increment(1) });
-                    } catch (e) { console.error("Could not update referrer count", e); }
+                        const referrerRef = doc(db, 'users', referrerCode);
+                        await runTransaction(db, async (transaction) => {
+                            const referrerSnap = await transaction.get(referrerRef);
+                            if (referrerSnap.exists()) {
+                                transaction.update(referrerRef, { 
+                                    referralCount: increment(1),
+                                    pgCoin: increment(REFERRAL_BONUS_PG_COIN),
+                                    lifetimePgCoinEarned: increment(REFERRAL_BONUS_PG_COIN),
+                                    gameTokens: increment(REFERRAL_BONUS_GAME_TOKENS),
+                                    referralPgCoinEarned: increment(REFERRAL_BONUS_PG_COIN),
+                                    referralGameTokensEarned: increment(REFERRAL_BONUS_GAME_TOKENS),
+                                });
+                            }
+                        });
+                    } catch (e) { console.error("Could not update referrer on new user signup", e); }
                 }
                 userSnap = await getDoc(userRef);
             }
             
             let userData = userSnap.data();
             let updatesForOldUsers = {};
-
-            // Ensure all new fields exist for old users
+            
             for (const key in fieldsToEnsure) {
                 if (!userData.hasOwnProperty(key)) {
-                    updatesForOldUsers[key] = fieldsToEnsure[key];
+                     if(typeof fieldsToEnsure[key] === 'object' && !Array.isArray(fieldsToEnsure[key]) && fieldsToEnsure[key] !== null) {
+                        if (!userData[key]) updatesForOldUsers[key] = fieldsToEnsure[key];
+                     } else {
+                        updatesForOldUsers[key] = fieldsToEnsure[key];
+                     }
                 }
             }
-            // Remove old point-based fields if they exist
-            ['balance', 'lifetimePointsEarned', 'referralPointsEarned', 'validReferralCredits', 'lottery', 'adVisitsToday', 'videoProgress'].forEach(oldKey => {
-                if (userData.hasOwnProperty(oldKey)) {
-                    updatesForOldUsers[oldKey] = firebase.firestore.FieldValue.delete(); // This needs to be handled differently in v9
-                }
-            });
-
 
             if (Object.keys(updatesForOldUsers).length > 0) {
                 await updateDoc(userRef, updatesForOldUsers).catch(err => console.error("Error updating old user fields:", err));
@@ -478,13 +424,12 @@
             
             await checkAndResetDailies();
             
-            document.getElementById('userIdDisplay').textContent = `${currentUser.id}`;
-
+            document.getElementById('userIdDisplay').textContent = `ID: ${currentUser.id}`;
             updateBalanceUI(currentUser.usdtBalance, currentUser.pgCoin);
             generateReferralLink(currentUser.id);
             checkForUnreadMessages();
         }
-
+        
         function updateBalanceUI(usdtBalance, pgCoinBalance) {
             const usdt = parseFloat(usdtBalance || 0).toFixed(2);
             const pgCoin = parseFloat(pgCoinBalance || 0).toFixed(3);
@@ -493,8 +438,8 @@
         }
 
         function generateReferralLink(userId) {
-            const botUsername = "newRux_bot"; // Change this to your bot's username
-            const webAppShortName = "newruxapp"; // Change this to your web app short name
+            const botUsername = "NewTube12_bot";
+            const webAppShortName = "newtubecash";
             const referralLink = `https://t.me/${botUsername}/${webAppShortName}?startapp=${userId}`;
             document.getElementById('referralLinkInput').value = referralLink;
         }
@@ -509,7 +454,7 @@
         });
 
         async function grantReward(rewards) {
-             if (!currentUser || (!rewards.pgCoin && !rewards.usdt)) return;
+             if (!currentUser || (!rewards.pgCoin && !rewards.usdt && !rewards.gameTokens)) return;
              
              const userRef = doc(db, 'users', currentUser.id);
              const updates = {};
@@ -517,8 +462,12 @@
                  updates.pgCoin = increment(rewards.pgCoin);
                  updates.lifetimePgCoinEarned = increment(rewards.pgCoin);
              }
-             if(rewards.usdt) {
+             if (rewards.usdt) {
                  updates.usdtBalance = increment(rewards.usdt);
+                 updates.lifetimeUsdtEarned = increment(rewards.usdt);
+             }
+             if (rewards.gameTokens) {
+                updates.gameTokens = increment(rewards.gameTokens);
              }
 
              if (Object.keys(updates).length > 0) {
@@ -539,6 +488,7 @@
                 const item = document.createElement('article');
                 item.className = 'movie-item';
                 item.dataset.youtubeId = video.youtubeId;
+                item.dataset.videoId = docSnap.id;
                 
                 item.originalContent = `
                     <div class="thumbnail-container">
@@ -546,7 +496,7 @@
                     </div>
                     <div class="movie-item-info">
                         <h4>${video.title}</h4>
-                        <p class="movie-reward">Watch to Earn PG Coin</p>
+                        <p class="movie-reward">Watch to Earn <span class="task-reward-pg">PG Coin</span></p>
                     </div>`;
                 item.innerHTML = item.originalContent;
                 item.addEventListener('click', handleVideoClick);
@@ -559,7 +509,7 @@
             grid.innerHTML = '<div class="loader"></div>';
             try {
                 const videosCollection = collection(db, 'videos');
-                const q = query(videosCollection, orderBy('createdAt', 'desc'), limit(20));
+                const q = query(videosCollection, orderBy('createdAt', 'desc'), limit(VIDEO_WATCH_LIMIT));
                 const snapshot = await getDocs(q);
                 await renderVideos(snapshot);
             } catch (error) { 
@@ -570,6 +520,12 @@
         
         async function handleVideoClick(event) {
             if (!currentUser) { alert("User data not loaded yet."); return; }
+
+            const dailyWatchedCount = currentUser.videoProgress?.dailyWatchedCount || 0;
+            if(dailyWatchedCount >= VIDEO_WATCH_LIMIT){
+                alert(`You have reached your daily video watch limit of ${VIDEO_WATCH_LIMIT}.`);
+                return;
+            }
 
             if (currentPlayingItem) {
                 clearInterval(videoPlaybackInterval);
@@ -583,7 +539,7 @@
                 return;
             }
             currentPlayingItem = clickedItem;
-            const { youtubeId } = clickedItem.dataset;
+            const { youtubeId, videoId } = clickedItem.dataset;
             const playerDivId = `player-${youtubeId}-${Date.now()}`;
             
             clickedItem.innerHTML = `<div id="${playerDivId}" class="player-container"></div>`;
@@ -591,36 +547,56 @@
             player = new YT.Player(playerDivId, {
                 height: '100%', width: '100%', videoId: youtubeId,
                 playerVars: { 'autoplay': 1, 'controls': 1, 'rel': 0, 'fs': 1 },
-                events: { 'onStateChange': (e) => {
-                         if (e.data === YT.PlayerState.PLAYING && !videoPlaybackInterval) {
-                            videoPlaybackInterval = setInterval(() => grantReward({ pgCoin: VIDEO_WATCH_REWARD_PG }), 60 * 1000);
-                        } else { clearInterval(videoPlaybackInterval); videoPlaybackInterval = null; }
+                events: {
+                    'onStateChange': (e) => {
+                         if (e.data === YT.PlayerState.PLAYING) {
+                             if (!videoPlaybackInterval) {
+                                videoPlaybackInterval = setInterval(async () => {
+                                    const rewardPg = parseFloat((Math.random() * (0.01 - 0.001) + 0.001).toFixed(4));
+                                    await grantReward({ pgCoin: rewardPg });
+                                    showSuccessModal("Video Reward!", `You've earned ${rewardPg} PG Coin for watching!`);
+                                }, 2.5 * 60 * 1000); // 2.5 minutes reward
+                            }
+                        } else {
+                            clearInterval(videoPlaybackInterval);
+                            videoPlaybackInterval = null;
+                        }
                     }
                 }
             });
         }
-
+        
+        function stopAndClearVideo() {
+            clearInterval(videoPlaybackInterval);
+            videoPlaybackInterval = null;
+            if (currentPlayingItem) {
+                const originalContent = currentPlayingItem.originalContent;
+                if(originalContent) currentPlayingItem.innerHTML = originalContent;
+            }
+            if (player) { try { player.destroy(); } catch (e) {} player = null; }
+            currentPlayingItem = null;
+        }
+        
         function setupAdsToEarn() {
             const adTaskListContainer = document.getElementById('ad-task-list');
             adTaskListContainer.innerHTML = '';
             if (!currentUser) return;
             
-            const visitsToday = currentUser.pgCoinAdVisitsToday || 0;
-            const visitsLeft = AD_LIMIT - visitsToday;
-            const isLimitReached = visitsLeft <= 0;
-
-            const card = document.createElement('div');
-            card.className = 'ad-task-card';
-            card.innerHTML = `
+            const pgCoinVisitsToday = currentUser.pgCoinAdVisitsToday || 0;
+            const pgCoinVisitsLeft = AD_PGCOIN_LIMIT - pgCoinVisitsToday;
+            const isPgCoinLimitReached = pgCoinVisitsLeft <= 0;
+            const pgCoinCard = document.createElement('div');
+            pgCoinCard.className = 'ad-task-card';
+            pgCoinCard.innerHTML = `
                 <div class="ad-task-card-info">
                     <h4>Watch Ad & Earn PG Coin</h4>
-                    <p>Reward: <span class="task-reward-pg">${AD_REWARD_PG} PG Coin</span></p>
-                    <p class="ad-visits-left">Today's Ads Left: ${visitsLeft > 0 ? visitsLeft : 0} / ${AD_LIMIT}</p>
+                    <p>Reward: <span class="task-reward-pg">0.02 PG Coin</span></p>
+                    <p class="ad-visits-left">Today's Visits Left: ${pgCoinVisitsLeft > 0 ? pgCoinVisitsLeft : 0} / ${AD_PGCOIN_LIMIT}</p>
                 </div>
-                <button class="ad-task-button" ${isLimitReached ? 'disabled' : ''}>
-                    ${isLimitReached ? 'Daily Limit Reached' : 'Watch Ad'}
+                <button class="ad-task-button" data-ad-type="pgcoin" ${isPgCoinLimitReached ? 'disabled' : ''}>
+                    ${isPgCoinLimitReached ? 'Daily Limit Reached' : 'Watch Ad'}
                 </button>`;
-            adTaskListContainer.appendChild(card);
+            adTaskListContainer.appendChild(pgCoinCard);
         }
         
         document.getElementById('ad-task-list').addEventListener('click', async (e) => {
@@ -633,91 +609,132 @@
             try {
                 await showRandomAdForTask();
                 if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-
-                await grantReward({ pgCoin: AD_REWARD_PG });
+                
+                await grantReward({ pgCoin: 0.02 });
                 await updateDoc(doc(db, 'users', currentUser.id), { pgCoinAdVisitsToday: increment(1) });
-                showSuccessModal("Congratulations!", `You've earned ${AD_REWARD_PG} PG Coin.`);
+                showSuccessModal("Congratulations!", "You've earned 0.02 PG Coin.");
                 
                 await fetchAndUpdateCurrentUser();
                 setupAdsToEarn(); 
 
             } catch (err) {
                 alert('You need to watch the complete ad to earn the reward.');
-                setupAdsToEarn(); // Reset button states
+                setupAdsToEarn(); 
             }
         });
         
+        async function renderDailyLoginTask() {
+            const container = document.getElementById('daily-login-task-container');
+            if (!container) return;
+            container.innerHTML = '';
+            if (!currentUser) return;
+
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+            const lastClaim = currentUser.lastDailyLoginClaim?.toDate();
+            const lastClaimTime = lastClaim ? new Date(lastClaim.getFullYear(), lastClaim.getMonth(), lastClaim.getDate()).getTime() : 0;
+            const isClaimedToday = lastClaimTime >= today;
+
+            const card = document.createElement('div');
+            card.className = 'task-card';
+            card.innerHTML = `
+                <div class="task-card-info">
+                    <h4>Daily Login Bonus</h4>
+                    <p>Reward: <span class="task-reward-pg">0.05 PG Coin</span></p>
+                </div>
+                <button class="task-button" id="dailyLoginClaimBtn" ${isClaimedToday ? 'disabled' : ''}>
+                    ${isClaimedToday ? 'Claimed Today' : 'Claim'}
+                </button>
+            `;
+            container.innerHTML = `<h3 class="section-title">Daily Reward</h3>`;
+            container.appendChild(card);
+            
+            if (!isClaimedToday) {
+                document.getElementById('dailyLoginClaimBtn').addEventListener('click', claimDailyLoginBonus);
+            }
+        }
+
+        async function claimDailyLoginBonus() {
+            const button = document.getElementById('dailyLoginClaimBtn');
+            if (button) {
+                button.disabled = true;
+                button.textContent = '...';
+            }
+            try {
+                await grantReward({ pgCoin: 0.05 });
+                await updateDoc(doc(db, 'users', currentUser.id), { lastDailyLoginClaim: serverTimestamp() });
+                await fetchAndUpdateCurrentUser();
+                showSuccessModal("Reward Claimed!", "You earned 0.05 PG Coin for your daily login.");
+                renderDailyLoginTask(); 
+            } catch (error) {
+                alert('Failed to claim daily login bonus. Please try again.');
+                if (button) button.disabled = false;
+            }
+        }
+
         async function fetchTasks() {
             const taskListContainer = document.getElementById('task-list');
-            const specialTaskListContainer = document.getElementById('special-task-list');
             taskListContainer.innerHTML = '<div class="loader"></div>';
-            specialTaskListContainer.innerHTML = '<div class="loader"></div>';
             try {
                 const tasksRef = collection(db, 'tasks');
                 const q = query(tasksRef, orderBy("createdAt", "desc"));
                 const snapshot = await getDocs(q);
                 taskListContainer.innerHTML = '';
-                specialTaskListContainer.innerHTML = '';
 
-                const now = Date.now();
-                let hasRegularTasks = false, hasSpecialTasks = false;
-
+                let hasTasks = false;
                 snapshot.forEach(docSnap => {
                     const task = docSnap.data();
+                    if (task.isSpecial) return; 
+
+                    hasTasks = true;
                     const taskId = docSnap.id;
                     const card = document.createElement('div');
                     card.className = 'task-card';
                     const isCompleted = currentUser.completedTasks?.includes(taskId);
-                    const isLimitReached = (task.limit > 0) && ((task.completionCount || 0) >= task.limit);
+                    const completionCount = task.completionCount || 0;
+                    const taskLimit = task.limit || 0;
+                    const isLimitReached = (taskLimit > 0) && (completionCount >= taskLimit);
                     
                     let buttonText = 'Go'; let buttonDisabled = false; let buttonState = 'start';
                     if (isCompleted) { buttonText = 'Done'; buttonDisabled = true; buttonState = 'done'; }
                     else if (isLimitReached) { buttonText = 'Limit Reached'; buttonDisabled = true; buttonState = 'limit_reached'; }
 
                     const rewardPg = task.rewardPg || 0;
-                    const rewardUsdt = task.rewardUsdt || 0;
 
-                    let rewardHtml = '';
-                    if (rewardPg > 0) rewardHtml += `<span class="task-reward-pg">${rewardPg} PG</span>`;
-                    if (rewardUsdt > 0) rewardHtml += (rewardHtml ? ' + ' : '') + `<span style="color:var(--success-color);">$${rewardUsdt.toFixed(2)}</span>`;
+                    let rewardHtml = `<span class="task-reward-pg">${rewardPg} PG</span>`;
 
                     card.innerHTML = `
                         <div class="task-card-info">
                             <h4>${task.title}</h4>
                             <p>Reward: ${rewardHtml}</p>
                         </div>
-                        <button class="task-button" data-task-id="${taskId}" data-task-url="${task.url}" data-reward-pg="${rewardPg}" data-reward-usdt="${rewardUsdt}" data-visit-duration="${task.visitDurationSeconds || 0}" data-state="${buttonState}" ${buttonDisabled ? 'disabled' : ''}>
+                        <button class="task-button" data-task-id="${taskId}" data-task-url="${task.url}" data-reward-pg="${rewardPg}" data-visit-duration="${task.visitDurationSeconds || 0}" data-state="${buttonState}" ${buttonDisabled ? 'disabled' : ''}>
                             ${buttonText}
                         </button>`;
-                    
-                    const targetContainer = task.isSpecial && task.expiresAt && task.expiresAt.toMillis() > now ? specialTaskListContainer : taskListContainer;
-                    targetContainer.appendChild(card);
-                    if (targetContainer === specialTaskListContainer) hasSpecialTasks = true; else hasRegularTasks = true;
+                    taskListContainer.appendChild(card);
                 });
-
-                if (!hasRegularTasks) taskListContainer.innerHTML = '<p style="text-align:center; grid-column: 1 / -1;">No tasks available.</p>';
-                if (!hasSpecialTasks) specialTaskListContainer.innerHTML = '<p style="text-align:center; grid-column: 1 / -1;">No special tasks available.</p>';
+                
+                if (!hasTasks) {
+                    taskListContainer.innerHTML = '<p style="text-align:center; grid-column: 1 / -1;">No tasks available right now.</p>';
+                }
 
             } catch (error) {
                 console.error("Error fetching tasks:", error);
-                const errorMsg = '<p style="color:red; text-align:center; grid-column: 1 / -1;">Could not load tasks.</p>';
-                taskListContainer.innerHTML = errorMsg;
-                specialTaskListContainer.innerHTML = errorMsg;
+                taskListContainer.innerHTML = '<p style="color:red; text-align:center; grid-column: 1 / -1;">Could not load tasks.</p>';
             }
         }
         
         document.getElementById('task-list').addEventListener('click', handleTaskClick);
-        document.getElementById('special-task-list').addEventListener('click', handleTaskClick);
 
         async function handleTaskClick(e) {
             if (!e.target.matches('.task-button') || e.target.disabled) return;
             const button = e.target;
             const { taskId, taskUrl, state } = button.dataset;
             const rewardPg = Number(button.dataset.rewardPg) || 0;
-            const rewardUsdt = Number(button.dataset.rewardUsdt) || 0;
             const visitDuration = parseInt(button.dataset.visitDuration, 10) || 0;
 
             if (state === 'start') {
+                if (!taskUrl) { alert('Task URL is missing.'); return; }
                 if (visitDuration > 0) {
                     taskTimers[taskId] = Date.now();
                     button.textContent = `Claim after ${visitDuration}s`;
@@ -731,7 +748,7 @@
                 if (visitDuration > 0) {
                     const startTime = taskTimers[taskId];
                     if (!startTime || (Date.now() - startTime) / 1000 < visitDuration) {
-                        alert(`You must visit the site for at least ${visitDuration} seconds.`);
+                        alert(`You must visit the site for at least ${visitDuration} seconds. Please try again.`);
                         delete taskTimers[taskId];
                         button.textContent = 'Go'; button.dataset.state = 'start';
                         return;
@@ -742,101 +759,104 @@
                     await runTransaction(db, async (transaction) => {
                         const userRef = doc(db, 'users', currentUser.id);
                         const taskRef = doc(db, 'tasks', taskId);
+                        const userDoc = await transaction.get(userRef);
+                        const taskDoc = await transaction.get(taskRef);
+                        if (!userDoc.exists() || !taskDoc.exists()) throw "USER_OR_TASK_NOT_FOUND";
+                        if (userDoc.data().completedTasks?.includes(taskId)) throw "ALREADY_COMPLETED";
+                        const taskData = taskDoc.data();
+                        if ((taskData.limit || 0) > 0 && (taskData.completionCount || 0) >= taskData.limit) throw "TASK_LIMIT_REACHED";
                         transaction.update(userRef, { completedTasks: arrayUnion(taskId) });
                         transaction.update(taskRef, { completionCount: increment(1) });
                     });
                     delete taskTimers[taskId];
-                    await grantReward({ pgCoin: rewardPg, usdt: rewardUsdt });
+                    await grantReward({ pgCoin: rewardPg });
                     showSuccessModal("Reward Claimed!", `Reward added to your balance.`);
                     button.textContent = 'Done';
                 } catch (error) {
-                    alert('Failed to claim reward. You may have already completed this task.');
-                    button.disabled = true; button.textContent = 'Done';
+                    const errorMessages = { "ALREADY_COMPLETED": "You have already completed this task.", "TASK_LIMIT_REACHED": "This task has reached its completion limit."};
+                    alert(errorMessages[error] || 'Failed to claim reward.');
+                    button.disabled = (error === "ALREADY_COMPLETED" || error === "TASK_LIMIT_REACHED");
+                    button.textContent = button.disabled ? 'Done' : 'Claim Reward';
                 }
             }
         }
 
         function showSuccessModal(title, message) {
+            const modal = document.getElementById('successModalOverlay');
             document.getElementById('successModalTitle').textContent = title;
             document.getElementById('successModalMessage').textContent = message;
-            document.getElementById('successModalOverlay').classList.add('show');
+            modal.classList.add('show');
             if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-            setTimeout(() => { document.getElementById('successModalOverlay').classList.remove('show'); }, 3000);
+            setTimeout(() => { modal.classList.remove('show'); }, 4000);
         }
-
-        function renderWithdrawUI() {
+        
+        function renderWithdrawalUI() {
             if (!currentUser) return;
-            const currency = document.getElementById('withdrawalCurrency').value;
-            const balanceDisplay = document.getElementById('withdrawBalanceDisplay');
-            const minInfo = document.getElementById('minWithdrawalInfo');
-            
-            if (currency === 'pgcoin') {
-                balanceDisplay.textContent = `${(currentUser.pgCoin || 0).toFixed(3)} PG`;
-                minInfo.textContent = `Minimum withdrawal: ${MIN_WITHDRAWAL_PG} PG Coin`;
-            } else { // usdt
-                balanceDisplay.textContent = `$${(currentUser.usdtBalance || 0).toFixed(2)} USDT`;
-                minInfo.textContent = `Minimum withdrawal: $${MIN_WITHDRAWAL_USDT.toFixed(2)} USDT`;
-            }
+            document.getElementById('withdrawUsdtBalance').textContent = (currentUser.usdtBalance || 0).toFixed(2);
+            document.getElementById('withdrawalPgCoinBalance').textContent = (currentUser.pgCoin || 0).toFixed(3);
         }
-
-        document.getElementById('withdrawalCurrency').addEventListener('change', renderWithdrawUI);
 
         document.getElementById('withdrawalForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const submitButton = e.target.querySelector('button[type="submit"]');
-            submitButton.disabled = true; submitButton.textContent = 'Processing...';
+            submitButton.disabled = true; submitButton.textContent = 'Verifying...';
 
-            const currency = document.getElementById('withdrawalCurrency').value;
             const method = document.getElementById('withdrawalMethod').value;
             const amount = parseFloat(document.getElementById('withdrawalAmount').value);
-            const details = document.getElementById('accountDetails').value;
             
             try {
-                let minAmount, balance, fieldToDecrement;
-                if (currency === 'pgcoin') {
-                    minAmount = MIN_WITHDRAWAL_PG;
-                    balance = currentUser.pgCoin || 0;
-                    fieldToDecrement = 'pgCoin';
-                } else { // usdt
-                    minAmount = MIN_WITHDRAWAL_USDT;
-                    balance = currentUser.usdtBalance || 0;
-                    fieldToDecrement = 'usdtBalance';
+                let minAmount, currency, balanceField;
+                if (method === 'bKash') {
+                    minAmount = 25; // in PG Coin
+                    currency = 'PG Coin';
+                    balanceField = 'pgCoin';
+                     if (isNaN(amount) || amount < 50) throw new Error(`Minimum withdrawal for bKash is 50 BDT (cost: 25 PG Coin).`);
+                     if (currentUser.pgCoin < 25) throw new Error(`Insufficient PG Coin balance. You need at least 25 PG Coin.`);
+
+                } else if (method === 'Binance UID') {
+                    minAmount = 1.0;
+                    currency = 'USDT';
+                    balanceField = 'usdtBalance';
+                    if (isNaN(amount) || amount < minAmount) throw new Error(`Minimum withdrawal for Binance UID is $${minAmount.toFixed(2)}.`);
+                    if (amount > currentUser.usdtBalance) throw new Error("Insufficient USDT balance.");
+                } else {
+                    throw new Error(`Withdrawal method "${method}" is not supported yet.`);
                 }
-
-                if (isNaN(amount) || amount < minAmount) throw new Error(`Minimum withdrawal is ${minAmount} ${currency}.`);
-                if (amount > balance) throw new Error(`Insufficient ${currency} balance.`);
-
+                
+                submitButton.textContent = 'Processing...';
                 const requestData = { 
-                    userId: currentUser.id, 
-                    telegramUsername: currentUser.telegramUsername, 
-                    amount: amount, 
-                    currency: currency,
+                    userId: currentUser.id, telegramUsername: currentUser.telegramUsername, 
+                    amount: amount, currency: (method === 'bKash' ? 'BDT' : 'USDT'),
                     method, 
-                    details, 
-                    status: 'pending', 
-                    createdAt: serverTimestamp() 
+                    details: document.getElementById('accountDetails').value, status: 'pending', createdAt: serverTimestamp() 
                 };
 
                 await runTransaction(db, async (transaction) => {
                     const userRef = doc(db, 'users', currentUser.id);
                     const userDoc = await transaction.get(userRef);
-                    if (!userDoc.exists() || (userDoc.data()[fieldToDecrement] || 0) < amount) throw new Error("Balance check failed.");
+                    if (!userDoc.exists()) throw new Error("User not found.");
                     
+                    const currentData = userDoc.data();
+                    let cost = (method === 'bKash' ? 25 : amount);
+                    if (currentData[balanceField] < cost) throw new Error(`Insufficient ${currency} balance.`);
+
                     transaction.set(doc(collection(db, 'withdrawals')), requestData);
-                    transaction.update(userRef, { [fieldToDecrement]: increment(-amount) });
+                    transaction.update(userRef, { 
+                        [balanceField]: increment(-cost),
+                        withdrawalCount: increment(1) 
+                    });
                 });
 
                 await fetchAndUpdateCurrentUser();
                 e.target.reset();
-                renderWithdrawUI();
-                await displayWithdrawalHistory();
-                showSuccessModal("Request Sent!", "Your withdrawal request is pending review.");
+                showSuccessModal("Successfully Sent!", "Your withdrawal request is pending. Check status in History.");
             
             } catch (error) {
-                alert(`Error: ${error.message || "Please try again."}`);
+                alert(`An error occurred: ${error.message || "Please try again."}`);
             } finally {
                 submitButton.disabled = false;
                 submitButton.textContent = 'Request Withdrawal';
+                renderWithdrawalUI();
             }
         });
 
@@ -844,74 +864,124 @@
             const historyContainer = document.getElementById('history-list');
             historyContainer.innerHTML = '<div class="loader"></div>';
             try {
-                const q = query(collection(db, "withdrawals"), where("userId", "==", currentUser.id), orderBy("createdAt", "desc"), limit(20));
+                const q = query(collection(db, "withdrawals"), where("userId", "==", currentUser.id), orderBy("createdAt", "desc"), limit(50));
                 const snapshot = await getDocs(q);
                 historyContainer.innerHTML = '';
-                if (snapshot.empty) { historyContainer.innerHTML = '<p style="text-align:center;">No history found.</p>'; return; }
+                if (snapshot.empty) { historyContainer.innerHTML = '<p style="text-align:center;">No withdrawal history found.</p>'; return; }
                 snapshot.forEach(docSnap => {
                     const data = docSnap.data();
                     const item = document.createElement('div');
                     item.className = 'history-item';
                     const date = data.createdAt?.toDate().toLocaleDateString() || 'N/A';
                     const status = data.status || 'pending';
-                    const amountText = data.currency === 'usdt' ? `$${data.amount.toFixed(2)}` : `${data.amount} PG`;
+                    const amountText = `${parseFloat(data.amount || 0).toFixed(2)} ${data.currency}`;
                     item.innerHTML = `<div><strong>${amountText}</strong><br><small>${data.method} - ${date}</small></div><strong class="status-${status}">${status.charAt(0).toUpperCase() + status.slice(1)}</strong>`;
                     historyContainer.appendChild(item);
                 });
             } catch (error) { console.error("Error fetching history:", error); historyContainer.innerHTML = '<p style="color:red;">Error loading history.</p>'; }
         }
         
+        function renderReferralStats() {
+            if (!currentUser) return;
+            document.getElementById('referral-stats-count').textContent = currentUser.referralCount || 0;
+            document.getElementById('referral-stats-pg-earned').textContent = (currentUser.referralPgCoinEarned || 0).toFixed(1);
+            document.getElementById('referral-stats-tokens').textContent = currentUser.referralGameTokensEarned || 0;
+        }
+        
         function renderProfile() {
             if (!currentUser) return;
             
             document.getElementById('profile-username').textContent = currentUser.telegramUsername || 'User';
-            document.getElementById('profile-userid').textContent = `ID: ${currentUser.id}`;
-            document.getElementById('profile-pg-coins').textContent = (currentUser.pgCoin || 0).toFixed(3);
             document.getElementById('profile-referrals').textContent = currentUser.referralCount || 0;
+            document.getElementById('profile-pg-coins').textContent = (currentUser.lifetimePgCoinEarned || 0).toFixed(3);
+            document.getElementById('profile-usdt-earned').textContent = `$${(currentUser.lifetimeUsdtEarned || 0).toFixed(2)}`;
             
             const avatarEl = document.getElementById('profile-avatar');
             const username = currentUser.telegramUsername || 'User';
-            const initial = username.charAt(0).toUpperCase();
-            let hash = 0;
-            for (let i = 0; i < username.length; i++) hash = username.charCodeAt(i) + ((hash << 5) - hash);
-            avatarEl.style.backgroundColor = `hsl(${hash % 360}, 50%, 40%)`;
-            avatarEl.textContent = initial;
+            if (currentUser.profilePictureUrl) {
+                avatarEl.style.backgroundImage = `url('${currentUser.profilePictureUrl}')`;
+                avatarEl.textContent = '';
+            } else {
+                const initial = username.charAt(0).toUpperCase();
+                let hash = 0;
+                for (let i = 0; i < username.length; i++) {
+                    hash = username.charCodeAt(i) + ((hash << 5) - hash);
+                }
+                const color = `hsl(${hash % 360}, 50%, 40%)`;
+                avatarEl.style.backgroundColor = color;
+                avatarEl.style.backgroundImage = 'none';
+                avatarEl.textContent = initial;
+            }
         }
         
-        function renderDailyTasks() {
+        const lotteryResultDisplay = document.getElementById('lottery-result-display');
+        const freeSpinButton = document.getElementById('free-spin-button');
+        const adSpinButton = document.getElementById('ad-spin-button');
+        const refSpinButton = document.getElementById('ref-spin-button');
+        const lotteryInfo = document.getElementById('lottery-info');
+        let isSpinning = false;
+
+        function updateLotteryUI() {
             if (!currentUser) return;
-            const container = document.getElementById('daily-task-list');
-            container.innerHTML = '';
-            const claimedTasks = currentUser.dailyTasks?.claimed || [];
-            dailyTasksConfig.forEach(task => {
-                const card = document.createElement('div');
-                card.className = 'daily-task-card';
-                const isClaimed = claimedTasks.includes(task.id);
-                card.innerHTML = `
-                    <div class="daily-task-info">
-                        <h4>${task.title}</h4>
-                        <p style="color:var(--text-muted);">Reward: <span class="task-reward-pg">${task.rewardPg} PG</span></p>
-                    </div>
-                    <button class="daily-task-button" data-task-id="${task.id}" data-task-url="${task.url || ''}" data-reward-pg="${task.rewardPg}" ${isClaimed ? 'disabled' : ''}>
-                        ${isClaimed ? 'Claimed' : 'Claim'}
-                    </button>`;
-                container.appendChild(card);
-            });
+            const lotteryData = currentUser.lottery || { freeSpinsUsed: 0, adSpinsUsed: 0, referralSpins: 0 };
+            const freeSpinsLeft = 1 - (lotteryData.freeSpinsUsed || 0);
+            const adSpinsLeft = 3 - (lotteryData.adSpinsUsed || 0);
+            
+            freeSpinButton.textContent = `Free Daily Spin (${freeSpinsLeft > 0 ? freeSpinsLeft : 0} left)`;
+            freeSpinButton.disabled = freeSpinsLeft <= 0 || isSpinning;
+            
+            adSpinButton.textContent = `Spin with Ad (${adSpinsLeft > 0 ? adSpinsLeft : 0} left)`;
+            adSpinButton.disabled = adSpinsLeft <= 0 || isSpinning;
+
+            refSpinButton.textContent = `Get More Spins (Refer)`;
+        }
+        
+        async function handleSpin(spinType) {
+            if (isSpinning) return;
+            isSpinning = true;
+            updateLotteryUI();
+            
+            const animationInterval = setInterval(() => { lotteryResultDisplay.textContent = (Math.random() * 9.99).toFixed(2); }, 50);
+
+            setTimeout(async () => {
+                clearInterval(animationInterval);
+                const rand = Math.random() * 100;
+                let reward;
+                if (rand < 90) { reward = (Math.random() * 0.1).toFixed(3); } 
+                else if (rand < 97) { reward = (Math.random() * (0.5 - 0.1) + 0.1).toFixed(3); } 
+                else if (rand < 99) { reward = (Math.random() * (1 - 0.5) + 0.5).toFixed(3); }
+                else if (rand < 99.8) { reward = (Math.random() * (5 - 1) + 1).toFixed(3); }
+                else { reward = (Math.random() * (10 - 5) + 5).toFixed(3); }
+
+                const finalReward = parseFloat(reward);
+                lotteryResultDisplay.textContent = finalReward.toFixed(3);
+                
+                await grantReward({ pgCoin: finalReward });
+                showSuccessModal("You Won!", `You have won ${finalReward.toFixed(3)} PG Coin!`);
+
+                const userRef = doc(db, 'users', currentUser.id);
+                if (spinType === 'free') await updateDoc(userRef, { 'lottery.freeSpinsUsed': increment(1) });
+                else if (spinType === 'ad') await updateDoc(userRef, { 'lottery.adSpinsUsed': increment(1) });
+                
+                await fetchAndUpdateCurrentUser();
+                isSpinning = false;
+                updateLotteryUI();
+            }, 2000);
         }
 
-        document.getElementById('daily-task-list').addEventListener('click', async (e) => {
-            if (!e.target.matches('.daily-task-button') || e.target.disabled) return;
-            const button = e.target;
-            const { taskId, taskUrl, rewardPg } = e.target.dataset;
-            if (taskUrl && taskUrl !== 'undefined') { tg.openLink(taskUrl); }
-            button.disabled = true; button.textContent = '...';
+        freeSpinButton.addEventListener('click', () => handleSpin('free'));
+        adSpinButton.addEventListener('click', async () => {
+            isSpinning = true;
+            updateLotteryUI();
+            adSpinButton.textContent = 'Loading Ad...';
             try {
-                await grantReward({ pgCoin: Number(rewardPg) });
-                await updateDoc(doc(db, 'users', currentUser.id), { 'dailyTasks.claimed': arrayUnion(taskId) });
-                await fetchAndUpdateCurrentUser();
-                renderDailyTasks();
-                showSuccessModal("Reward Claimed!", `You earned ${rewardPg} PG Coin.`);
-            } catch (error) { alert("Failed to claim task."); button.disabled = false; renderDailyTasks(); }
+                await showRandomAdForTask();
+                await handleSpin('ad');
+            } catch (err) {
+                alert('You must watch the complete ad to get a spin. Please try again.');
+                isSpinning = false;
+                updateLotteryUI();
+            }
         });
 
         const showMonetagAd = () => new Promise((res, rej) => typeof show_9442539 === 'function' ? show_9442539().then(res).catch(rej) : rej('Monetag SDK missing'));
@@ -929,20 +999,30 @@
         async function checkForUnreadMessages() {
             if (!currentUser) return;
             const messagesRef = collection(db, 'messages');
-            const q = query(messagesRef, orderBy('createdAt', 'desc'), limit(10));
+            const q = query(messagesRef, orderBy('createdAt', 'desc'), limit(20));
             const snapshot = await getDocs(q);
             const readMessages = currentUser.readMessages || [];
             const unread = snapshot.docs.some(doc => !readMessages.includes(doc.id));
-            document.getElementById('inbox-notification-dot').classList.toggle('visible', unread);
+            const dot = document.getElementById('inbox-notification-dot');
+            if (unread) dot.classList.add('visible');
+            else dot.classList.remove('visible');
         }
 
         async function openInbox() {
             const listContainer = document.getElementById('inbox-message-list');
-            document.getElementById('inboxModalOverlay').classList.add('show');
+            const modal = document.getElementById('inboxModalOverlay');
+            modal.classList.add('show');
             listContainer.innerHTML = '<div class="loader"></div>';
 
-            const snapshot = await getDocs(query(collection(db, 'messages'), orderBy('createdAt', 'desc'), limit(20)));
-            listContainer.innerHTML = snapshot.empty ? '<p style="text-align:center;">Your inbox is empty.</p>' : '';
+            const messagesRef = collection(db, 'messages');
+            const q = query(messagesRef, orderBy('createdAt', 'desc'), limit(20));
+            const snapshot = await getDocs(q);
+            listContainer.innerHTML = '';
+            
+            if (snapshot.empty) {
+                listContainer.innerHTML = '<p style="text-align:center;">Your inbox is empty.</p>';
+                return;
+            }
             
             const readMessages = currentUser.readMessages || [];
             const messagesToMarkAsRead = [];
@@ -952,27 +1032,60 @@
                 const item = document.createElement('div');
                 item.className = 'inbox-message-item';
                 if(readMessages.includes(docSnap.id)) item.classList.add('read');
-                item.innerHTML = `<p>${message.text}</p><small>${message.createdAt.toDate().toLocaleString()}</small>`;
+
+                item.innerHTML = `
+                    <p>${message.text}</p>
+                    <small>${message.createdAt.toDate().toLocaleString()}</small>
+                `;
                 listContainer.appendChild(item);
-                if (!readMessages.includes(docSnap.id)) messagesToMarkAsRead.push(docSnap.id);
+                if (!readMessages.includes(docSnap.id)) {
+                    messagesToMarkAsRead.push(docSnap.id);
+                }
             });
 
             if (messagesToMarkAsRead.length > 0) {
-                await updateDoc(doc(db, 'users', currentUser.id), { readMessages: arrayUnion(...messagesToMarkAsRead) });
+                const userRef = doc(db, 'users', currentUser.id);
+                await updateDoc(userRef, {
+                    readMessages: arrayUnion(...messagesToMarkAsRead)
+                });
                 await fetchAndUpdateCurrentUser();
                 checkForUnreadMessages();
             }
         }
 
+        document.getElementById('inbox-container').addEventListener('click', openInbox);
+        document.getElementById('closeInboxBtn').addEventListener('click', () => {
+             document.getElementById('inboxModalOverlay').classList.remove('show');
+        });
+
+        document.getElementById('ref-spin-button').addEventListener('click', () => {
+             document.getElementById('referral-content').scrollIntoView({ behavior: 'smooth' });
+        });
+        
+        document.getElementById('profile-shortcut').addEventListener('click', () => {
+             document.getElementById('profile-content').scrollIntoView({ behavior: 'smooth' });
+        });
+
         function manageAdTimers() {
             try {
                 const adexiumWidget = new AdexiumWidget({ wid: '12c05dba-2642-46f2-950f-cee6575119c9', adFormat: 'interstitial' });
+                
                 setInterval(() => {
-                    if (isInterstitialAdVisible) return;
+                    if (isInterstitialAdVisible) { return; }
+                    
                     isInterstitialAdVisible = true;
-                    adexiumWidget.show().catch(err => {}).finally(() => { isInterstitialAdVisible = false; });
-                }, 3 * 60 * 1000); // 3 minutes
-            } catch (e) { console.error("Failed to init Adexium:", e); }
+                    if (typeof adexiumWidget.show === 'function') {
+                        adexiumWidget.show()
+                            .catch(err => console.error("Timed Adexium ad failed to show:", err))
+                            .finally(() => { isInterstitialAdVisible = false; });
+                    } else {
+                        adexiumWidget.autoMode(); 
+                        isInterstitialAdVisible = false;
+                    }
+                }, 3 * 60 * 1000); 
+            } catch (e) {
+                console.error("Failed to initialize Adexium for timed display:", e);
+            }
         }
 
         async function main() {
@@ -983,36 +1096,38 @@
                 tg.ready(); tg.expand();
                 
                 await initializeUser(tg.initDataUnsafe.user, tg.initDataUnsafe.start_param);
-                
-                // Fetch all content after user is initialized
-                renderProfile();
+
+                // Initial data loading for all sections
+                await fetchContent(); 
+                await renderDailyLoginTask();
                 await fetchTasks();
-                renderDailyTasks();
                 setupAdsToEarn();
-                await fetchContent();
-                renderWithdrawUI();
+                renderWithdrawalUI();
                 await displayWithdrawalHistory();
-                
+                renderReferralStats();
+                renderProfile();
+                updateLotteryUI();
+
+
+                if (typeof TelegramAdsController !== 'undefined') {
+                    window.TelegramAdsController = new TelegramAdsController();
+                    window.TelegramAdsController.initialize({
+                        pubId: "978188",
+                        appId: "3041",
+                    });
+                }
+
                 manageAdTimers();
 
-                document.getElementById('userIdContainer').addEventListener('click', () => {
-                    navigator.clipboard.writeText(currentUser.id).then(() => {
-                        const btn = document.querySelector('.copy-user-id-btn'); btn.title = 'Copied!';
+                const userIdContainer = document.getElementById('userIdContainer');
+                userIdContainer.addEventListener('click', () => {
+                    if (currentUser && currentUser.id) navigator.clipboard.writeText(currentUser.id).then(() => {
+                        const btn = userIdContainer.querySelector('button'); btn.title = 'Copied!';
                         if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
                         setTimeout(() => { btn.title = 'Copy User ID'; }, 2000);
                     });
                 });
 
-                document.getElementById('toggleHistoryBtn').addEventListener('click', () => {
-                    const historyContainer = document.getElementById('history-container');
-                    historyContainer.style.display = historyContainer.style.display === 'none' ? 'block' : 'none';
-                });
-
-                document.getElementById('inbox-container').addEventListener('click', openInbox);
-                document.getElementById('closeInboxBtn').addEventListener('click', () => {
-                     document.getElementById('inboxModalOverlay').classList.remove('show');
-                });
-                
             } catch (error) {
                 console.error("Initialization failed:", error);
                 document.body.innerHTML = `<div class="card" style="margin-top: 50px;"><h3>Application Error</h3><p>Could not initialize. Please restart.</p><p style="font-size: 0.8em; color: #888;">Error: ${error.message}</p></div>`;
