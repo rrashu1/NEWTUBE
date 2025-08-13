@@ -19,9 +19,10 @@
         });
     </script>
     
-    <!-- Other Ad Libraries -->
+    <!-- Other Ad Libraries (Unchanged as requested) -->
     <script src='//libtl.com/sdk.js' data-zone='9442539' data-sdk='show_9442539'></script>
     <script src="https://ad.gigapub.tech/script?id=846"></script>
+    <!-- RichInfo Ads SDK (Global Initialization) -->
     <script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -162,7 +163,6 @@
         .task-card-info h4 { margin: 0 0 5px; }
         .task-card-info p { margin: 5px 0 0; }
 
-        /* Profile Section */
         #profile-card { background-color: var(--card-bg); padding: 30px; border-radius: 15px; text-align: center; }
         #profile-avatar { width: 100px; height: 100px; border-radius: 50%; border: 4px solid var(--primary-accent-color); margin: 0 auto 20px; display: flex; justify-content: center; align-items: center; background-color: #333; font-size: 48px; font-weight: bold; color: var(--text-light); background-size: cover; background-position: center; }
         #profile-username { font-size: 1.8em; font-weight: bold; margin: 0 0 5px; }
@@ -176,7 +176,6 @@
         .profile-stat-item .ref-val { color: var(--primary-accent-color); }
         .profile-stat-item .game-val { color: #c874ff; }
 
-        /* Withdraw Section */
         #withdraw-type-selector { display: flex; gap: 10px; margin-bottom: 25px; }
         #withdraw-type-selector button { flex: 1; padding: 12px; font-size: 1em; font-weight: 600; border: 2px solid var(--border-color); background-color: transparent; color: var(--text-muted); border-radius: 8px; cursor: pointer; }
         #withdraw-type-selector button.active { background-color: var(--primary-accent-color); border-color: var(--primary-accent-color); color: var(--text-light); }
@@ -210,7 +209,6 @@
         .history-item.status-rejected, .history-item.status-failed { border-left-color: #dc3545; }
 
 
-        /* Advertisement Creator Section */
         .ad-package-card { padding: 20px; text-align: center; }
         .ad-package-card h4 { font-size: 1.3em; color: var(--primary-accent-color); }
         .ad-package-card p { color: var(--text-light); font-size: 1.1em; font-weight: 600; margin: 15px 0; }
@@ -231,7 +229,6 @@
         .ad-progress-bar-inner { height: 100%; background-color: var(--primary-accent-color); border-radius: 5px; width: 0%; transition: width 0.5s; }
         #user-ads-list { display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 25px;}
 
-        /* --- HOME - NEW MINING STYLES --- */
         #home-content .mining-body {
             font-family: 'Roboto Mono', monospace;
             display: flex;
@@ -586,7 +583,6 @@
     <script src="https://www.youtube.com/iframe_api" async></script>
     
     <script type="module">
-        // Updated Firebase SDK version
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
         import { getFirestore, collection, getDocs, query, where, orderBy, limit, addDoc, serverTimestamp, doc, getDoc, setDoc, updateDoc, runTransaction, increment, arrayUnion } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
         
@@ -623,7 +619,7 @@
         const MINING_SESSION_REWARD_PG = 0.125;
         
         // Video Section Reward Constants
-        const VIDEO_SECTION_REWARD_INTERVAL_MS = 2.5 * 60 * 1000; // 2.5 minutes
+        const VIDEO_SECTION_REWARD_INTERVAL_MS = 2.5 * 60 * 1000;
         const VIDEO_SECTION_REWARD_MIN_PG = 0.0001;
         const VIDEO_SECTION_REWARD_MAX_PG = 0.05;
 
@@ -860,7 +856,7 @@
             taskListContainer.innerHTML = '<div class="loader"></div>';
             if (!currentUser) return;
             try {
-                // This query requires a composite index on (isApproved, createdAt)
+                // This query requires a composite index on (isApproved, createdAt) in Firestore.
                 const q = query(collection(db, 'tasks'), where("isApproved", "==", true), orderBy("createdAt", "desc"));
                 const snapshot = await getDocs(q);
                 taskListContainer.innerHTML = '';
@@ -872,7 +868,7 @@
                     
                     const isCompleted = currentUser.completedTasks?.includes(docSnap.id);
                     const isLimitReached = (task.limit || 0) > 0 && (task.completionCount || 0) >= task.limit;
-                    if (isLimitReached) return; // Don't show tasks that have reached their limit
+                    if (isLimitReached) return; 
 
                     let buttonText = 'Go', buttonDisabled = false, buttonState = 'start';
                     if (isCompleted) { buttonText = 'Done'; buttonDisabled = true; buttonState = 'done'; }
@@ -889,7 +885,7 @@
                 }
 
             } catch (error) {
-                console.error("Error fetching tasks. This might be due to a missing Firestore index on `tasks` collection: (isApproved ASC, createdAt DESC). Full error:", error);
+                console.error("Error fetching tasks. IMPORTANT: This is likely due to a missing Firestore index. Please create a composite index on the `tasks` collection for `isApproved` (Ascending) and `createdAt` (Descending). Full error:", error);
                 taskListContainer.innerHTML = '<p style="color:red; text-align:center; grid-column: 1 / -1;">Could not load tasks. Please try again later.</p>';
             }
         }
@@ -1079,10 +1075,9 @@
                 document.querySelector(targetId).classList.add('active');
 
                 switch(targetId) {
-                    case '#home-content': /* Handled by continuous timer */ break;
+                    case '#home-content': break;
                     case '#ads-content': setupAdsToEarn(); break;
                     case '#video-content': 
-                        initializeRichAds(); 
                         await fetchContent(); 
                         if (videoSectionTimer) clearInterval(videoSectionTimer);
                         videoSectionTimer = setInterval(async () => {
@@ -1142,7 +1137,7 @@
             listContainer.innerHTML = '<div class="loader"></div>';
             if (!currentUser?.id) { listContainer.innerHTML = '<p>User data not loaded.</p>'; return; }
             try {
-                // This query requires a composite index on (creatorId, createdAt)
+                // This query requires a composite index on (creatorId, createdAt) in Firestore.
                 const q = query(collection(db, "tasks"), where("creatorId", "==", currentUser.id), orderBy("createdAt", "desc"));
                 const snapshot = await getDocs(q);
                 listContainer.innerHTML = snapshot.empty ? '<p style="text-align:center;">You have not created any advertisements.</p>' : '';
@@ -1160,7 +1155,7 @@
                     listContainer.appendChild(item);
                 });
             } catch(e) {
-                console.error("Error fetching user ads. This might be a missing Firestore index on `tasks` collection: (creatorId ASC, createdAt DESC). Error:", e);
+                console.error("Error fetching user ads. IMPORTANT: This is likely due to a missing Firestore index. Please create a composite index on `tasks` collection for `creatorId` (Ascending) and `createdAt` (Descending). Error:", e);
                 listContainer.innerHTML = '<p style="color:red; text-align:center;">Could not load your ads.</p>';
             }
         }
@@ -1331,25 +1326,21 @@
         
         startMiningButton.addEventListener('click', startMiningSession);
         
-        // UPDATED RichAds initialization function
+        // UPDATED: RichAds now initializes globally when the app starts.
         function initializeRichAds() {
-            if (richAdsInitialized) {
-                console.log("RichAds already initialized.");
-                return;
-            }
+            if (richAdsInitialized) return;
             if (typeof TelegramAdsController === 'undefined') {
-                console.error("RichAds SDK (TelegramAdsController) is not available. Ads cannot be initialized.");
+                console.error("RichAds SDK (TelegramAdsController) is not available.");
                 return;
             }
             try {
-                console.log("Attempting to initialize RichAds...");
                 window.TelegramAdsController = new TelegramAdsController(); 
                 window.TelegramAdsController.initialize({
-                  pubId: "978188", // For banner ads
-                  appId: "3041",   // For push/interstitial ads
+                  pubId: "978188",
+                  appId: "3041",
                 }); 
                 richAdsInitialized = true;
-                console.log("RichAds initialized successfully.");
+                console.log("RichAds initialized globally.");
             } 
             catch (e) { console.error("Failed to initialize RichAds:", e); }
         }
@@ -1358,6 +1349,8 @@
             try {
                 if (!tg.initDataUnsafe?.user) { document.body.innerHTML = `<div class="card" style="margin-top: 50px;"><h3>Error</h3><p>This app can only be launched from Telegram.</p></div>`; return; }
                 tg.ready(); tg.expand();
+                
+                initializeRichAds(); // Initialize RichAds globally on app start.
                 
                 await initializeUser(tg.initDataUnsafe.user, tg.initDataUnsafe.start_param);
                 setupWithdrawalTypeSwitcher();
