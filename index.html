@@ -10,8 +10,12 @@
     <script type="text/javascript" src="https://cdn.tgads.space/assets/js/adexium-widget.min.js"></script>
     <script type="text/javascript">
         document.addEventListener('DOMContentLoaded', () => {
-            const adexiumWidget = new AdexiumWidget({wid: '12c05dba-2642-46f2-950f-cee6575119c9', adFormat: 'interstitial'});
-            adexiumWidget.autoMode();
+            try {
+                const adexiumWidget = new AdexiumWidget({wid: '12c05dba-2642-46f2-950f-cee6575119c9', adFormat: 'interstitial'});
+                adexiumWidget.autoMode();
+            } catch (e) {
+                console.error("Adexium SDK failed to initialize:", e);
+            }
         });
     </script>
     
@@ -26,7 +30,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;600;700&family=Roboto+Mono:wght@700&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
 
     <style>
         :root {
@@ -561,6 +564,15 @@
                 <input type="hidden" id="adCreatorPackageId">
                 <input type="hidden" id="adCreatorPaymentType">
                 <div class="form-group">
+                    <label for="adCreatorTaskType">Task Type</label>
+                    <select id="adCreatorTaskType" required>
+                        <option value="website_visit">Website Visit</option>
+                        <option value="telegram_bot">Telegram Bot Join</option>
+                        <option value="telegram_channel">Telegram Channel Join</option>
+                        <option value="telegram_group">Telegram Group Join</option>
+                    </select>
+                </div>
+                <div class="form-group">
                     <label for="adCreatorTaskTitle">Task Title</label>
                     <input type="text" id="adCreatorTaskTitle" placeholder="e.g., Join my Telegram Channel" required maxlength="50">
                 </div>
@@ -580,12 +592,13 @@
     
     <script type="module">
         // Updated Firebase SDK version
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
-        import { getFirestore, collection, getDocs, query, where, orderBy, limit, addDoc, serverTimestamp, doc, getDoc, setDoc, updateDoc, runTransaction, increment, arrayUnion } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, query, where, orderBy, limit, addDoc, serverTimestamp, doc, getDoc, setDoc, updateDoc, runTransaction, increment, arrayUnion } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
         
         const firebaseConfig = {
             apiKey: "AIzaSyCKMa4NdIowD_8NioUbrn4L7g5M9y5Tts0",
             authDomain: "movie-zone-931d7.firebaseapp.com",
+            databaseURL: "https://movie-zone-931d7-default-rtdb.firebaseio.com",
             projectId: "movie-zone-931d7",
             storageBucket: "movie-zone-931d7.appspot.com",
             messagingSenderId: "1006880112063",
@@ -599,15 +612,12 @@
         let currentUser = null;
         let player;
         let currentPlayingItem = null;
-        let videoPlaybackInterval = null;
-        let taskTimers = {};
-        let isInterstitialAdVisible = false;
+        let videoSectionTimer = null; // Timer for rewards in the video section
         let richAdsInitialized = false;
         let miningTimerInterval = null;
 
         const AD_PGCOIN_LIMIT = 15; 
         const AD_PGCOIN_REWARD = 0.03;
-        const VIDEO_WATCH_LIMIT = 30; 
         const REFERRAL_BONUS_PG_COIN = 0.4;
         const REFERRAL_BONUS_GAME_TOKENS = 1;
         const DAILY_LOGIN_PG_REWARD = 0.02;
@@ -616,6 +626,11 @@
         // Mining Constants for the NEW UI
         const MINING_SESSION_DURATION_SECONDS = 6 * 60 * 60; // 6 hours
         const MINING_SESSION_REWARD_PG = 0.125; // 0.5 PG daily / 4 sessions
+        
+        // Video Section Reward Constants
+        const VIDEO_SECTION_REWARD_INTERVAL_MS = 2.5 * 60 * 1000; // 2.5 minutes
+        const VIDEO_SECTION_REWARD_MIN_PG = 0.0001;
+        const VIDEO_SECTION_REWARD_MAX_PG = 0.05;
 
         async function fetchAndUpdateCurrentUser() {
             if (!currentUser?.id) return;
@@ -637,7 +652,7 @@
             const lastDailyResetTime = lastDailyReset ? new Date(lastDailyReset.getFullYear(), lastDailyReset.getMonth(), lastDailyReset.getDate()).getTime() : 0;
             
             if (!lastDailyReset || lastDailyResetTime < today) {
-                const updates = { 'lastDailyReset': serverTimestamp(), 'pgCoinAdVisitsToday': 0, 'videoProgress.dailyWatchedCount': 0 };
+                const updates = { 'lastDailyReset': serverTimestamp(), 'pgCoinAdVisitsToday': 0 };
                 try {
                     const userRef = doc(db, 'users', currentUser.id);
                     await updateDoc(userRef, updates);
@@ -664,7 +679,6 @@
                     usdtBalance: 0, pgCoin: 0, lifetimePgCoinEarned: 0, referralCount: 0, gameTokens: 0,
                     completedTasks: [], pgCoinAdVisitsToday: 0,
                     lastDailyReset: serverTimestamp(), lastDailyLoginClaim: null,
-                    videoProgress: { dailyWatchedCount: 0 },
                     readMessages: [], withdrawalCount: 0,
                     createdAt: serverTimestamp(), telegramUsername: tgUser.username || 'N/A',
                     miningStartTime: null,
@@ -692,7 +706,7 @@
             updateBalanceUI(currentUser.usdtBalance, currentUser.pgCoin);
             generateReferralLink(currentUser.id);
             checkForUnreadMessages();
-            await initializeMiningState(); // Initialize mining after user is loaded
+            await initializeMiningState();
         }
 
         function updateBalanceUI(usdtBalance, pgCoinBalance) {
@@ -700,7 +714,6 @@
             const pgCoin = parseFloat(pgCoinBalance || 0).toFixed(3);
             document.getElementById('userUSDTBalanceDisplay').textContent = usdt;
             document.getElementById('userPgCoinDisplay').textContent = pgCoin;
-            // Update new mining UI balance
             if (document.getElementById('balance')) {
                 document.getElementById('balance').textContent = pgCoin;
             }
@@ -733,7 +746,7 @@
             const grid = document.getElementById('video-grid');
             grid.innerHTML = '<div class="loader"></div>';
             try {
-                const q = query(collection(db, 'videos'), orderBy('createdAt', 'desc'), limit(VIDEO_WATCH_LIMIT));
+                const q = query(collection(db, 'videos'), orderBy('createdAt', 'desc'), limit(30));
                 const snapshot = await getDocs(q);
                 await renderVideos(snapshot);
             } catch (error) { 
@@ -758,12 +771,9 @@
                 grid.appendChild(item);
             });
         }
-
-        async function handleVideoClick(event) {
-            if (!currentUser) { alert("User data not loaded yet."); return; }
-            if((currentUser.videoProgress?.dailyWatchedCount || 0) >= VIDEO_WATCH_LIMIT){ alert(`You have reached your daily video watch limit of ${VIDEO_WATCH_LIMIT}.`); return; }
+        
+        function handleVideoClick(event) {
             if (currentPlayingItem) {
-                clearInterval(videoPlaybackInterval);
                 if(currentPlayingItem.originalContent) currentPlayingItem.innerHTML = currentPlayingItem.originalContent;
                 if (player) { player.destroy(); player = null; }
             }
@@ -775,24 +785,13 @@
             clickedItem.innerHTML = `<div id="${playerDivId}" class="player-container"></div>`;
             player = new YT.Player(playerDivId, {
                 height: '100%', width: '100%', videoId: youtubeId,
-                playerVars: { 'autoplay': 1, 'controls': 1, 'rel': 0, 'fs': 1 },
-                events: { 'onStateChange': (e) => {
-                    if (e.data === YT.PlayerState.PLAYING) {
-                        if (!videoPlaybackInterval) {
-                           videoPlaybackInterval = setInterval(async () => {
-                               const rewardPgCoin = parseFloat((Math.random() * (0.01 - 0.001) + 0.001).toFixed(4));
-                               await grantReward({ pgCoin: rewardPgCoin });
-                               showSuccessModal("Video Reward!", `You've earned ${rewardPgCoin} PG Coin for watching!`);
-                           }, 2.5 * 60 * 1000);
-                       }
-                    } else { clearInterval(videoPlaybackInterval); videoPlaybackInterval = null; }
-                }}
+                playerVars: { 'autoplay': 1, 'controls': 1, 'rel': 0, 'fs': 1 }
             });
         }
         
-        function stopAndClearVideo() {
-            clearInterval(videoPlaybackInterval);
-            videoPlaybackInterval = null;
+        function stopVideoSectionActivity() {
+            clearInterval(videoSectionTimer);
+            videoSectionTimer = null;
             if (currentPlayingItem?.originalContent) currentPlayingItem.innerHTML = currentPlayingItem.originalContent;
             if (player) { try { player.destroy(); } catch (e) {} player = null; }
             currentPlayingItem = null;
@@ -864,20 +863,17 @@
         async function fetchTasks() {
             const taskListContainer = document.getElementById('task-list');
             taskListContainer.innerHTML = '<div class="loader"></div>';
+            if (!currentUser) return;
             try {
-                // This query correctly fetches all approved tasks from both admin and user-created ads.
                 const q = query(collection(db, 'tasks'), where("isApproved", "==", true), orderBy("createdAt", "desc"));
                 const snapshot = await getDocs(q);
                 taskListContainer.innerHTML = '';
-                if (snapshot.empty) { taskListContainer.innerHTML = '<p style="text-align:center; grid-column: 1 / -1;">No tasks available right now.</p>'; return; }
                 
-                let tasksFound = false;
+                let tasksRendered = 0;
                 snapshot.forEach(docSnap => {
                     const task = docSnap.data();
-                    // Users should not see their own created tasks in this list.
                     if (task.creatorId === currentUser.id) return;
                     
-                    tasksFound = true;
                     const isCompleted = currentUser.completedTasks?.includes(docSnap.id);
                     const isLimitReached = (task.limit || 0) > 0 && (task.completionCount || 0) >= task.limit;
                     let buttonText = 'Go', buttonDisabled = false, buttonState = 'start';
@@ -886,17 +882,18 @@
 
                     const card = document.createElement('div');
                     card.className = 'task-card';
-                    card.innerHTML = `<div class="task-card-info"><h4>${task.title}</h4><p>Reward: <span class="task-reward-pg">${task.rewardPg || 0} PG</span></p></div><button class="task-button" data-task-id="${docSnap.id}" data-task-url="${task.url}" data-reward-pg="${task.rewardPg || 0}" data-visit-duration="${task.visitDurationSeconds || 0}" data-state="${buttonState}" ${buttonDisabled ? 'disabled' : ''}>${buttonText}</button>`;
+                    card.innerHTML = `<div class="task-card-info"><h4>${task.title}</h4><p>Reward: <span class="task-reward-pg">${task.rewardPg || 0} PG</span></p></div><button class="task-button" data-task-id="${docSnap.id}" data-task-url="${task.url}" data-reward-pg="${task.rewardPg || 0}" data-state="${buttonState}" ${buttonDisabled ? 'disabled' : ''}>${buttonText}</button>`;
                     taskListContainer.appendChild(card);
+                    tasksRendered++;
                 });
 
-                if (!tasksFound) {
-                    taskListContainer.innerHTML = '<p style="text-align:center; grid-column: 1 / -1;">No tasks available for you right now.</p>';
+                if (tasksRendered === 0) {
+                    taskListContainer.innerHTML = '<p style="text-align:center; grid-column: 1 / -1;">No new tasks available for you right now.</p>';
                 }
 
             } catch (error) {
-                console.error("Error fetching tasks:", error);
-                taskListContainer.innerHTML = '<p style="color:red; text-align:center; grid-column: 1 / -1;">Could not load tasks.</p>';
+                console.error("Error fetching tasks. This might be due to a missing Firestore index (isApproved, createdAt). Full error:", error);
+                taskListContainer.innerHTML = '<p style="color:red; text-align:center; grid-column: 1 / -1;">Could not load tasks. Please try again later.</p>';
             }
         }
         
@@ -983,7 +980,7 @@
                 await fetchAndUpdateCurrentUser();
                 form.reset();
                 showSuccessModal("Request Sent!", "Your withdrawal request is pending. Check status in the History tab.");
-                await displayWithdrawalHistory(); // Refresh history
+                await displayWithdrawalHistory();
             } catch (error) { alert(`Error: ${error.message}`); } 
             finally { submitButton.disabled = false; submitButton.textContent = `Request ${type.toUpperCase()} Withdrawal`; renderWithdrawUI(); }
         }
@@ -1025,9 +1022,8 @@
         const showMonetagAd = () => new Promise((res, rej) => typeof show_9442539 === 'function' ? show_9442539().then(res).catch(rej) : rej('Monetag SDK missing'));
         const showGigaPubAd = () => new Promise((res, rej) => typeof window.showGiga === 'function' ? window.showGiga("main").then(res).catch(rej) : rej('GigaPub SDK missing'));
         async function showRandomAdForTask() {
-            isInterstitialAdVisible = true;
             try { await [showMonetagAd, showGigaPubAd][Math.floor(Math.random() * 2)](); } 
-            finally { isInterstitialAdVisible = false; }
+            catch(err) { console.warn("Ad provider failed to show ad:", err); }
         }
         
         async function checkForUnreadMessages() {
@@ -1071,7 +1067,7 @@
                 const targetId = link.dataset.tabTarget;
                 if (!currentUser || document.querySelector(targetId)?.classList.contains('active')) return;
                 
-                stopAndClearVideo();
+                stopVideoSectionActivity();
                 document.querySelectorAll('.bottom-nav-item.active, .header-icon-btn.active, .content-section.active').forEach(el => el.classList.remove('active'));
                 
                 const allLinksForTarget = document.querySelectorAll(`[data-tab-target="${targetId}"]`);
@@ -1081,7 +1077,16 @@
                 switch(targetId) {
                     case '#home-content': /* Handled by continuous timer */ break;
                     case '#ads-content': setupAdsToEarn(); break;
-                    case '#video-content': initializeRichAds(); await fetchContent(); break;
+                    case '#video-content': 
+                        initializeRichAds(); 
+                        await fetchContent(); 
+                        if (videoSectionTimer) clearInterval(videoSectionTimer);
+                        videoSectionTimer = setInterval(async () => {
+                            const rewardPgCoin = parseFloat((Math.random() * (VIDEO_SECTION_REWARD_MAX_PG - VIDEO_SECTION_REWARD_MIN_PG) + VIDEO_SECTION_REWARD_MIN_PG).toFixed(4));
+                            await grantReward({ pgCoin: rewardPgCoin });
+                            showSuccessModal("Video Section Reward!", `You've earned ${rewardPgCoin} PG Coin for browsing videos!`);
+                        }, VIDEO_SECTION_REWARD_INTERVAL_MS);
+                        break;
                     case '#profile-content': renderProfile(); break;
                     case '#task-content': await renderDailyLoginTask(); await fetchTasks(); break;
                     case '#advertisement-creator-content': renderAdvertisementCreatorUI(); await renderUserAdvertisements(); break;
@@ -1097,7 +1102,6 @@
             pgBtn.addEventListener('click', () => { pgBtn.classList.add('active'); usdtBtn.classList.remove('active'); pgForm.style.display = 'block'; usdtForm.style.display = 'none'; });
         }
         
-        // --- ADVERTISEMENT CREATOR LOGIC ---
         const adPackages = [
             { id: 1, visits: 250, cost_usdt: 0.5, cost_pg: 30 },
             { id: 2, visits: 500, cost_usdt: 0.8, cost_pg: 0 },
@@ -1114,7 +1118,7 @@
                 const card = document.createElement('div');
                 card.className = 'ad-package-card';
                 let buttonsHtml = '<div class="ad-package-buttons-container">';
-                if (pkg.id === 1) { // Special case for the first package
+                if (pkg.id === 1) { 
                     buttonsHtml += `<button class="ad-package-button usdt-btn" data-package-id="${pkg.id}" data-payment-type="usdt">Create with ${pkg.cost_usdt} USDT</button>`;
                     buttonsHtml += `<button class="ad-package-button pg-btn" data-package-id="${pkg.id}" data-payment-type="pg">Create with ${pkg.cost_pg} PG</button>`;
                 } else {
@@ -1132,24 +1136,26 @@
         async function renderUserAdvertisements() {
             const listContainer = document.getElementById('user-ads-list');
             listContainer.innerHTML = '<div class="loader"></div>';
+            if (!currentUser?.id) { listContainer.innerHTML = '<p>User data not loaded.</p>'; return; }
             try {
                 const q = query(collection(db, "tasks"), where("creatorId", "==", currentUser.id), orderBy("createdAt", "desc"));
                 const snapshot = await getDocs(q);
                 listContainer.innerHTML = snapshot.empty ? '<p style="text-align:center;">You have not created any advertisements.</p>' : '';
                 snapshot.forEach(docSnap => {
                     const ad = docSnap.data();
-                    const progress = (ad.completionCount / ad.limit) * 100;
+                    const progress = ad.limit > 0 ? ((ad.completionCount || 0) / ad.limit) * 100 : 0;
                     const item = document.createElement('div');
                     item.className = 'user-ad-item';
                     item.innerHTML = `
                         <h4>${ad.title}</h4>
                         <p>URL: ${ad.url}</p>
-                        <p>Progress: ${ad.completionCount} / ${ad.limit} visits</p>
-                        <div class="ad-progress-bar"><div class="ad-progress-bar-inner" style="width: ${progress}%;"></div></div>
+                        <p>Progress: ${ad.completionCount || 0} / ${ad.limit} visits</p>
+                        <div class="ad-progress-bar"><div class="ad-progress-bar-inner" style="width: ${progress.toFixed(2)}%;"></div></div>
                     `;
                     listContainer.appendChild(item);
                 });
             } catch(e) {
+                console.error("Error fetching user ads. This might be a missing Firestore index (creatorId, createdAt). Error:", e);
                 listContainer.innerHTML = '<p style="color:red; text-align:center;">Could not load your ads.</p>';
             }
         }
@@ -1178,7 +1184,7 @@
             if(paymentType === 'usdt') {
                 costText = `<span class="price-usdt">$${pkg.cost_usdt}</span>`;
                 if(userUSDT >= pkg.cost_usdt) hasEnoughFunds = true;
-            } else { // pg
+            } else {
                 costText = `<span class="price-pg">${pkg.cost_pg} PG</span>`;
                 if(userPG >= pkg.cost_pg) hasEnoughFunds = true;
             }
@@ -1207,6 +1213,7 @@
             const selectedPackage = adPackages.find(p => p.id === pkgId);
             const title = document.getElementById('adCreatorTaskTitle').value;
             const url = document.getElementById('adCreatorTaskUrl').value;
+            const taskType = document.getElementById('adCreatorTaskType').value;
             
             try {
                 await runTransaction(db, async (t) => {
@@ -1219,18 +1226,18 @@
                     const cost_pg = paymentType === 'pg' ? selectedPackage.cost_pg : 0;
                     if((userData.usdtBalance || 0) < cost_usdt || (userData.pgCoin || 0) < cost_pg) throw new Error("Insufficient funds.");
 
-                    t.set(doc(collection(db, 'tasks')), { title, url, limit: selectedPackage.visits, rewardPg: AD_CREATOR_TASK_REWARD, completionCount: 0, creatorId: currentUser.id, creatorUsername: currentUser.telegramUsername, createdAt: serverTimestamp(), isApproved: true, isSpecial: false, visitDurationSeconds: 0 });
+                    const taskData = { title, url, taskType, limit: selectedPackage.visits, rewardPg: AD_CREATOR_TASK_REWARD, completionCount: 0, creatorId: currentUser.id, creatorUsername: currentUser.telegramUsername, createdAt: serverTimestamp(), isApproved: true };
+                    t.set(doc(collection(db, 'tasks')), taskData);
                     t.update(userRef, { usdtBalance: increment(-cost_usdt), pgCoin: increment(-cost_pg) });
                 });
                 await fetchAndUpdateCurrentUser();
-                await renderUserAdvertisements(); // Refresh user's ad list
+                await renderUserAdvertisements();
                 document.getElementById('adCreatorModalOverlay').classList.remove('show');
                 showSuccessModal("Task Created!", "Your advertisement is now live in the 'Tasks' section.");
             } catch (error) { alert("Error: " + error.message); } 
             finally { button.disabled = false; button.textContent = 'Confirm & Create Task'; }
         });
         
-        // --- NEW MINING LOGIC (Adapted for new UI) ---
         const startMiningButton = document.getElementById('mining-button');
         const statusMessageEl = document.getElementById('status-message');
 
@@ -1251,15 +1258,15 @@
                 const now = Date.now();
                 const sessionEndTime = miningStartTime + MINING_SESSION_DURATION_SECONDS * 1000;
                 
-                if (now >= sessionEndTime) { // Session ended while away
+                if (now >= sessionEndTime) {
                     await updateDoc(userRef, { pgCoin: increment(MINING_SESSION_REWARD_PG), miningStartTime: null });
                     await fetchAndUpdateCurrentUser();
                     setMiningUIState('ready');
-                } else { // Session is active
+                } else {
                     setMiningUIState('mining');
                     miningTimerInterval = setInterval(updateMiningUI, 1000);
                 }
-            } else { // No active session
+            } else {
                 setMiningUIState('ready');
             }
         }
@@ -1281,7 +1288,7 @@
             if (state === 'mining') {
                 startMiningButton.disabled = true;
                 startMiningButton.textContent = 'Mining...';
-            } else { // ready or finished
+            } else {
                 startMiningButton.disabled = false;
                 startMiningButton.textContent = 'Start Mining';
                 statusMessageEl.textContent = 'Session ended. Start a new session.';
@@ -1292,7 +1299,7 @@
             startMiningButton.disabled = true;
             startMiningButton.textContent = 'Loading Ad...';
             try {
-                await showRandomAdForTask(); // Show ad first
+                await showRandomAdForTask();
                 const userRef = doc(db, 'users', currentUser.id);
                 await updateDoc(userRef, { miningStartTime: serverTimestamp() });
                 await fetchAndUpdateCurrentUser();
@@ -1319,15 +1326,13 @@
         
         startMiningButton.addEventListener('click', startMiningSession);
         
-        // --- AD SDK INITIALIZATION ---
         function initializeRichAds() {
-            if (richAdsInitialized) return;
+            if (richAdsInitialized || typeof TelegramAdsController === 'undefined') return;
             try { 
-                // Initialize RichAds controller for both banner and push ads
                 window.TelegramAdsController = new TelegramAdsController(); 
                 window.TelegramAdsController.initialize({
-                    pubId: "978188", // For banner ads
-                    appId: "3041" 
+                  pubId: "978188",
+                  appId: "3041",
                 }); 
                 richAdsInitialized = true; 
             } 
@@ -1340,7 +1345,6 @@
                 tg.ready(); tg.expand();
                 
                 await initializeUser(tg.initDataUnsafe.user, tg.initDataUnsafe.start_param);
-                // fetchContent is now called when switching to the video tab to prevent unnecessary loading
                 setupWithdrawalTypeSwitcher();
                 document.getElementById('profile-userid').addEventListener('click', () => {
                     if (currentUser?.id) navigator.clipboard.writeText(currentUser.id).then(() => {
