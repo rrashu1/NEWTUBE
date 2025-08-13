@@ -19,11 +19,9 @@
         });
     </script>
     
-    <!-- Monetag Ads Library -->
+    <!-- Other Ad Libraries -->
     <script src='//libtl.com/sdk.js' data-zone='9442539' data-sdk='show_9442539'></script>
-    <!-- GigaPub Ads SDK -->
     <script src="https://ad.gigapub.tech/script?id=846"></script>
-    <!-- RichInfo Ads SDK (As per your request) -->
     <script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -183,7 +181,6 @@
         #withdraw-type-selector button { flex: 1; padding: 12px; font-size: 1em; font-weight: 600; border: 2px solid var(--border-color); background-color: transparent; color: var(--text-muted); border-radius: 8px; cursor: pointer; }
         #withdraw-type-selector button.active { background-color: var(--primary-accent-color); border-color: var(--primary-accent-color); color: var(--text-light); }
         
-        /* Updated Withdrawal History Style */
         #history-list { display: flex; flex-direction: column; gap: 15px; }
         .history-item {
             background-color: var(--card-bg);
@@ -234,7 +231,7 @@
         .ad-progress-bar-inner { height: 100%; background-color: var(--primary-accent-color); border-radius: 5px; width: 0%; transition: width 0.5s; }
         #user-ads-list { display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 25px;}
 
-        /* --- HOME - NEW MINING STYLES (FROM ai_studio_code (10).html) --- */
+        /* --- HOME - NEW MINING STYLES --- */
         #home-content .mining-body {
             font-family: 'Roboto Mono', monospace;
             display: flex;
@@ -330,9 +327,8 @@
             margin-top: 20px;
             font-size: 1rem;
             color: #ffc107;
-            height: 20px; /* To prevent layout shift */
+            height: 20px;
         }
-
     </style>
 </head>
 <body>
@@ -393,7 +389,6 @@
 
         <section id="video-content" class="content-section">
             <h3 class="section-title">Trending Videos</h3>
-            <!-- RichAds Banner Container (As per your request) -->
             <div id="richads-banner-container" style="margin-bottom: 20px;"></div>
             <div class="search-container">
                 <input type="search" id="videoSearchInput" placeholder="Search for videos...">
@@ -612,7 +607,7 @@
         let currentUser = null;
         let player;
         let currentPlayingItem = null;
-        let videoSectionTimer = null; // Timer for rewards in the video section
+        let videoSectionTimer = null;
         let richAdsInitialized = false;
         let miningTimerInterval = null;
 
@@ -623,9 +618,9 @@
         const DAILY_LOGIN_PG_REWARD = 0.02;
         const AD_CREATOR_TASK_REWARD = 0.04; 
 
-        // Mining Constants for the NEW UI
-        const MINING_SESSION_DURATION_SECONDS = 6 * 60 * 60; // 6 hours
-        const MINING_SESSION_REWARD_PG = 0.125; // 0.5 PG daily / 4 sessions
+        // Mining Constants
+        const MINING_SESSION_DURATION_SECONDS = 6 * 60 * 60; 
+        const MINING_SESSION_REWARD_PG = 0.125;
         
         // Video Section Reward Constants
         const VIDEO_SECTION_REWARD_INTERVAL_MS = 2.5 * 60 * 1000; // 2.5 minutes
@@ -865,6 +860,7 @@
             taskListContainer.innerHTML = '<div class="loader"></div>';
             if (!currentUser) return;
             try {
+                // This query requires a composite index on (isApproved, createdAt)
                 const q = query(collection(db, 'tasks'), where("isApproved", "==", true), orderBy("createdAt", "desc"));
                 const snapshot = await getDocs(q);
                 taskListContainer.innerHTML = '';
@@ -876,9 +872,10 @@
                     
                     const isCompleted = currentUser.completedTasks?.includes(docSnap.id);
                     const isLimitReached = (task.limit || 0) > 0 && (task.completionCount || 0) >= task.limit;
+                    if (isLimitReached) return; // Don't show tasks that have reached their limit
+
                     let buttonText = 'Go', buttonDisabled = false, buttonState = 'start';
                     if (isCompleted) { buttonText = 'Done'; buttonDisabled = true; buttonState = 'done'; }
-                    else if (isLimitReached) { buttonText = 'Limit Reached'; buttonDisabled = true; buttonState = 'limit_reached'; }
 
                     const card = document.createElement('div');
                     card.className = 'task-card';
@@ -892,7 +889,7 @@
                 }
 
             } catch (error) {
-                console.error("Error fetching tasks. This might be due to a missing Firestore index (isApproved, createdAt). Full error:", error);
+                console.error("Error fetching tasks. This might be due to a missing Firestore index on `tasks` collection: (isApproved ASC, createdAt DESC). Full error:", error);
                 taskListContainer.innerHTML = '<p style="color:red; text-align:center; grid-column: 1 / -1;">Could not load tasks. Please try again later.</p>';
             }
         }
@@ -917,12 +914,15 @@
                         if (userDoc.data().completedTasks?.includes(taskId)) throw "ALREADY_COMPLETED";
                         const taskData = taskDoc.data();
                         if ((taskData.limit || 0) > 0 && (taskData.completionCount || 0) >= taskData.limit) throw "TASK_LIMIT_REACHED";
+                        
                         t.update(userRef, { completedTasks: arrayUnion(taskId) });
                         t.update(taskRef, { completionCount: increment(1) });
                     });
+                    
                     await grantReward({ pgCoin: Number(button.dataset.rewardPg) || 0 });
                     showSuccessModal("Reward Claimed!", `Reward added to your balance.`);
                     button.textContent = 'Done';
+
                 } catch (error) {
                     const errorMessages = { "ALREADY_COMPLETED": "You have already completed this task.", "TASK_LIMIT_REACHED": "This task has reached its completion limit."};
                     alert(errorMessages[error] || 'Failed to claim reward.');
@@ -957,23 +957,27 @@
                 const method = form.querySelector('select').value;
                 const details = form.querySelector('input[type="text"]').value;
                 const amount = parseFloat(form.querySelector('input[type="number"]').value);
-                let minAmount, balanceField, amountField, fee = 0;
+                let minAmount, balanceField, amountField;
+
                 if (type === 'usdt') {
                     balanceField = 'usdtBalance'; amountField = 'usdAmount';
-                    if (method === 'Bkash') { minAmount = 0.20; fee = 0.02; } else { minAmount = 0.50; fee = 0.05; }
+                    minAmount = method === 'Bkash' ? 0.20 : 0.50;
                 } else {
                     balanceField = 'pgCoin'; amountField = 'pgAmount';
-                    if (method === 'Bkash') { minAmount = 10; } else { minAmount = 25; }
+                    minAmount = method === 'Bkash' ? 10 : 25;
                 }
-                if (isNaN(amount) || amount < minAmount) throw new Error(`Minimum withdrawal is ${minAmount} ${type === 'usdt' ? 'USDT' : 'PG'}.`);
-                if (amount > (currentUser[balanceField] || 0)) throw new Error(`Insufficient ${type === 'usdt' ? 'USDT' : 'PG Coin'} balance.`);
+
+                if (isNaN(amount) || amount < minAmount) throw new Error(`Minimum withdrawal is ${minAmount} ${type.toUpperCase()}.`);
+                if (amount > (currentUser[balanceField] || 0)) throw new Error(`Insufficient ${type.toUpperCase()} balance.`);
 
                 await runTransaction(db, async (t) => {
                     const userRef = doc(db, 'users', currentUser.id);
                     const userDoc = await t.get(userRef);
                     if (!userDoc.exists() || (userDoc.data()[balanceField] || 0) < amount) throw new Error(`Insufficient balance.`);
+                    
                     const requestData = { userId: currentUser.id, telegramUsername: currentUser.telegramUsername, method, details, status: 'pending', createdAt: serverTimestamp(), withdrawType: type };
                     requestData[amountField] = amount;
+                    
                     t.set(doc(collection(db, 'withdrawals')), requestData);
                     t.update(userRef, { [balanceField]: increment(-amount), withdrawalCount: increment(1) });
                 });
@@ -1084,7 +1088,7 @@
                         videoSectionTimer = setInterval(async () => {
                             const rewardPgCoin = parseFloat((Math.random() * (VIDEO_SECTION_REWARD_MAX_PG - VIDEO_SECTION_REWARD_MIN_PG) + VIDEO_SECTION_REWARD_MIN_PG).toFixed(4));
                             await grantReward({ pgCoin: rewardPgCoin });
-                            showSuccessModal("Video Section Reward!", `You've earned ${rewardPgCoin} PG Coin for browsing videos!`);
+                            showSuccessModal("Video Section Reward!", `You earned ${rewardPgCoin} PG Coin for browsing videos!`);
                         }, VIDEO_SECTION_REWARD_INTERVAL_MS);
                         break;
                     case '#profile-content': renderProfile(); break;
@@ -1138,6 +1142,7 @@
             listContainer.innerHTML = '<div class="loader"></div>';
             if (!currentUser?.id) { listContainer.innerHTML = '<p>User data not loaded.</p>'; return; }
             try {
+                // This query requires a composite index on (creatorId, createdAt)
                 const q = query(collection(db, "tasks"), where("creatorId", "==", currentUser.id), orderBy("createdAt", "desc"));
                 const snapshot = await getDocs(q);
                 listContainer.innerHTML = snapshot.empty ? '<p style="text-align:center;">You have not created any advertisements.</p>' : '';
@@ -1155,7 +1160,7 @@
                     listContainer.appendChild(item);
                 });
             } catch(e) {
-                console.error("Error fetching user ads. This might be a missing Firestore index (creatorId, createdAt). Error:", e);
+                console.error("Error fetching user ads. This might be a missing Firestore index on `tasks` collection: (creatorId ASC, createdAt DESC). Error:", e);
                 listContainer.innerHTML = '<p style="color:red; text-align:center;">Could not load your ads.</p>';
             }
         }
@@ -1326,15 +1331,25 @@
         
         startMiningButton.addEventListener('click', startMiningSession);
         
+        // UPDATED RichAds initialization function
         function initializeRichAds() {
-            if (richAdsInitialized || typeof TelegramAdsController === 'undefined') return;
-            try { 
+            if (richAdsInitialized) {
+                console.log("RichAds already initialized.");
+                return;
+            }
+            if (typeof TelegramAdsController === 'undefined') {
+                console.error("RichAds SDK (TelegramAdsController) is not available. Ads cannot be initialized.");
+                return;
+            }
+            try {
+                console.log("Attempting to initialize RichAds...");
                 window.TelegramAdsController = new TelegramAdsController(); 
                 window.TelegramAdsController.initialize({
-                  pubId: "978188",
-                  appId: "3041",
+                  pubId: "978188", // For banner ads
+                  appId: "3041",   // For push/interstitial ads
                 }); 
-                richAdsInitialized = true; 
+                richAdsInitialized = true;
+                console.log("RichAds initialized successfully.");
             } 
             catch (e) { console.error("Failed to initialize RichAds:", e); }
         }
