@@ -6,18 +6,25 @@
     <title>NEWTUBE - Watch & Earn</title>
     <script src="https://telegram.org/js/telegram-web-app.js?56"></script>
     
+    <!-- Adexium Ads SDK (As per your request) -->
+    <script type="text/javascript" src="https://cdn.tgads.space/assets/js/adexium-widget.min.js"></script>
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', () => {
+            const adexiumWidget = new AdexiumWidget({wid: '12c05dba-2642-46f2-950f-cee6575119c9', adFormat: 'interstitial'});
+            adexiumWidget.autoMode();
+        });
+    </script>
+    
     <!-- Monetag Ads Library -->
     <script src='//libtl.com/sdk.js' data-zone='9442539' data-sdk='show_9442539'></script>
     <!-- GigaPub Ads SDK -->
     <script src="https://ad.gigapub.tech/script?id=846"></script>
-    <!-- Adexium Ads SDK (New) -->
-    <script type="text/javascript" src="https://cdn.tgads.space/assets/js/adexium-widget.min.js"></script>
-    <!-- RichInfo Ads SDK (New) -->
+    <!-- RichInfo Ads SDK (As per your request) -->
     <script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;600;700&family=Roboto+Mono:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;600;700&family=Roboto+Mono:wght@700&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
 
@@ -34,13 +41,6 @@
             --success-color: #28a745;
             --disabled-color: #444;
             --pg-coin-color: #ff9900;
-            
-            /* Mining Colors */
-            --mining-accent-blue: #58a6ff;
-            --mining-accent-green: #238636;
-            --mining-accent-green-active: #3fb950;
-            --mining-accent-green-hover: #2ea043;
-            --mining-accent-yellow: #f0b90b;
         }
         body { 
             background-color: var(--dark-bg); 
@@ -179,6 +179,36 @@
         #withdraw-type-selector { display: flex; gap: 10px; margin-bottom: 25px; }
         #withdraw-type-selector button { flex: 1; padding: 12px; font-size: 1em; font-weight: 600; border: 2px solid var(--border-color); background-color: transparent; color: var(--text-muted); border-radius: 8px; cursor: pointer; }
         #withdraw-type-selector button.active { background-color: var(--primary-accent-color); border-color: var(--primary-accent-color); color: var(--text-light); }
+        
+        /* Updated Withdrawal History Style */
+        #history-list { display: flex; flex-direction: column; gap: 15px; }
+        .history-item {
+            background-color: var(--card-bg);
+            padding: 15px 20px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 5px solid var(--border-color);
+            transition: transform 0.2s ease, border-color 0.3s ease;
+        }
+        .history-item:hover { transform: translateX(5px); }
+        .history-item-info strong { font-size: 1.1em; }
+        .history-item-info small { color: var(--text-muted); display: block; margin-top: 5px; }
+        .history-item-status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.85em;
+            text-transform: capitalize;
+        }
+        .status-pending { background-color: #ffc107; color: #333; }
+        .history-item.status-pending { border-left-color: #ffc107; }
+        .status-completed, .status-approved { background-color: var(--success-color); color: white; }
+        .history-item.status-completed, .history-item.status-approved { border-left-color: var(--success-color); }
+        .status-rejected, .status-failed { background-color: #dc3545; color: white; }
+        .history-item.status-rejected, .history-item.status-failed { border-left-color: #dc3545; }
+
 
         /* Advertisement Creator Section */
         .ad-package-card { padding: 20px; text-align: center; }
@@ -201,25 +231,104 @@
         .ad-progress-bar-inner { height: 100%; background-color: var(--primary-accent-color); border-radius: 5px; width: 0%; transition: width 0.5s; }
         #user-ads-list { display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 25px;}
 
-        /* --- HOME - MINING STYLES --- */
-        #home-content { font-family: 'Poppins', sans-serif; }
-        .mining-container { background-color: var(--card-bg); padding: 30px; border-radius: 20px; border: 1px solid var(--border-color); box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5); text-align: center; width: 100%; max-width: 380px; margin: 0 auto; user-select: none; }
-        .mining-container h1 { color: var(--mining-accent-blue); margin-bottom: 15px; font-size: 26px; font-weight: 700; }
-        .mining-balance-card { background-color: var(--dark-bg); padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid var(--border-color); }
-        .mining-balance-card p { margin: 0; font-size: 14px; color: var(--text-muted); }
-        #mining-coin-balance { font-size: 32px; font-weight: 700; color: var(--mining-accent-yellow); margin-top: 5px; display: block; font-family: 'Roboto Mono', monospace; }
-        .mining-visual { position: relative; width: 200px; height: 200px; margin: 20px auto; display: flex; justify-content: center; align-items: center; flex-direction: column; }
-        #mining-progress-svg { position: absolute; top: 0; left: 0; transform: rotate(-90deg); }
-        #mining-progress-circle { stroke: var(--mining-accent-green-active); stroke-width: 10; fill: transparent; stroke-linecap: round; transition: stroke-dashoffset 1s linear; }
-        #mining-progress-track { stroke: var(--border-color); stroke-width: 10; fill: transparent; }
-        .mining-icon { font-size: 50px; color: var(--text-light); position: absolute; transition: color 0.5s; }
-        .mining-container.is-mining .mining-icon { color: var(--mining-accent-yellow); animation: mining-swing 1.5s infinite ease-in-out; transform-origin: top center; }
-        @keyframes mining-swing { 0% { transform: rotate(-15deg); } 50% { transform: rotate(10deg); } 100% { transform: rotate(-15deg); } }
-        #mining-timer-display { font-size: 36px; font-weight: 700; color: var(--text-light); font-family: 'Roboto Mono', monospace; z-index: 5; }
-        .mining-session-info { margin-top: 130px; font-size: 14px; color: var(--text-muted); font-family: 'Roboto Mono', monospace; }
-        #start-mining-button { background-color: var(--mining-accent-green); color: white; border: none; padding: 15px 30px; font-size: 18px; font-weight: 600; font-family: 'Poppins', sans-serif; border-radius: 10px; cursor: pointer; width: 100%; transition: background-color 0.3s ease, transform 0.1s ease; margin-top: 10px; }
-        #start-mining-button:hover:not(:disabled) { background-color: var(--mining-accent-green-hover); }
-        #start-mining-button:disabled { background-color: var(--border-color); cursor: not-allowed; color: var(--text-muted); }
+        /* --- HOME - NEW MINING STYLES (FROM ai_studio_code (10).html) --- */
+        #home-content .mining-body {
+            font-family: 'Roboto Mono', monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #e0e0e0;
+            background: linear-gradient(-45deg, #0a0218, #0d112e, #0f0a24, #231a4b);
+            background-size: 400% 400%;
+            animation: background-pan 15s ease infinite;
+            padding: 20px 0;
+            border-radius: 20px;
+        }
+        @keyframes background-pan {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        @keyframes subtle-glow {
+            0%, 100% { text-shadow: 0 0 4px #00aaff, 0 0 8px #00aaff; }
+            50% { text-shadow: 0 0 8px #00aaff, 0 0 12px #00aaff; }
+        }
+        @keyframes subtle-pulse {
+            0%, 100% { text-shadow: 0 0 5px rgba(255, 255, 255, 0.2); transform: scale(1); }
+            50% { text-shadow: 0 0 10px rgba(255, 255, 255, 0.4); transform: scale(1.02); }
+        }
+        .mining-container-new {
+            width: 90%;
+            max-width: 450px;
+            background: rgba(10, 2, 24, 0.6);
+            border: 1px solid rgba(0, 170, 255, 0.3);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 0 25px rgba(0, 170, 255, 0.2), inset 0 0 10px rgba(0, 170, 255, 0.1);
+            backdrop-filter: blur(10px);
+            text-align: center;
+        }
+        .mining-container-new h1 {
+            font-family: 'Orbitron', sans-serif;
+            color: #ffffff;
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            animation: subtle-glow 3s infinite alternate;
+        }
+        .mining-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+            padding: 10px 0;
+            border-top: 1px solid rgba(0, 170, 255, 0.2);
+            border-bottom: 1px solid rgba(0, 170, 255, 0.2);
+        }
+        .mining-stat-item { font-size: 0.9rem; }
+        .mining-stat-item span { display: block; font-size: 1.2rem; font-weight: bold; color: #00aaff; }
+        .mining-display { margin-bottom: 30px; }
+        .mining-display p { font-size: 1rem; color: #aaa; }
+        #balance-container {
+            font-family: 'Roboto Mono', monospace;
+            font-size: 3rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin: 10px 0;
+            animation: subtle-pulse 2.5s infinite ease-in-out;
+            word-wrap: break-word;
+            transition: color 0.5s ease;
+        }
+        #balance-container #balance { font-size: 3rem; }
+        #balance-container span.pg-label { font-size: 1.5rem; color: #00aaff; }
+        .mining-controls #mining-button {
+            font-family: 'Orbitron', sans-serif;
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #fff;
+            background: linear-gradient(45deg, #007bff, #00aaff);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 15px rgba(0, 170, 255, 0.5);
+        }
+        .mining-controls #mining-button:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 0 25px rgba(0, 170, 255, 0.8);
+        }
+        .mining-controls #mining-button:disabled {
+            background: #555;
+            color: #999;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        #status-message {
+            margin-top: 20px;
+            font-size: 1rem;
+            color: #ffc107;
+            height: 20px; /* To prevent layout shift */
+        }
 
     </style>
 </head>
@@ -244,24 +353,33 @@
     </header>
 
     <main class="container">
-        <!-- Home Section with Mining -->
+        <!-- Home Section with NEW Mining UI -->
         <section id="home-content" class="content-section active">
-             <div class="mining-container">
-                <h1>PG Coin Mining</h1>
-                <div class="mining-balance-card">
-                    <p>Your Total PG Balance</p>
-                    <span id="mining-coin-balance">0.000</span>
+             <div class="mining-body">
+                <div class="mining-container-new">
+                    <h1>PG Coin Mining</h1>
+                    <div class="mining-stats">
+                        <div class="mining-stat-item">
+                            Hash Power
+                            <span>10 H/s</span>
+                        </div>
+                        <div class="mining-stat-item">
+                            Daily Rate
+                            <span>0.5 PG</span>
+                        </div>
+                    </div>
+                    <div class="mining-display">
+                        <p>Your Total Balance</p>
+                        <div id="balance-container">
+                            <span id="balance">0.000</span>
+                            <span class="pg-label">PG</span>
+                        </div>
+                    </div>
+                    <div class="mining-controls">
+                        <button id="mining-button">Start Mining</button>
+                        <p id="status-message">Press 'Start' to begin mining.</p>
+                    </div>
                 </div>
-                <div class="mining-visual">
-                    <svg id="mining-progress-svg" width="200" height="200" viewBox="0 0 200 200">
-                        <circle id="mining-progress-track" cx="100" cy="100" r="90"></circle>
-                        <circle id="mining-progress-circle" cx="100" cy="100" r="90"></circle>
-                    </svg>
-                    <div class="mining-icon"><i class="fa-solid fa-pickaxe"></i></div>
-                    <div id="mining-timer-display">06:00:00</div>
-                    <p class="mining-session-info">10 H/s</p>
-                </div>
-                <button id="start-mining-button">Start Mining</button>
             </div>
         </section>
         
@@ -272,6 +390,7 @@
 
         <section id="video-content" class="content-section">
             <h3 class="section-title">Trending Videos</h3>
+            <!-- RichAds Banner Container (As per your request) -->
             <div id="richads-banner-container" style="margin-bottom: 20px;"></div>
             <div class="search-container">
                 <input type="search" id="videoSearchInput" placeholder="Search for videos...">
@@ -460,8 +579,9 @@
     <script src="https://www.youtube.com/iframe_api" async></script>
     
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
-        import { getFirestore, collection, getDocs, query, where, orderBy, limit, addDoc, serverTimestamp, doc, getDoc, setDoc, updateDoc, runTransaction, increment, arrayUnion } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+        // Updated Firebase SDK version
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, query, where, orderBy, limit, addDoc, serverTimestamp, doc, getDoc, setDoc, updateDoc, runTransaction, increment, arrayUnion } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
         
         const firebaseConfig = {
             apiKey: "AIzaSyCKMa4NdIowD_8NioUbrn4L7g5M9y5Tts0",
@@ -493,7 +613,7 @@
         const DAILY_LOGIN_PG_REWARD = 0.02;
         const AD_CREATOR_TASK_REWARD = 0.04; 
 
-        // Mining Constants
+        // Mining Constants for the NEW UI
         const MINING_SESSION_DURATION_SECONDS = 6 * 60 * 60; // 6 hours
         const MINING_SESSION_REWARD_PG = 0.125; // 0.5 PG daily / 4 sessions
 
@@ -580,7 +700,10 @@
             const pgCoin = parseFloat(pgCoinBalance || 0).toFixed(3);
             document.getElementById('userUSDTBalanceDisplay').textContent = usdt;
             document.getElementById('userPgCoinDisplay').textContent = pgCoin;
-            document.getElementById('mining-coin-balance').textContent = pgCoin;
+            // Update new mining UI balance
+            if (document.getElementById('balance')) {
+                document.getElementById('balance').textContent = pgCoin;
+            }
         }
 
         function generateReferralLink(userId) {
@@ -742,14 +865,19 @@
             const taskListContainer = document.getElementById('task-list');
             taskListContainer.innerHTML = '<div class="loader"></div>';
             try {
+                // This query correctly fetches all approved tasks from both admin and user-created ads.
                 const q = query(collection(db, 'tasks'), where("isApproved", "==", true), orderBy("createdAt", "desc"));
                 const snapshot = await getDocs(q);
                 taskListContainer.innerHTML = '';
                 if (snapshot.empty) { taskListContainer.innerHTML = '<p style="text-align:center; grid-column: 1 / -1;">No tasks available right now.</p>'; return; }
+                
+                let tasksFound = false;
                 snapshot.forEach(docSnap => {
                     const task = docSnap.data();
-                    if (task.creatorId === currentUser.id) return; // Users cannot see their own tasks
+                    // Users should not see their own created tasks in this list.
+                    if (task.creatorId === currentUser.id) return;
                     
+                    tasksFound = true;
                     const isCompleted = currentUser.completedTasks?.includes(docSnap.id);
                     const isLimitReached = (task.limit || 0) > 0 && (task.completionCount || 0) >= task.limit;
                     let buttonText = 'Go', buttonDisabled = false, buttonState = 'start';
@@ -761,6 +889,11 @@
                     card.innerHTML = `<div class="task-card-info"><h4>${task.title}</h4><p>Reward: <span class="task-reward-pg">${task.rewardPg || 0} PG</span></p></div><button class="task-button" data-task-id="${docSnap.id}" data-task-url="${task.url}" data-reward-pg="${task.rewardPg || 0}" data-visit-duration="${task.visitDurationSeconds || 0}" data-state="${buttonState}" ${buttonDisabled ? 'disabled' : ''}>${buttonText}</button>`;
                     taskListContainer.appendChild(card);
                 });
+
+                if (!tasksFound) {
+                    taskListContainer.innerHTML = '<p style="text-align:center; grid-column: 1 / -1;">No tasks available for you right now.</p>';
+                }
+
             } catch (error) {
                 console.error("Error fetching tasks:", error);
                 taskListContainer.innerHTML = '<p style="color:red; text-align:center; grid-column: 1 / -1;">Could not load tasks.</p>';
@@ -850,6 +983,7 @@
                 await fetchAndUpdateCurrentUser();
                 form.reset();
                 showSuccessModal("Request Sent!", "Your withdrawal request is pending. Check status in the History tab.");
+                await displayWithdrawalHistory(); // Refresh history
             } catch (error) { alert(`Error: ${error.message}`); } 
             finally { submitButton.disabled = false; submitButton.textContent = `Request ${type.toUpperCase()} Withdrawal`; renderWithdrawUI(); }
         }
@@ -864,9 +998,9 @@
                 snapshot.forEach(docSnap => {
                     const data = docSnap.data();
                     const item = document.createElement('div');
-                    item.className = 'history-item';
+                    item.className = `history-item status-${data.status}`;
                     const amountText = data.withdrawType === 'pg' ? `${parseFloat(data.pgAmount || 0).toFixed(3)} PG` : `$${parseFloat(data.usdAmount || 0).toFixed(2)} USDT`;
-                    item.innerHTML = `<div><strong>${amountText}</strong><br><small>${data.method} - ${data.createdAt?.toDate().toLocaleDateString() || 'N/A'}</small></div><strong class="status-${data.status}">${data.status.charAt(0).toUpperCase() + data.status.slice(1)}</strong>`;
+                    item.innerHTML = `<div class="history-item-info"><strong>${amountText}</strong><small>${data.method} - ${data.createdAt?.toDate().toLocaleDateString() || 'N/A'}</small></div><div class="history-item-status status-${data.status}">${data.status}</div>`;
                     historyContainer.appendChild(item);
                 });
             } catch (error) { console.error("Error fetching history:", error); historyContainer.innerHTML = '<p style="color:red;">Error loading history.</p>'; }
@@ -947,7 +1081,7 @@
                 switch(targetId) {
                     case '#home-content': /* Handled by continuous timer */ break;
                     case '#ads-content': setupAdsToEarn(); break;
-                    case '#video-content': initializeRichAds(); break;
+                    case '#video-content': initializeRichAds(); await fetchContent(); break;
                     case '#profile-content': renderProfile(); break;
                     case '#task-content': await renderDailyLoginTask(); await fetchTasks(); break;
                     case '#advertisement-creator-content': renderAdvertisementCreatorUI(); await renderUserAdvertisements(); break;
@@ -963,7 +1097,7 @@
             pgBtn.addEventListener('click', () => { pgBtn.classList.add('active'); usdtBtn.classList.remove('active'); pgForm.style.display = 'block'; usdtForm.style.display = 'none'; });
         }
         
-        // --- ADVERTISEMENT CREATOR LOGIC (UPDATED) ---
+        // --- ADVERTISEMENT CREATOR LOGIC ---
         const adPackages = [
             { id: 1, visits: 250, cost_usdt: 0.5, cost_pg: 30 },
             { id: 2, visits: 500, cost_usdt: 0.8, cost_pg: 0 },
@@ -1096,12 +1230,9 @@
             finally { button.disabled = false; button.textContent = 'Confirm & Create Task'; }
         });
         
-        // --- MINING LOGIC ---
-        const miningContainer = document.querySelector('.mining-container');
-        const startMiningButton = document.getElementById('start-mining-button');
-        const timerDisplayEl = document.getElementById('mining-timer-display');
-        const progressCircle = document.getElementById('mining-progress-circle');
-        const CIRCLE_CIRCUMFERENCE = 2 * Math.PI * 90;
+        // --- NEW MINING LOGIC (Adapted for new UI) ---
+        const startMiningButton = document.getElementById('mining-button');
+        const statusMessageEl = document.getElementById('status-message');
 
         function formatSecondsToHHMMSS(seconds) {
             const h = String(Math.floor(seconds / 3600)).padStart(2, '0');
@@ -1109,7 +1240,7 @@
             const s = String(Math.floor(seconds % 60)).padStart(2, '0');
             return `${h}:${m}:${s}`;
         }
-
+        
         async function initializeMiningState() {
             if (!currentUser) return;
             const userRef = doc(db, 'users', currentUser.id);
@@ -1141,26 +1272,19 @@
             const sessionEndTime = miningStartTime + MINING_SESSION_DURATION_SECONDS * 1000;
             const timeLeftSeconds = Math.max(0, Math.round((sessionEndTime - now) / 1000));
             
-            timerDisplayEl.textContent = formatSecondsToHHMMSS(timeLeftSeconds);
-            const elapsedTime = MINING_SESSION_DURATION_SECONDS - timeLeftSeconds;
-            const progress = elapsedTime / MINING_SESSION_DURATION_SECONDS;
-            progressCircle.style.strokeDashoffset = CIRCLE_CIRCUMFERENCE * (1 - progress);
+            statusMessageEl.textContent = `Time Remaining: ${formatSecondsToHHMMSS(timeLeftSeconds)}`;
 
             if (timeLeftSeconds <= 0) stopMiningSession(true);
         }
 
         function setMiningUIState(state) {
-            progressCircle.style.strokeDasharray = CIRCLE_CIRCUMFERENCE;
             if (state === 'mining') {
-                miningContainer.classList.add('is-mining');
                 startMiningButton.disabled = true;
-                startMiningButton.textContent = 'Mining in Progress...';
+                startMiningButton.textContent = 'Mining...';
             } else { // ready or finished
-                miningContainer.classList.remove('is-mining');
                 startMiningButton.disabled = false;
                 startMiningButton.textContent = 'Start Mining';
-                timerDisplayEl.textContent = formatSecondsToHHMMSS(MINING_SESSION_DURATION_SECONDS);
-                progressCircle.style.strokeDashoffset = CIRCLE_CIRCUMFERENCE;
+                statusMessageEl.textContent = 'Session ended. Start a new session.';
             }
         }
 
@@ -1198,12 +1322,16 @@
         // --- AD SDK INITIALIZATION ---
         function initializeRichAds() {
             if (richAdsInitialized) return;
-            try { window.TelegramAdsController = new TelegramAdsController(); window.TelegramAdsController.initialize({ pubId: "978188", appId: "3041" }); richAdsInitialized = true; } 
+            try { 
+                // Initialize RichAds controller for both banner and push ads
+                window.TelegramAdsController = new TelegramAdsController(); 
+                window.TelegramAdsController.initialize({
+                    pubId: "978188", // For banner ads
+                    appId: "3041" 
+                }); 
+                richAdsInitialized = true; 
+            } 
             catch (e) { console.error("Failed to initialize RichAds:", e); }
-        }
-        function initializeAdexium() {
-             try { new AdexiumWidget({wid: '12c05dba-2642-46f2-950f-cee6575119c9', adFormat: 'interstitial'}).autoMode(); } 
-             catch (e) { console.error("Failed to initialize Adexium autoMode:", e); }
         }
 
         async function main() {
@@ -1212,8 +1340,7 @@
                 tg.ready(); tg.expand();
                 
                 await initializeUser(tg.initDataUnsafe.user, tg.initDataUnsafe.start_param);
-                await fetchContent(); 
-                initializeAdexium();
+                // fetchContent is now called when switching to the video tab to prevent unnecessary loading
                 setupWithdrawalTypeSwitcher();
                 document.getElementById('profile-userid').addEventListener('click', () => {
                     if (currentUser?.id) navigator.clipboard.writeText(currentUser.id).then(() => {
