@@ -67,6 +67,16 @@
         .header-icon-btn svg { width: 26px; height: 26px; }
         #inbox-notification-dot { position: absolute; top: 2px; right: 2px; width: 8px; height: 8px; background-color: var(--primary-accent-color); border-radius: 50%; border: 2px solid var(--header-bg); display: none; }
         #inbox-notification-dot.visible { display: block; }
+        
+        /* VFX Animation for Referral Button */
+        .referral-button-vfx {
+            animation: referral-glow 2.5s infinite ease-in-out;
+            border-radius: 50%;
+        }
+        @keyframes referral-glow {
+            0%, 100% { box-shadow: 0 0 5px rgba(74, 144, 226, 0); }
+            50% { box-shadow: 0 0 15px rgba(74, 144, 226, 0.7), 0 0 20px rgba(74, 144, 226, 0.5); }
+        }
 
         .balance-display { background-color: rgba(0,0,0,0.2); color: var(--text-light); padding: 6px 12px; border-radius: 20px; font-weight: 600; font-size: 0.85em; }
         .balance-display .pg-label { color: var(--pg-coin-color); }
@@ -96,6 +106,7 @@
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         .section-title { font-size: 1.6em; margin-bottom: 25px; padding-bottom: 10px; color: var(--text-light); border-bottom: 2px solid var(--border-color); font-weight: 600; }
+        .sub-section-title { font-size: 1.2em; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-top: 40px; margin-bottom: 20px; font-weight: 500; }
         .search-container { display: flex; gap: 10px; margin-bottom: 20px; }
         .search-container input { flex-grow: 1; padding: 12px; box-sizing: border-box; border-radius: 8px; border: 1px solid var(--border-color); background-color: #000; color: var(--text-light); font-size: 1em; }
         .search-container button { padding: 12px 18px; border: none; border-radius: 8px; background-color: var(--primary-accent-color); color: var(--text-light); font-weight: bold; cursor: pointer; }
@@ -117,15 +128,15 @@
         .ad-task-card p { margin: 8px 0 15px; color: var(--text-muted); font-weight: bold; }
         .task-reward-pg { color: var(--pg-coin-color); }
         .ad-task-button { width: 100%; padding: 12px; border: none; border-radius: 0 0 10px 10px; font-weight: bold; cursor: pointer; background-color: var(--primary-accent-color); color: var(--text-light); transition: background-color .2s; margin-top: auto; font-size: 1em;}
-        .task-button, .daily-task-button { width: auto; flex-shrink: 0; padding: 10px 20px; font-size: 0.9em; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; background-color: var(--primary-accent-color); color: var(--text-light); transition: background-color .2s; margin-top: 0; }
-        .task-button:disabled, .ad-task-button:disabled, .daily-task-button:disabled { background-color: var(--disabled-color); cursor: not-allowed; }
+        .task-button, .daily-task-button, .achievement-button { width: auto; flex-shrink: 0; padding: 10px 20px; font-size: 0.9em; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; background-color: var(--primary-accent-color); color: var(--text-light); transition: background-color .2s; margin-top: 0; }
+        .task-button:disabled, .ad-task-button:disabled, .daily-task-button:disabled, .achievement-button:disabled { background-color: var(--disabled-color); cursor: not-allowed; }
         
         .card { max-width: 500px; margin: 20px auto; background-color: var(--card-bg); padding: 30px; border-radius: 12px; border: 1px solid var(--border-color); text-align: center; }
         .card-icon { width: 50px; height: 50px; margin: 0 auto 15px; color: var(--primary-accent-color); }
         .card h3 { margin-top: 0; font-size: 1.4em; } .card p { color: var(--text-muted); line-height: 1.6; }
         .form-group { margin-bottom: 20px; text-align: left; }
         .form-group label { display: block; margin-bottom: 8px; font-weight: 500; color: var(--text-muted); }
-        .form-group input, .form-group select { width: 100%; padding: 12px; box-sizing: border-box; border-radius: 8px; border: 1px solid var(--border-color); background-color: #000; color: var(--text-light); font-size: 1em; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px; box-sizing: border-box; border-radius: 8px; border: 1px solid var(--border-color); background-color: #000; color: var(--text-light); font-size: 1em; }
         .form-button { width: 100%; padding: 14px; border: none; border-radius: 8px; background-color: var(--primary-accent-color); color: var(--text-light); font-weight: bold; font-size: 1em; cursor: pointer; transition: background-color 0.2s; }
         .form-button:hover:not(:disabled) { background-color: var(--primary-accent-hover-color); }
         .form-button:disabled { background-color: var(--disabled-color); cursor: not-allowed; }
@@ -137,9 +148,9 @@
         .loader { border: 4px solid var(--border-color); border-top: 4px solid var(--primary-accent-color); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 50px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 2000; display: none; justify-content: center; align-items: center; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 2000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
         .modal-overlay.show { display: flex; }
-        .modal-content { background-color: var(--card-bg); color: var(--text-light); padding: 30px 40px; border-radius: 15px; text-align: center; transform: scale(0.9); opacity: 0; animation: modal-pop-in 0.3s forwards; max-width: 90%; width: 400px; }
+        .modal-content { background-color: var(--card-bg); color: var(--text-light); padding: 30px 40px; border-radius: 15px; text-align: center; transform: scale(0.9); opacity: 0; animation: modal-pop-in 0.3s forwards; max-width: 90%; width: 450px; }
         @keyframes modal-pop-in { to { transform: scale(1); opacity: 1; } }
         .success-modal-icon { width: 70px; height: 70px; border-radius: 50%; background-color: var(--success-color); display: flex; justify-content: center; align-items: center; font-size: 40px; font-weight: bold; color: white; margin: 0 auto 20px; animation: icon-pop-in 0.5s 0.2s backwards; }
         @keyframes icon-pop-in { 0% { transform: scale(0); } 70% { transform: scale(1.1); } 100% { transform: scale(1); } }
@@ -156,12 +167,12 @@
         .sub-card { background-color: #0e1621; padding: 20px; border-radius: 10px; margin-bottom: 25px; }
         .info-text { font-size: 0.9em; color: var(--text-muted); margin-top: 10px; line-height: 1.5; }
         
-        .task-card, #daily-login-task-container .task-card { background-color: var(--card-bg); border-radius: 8px; display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 15px; transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; border: none; }
+        .task-card, .achievement-card, #daily-login-task-container .task-card { background-color: var(--card-bg); border-radius: 8px; display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 15px; transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; border: none; }
         .task-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(74, 144, 226, 0.15); }
-        #ad-task-list.item-grid, #task-list.item-grid { grid-template-columns: 1fr; gap: 15px; } 
-        .task-card-info { padding: 0; flex-grow: 1; text-align: left; }
-        .task-card-info h4 { margin: 0 0 5px; }
-        .task-card-info p { margin: 5px 0 0; }
+        #ad-task-list.item-grid, #task-list.item-grid, #achievement-list.item-grid { grid-template-columns: 1fr; gap: 15px; } 
+        .task-card-info, .achievement-card-info { padding: 0; flex-grow: 1; text-align: left; }
+        .task-card-info h4, .achievement-card-info h4 { margin: 0 0 5px; }
+        .task-card-info p, .achievement-card-info p { margin: 5px 0 0; }
 
         #profile-card { background-color: var(--card-bg); padding: 30px; border-radius: 15px; text-align: center; }
         #profile-avatar { width: 100px; height: 100px; border-radius: 50%; border: 4px solid var(--primary-accent-color); margin: 0 auto 20px; display: flex; justify-content: center; align-items: center; background-color: #333; font-size: 48px; font-weight: bold; color: var(--text-light); background-size: cover; background-position: center; }
@@ -180,7 +191,7 @@
         #withdraw-type-selector button { flex: 1; padding: 12px; font-size: 1em; font-weight: 600; border: 2px solid var(--border-color); background-color: transparent; color: var(--text-muted); border-radius: 8px; cursor: pointer; }
         #withdraw-type-selector button.active { background-color: var(--primary-accent-color); border-color: var(--primary-accent-color); color: var(--text-light); }
         
-        #history-list { display: flex; flex-direction: column; gap: 15px; }
+        .history-list-container { display: flex; flex-direction: column; gap: 15px; }
         .history-item {
             background-color: var(--card-bg);
             padding: 15px 20px;
@@ -221,6 +232,7 @@
 
         .deposit-card { background-color: var(--dark-bg); padding: 20px; border-radius: 10px; margin-bottom: 30px; border: 1px solid var(--border-color); }
         .deposit-card h4 { margin-top: 0; }
+        .deposit-card .form-button { margin-top: 15px; background-color: var(--success-color); }
         
         .user-ad-item { padding: 15px; display: flex; flex-direction: column; gap: 10px; border: 1px solid var(--border-color); }
         .user-ad-item h4 { font-size: 1em; }
@@ -335,8 +347,8 @@
         <div class="header-right">
             <div class="balance-display">$: <span id="userUSDTBalanceDisplay">0.00</span></div>
             <div class="balance-display"><span class="pg-label">PG:</span> <span id="userPgCoinDisplay">0.000</span></div>
-             <button class="header-icon-btn bottom-nav-item" data-tab-target="#referral-content" title="Referral Program">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+             <button class="header-icon-btn bottom-nav-item referral-button-vfx" data-tab-target="#referral-content" title="Referral Program">
+                <svg xmlns="http://www.w.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
             </button>
             <button class="header-icon-btn" id="inbox-container" title="Inbox">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg>
@@ -357,11 +369,11 @@
                     <div class="mining-stats">
                         <div class="mining-stat-item">
                             Hash Power
-                            <span>10 H/s</span>
+                            <span id="miningHashPower">10 H/s</span>
                         </div>
                         <div class="mining-stat-item">
                             Daily Rate
-                            <span>0.5 PG</span>
+                            <span id="miningDailyRate">0.5 PG</span>
                         </div>
                     </div>
                     <div class="mining-display">
@@ -399,36 +411,37 @@
             <div class="card">
                 <svg class="card-icon" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
                 <h3>Referral Program</h3>
-                <p>Invite friends and earn rewards! For each successful referral, you get <strong>0.4 PG Coin</strong> and <strong>1 Game Token!</strong></p>
+                <p>Invite friends and earn rewards! For each successful referral, you get <strong>0.4 PG Coin</strong> and a <strong>1.5 H/s mining speed boost</strong> for 30 days!</p>
                 <div class="referral-link-wrapper"><input type="text" id="referralLinkInput" readonly value="Generating link..."><button id="copyReferralLinkBtn" class="form-button">Copy</button></div>
             </div>
         </section>
 
         <section id="task-content" class="content-section">
             <div id="daily-login-task-container"></div>
+            
             <h3 class="section-title">Complete Tasks to Earn</h3>
             <div id="task-list" class="item-grid"></div>
+
+            <h3 class="sub-section-title">Achievements</h3>
+            <div id="achievement-list" class="item-grid"></div>
         </section>
         
         <section id="advertisement-creator-content" class="content-section">
             <h3 class="section-title">Create an Advertisement</h3>
             <div class="deposit-card">
                 <h4>Deposit USDT</h4>
-                <p class="info-text">You can create tasks using your earned balance or deposit USDT. Minimum deposit: <strong>0.5 USDT</strong>.</p>
-                <div class="form-group" style="margin-top: 20px;">
-                    <label>Binance (BEP20) Deposit Address</label>
-                    <div class="referral-link-wrapper">
-                        <input type="text" id="depositAddressInput" readonly value="0xed5ff44a662b71023b082f5915faa49e3d386a1c">
-                        <button id="copyDepositAddressBtn" class="form-button">Copy</button>
-                    </div>
-                </div>
-                <p class="info-text" style="color: #ffc107; text-align: center;"><strong>Important:</strong> Do not advertise any 18+ or illegal content. Your account will be banned.</p>
+                <p class="info-text">You need a USDT balance to create advertisement tasks. Use the button below to request a deposit.</p>
+                <p class="info-text" style="color: #ffc107;"><strong>Important:</strong> Do not advertise any 18+ or illegal content. Your account will be banned.</p>
+                <button class="form-button" id="openDepositModalBtn">Make a Deposit</button>
+
+                <h4 style="margin-top: 30px; margin-bottom: 15px;">Deposit History</h4>
+                <div id="deposit-history-list" class="history-list-container"></div>
             </div>
 
-            <h3 class="section-title" style="font-size: 1.2em; border: none;">Choose a Package</h3>
+            <h3 class="sub-section-title">Choose a Package</h3>
             <div id="ad-packages-grid" class="item-grid" style="grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));"></div>
             
-            <h3 class="section-title" style="font-size: 1.2em; border: none; margin-top: 40px;">Your Advertisements</h3>
+            <h3 class="sub-section-title">Your Advertisements</h3>
             <div id="user-ads-list"></div>
         </section>
 
@@ -457,6 +470,7 @@
                             <label for="usdtWithdrawalAmount">Amount (USDT)</label>
                             <input type="number" id="usdtWithdrawalAmount" placeholder="e.g., 1.0" required step="0.01">
                          </div>
+                         <p class="info-text" style="text-align: center;">1 Dollar = 120 Taka (BDT)</p>
                          <button type="submit" class="form-button">Request USDT Withdrawal</button>
                      </form>
                  </div>
@@ -484,7 +498,7 @@
                  </div>
              </div>
              <h3 class="section-title" style="margin-top: 40px;">Withdrawal History</h3>
-             <div id="history-list"></div>
+             <div id="withdrawal-history-list" class="history-list-container"></div>
         </section>
 
         <section id="profile-content" class="content-section">
@@ -559,6 +573,9 @@
                     <label for="adCreatorTaskType">Task Type</label>
                     <select id="adCreatorTaskType" required>
                         <option value="website_visit">Website Visit</option>
+                        <option value="youtube_subscribe">YouTube Channel Subscribe</option>
+                        <option value="tiktok_follow">TikTok Follow</option>
+                        <option value="facebook_like_follow">Facebook Page Like/Follow</option>
                         <option value="telegram_bot">Telegram Bot Join</option>
                         <option value="telegram_channel">Telegram Channel Join</option>
                         <option value="telegram_group">Telegram Group Join</option>
@@ -579,12 +596,48 @@
         </div>
     </div>
 
+    <div id="depositModalOverlay" class="modal-overlay">
+        <div class="modal-content" style="text-align: left;">
+            <h3>Request a Deposit</h3>
+            <div class="sub-card" style="background-color: #2a3b52;">
+                <strong>Terms & Conditions:</strong>
+                <ul style="padding-left: 20px; font-size: 0.9em; color: var(--text-muted);">
+                    <li>Minimum deposit is <strong>0.5 USDT</strong>.</li>
+                    <li>Only send USDT on the <strong>BEP20 (Binance Smart Chain)</strong> network.</li>
+                    <li>Do not promote any adult (18+) or illegal content.</li>
+                    <li>Violation of these terms will result in an immediate account ban without refund.</li>
+                </ul>
+            </div>
+             <div class="form-group">
+                <label>Binance (BEP20) Deposit Address</label>
+                 <!-- <img id="depositQrCode" src="YOUR_QR_CODE_IMAGE_URL_HERE" alt="Deposit QR Code" style="width: 150px; height: 150px; margin: 10px auto; display: block; border-radius: 8px;"> -->
+                <div class="referral-link-wrapper">
+                    <input type="text" id="depositAddressInput" readonly value="0xed5ff44a662b71023b082f5915faa49e3d386a1c">
+                    <button id="copyDepositAddressBtn" class="form-button" style="width: 80px;">Copy</button>
+                </div>
+            </div>
+            <form id="depositRequestForm">
+                <p class="info-text">After sending the payment, fill out the form below and submit your request. It will be reviewed by an admin.</p>
+                <div class="form-group">
+                    <label for="depositAmount">Amount (USDT)</label>
+                    <input type="number" id="depositAmount" placeholder="e.g., 1.5" required step="0.01" min="0.5">
+                </div>
+                <div class="form-group">
+                    <label for="depositTxId">Transaction ID / Hash</label>
+                    <input type="text" id="depositTxId" placeholder="Enter the transaction hash from Binance" required>
+                </div>
+                <button type="submit" class="form-button">Submit Deposit Request</button>
+                <button type="button" class="form-button" style="background-color: #444; margin-top: 10px;" onclick="document.getElementById('depositModalOverlay').classList.remove('show')">Cancel</button>
+            </form>
+        </div>
+    </div>
+
 
     <script src="https://www.youtube.com/iframe_api" async></script>
     
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-        import { getFirestore, collection, getDocs, query, where, orderBy, limit, addDoc, serverTimestamp, doc, getDoc, setDoc, updateDoc, runTransaction, increment, arrayUnion } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, query, where, orderBy, limit, addDoc, serverTimestamp, doc, getDoc, setDoc, updateDoc, runTransaction, increment, arrayUnion, Timestamp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
         
         const firebaseConfig = {
             apiKey: "AIzaSyCKMa4NdIowD_8NioUbrn4L7g5M9y5Tts0",
@@ -610,13 +663,15 @@
         const AD_PGCOIN_LIMIT = 15; 
         const AD_PGCOIN_REWARD = 0.03;
         const REFERRAL_BONUS_PG_COIN = 0.4;
-        const REFERRAL_BONUS_GAME_TOKENS = 1;
+        const REFERRAL_MINING_BOOST_HS = 1.5;
+        const REFERRAL_MINING_BOOST_DAYS = 30;
         const DAILY_LOGIN_PG_REWARD = 0.02;
         const AD_CREATOR_TASK_REWARD = 0.04; 
 
         // Mining Constants
+        const BASE_HASH_POWER = 10;
         const MINING_SESSION_DURATION_SECONDS = 6 * 60 * 60; 
-        const MINING_SESSION_REWARD_PG = 0.125;
+        const MINING_SESSION_REWARD_PG_PER_10HS = 0.125; // Reward for base hash power
         
         // Video Section Reward Constants
         const VIDEO_SECTION_REWARD_INTERVAL_MS = 2.5 * 60 * 1000;
@@ -631,6 +686,7 @@
                 if (userSnap.exists()) {
                     currentUser = { id: userSnap.id, ...userSnap.data() };
                     updateBalanceUI(currentUser.usdtBalance, currentUser.pgCoin);
+                    updateMiningPowerUI();
                 }
             } catch (error) { console.error("Error fetching current user:", error); }
         }
@@ -656,7 +712,19 @@
             if (!referrerId) return;
             const referrerRef = doc(db, 'users', referrerId);
             try {
-                await updateDoc(referrerRef, { pgCoin: increment(REFERRAL_BONUS_PG_COIN), gameTokens: increment(REFERRAL_BONUS_GAME_TOKENS), referralCount: increment(1) });
+                const now = new Date();
+                const expiryDate = new Date(now.getTime() + REFERRAL_MINING_BOOST_DAYS * 24 * 60 * 60 * 1000);
+                
+                const newBoost = {
+                    activatedAt: serverTimestamp(),
+                    expiresAt: Timestamp.fromDate(expiryDate)
+                };
+
+                await updateDoc(referrerRef, { 
+                    pgCoin: increment(REFERRAL_BONUS_PG_COIN), 
+                    referralCount: increment(1),
+                    referralBoosts: arrayUnion(newBoost)
+                });
             } catch (error) { console.error("Failed to grant referral bonus:", error); }
         }
 
@@ -670,15 +738,16 @@
                     usdtBalance: 0, pgCoin: 0, lifetimePgCoinEarned: 0, referralCount: 0, gameTokens: 0,
                     completedTasks: [], pgCoinAdVisitsToday: 0,
                     lastDailyReset: serverTimestamp(), lastDailyLoginClaim: null,
-                    readMessages: [], withdrawalCount: 0,
+                    readMessages: [], withdrawalCount: 0, totalDepositedUSDT: 0, claimedAchievements: [],
                     createdAt: serverTimestamp(), telegramUsername: tgUser.username || 'N/A',
-                    miningStartTime: null,
+                    miningStartTime: null, referralBoosts: [],
                 };
                 if (referrerCode && referrerCode !== userId) defaultUserData.referredBy = referrerCode;
                 await setDoc(userRef, defaultUserData);
                 if (referrerCode && referrerCode !== userId) await grantReferralBonus(referrerCode);
                 userSnap = await getDoc(userRef);
             } else {
+                // Ensure all new fields exist for old users
                 const userData = userSnap.data();
                 const updates = {};
                 if (userData.gameTokens === undefined) updates.gameTokens = 0;
@@ -686,6 +755,9 @@
                 if (userData.pgCoin === undefined) updates.pgCoin = 0;
                 if (userData.pgCoinAdVisitsToday === undefined) updates.pgCoinAdVisitsToday = 0;
                 if (userData.miningStartTime === undefined) updates.miningStartTime = null;
+                if (userData.referralBoosts === undefined) updates.referralBoosts = [];
+                if (userData.totalDepositedUSDT === undefined) updates.totalDepositedUSDT = 0;
+                if (userData.claimedAchievements === undefined) updates.claimedAchievements = [];
 
                 if (Object.keys(updates).length > 0) {
                     await updateDoc(userRef, updates);
@@ -695,6 +767,7 @@
             currentUser = { id: userSnap.id, ...userSnap.data() };
             await checkAndResetDailies();
             updateBalanceUI(currentUser.usdtBalance, currentUser.pgCoin);
+            updateMiningPowerUI();
             generateReferralLink(currentUser.id);
             checkForUnreadMessages();
             await initializeMiningState();
@@ -709,6 +782,23 @@
                 document.getElementById('balance').textContent = pgCoin;
             }
         }
+        
+        function getCurrentHashPower() {
+            const now = new Date();
+            let activeBoosts = 0;
+            if (currentUser?.referralBoosts) {
+                activeBoosts = currentUser.referralBoosts.filter(boost => boost.expiresAt.toDate() > now).length;
+            }
+            return BASE_HASH_POWER + (activeBoosts * REFERRAL_MINING_BOOST_HS);
+        }
+
+        function updateMiningPowerUI() {
+            const currentPower = getCurrentHashPower();
+            const dailyRate = (currentPower / BASE_HASH_POWER) * (MINING_SESSION_REWARD_PG_PER_10HS * 4); // 4 sessions per day
+            document.getElementById('miningHashPower').textContent = `${currentPower.toFixed(1)} H/s`;
+            document.getElementById('miningDailyRate').textContent = `${dailyRate.toFixed(3)} PG`;
+        }
+
 
         function generateReferralLink(userId) {
             const botUsername = "NewTube12_bot";
@@ -834,7 +924,7 @@
             const card = document.createElement('div');
             card.className = 'task-card';
             card.innerHTML = `<div class="task-card-info"><h4>Daily Login Bonus</h4><p>Reward: <span class="task-reward-pg">${DAILY_LOGIN_PG_REWARD} PG</span></p></div><button class="task-button" id="dailyLoginClaimBtn" ${isClaimedToday ? 'disabled' : ''}>${isClaimedToday ? 'Claimed Today' : 'Claim'}</button>`;
-            container.innerHTML = `<h3 class="section-title" style="font-size: 1.2em; border: none; margin-bottom: 15px;">Daily Reward</h3>`;
+            container.innerHTML = `<h3 class="sub-section-title" style="margin-top: 0;">Daily Reward</h3>`;
             container.appendChild(card);
             if (!isClaimedToday) document.getElementById('dailyLoginClaimBtn').addEventListener('click', claimDailyLoginBonus);
         }
@@ -856,7 +946,6 @@
             taskListContainer.innerHTML = '<div class="loader"></div>';
             if (!currentUser) return;
             try {
-                // This query requires a composite index on (isApproved, createdAt) in Firestore.
                 const q = query(collection(db, 'tasks'), where("isApproved", "==", true), orderBy("createdAt", "desc"));
                 const snapshot = await getDocs(q);
                 taskListContainer.innerHTML = '';
@@ -885,7 +974,7 @@
                 }
 
             } catch (error) {
-                console.error("Error fetching tasks. IMPORTANT: This is likely due to a missing Firestore index. Please create a composite index on the `tasks` collection for `isApproved` (Ascending) and `createdAt` (Descending). Full error:", error);
+                console.error("Error fetching tasks. IMPORTANT: Check Firestore indexes. Error:", error);
                 taskListContainer.innerHTML = '<p style="color:red; text-align:center; grid-column: 1 / -1;">Could not load tasks. Please try again later.</p>';
             }
         }
@@ -918,6 +1007,8 @@
                     await grantReward({ pgCoin: Number(button.dataset.rewardPg) || 0 });
                     showSuccessModal("Reward Claimed!", `Reward added to your balance.`);
                     button.textContent = 'Done';
+                    await fetchAndUpdateCurrentUser();
+                    await renderAchievements(); // Re-render achievements to check for progress
 
                 } catch (error) {
                     const errorMessages = { "ALREADY_COMPLETED": "You have already completed this task.", "TASK_LIMIT_REACHED": "This task has reached its completion limit."};
@@ -927,6 +1018,109 @@
                 }
             }
         });
+        
+        // --- ACHIEVEMENTS ---
+        const achievements = [
+            { id: 'tasks_10', type: 'tasks', req: 10, reward: 0.2, desc: "Complete 10 tasks" },
+            { id: 'tasks_20', type: 'tasks', req: 20, reward: 0.5, desc: "Complete 20 tasks" },
+            { id: 'tasks_50', type: 'tasks', req: 50, reward: 1.2, desc: "Complete 50 tasks" },
+            { id: 'tasks_100', type: 'tasks', req: 100, reward: 3, desc: "Complete 100 tasks" },
+            { id: 'tasks_200', type: 'tasks', req: 200, reward: 8, desc: "Complete 200 tasks" },
+            { id: 'tasks_500', type: 'tasks', req: 500, reward: 20, desc: "Complete 500 tasks" },
+            { id: 'deposit_0.5', type: 'deposit', req: 0.5, reward: 2, desc: "Make a first deposit of at least $0.50" },
+            { id: 'deposit_1.0', type: 'deposit', req: 1, reward: 6, desc: "Make a first deposit of at least $1.00" },
+        ];
+        
+        async function renderAchievements() {
+            const container = document.getElementById('achievement-list');
+            container.innerHTML = '';
+            if (!currentUser) return;
+
+            const completedTasksCount = currentUser.completedTasks?.length || 0;
+            const totalDeposited = currentUser.totalDepositedUSDT || 0;
+            const claimed = currentUser.claimedAchievements || [];
+
+            achievements.forEach(ach => {
+                let isComplete = false;
+                let progressText = '';
+
+                if (ach.type === 'tasks') {
+                    isComplete = completedTasksCount >= ach.req;
+                    progressText = `(${completedTasksCount}/${ach.req})`;
+                } else if (ach.type === 'deposit') {
+                    isComplete = totalDeposited >= ach.req;
+                    progressText = `($${totalDeposited.toFixed(2)}/$${ach.req.toFixed(2)})`;
+                }
+                
+                let buttonHtml;
+                if (claimed.includes(ach.id)) {
+                    buttonHtml = `<button class="achievement-button" disabled>Claimed</button>`;
+                } else if (isComplete) {
+                    buttonHtml = `<button class="achievement-button" data-ach-id="${ach.id}">Claim</button>`;
+                } else {
+                    buttonHtml = `<button class="achievement-button" disabled>Locked</button>`;
+                }
+                
+                const card = document.createElement('div');
+                card.className = 'achievement-card';
+                card.innerHTML = `
+                    <div class="achievement-card-info">
+                        <h4>${ach.desc} ${progressText}</h4>
+                        <p>Reward: <span class="task-reward-pg">${ach.reward} PG</span></p>
+                    </div>
+                    ${buttonHtml}
+                `;
+                container.appendChild(card);
+            });
+        }
+        
+        document.getElementById('achievement-list').addEventListener('click', async (e) => {
+            if (!e.target.matches('.achievement-button') || e.target.disabled) return;
+            const button = e.target;
+            const achievementId = button.dataset.achId;
+            const achievement = achievements.find(a => a.id === achievementId);
+
+            if (!achievement) return;
+
+            button.disabled = true;
+            button.textContent = '...';
+
+            try {
+                // Use a transaction to ensure atomicity
+                await runTransaction(db, async (t) => {
+                    const userRef = doc(db, 'users', currentUser.id);
+                    const userDoc = await t.get(userRef);
+                    if (!userDoc.exists()) throw new Error("User not found.");
+                    
+                    const userData = userDoc.data();
+                    if (userData.claimedAchievements?.includes(achievementId)) throw new Error("Already claimed.");
+
+                    // Verify requirements again on the server-side
+                    let requirementMet = false;
+                    if (achievement.type === 'tasks' && (userData.completedTasks?.length || 0) >= achievement.req) {
+                        requirementMet = true;
+                    } else if (achievement.type === 'deposit' && (userData.totalDepositedUSDT || 0) >= achievement.req) {
+                        requirementMet = true;
+                    }
+                    if (!requirementMet) throw new Error("Requirement not met.");
+
+                    t.update(userRef, {
+                        claimedAchievements: arrayUnion(achievementId),
+                        pgCoin: increment(achievement.reward)
+                    });
+                });
+                
+                showSuccessModal("Achievement Unlocked!", `You earned ${achievement.reward} PG Coin.`);
+                await fetchAndUpdateCurrentUser();
+                await renderAchievements(); // Re-render to update the button state
+
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+                button.disabled = false;
+                button.textContent = 'Claim';
+            }
+        });
+
 
         function showSuccessModal(title, message) {
             const modal = document.getElementById('successModalOverlay');
@@ -986,7 +1180,7 @@
         }
 
         async function displayWithdrawalHistory() {
-            const historyContainer = document.getElementById('history-list');
+            const historyContainer = document.getElementById('withdrawal-history-list');
             historyContainer.innerHTML = '<div class="loader"></div>';
             try {
                 const q = query(collection(db, "withdrawals"), where("userId", "==", currentUser.id), orderBy("createdAt", "desc"), limit(50));
@@ -1000,7 +1194,7 @@
                     item.innerHTML = `<div class="history-item-info"><strong>${amountText}</strong><small>${data.method} - ${data.createdAt?.toDate().toLocaleDateString() || 'N/A'}</small></div><div class="history-item-status status-${data.status}">${data.status}</div>`;
                     historyContainer.appendChild(item);
                 });
-            } catch (error) { console.error("Error fetching history:", error); historyContainer.innerHTML = '<p style="color:red;">Error loading history.</p>'; }
+            } catch (error) { console.error("Error fetching withdrawal history:", error); historyContainer.innerHTML = '<p style="color:red;">Error loading history.</p>'; }
         }
         
         function renderProfile() {
@@ -1075,7 +1269,7 @@
                 document.querySelector(targetId).classList.add('active');
 
                 switch(targetId) {
-                    case '#home-content': break;
+                    case '#home-content': updateMiningPowerUI(); break;
                     case '#ads-content': setupAdsToEarn(); break;
                     case '#video-content': 
                         await fetchContent(); 
@@ -1087,8 +1281,8 @@
                         }, VIDEO_SECTION_REWARD_INTERVAL_MS);
                         break;
                     case '#profile-content': renderProfile(); break;
-                    case '#task-content': await renderDailyLoginTask(); await fetchTasks(); break;
-                    case '#advertisement-creator-content': renderAdvertisementCreatorUI(); await renderUserAdvertisements(); break;
+                    case '#task-content': await renderDailyLoginTask(); await fetchTasks(); await renderAchievements(); break;
+                    case '#advertisement-creator-content': await renderAdvertisementCreatorUI(); await renderUserAdvertisements(); await displayDepositHistory(); break;
                     case '#withdraw-content': await renderWithdrawUI(); await displayWithdrawalHistory(); break;
                 }
             });
@@ -1110,24 +1304,26 @@
             { id: 6, visits: 10000, cost_usdt: 11, cost_pg: 0 }
         ];
 
-        function renderAdvertisementCreatorUI() {
+        async function renderAdvertisementCreatorUI() {
             const grid = document.getElementById('ad-packages-grid');
             grid.innerHTML = '';
             adPackages.forEach(pkg => {
                 const card = document.createElement('div');
                 card.className = 'ad-package-card';
                 let buttonsHtml = '<div class="ad-package-buttons-container">';
-                if (pkg.id === 1) { 
+                if (pkg.cost_usdt > 0) { 
                     buttonsHtml += `<button class="ad-package-button usdt-btn" data-package-id="${pkg.id}" data-payment-type="usdt">Create with ${pkg.cost_usdt} USDT</button>`;
+                }
+                if (pkg.cost_pg > 0) {
                     buttonsHtml += `<button class="ad-package-button pg-btn" data-package-id="${pkg.id}" data-payment-type="pg">Create with ${pkg.cost_pg} PG</button>`;
-                } else {
-                    buttonsHtml += `<button class="ad-package-button usdt-btn" data-package-id="${pkg.id}" data-payment-type="usdt">Create Task</button>`;
                 }
                 buttonsHtml += '</div>';
 
-                let priceHtml = pkg.id === 1 ? `<span class="price-usdt">$${pkg.cost_usdt}</span> OR <span class="price-pg">${pkg.cost_pg} PG</span>` : `<span class="price-usdt">$${pkg.cost_usdt}</span>`;
+                let prices = [];
+                if(pkg.cost_usdt > 0) prices.push(`<span class="price-usdt">$${pkg.cost_usdt}</span>`);
+                if(pkg.cost_pg > 0) prices.push(`<span class="price-pg">${pkg.cost_pg} PG</span>`);
                 
-                card.innerHTML = `<h4>${pkg.visits.toLocaleString()} Visits</h4><p>${priceHtml}</p>${buttonsHtml}`;
+                card.innerHTML = `<h4>${pkg.visits.toLocaleString()} Visits</h4><p>${prices.join(' OR ')}</p>${buttonsHtml}`;
                 grid.appendChild(card);
             });
         }
@@ -1137,7 +1333,6 @@
             listContainer.innerHTML = '<div class="loader"></div>';
             if (!currentUser?.id) { listContainer.innerHTML = '<p>User data not loaded.</p>'; return; }
             try {
-                // This query requires a composite index on (creatorId, createdAt) in Firestore.
                 const q = query(collection(db, "tasks"), where("creatorId", "==", currentUser.id), orderBy("createdAt", "desc"));
                 const snapshot = await getDocs(q);
                 listContainer.innerHTML = snapshot.empty ? '<p style="text-align:center;">You have not created any advertisements.</p>' : '';
@@ -1155,7 +1350,7 @@
                     listContainer.appendChild(item);
                 });
             } catch(e) {
-                console.error("Error fetching user ads. IMPORTANT: This is likely due to a missing Firestore index. Please create a composite index on `tasks` collection for `creatorId` (Ascending) and `createdAt` (Descending). Error:", e);
+                console.error("Error fetching user ads. Check Firestore indexes. Error:", e);
                 listContainer.innerHTML = '<p style="color:red; text-align:center;">Could not load your ads.</p>';
             }
         }
@@ -1168,6 +1363,10 @@
                 openAdCreatorModal(selectedPackage, paymentType);
             }
         });
+
+        document.getElementById('openDepositModalBtn').addEventListener('click', () => {
+             document.getElementById('depositModalOverlay').classList.add('show');
+        });
         
         document.getElementById('copyDepositAddressBtn').addEventListener('click', () => {
              navigator.clipboard.writeText(document.getElementById('depositAddressInput').value).then(() => {
@@ -1175,22 +1374,77 @@
                 showSuccessModal("Copied!", `Address copied to clipboard.`);
             });
         });
+        
+        document.getElementById('depositRequestForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const button = form.querySelector('button[type="submit"]');
+            button.disabled = true; button.textContent = 'Submitting...';
+
+            const amount = parseFloat(document.getElementById('depositAmount').value);
+            const txId = document.getElementById('depositTxId').value;
+
+            try {
+                const depositData = {
+                    userId: currentUser.id,
+                    telegramUsername: currentUser.telegramUsername,
+                    amount: amount,
+                    txId: txId,
+                    status: 'pending',
+                    createdAt: serverTimestamp()
+                };
+                await addDoc(collection(db, 'deposits'), depositData);
+
+                document.getElementById('depositModalOverlay').classList.remove('show');
+                form.reset();
+                showSuccessModal("Request Submitted!", "Your deposit request has been sent for review. Your balance will be updated upon approval.");
+                await displayDepositHistory();
+
+            } catch (error) {
+                alert("Error submitting request: " + error.message);
+            } finally {
+                button.disabled = false; button.textContent = 'Submit Deposit Request';
+            }
+        });
+
+        async function displayDepositHistory() {
+            const historyContainer = document.getElementById('deposit-history-list');
+            historyContainer.innerHTML = '<div class="loader"></div>';
+            if (!currentUser?.id) return;
+            try {
+                const q = query(collection(db, "deposits"), where("userId", "==", currentUser.id), orderBy("createdAt", "desc"), limit(20));
+                const snapshot = await getDocs(q);
+                historyContainer.innerHTML = snapshot.empty ? '<p style="text-align:center;">No deposit history found.</p>' : '';
+                snapshot.forEach(docSnap => {
+                    const data = docSnap.data();
+                    const item = document.createElement('div');
+                    item.className = `history-item status-${data.status}`;
+                    const amountText = `$${parseFloat(data.amount || 0).toFixed(2)} USDT`;
+                    item.innerHTML = `<div class="history-item-info"><strong>${amountText}</strong><small>${data.createdAt?.toDate().toLocaleDateString() || 'N/A'}</small></div><div class="history-item-status status-${data.status}">${data.status}</div>`;
+                    historyContainer.appendChild(item);
+                });
+            } catch (error) { console.error("Error fetching deposit history:", error); historyContainer.innerHTML = '<p style="color:red;">Error loading history.</p>'; }
+        }
+
 
         function openAdCreatorModal(pkg, paymentType) {
             const userUSDT = currentUser.usdtBalance || 0;
             const userPG = currentUser.pgCoin || 0;
             let costText, hasEnoughFunds = false;
+            let cost = 0;
 
             if(paymentType === 'usdt') {
-                costText = `<span class="price-usdt">$${pkg.cost_usdt}</span>`;
-                if(userUSDT >= pkg.cost_usdt) hasEnoughFunds = true;
+                cost = pkg.cost_usdt;
+                costText = `<span class="price-usdt">$${cost}</span>`;
+                if(userUSDT >= cost) hasEnoughFunds = true;
             } else {
-                costText = `<span class="price-pg">${pkg.cost_pg} PG</span>`;
-                if(userPG >= pkg.cost_pg) hasEnoughFunds = true;
+                cost = pkg.cost_pg;
+                costText = `<span class="price-pg">${cost} PG</span>`;
+                if(userPG >= cost) hasEnoughFunds = true;
             }
 
             if(!hasEnoughFunds) {
-                alert(`Insufficient funds. Please deposit USDT or earn more PG Coin to proceed.`);
+                alert(`Insufficient funds. You need ${cost} ${paymentType.toUpperCase()} but you only have ${paymentType === 'usdt' ? userUSDT.toFixed(2) : userPG.toFixed(3)}.`);
                 return;
             }
 
@@ -1259,9 +1513,7 @@
                 const sessionEndTime = miningStartTime + MINING_SESSION_DURATION_SECONDS * 1000;
                 
                 if (now >= sessionEndTime) {
-                    await updateDoc(userRef, { pgCoin: increment(MINING_SESSION_REWARD_PG), miningStartTime: null });
-                    await fetchAndUpdateCurrentUser();
-                    setMiningUIState('ready');
+                    await stopMiningSession(true); // Grant reward
                 } else {
                     setMiningUIState('mining');
                     miningTimerInterval = setInterval(updateMiningUI, 1000);
@@ -1314,19 +1566,22 @@
         async function stopMiningSession(grantRewardOnStop) {
             clearInterval(miningTimerInterval);
             miningTimerInterval = null;
-            setMiningUIState('ready');
-
-            if (grantRewardOnStop) {
-                const userRef = doc(db, 'users', currentUser.id);
-                await updateDoc(userRef, { pgCoin: increment(MINING_SESSION_REWARD_PG), miningStartTime: null });
-                showSuccessModal("Session Complete!", `You mined ${MINING_SESSION_REWARD_PG} PG Coin.`);
-                await fetchAndUpdateCurrentUser();
+            const userRef = doc(db, 'users', currentUser.id);
+            
+            if (grantRewardOnStop && currentUser.miningStartTime) {
+                const currentPower = getCurrentHashPower();
+                const reward = (currentPower / BASE_HASH_POWER) * MINING_SESSION_REWARD_PG_PER_10HS;
+                await updateDoc(userRef, { pgCoin: increment(reward), miningStartTime: null });
+                showSuccessModal("Session Complete!", `You mined ${reward.toFixed(4)} PG Coin.`);
+            } else {
+                await updateDoc(userRef, { miningStartTime: null });
             }
+            await fetchAndUpdateCurrentUser();
+            setMiningUIState('ready');
         }
         
         startMiningButton.addEventListener('click', startMiningSession);
         
-        // UPDATED: RichAds now initializes globally when the app starts.
         function initializeRichAds() {
             if (richAdsInitialized) return;
             if (typeof TelegramAdsController === 'undefined') {
@@ -1350,7 +1605,7 @@
                 if (!tg.initDataUnsafe?.user) { document.body.innerHTML = `<div class="card" style="margin-top: 50px;"><h3>Error</h3><p>This app can only be launched from Telegram.</p></div>`; return; }
                 tg.ready(); tg.expand();
                 
-                initializeRichAds(); // Initialize RichAds globally on app start.
+                initializeRichAds();
                 
                 await initializeUser(tg.initDataUnsafe.user, tg.initDataUnsafe.start_param);
                 setupWithdrawalTypeSwitcher();
