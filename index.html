@@ -28,7 +28,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;600;700&family=Roboto+Mono:wght@700&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/libs/font-awesome/6.5.1/css/all.min.css">
 
     <style>
         :root {
@@ -66,8 +66,6 @@
         
         .header-icon-btn { position: relative; cursor: pointer; background: none; border: none; color: var(--text-light); padding: 5px; }
         .header-icon-btn svg { width: 26px; height: 26px; }
-        #inbox-notification-dot { position: absolute; top: 2px; right: 2px; width: 8px; height: 8px; background-color: var(--primary-accent-color); border-radius: 50%; border: 2px solid var(--header-bg); display: none; }
-        #inbox-notification-dot.visible { display: block; }
         
         /* VFX Animation for Referral Button */
         .referral-button-vfx {
@@ -157,13 +155,9 @@
         @keyframes icon-pop-in { 0% { transform: scale(0); } 70% { transform: scale(1.1); } 100% { transform: scale(1); } }
         .modal-content h3 { margin: 0 0 10px; font-size: 1.6em; }
         .modal-content p { margin: 0; color: var(--text-muted); font-size: 1em; white-space: pre-wrap;}
-        .inbox-modal, .history-modal { background-color: var(--card-bg); color: var(--text-light); padding: 20px; border-radius: 15px; text-align: left; width: 90%; max-width: 400px; max-height: 80vh; display: flex; flex-direction: column; }
-        .inbox-modal h3, .history-modal h3 { text-align: center; margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
-        #inbox-message-list, #combined-history-list { overflow-y: auto; flex-grow: 1; margin-bottom: 15px; }
-        .inbox-message-item { background-color: #2a3b52; padding: 12px; border-radius: 8px; margin-bottom: 10px; cursor: pointer;}
-        .inbox-message-item p { margin: 0; line-height: 1.5; }
-        .inbox-message-item.read { opacity: 0.6; }
-        .inbox-message-item small { color: var(--text-muted); font-size: 0.8em; }
+        .history-modal { background-color: var(--card-bg); color: var(--text-light); padding: 20px; border-radius: 15px; text-align: left; width: 90%; max-width: 400px; max-height: 80vh; display: flex; flex-direction: column; }
+        .history-modal h3 { text-align: center; margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
+        #combined-history-list { overflow-y: auto; flex-grow: 1; margin-bottom: 15px; }
         
         .sub-card { background-color: #0e1621; padding: 20px; border-radius: 10px; margin-bottom: 25px; }
         .info-text { font-size: 0.9em; color: var(--text-muted); margin-top: 10px; line-height: 1.5; }
@@ -175,15 +169,13 @@
         .task-card-info h4, .achievement-card-info h4 { margin: 0 0 5px; }
         .task-card-info p, .achievement-card-info p { margin: 5px 0 0; }
 
-        /* Profile Stats Grid (re-used in referral) */
-        .profile-stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+        #referral-stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
         .profile-stat-item { background-color: var(--dark-bg); padding: 20px; border-radius: 10px; }
         .profile-stat-item h4 { margin: 0 0 8px; font-size: 1em; color: var(--text-muted); font-weight: 500;}
-        .profile-stat-item p { margin: 0; font-size: 1.5em; font-weight: bold; }
+        .profile-stat-item p { margin: 0; font-size: 1.5em; font-weight: bold; word-break: break-all; }
         .profile-stat-item .usdt-val { color: var(--success-color); }
         .profile-stat-item .pg-val { color: var(--pg-coin-color); }
         .profile-stat-item .ref-val { color: var(--primary-accent-color); }
-        .profile-stat-item .game-val { color: #c874ff; }
 
         #withdraw-type-selector { display: flex; gap: 10px; margin-bottom: 25px; }
         #withdraw-type-selector button { flex: 1; padding: 12px; font-size: 1em; font-weight: 600; border: 2px solid var(--border-color); background-color: transparent; color: var(--text-muted); border-radius: 8px; cursor: pointer; }
@@ -353,10 +345,6 @@
              <button class="header-icon-btn bottom-nav-item referral-button-vfx" data-tab-target="#referral-content" title="Referral Program">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
             </button>
-            <button class="header-icon-btn" id="inbox-container" title="Inbox">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg>
-                <span id="inbox-notification-dot"></span>
-            </button>
         </div>
     </header>
 
@@ -414,23 +402,22 @@
                 <p>Invite friends and earn rewards! For each successful referral, you get <strong>0.4 PG Coin</strong> and a <strong>1.5 H/s mining speed boost</strong> for 30 days!</p>
                 <div class="referral-link-wrapper"><input type="text" id="referralLinkInput" readonly value="Generating link..."><button id="copyReferralLinkBtn" class="form-button">Copy</button></div>
                 
-                <!-- Updated Stats Section -->
-                <div id="referral-stats-grid" class="profile-stats-grid" style="margin-top: 30px; text-align: left;">
+                <div id="referral-stats-grid" style="margin-top: 30px;">
                     <div class="profile-stat-item">
                         <h4>User ID</h4>
-                        <p id="ref-user-id" class="ref-val" style="font-size: 1.1em; word-break: break-all;">Loading...</p>
+                        <p id="referral-userid" style="font-size: 1.1em; color: var(--text-muted); cursor: pointer;">Loading...</p>
                     </div>
                     <div class="profile-stat-item">
                         <h4>Lifetime Referrals</h4>
-                        <p id="ref-lifetime-referrals" class="ref-val">0</p>
+                        <p id="referral-lifetime-referrals" class="ref-val">0</p>
                     </div>
                     <div class="profile-stat-item">
                         <h4>Lifetime PG Earned</h4>
-                        <p id="ref-lifetime-pg" class="pg-val">0.000</p>
+                        <p id="referral-lifetime-pg" class="pg-val">0.000</p>
                     </div>
                     <div class="profile-stat-item">
                         <h4>USDT Balance</h4>
-                        <p id="ref-usdt-balance" class="usdt-val">0.00</p>
+                        <p id="referral-usdt-balance" class="usdt-val">0.00</p>
                     </div>
                 </div>
             </div>
@@ -546,10 +533,6 @@
     </nav>
     
     <div id="successModalOverlay" class="modal-overlay"><div class="modal-content"><div class="success-modal-icon">✓</div><h3 id="successModalTitle">Success!</h3><p id="successModalMessage">Your request has been sent.</p></div></div>
-    
-    <div id="inboxModalOverlay" class="modal-overlay">
-        <div class="inbox-modal"><h3>Inbox</h3><div id="inbox-message-list"><div class="loader"></div></div><button id="closeInboxBtn" class="form-button" style="margin-top: 15px;">Close</button></div>
-    </div>
     
     <!-- New History Modal -->
     <div id="historyModalOverlay" class="modal-overlay">
@@ -727,8 +710,7 @@
                 };
 
                 await updateDoc(referrerRef, { 
-                    pgCoin: increment(REFERRAL_BONUS_PG_COIN),
-                    lifetimePgCoinEarned: increment(REFERRAL_BONUS_PG_COIN), // Also update lifetime earnings
+                    pgCoin: increment(REFERRAL_BONUS_PG_COIN), 
                     referralCount: increment(1),
                     referralBoosts: arrayUnion(newBoost)
                 });
@@ -745,7 +727,7 @@
                     usdtBalance: 0, pgCoin: 0, lifetimePgCoinEarned: 0, referralCount: 0, gameTokens: 0,
                     completedTasks: [], pgCoinAdVisitsToday: 0,
                     lastDailyReset: serverTimestamp(), lastDailyLoginClaim: null,
-                    readMessages: [], withdrawalCount: 0, totalDepositedUSDT: 0, claimedAchievements: [],
+                    withdrawalCount: 0, totalDepositedUSDT: 0, claimedAchievements: [],
                     createdAt: serverTimestamp(), telegramUsername: tgUser.username || 'N/A',
                     miningStartTime: null, referralBoosts: [], isBanned: false, // Default isBanned to false
                 };
@@ -785,7 +767,6 @@
             updateBalanceUI(currentUser.usdtBalance, currentUser.pgCoin);
             updateMiningPowerUI();
             generateReferralLink(currentUser.id);
-            checkForUnreadMessages();
             await initializeMiningState();
         }
 
@@ -1122,8 +1103,7 @@
 
                     t.update(userRef, {
                         claimedAchievements: arrayUnion(achievementId),
-                        pgCoin: increment(achievement.reward),
-                        lifetimePgCoinEarned: increment(achievement.reward) // Also update lifetime earnings
+                        pgCoin: increment(achievement.reward)
                     });
                 });
                 
@@ -1268,10 +1248,10 @@
         
         function renderReferralStats() {
             if (!currentUser) return;
-            document.getElementById('ref-user-id').textContent = currentUser.id;
-            document.getElementById('ref-lifetime-referrals').textContent = currentUser.referralCount || 0;
-            document.getElementById('ref-lifetime-pg').textContent = (currentUser.lifetimePgCoinEarned || 0).toFixed(3);
-            document.getElementById('ref-usdt-balance').textContent = (currentUser.usdtBalance || 0).toFixed(2);
+            document.getElementById('referral-userid').textContent = currentUser.id;
+            document.getElementById('referral-lifetime-referrals').textContent = currentUser.referralCount || 0;
+            document.getElementById('referral-lifetime-pg').textContent = (currentUser.lifetimePgCoinEarned || 0).toFixed(3);
+            document.getElementById('referral-usdt-balance').textContent = (currentUser.usdtBalance || 0).toFixed(2);
         }
         
         const showMonetagAd = () => new Promise((res, rej) => typeof show_9442539 === 'function' ? show_9442539().then(res).catch(rej) : rej('Monetag SDK missing'));
@@ -1281,39 +1261,6 @@
             catch(err) { console.warn("Ad provider failed to show ad:", err); }
         }
         
-        async function checkForUnreadMessages() {
-            if (!currentUser) return;
-            const q = query(collection(db, 'messages'), orderBy('createdAt', 'desc'), limit(20));
-            const snapshot = await getDocs(q);
-            const unread = snapshot.docs.some(doc => !(currentUser.readMessages || []).includes(doc.id));
-            document.getElementById('inbox-notification-dot').classList.toggle('visible', unread);
-        }
-
-        async function openInbox() {
-            const listContainer = document.getElementById('inbox-message-list');
-            document.getElementById('inboxModalOverlay').classList.add('show');
-            listContainer.innerHTML = '<div class="loader"></div>';
-            const q = query(collection(db, 'messages'), orderBy('createdAt', 'desc'), limit(20));
-            const snapshot = await getDocs(q);
-            listContainer.innerHTML = snapshot.empty ? '<p style="text-align:center;">Your inbox is empty.</p>' : '';
-            const messagesToMarkAsRead = [];
-            snapshot.forEach(docSnap => {
-                const message = docSnap.data();
-                const item = document.createElement('div');
-                item.className = 'inbox-message-item';
-                if((currentUser.readMessages || []).includes(docSnap.id)) item.classList.add('read');
-                item.innerHTML = `<p>${message.text}</p><small>${message.createdAt.toDate().toLocaleString()}</small>`;
-                listContainer.appendChild(item);
-                if (!item.classList.contains('read')) messagesToMarkAsRead.push(docSnap.id);
-            });
-            if (messagesToMarkAsRead.length > 0) {
-                await updateDoc(doc(db, 'users', currentUser.id), { readMessages: arrayUnion(...messagesToMarkAsRead) });
-                await fetchAndUpdateCurrentUser();
-                checkForUnreadMessages();
-            }
-        }
-        document.getElementById('inbox-container').addEventListener('click', openInbox);
-        document.getElementById('closeInboxBtn').addEventListener('click', () => document.getElementById('inboxModalOverlay').classList.remove('show'));
         document.getElementById('history-btn').addEventListener('click', showCombinedHistory);
         document.getElementById('closeHistoryBtn').addEventListener('click', () => document.getElementById('historyModalOverlay').classList.remove('show'));
 
@@ -1613,7 +1560,7 @@
             if (grantRewardOnStop && currentUser.miningStartTime) {
                 const currentPower = getCurrentHashPower();
                 const reward = (currentPower / BASE_HASH_POWER) * MINING_SESSION_REWARD_PG_PER_10HS;
-                await updateDoc(userRef, { pgCoin: increment(reward), lifetimePgCoinEarned: increment(reward), miningStartTime: null });
+                await updateDoc(userRef, { pgCoin: increment(reward), miningStartTime: null });
                 showSuccessModal("Session Complete!", `You mined ${reward.toFixed(4)} PG Coin.`);
             } else {
                 await updateDoc(userRef, { miningStartTime: null });
@@ -1657,7 +1604,14 @@
                 }
                 
                 setupWithdrawalTypeSwitcher();
-                
+
+                document.getElementById('referral-userid').addEventListener('click', () => {
+                    if (currentUser?.id) navigator.clipboard.writeText(currentUser.id).then(() => {
+                        if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+                        showSuccessModal("Copied!", `User ID ${currentUser.id} copied to clipboard.`);
+                    });
+                });
+
             } catch (error) {
                 console.error("Initialization failed:", error);
                 document.body.innerHTML = `<div class="card" style="margin-top: 50px;"><h3>Application Error</h3><p>Could not initialize. Please restart.</p><p style="font-size: 0.8em; color: #888;">Error: ${error.message}</p></div>`;
