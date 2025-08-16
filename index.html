@@ -60,6 +60,7 @@
             display: flex; justify-content: space-between; align-items: center; 
             height: 50px; 
         }
+        .header-left { display: flex; align-items: center; gap: 15px; }
         .site-title { font-size: 1.4em; color: var(--primary-accent-color); font-weight: 700; margin: 0; }
         .header-right { display: flex; align-items: center; gap: 10px; }
         
@@ -156,9 +157,9 @@
         @keyframes icon-pop-in { 0% { transform: scale(0); } 70% { transform: scale(1.1); } 100% { transform: scale(1); } }
         .modal-content h3 { margin: 0 0 10px; font-size: 1.6em; }
         .modal-content p { margin: 0; color: var(--text-muted); font-size: 1em; white-space: pre-wrap;}
-        .inbox-modal { background-color: var(--card-bg); color: var(--text-light); padding: 20px; border-radius: 15px; text-align: left; width: 90%; max-width: 400px; max-height: 80vh; display: flex; flex-direction: column; }
-        .inbox-modal h3 { text-align: center; margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
-        #inbox-message-list { overflow-y: auto; flex-grow: 1; margin-bottom: 15px; }
+        .inbox-modal, .history-modal { background-color: var(--card-bg); color: var(--text-light); padding: 20px; border-radius: 15px; text-align: left; width: 90%; max-width: 400px; max-height: 80vh; display: flex; flex-direction: column; }
+        .inbox-modal h3, .history-modal h3 { text-align: center; margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
+        #inbox-message-list, #combined-history-list { overflow-y: auto; flex-grow: 1; margin-bottom: 15px; }
         .inbox-message-item { background-color: #2a3b52; padding: 12px; border-radius: 8px; margin-bottom: 10px; cursor: pointer;}
         .inbox-message-item p { margin: 0; line-height: 1.5; }
         .inbox-message-item.read { opacity: 0.6; }
@@ -214,8 +215,8 @@
         }
         .status-pending { background-color: #ffc107; color: #333; }
         .history-item.status-pending { border-left-color: #ffc107; }
-        .status-completed, .status-approved { background-color: var(--success-color); color: white; }
-        .history-item.status-completed, .history-item.status-approved { border-left-color: var(--success-color); }
+        .status-completed, .status-approved, .status-successful { background-color: var(--success-color); color: white; }
+        .history-item.status-completed, .history-item.status-approved, .history-item.status-successful { border-left-color: var(--success-color); }
         .status-rejected, .status-failed { background-color: #dc3545; color: white; }
         .history-item.status-rejected, .history-item.status-failed { border-left-color: #dc3545; }
 
@@ -343,7 +344,12 @@
 <body>
 
     <header class="main-header">
-        <h1 class="site-title">NEWTUBE</h1>
+        <div class="header-left">
+            <h1 class="site-title">NEWTUBE</h1>
+            <button class="header-icon-btn" id="history-btn" title="History">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+            </button>
+        </div>
         <div class="header-right">
             <div class="balance-display">$: <span id="userUSDTBalanceDisplay">0.00</span></div>
             <div class="balance-display"><span class="pg-label">PG:</span> <span id="userPgCoinDisplay">0.000</span></div>
@@ -433,9 +439,6 @@
                 <p class="info-text">You need a USDT balance to create advertisement tasks. Use the button below to request a deposit.</p>
                 <p class="info-text" style="color: #ffc107;"><strong>Important:</strong> Do not advertise any 18+ or illegal content. Your account will be banned.</p>
                 <button class="form-button" id="openDepositModalBtn">Make a Deposit</button>
-
-                <h4 style="margin-top: 30px; margin-bottom: 15px;">Deposit History</h4>
-                <div id="deposit-history-list" class="history-list-container"></div>
             </div>
 
             <h3 class="sub-section-title">Choose a Package</h3>
@@ -497,8 +500,6 @@
                      </form>
                  </div>
              </div>
-             <h3 class="section-title" style="margin-top: 40px;">Withdrawal History</h3>
-             <div id="withdrawal-history-list" class="history-list-container"></div>
         </section>
 
         <section id="profile-content" class="content-section">
@@ -563,6 +564,11 @@
         <div class="inbox-modal"><h3>Inbox</h3><div id="inbox-message-list"><div class="loader"></div></div><button id="closeInboxBtn" class="form-button" style="margin-top: 15px;">Close</button></div>
     </div>
     
+    <!-- New History Modal -->
+    <div id="historyModalOverlay" class="modal-overlay">
+        <div class="history-modal"><h3>Transaction History</h3><div id="combined-history-list" class="history-list-container"></div><button id="closeHistoryBtn" class="form-button" style="margin-top: 15px;">Close</button></div>
+    </div>
+
     <div id="adCreatorModalOverlay" class="modal-overlay">
         <div class="modal-content">
             <h3 id="adCreatorModalTitle">Create New Task</h3>
@@ -659,6 +665,7 @@
         let videoSectionTimer = null;
         let richAdsInitialized = false;
         let miningTimerInterval = null;
+        let isSubmittingWithdrawal = false; // Prevents withdrawal duplication
 
         const AD_PGCOIN_LIMIT = 15; 
         const AD_PGCOIN_REWARD = 0.03;
@@ -677,6 +684,18 @@
         const VIDEO_SECTION_REWARD_INTERVAL_MS = 2.5 * 60 * 1000;
         const VIDEO_SECTION_REWARD_MIN_PG = 0.0001;
         const VIDEO_SECTION_REWARD_MAX_PG = 0.05;
+
+        // BAN SYSTEM: Function to display ban message
+        function showBanScreen() {
+            document.body.innerHTML = `
+                <div style="display: flex; justify-content: center; align-items: center; height: 100vh; padding: 20px; text-align: center;">
+                    <div class="card">
+                        <h3>Account Banned</h3>
+                        <p style="color: #ffc107;">Your account has been banned due to a violation of our terms of service. Please contact support for assistance.</p>
+                    </div>
+                </div>
+            `;
+        }
 
         async function fetchAndUpdateCurrentUser() {
             if (!currentUser?.id) return;
@@ -740,36 +759,38 @@
                     lastDailyReset: serverTimestamp(), lastDailyLoginClaim: null,
                     readMessages: [], withdrawalCount: 0, totalDepositedUSDT: 0, claimedAchievements: [],
                     createdAt: serverTimestamp(), telegramUsername: tgUser.username || 'N/A',
-                    miningStartTime: null, referralBoosts: [], isSuspended: false,
+                    miningStartTime: null, referralBoosts: [], isBanned: false, // Default isBanned to false
                 };
                 if (referrerCode && referrerCode !== userId) defaultUserData.referredBy = referrerCode;
                 await setDoc(userRef, defaultUserData);
                 if (referrerCode && referrerCode !== userId) await grantReferralBonus(referrerCode);
                 userSnap = await getDoc(userRef);
-            } else {
-                // Ensure all new fields exist for old users
-                const userData = userSnap.data();
-                if (userData.isSuspended) {
-                    document.body.innerHTML = `<div class="card" style="margin-top: 50px;"><h3>Account Suspended</h3><p>Your account has been permanently suspended due to fraudulent activity or violation of our terms of service.</p></div>`;
-                    return; // Stop further execution
-                }
-                const updates = {};
-                if (userData.gameTokens === undefined) updates.gameTokens = 0;
-                if (userData.usdtBalance === undefined) updates.usdtBalance = 0;
-                if (userData.pgCoin === undefined) updates.pgCoin = 0;
-                if (userData.pgCoinAdVisitsToday === undefined) updates.pgCoinAdVisitsToday = 0;
-                if (userData.miningStartTime === undefined) updates.miningStartTime = null;
-                if (userData.referralBoosts === undefined) updates.referralBoosts = [];
-                if (userData.totalDepositedUSDT === undefined) updates.totalDepositedUSDT = 0;
-                if (userData.claimedAchievements === undefined) updates.claimedAchievements = [];
-                if (userData.isSuspended === undefined) updates.isSuspended = false;
-
-
-                if (Object.keys(updates).length > 0) {
-                    await updateDoc(userRef, updates);
-                    userSnap = await getDoc(userRef);
-                }
             }
+
+            // BAN SYSTEM CHECK
+            if (userSnap.data()?.isBanned === true) {
+                showBanScreen();
+                return; // Stop execution if banned
+            }
+            
+            // Ensure all new fields exist for old users
+            const userData = userSnap.data();
+            const updates = {};
+            if (userData.gameTokens === undefined) updates.gameTokens = 0;
+            if (userData.usdtBalance === undefined) updates.usdtBalance = 0;
+            if (userData.pgCoin === undefined) updates.pgCoin = 0;
+            if (userData.pgCoinAdVisitsToday === undefined) updates.pgCoinAdVisitsToday = 0;
+            if (userData.miningStartTime === undefined) updates.miningStartTime = null;
+            if (userData.referralBoosts === undefined) updates.referralBoosts = [];
+            if (userData.totalDepositedUSDT === undefined) updates.totalDepositedUSDT = 0;
+            if (userData.claimedAchievements === undefined) updates.claimedAchievements = [];
+            if (userData.isBanned === undefined) updates.isBanned = false; // Add isBanned field if not present
+
+            if (Object.keys(updates).length > 0) {
+                await updateDoc(userRef, updates);
+                userSnap = await getDoc(userRef);
+            }
+            
             currentUser = { id: userSnap.id, ...userSnap.data() };
             await checkAndResetDailies();
             updateBalanceUI(currentUser.usdtBalance, currentUser.pgCoin);
@@ -1147,6 +1168,9 @@
         document.getElementById('pgWithdrawalForm').addEventListener('submit', (e) => { e.preventDefault(); handleWithdrawal('pg', e.target); });
 
         async function handleWithdrawal(type, form) {
+            if (isSubmittingWithdrawal) return; // Prevent double submission
+            isSubmittingWithdrawal = true;
+            
             const submitButton = form.querySelector('button[type="submit"]');
             submitButton.disabled = true; submitButton.textContent = 'Processing...';
             try {
@@ -1180,27 +1204,76 @@
                 await fetchAndUpdateCurrentUser();
                 form.reset();
                 showSuccessModal("Request Sent!", "Your withdrawal request is pending. Check status in the History tab.");
-                await displayWithdrawalHistory();
             } catch (error) { alert(`Error: ${error.message}`); } 
-            finally { submitButton.disabled = false; submitButton.textContent = `Request ${type.toUpperCase()} Withdrawal`; renderWithdrawUI(); }
+            finally { 
+                isSubmittingWithdrawal = false;
+                submitButton.disabled = false; 
+                submitButton.textContent = `Request ${type.toUpperCase()} Withdrawal`; 
+                renderWithdrawUI(); 
+            }
         }
 
-        async function displayWithdrawalHistory() {
-            const historyContainer = document.getElementById('withdrawal-history-list');
+        async function showCombinedHistory() {
+            const historyContainer = document.getElementById('combined-history-list');
+            const modal = document.getElementById('historyModalOverlay');
+            modal.classList.add('show');
             historyContainer.innerHTML = '<div class="loader"></div>';
+
             try {
-                const q = query(collection(db, "withdrawals"), where("userId", "==", currentUser.id), orderBy("createdAt", "desc"), limit(50));
-                const snapshot = await getDocs(q);
-                historyContainer.innerHTML = snapshot.empty ? '<p style="text-align:center;">No withdrawal history found.</p>' : '';
-                snapshot.forEach(docSnap => {
+                const withdrawalsQuery = query(collection(db, "withdrawals"), where("userId", "==", currentUser.id), orderBy("createdAt", "desc"), limit(25));
+                const depositsQuery = query(collection(db, "deposits"), where("userId", "==", currentUser.id), orderBy("createdAt", "desc"), limit(25));
+                
+                const [withdrawalsSnapshot, depositsSnapshot] = await Promise.all([getDocs(withdrawalsQuery), getDocs(depositsQuery)]);
+                
+                let combinedList = [];
+
+                withdrawalsSnapshot.forEach(docSnap => {
                     const data = docSnap.data();
+                    combinedList.push({ ...data, transactionType: 'withdrawal', timestamp: data.createdAt });
+                });
+
+                depositsSnapshot.forEach(docSnap => {
+                    const data = docSnap.data();
+                    combinedList.push({ ...data, transactionType: 'deposit', timestamp: data.createdAt });
+                });
+
+                combinedList.sort((a, b) => b.timestamp.toMillis() - a.timestamp.toMillis());
+
+                if (combinedList.length === 0) {
+                    historyContainer.innerHTML = '<p style="text-align:center;">No transaction history found.</p>';
+                    return;
+                }
+
+                historyContainer.innerHTML = '';
+                combinedList.forEach(data => {
                     const item = document.createElement('div');
-                    item.className = `history-item status-${data.status}`;
-                    const amountText = data.withdrawType === 'pg' ? `${parseFloat(data.pgAmount || 0).toFixed(3)} PG` : `$${parseFloat(data.usdAmount || 0).toFixed(2)} USDT`;
-                    item.innerHTML = `<div class="history-item-info"><strong>${amountText}</strong><small>${data.method} - ${data.createdAt?.toDate().toLocaleDateString() || 'N/A'}</small></div><div class="history-item-status status-${data.status}">${data.status}</div>`;
+                    let amountText, infoText, statusText = data.status;
+                    
+                    if (data.transactionType === 'withdrawal') {
+                        amountText = data.withdrawType === 'pg' ? `${parseFloat(data.pgAmount || 0).toFixed(3)} PG` : `$${parseFloat(data.usdAmount || 0).toFixed(2)} USDT`;
+                        infoText = `Withdrawal via ${data.method}`;
+                        if(statusText === 'approved') statusText = 'successful'; // Unify status text
+                    } else { // Deposit
+                        amountText = `$${parseFloat(data.amount || 0).toFixed(2)} USDT`;
+                        infoText = 'Deposit';
+                        if(statusText === 'approved') statusText = 'successful'; // Unify status text
+                    }
+                    
+                    item.className = `history-item status-${statusText}`;
+                    item.innerHTML = `
+                        <div class="history-item-info">
+                            <strong>${amountText}</strong>
+                            <small>${infoText} - ${data.timestamp?.toDate().toLocaleDateString() || 'N/A'}</small>
+                        </div>
+                        <div class="history-item-status status-${statusText}">${statusText}</div>
+                    `;
                     historyContainer.appendChild(item);
                 });
-            } catch (error) { console.error("Error fetching withdrawal history:", error); historyContainer.innerHTML = '<p style="color:red;">Error loading history.</p>'; }
+
+            } catch (error) {
+                console.error("Error fetching combined history:", error);
+                historyContainer.innerHTML = '<p style="color:red;">Error loading history.</p>';
+            }
         }
         
         function renderProfile() {
@@ -1259,6 +1332,9 @@
         }
         document.getElementById('inbox-container').addEventListener('click', openInbox);
         document.getElementById('closeInboxBtn').addEventListener('click', () => document.getElementById('inboxModalOverlay').classList.remove('show'));
+        document.getElementById('history-btn').addEventListener('click', showCombinedHistory);
+        document.getElementById('closeHistoryBtn').addEventListener('click', () => document.getElementById('historyModalOverlay').classList.remove('show'));
+
 
         document.querySelectorAll('.bottom-nav-item, .header-icon-btn').forEach(link => {
             if(!link.dataset.tabTarget) return;
@@ -1288,8 +1364,8 @@
                         break;
                     case '#profile-content': renderProfile(); break;
                     case '#task-content': await renderDailyLoginTask(); await fetchTasks(); await renderAchievements(); break;
-                    case '#advertisement-creator-content': await renderAdvertisementCreatorUI(); await renderUserAdvertisements(); await displayDepositHistory(); break;
-                    case '#withdraw-content': await renderWithdrawUI(); await displayWithdrawalHistory(); break;
+                    case '#advertisement-creator-content': await renderAdvertisementCreatorUI(); await renderUserAdvertisements(); break;
+                    case '#withdraw-content': await renderWithdrawUI(); break;
                 }
             });
         });
@@ -1404,34 +1480,12 @@
                 document.getElementById('depositModalOverlay').classList.remove('show');
                 form.reset();
                 showSuccessModal("Request Submitted!", "Your deposit request has been sent for review. Your balance will be updated upon approval.");
-                await displayDepositHistory();
-
             } catch (error) {
                 alert("Error submitting request: " + error.message);
             } finally {
                 button.disabled = false; button.textContent = 'Submit Deposit Request';
             }
         });
-
-        async function displayDepositHistory() {
-            const historyContainer = document.getElementById('deposit-history-list');
-            historyContainer.innerHTML = '<div class="loader"></div>';
-            if (!currentUser?.id) return;
-            try {
-                const q = query(collection(db, "deposits"), where("userId", "==", currentUser.id), orderBy("createdAt", "desc"), limit(20));
-                const snapshot = await getDocs(q);
-                historyContainer.innerHTML = snapshot.empty ? '<p style="text-align:center;">No deposit history found.</p>' : '';
-                snapshot.forEach(docSnap => {
-                    const data = docSnap.data();
-                    const item = document.createElement('div');
-                    item.className = `history-item status-${data.status}`;
-                    const amountText = `$${parseFloat(data.amount || 0).toFixed(2)} USDT`;
-                    item.innerHTML = `<div class="history-item-info"><strong>${amountText}</strong><small>${data.createdAt?.toDate().toLocaleDateString() || 'N/A'}</small></div><div class="history-item-status status-${data.status}">${data.status}</div>`;
-                    historyContainer.appendChild(item);
-                });
-            } catch (error) { console.error("Error fetching deposit history:", error); historyContainer.innerHTML = '<p style="color:red;">Error loading history.</p>'; }
-        }
-
 
         function openAdCreatorModal(pkg, paymentType) {
             const userUSDT = currentUser.usdtBalance || 0;
@@ -1614,6 +1668,12 @@
                 initializeRichAds();
                 
                 await initializeUser(tg.initDataUnsafe.user, tg.initDataUnsafe.start_param);
+
+                // This check is necessary because initializeUser might stop execution if the user is banned
+                if (document.body.innerHTML.includes('Account Banned')) {
+                    return;
+                }
+                
                 setupWithdrawalTypeSwitcher();
                 document.getElementById('profile-userid').addEventListener('click', () => {
                     if (currentUser?.id) navigator.clipboard.writeText(currentUser.id).then(() => {
