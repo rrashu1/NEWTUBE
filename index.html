@@ -28,7 +28,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;600;700&family=Roboto+Mono:wght@700&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <style>
         :root {
@@ -633,9 +633,10 @@
         let player;
         let currentPlayingItem = null;
         let videoSectionTimer = null;
+        let videoRewardCounter = 0; // UPDATE 2: Counter for ads
         let richAdsInitialized = false;
         let miningTimerInterval = null;
-        let isSubmittingWithdrawal = false; // Prevents withdrawal duplication
+        let isSubmittingWithdrawal = false; 
 
         const AD_PGCOIN_LIMIT = 15; 
         const AD_PGCOIN_REWARD = 0.03;
@@ -648,12 +649,13 @@
         // Mining Constants
         const BASE_HASH_POWER = 10;
         const MINING_SESSION_DURATION_SECONDS = 6 * 60 * 60; 
-        const MINING_SESSION_REWARD_PG_PER_10HS = 0.125; // Reward for base hash power
+        const MINING_SESSION_REWARD_PG_PER_10HS = 0.125;
         
-        // Video Section Reward Constants
-        const VIDEO_SECTION_REWARD_INTERVAL_MS = 2.5 * 60 * 1000;
-        const VIDEO_SECTION_REWARD_MIN_PG = 0.0001;
-        const VIDEO_SECTION_REWARD_MAX_PG = 0.05;
+        // UPDATE 2: Video Section Reward Constants Updated
+        const VIDEO_SECTION_REWARD_INTERVAL_MS = 1 * 60 * 1000; // 1 minute
+        const VIDEO_SECTION_REWARD_MIN_USDT = 0.00001;
+        const VIDEO_SECTION_REWARD_MAX_USDT = 0.001;
+        const VIDEO_REWARDS_BEFORE_AD = 5; // Show ad after 5 rewards
 
         // BAN SYSTEM: Function to display ban message
         function showBanScreen() {
@@ -729,7 +731,7 @@
                     lastDailyReset: serverTimestamp(), lastDailyLoginClaim: null,
                     withdrawalCount: 0, totalDepositedUSDT: 0, claimedAchievements: [],
                     createdAt: serverTimestamp(), telegramUsername: tgUser.username || 'N/A',
-                    miningStartTime: null, referralBoosts: [], isBanned: false, // Default isBanned to false
+                    miningStartTime: null, referralBoosts: [], isBanned: false,
                 };
                 if (referrerCode && referrerCode !== userId) defaultUserData.referredBy = referrerCode;
                 await setDoc(userRef, defaultUserData);
@@ -737,13 +739,11 @@
                 userSnap = await getDoc(userRef);
             }
 
-            // BAN SYSTEM CHECK
             if (userSnap.data()?.isBanned === true) {
                 showBanScreen();
-                return; // Stop execution if banned
+                return; 
             }
             
-            // Ensure all new fields exist for old users
             const userData = userSnap.data();
             const updates = {};
             if (userData.gameTokens === undefined) updates.gameTokens = 0;
@@ -755,7 +755,7 @@
             if (userData.referralBoosts === undefined) updates.referralBoosts = [];
             if (userData.totalDepositedUSDT === undefined) updates.totalDepositedUSDT = 0;
             if (userData.claimedAchievements === undefined) updates.claimedAchievements = [];
-            if (userData.isBanned === undefined) updates.isBanned = false; // Add isBanned field if not present
+            if (userData.isBanned === undefined) updates.isBanned = false; 
 
             if (Object.keys(updates).length > 0) {
                 await updateDoc(userRef, updates);
@@ -771,7 +771,7 @@
         }
 
         function updateBalanceUI(usdtBalance, pgCoinBalance) {
-            const usdt = parseFloat(usdtBalance || 0).toFixed(2);
+            const usdt = parseFloat(usdtBalance || 0).toFixed(5); // Increased precision for smaller rewards
             const pgCoin = parseFloat(pgCoinBalance || 0).toFixed(3);
             document.getElementById('userUSDTBalanceDisplay').textContent = usdt;
             document.getElementById('userPgCoinDisplay').textContent = pgCoin;
@@ -791,7 +791,7 @@
 
         function updateMiningPowerUI() {
             const currentPower = getCurrentHashPower();
-            const dailyRate = (currentPower / BASE_HASH_POWER) * (MINING_SESSION_REWARD_PG_PER_10HS * 4); // 4 sessions per day
+            const dailyRate = (currentPower / BASE_HASH_POWER) * (MINING_SESSION_REWARD_PG_PER_10HS * 4);
             document.getElementById('miningHashPower').textContent = `${currentPower.toFixed(1)} H/s`;
             document.getElementById('miningDailyRate').textContent = `${dailyRate.toFixed(3)} PG`;
         }
@@ -812,12 +812,23 @@
                 setTimeout(() => { copyButton.textContent = 'Copy'; }, 2000);
             });
         });
-
+        
+        // UPDATE 2: Modified to handle both PG and USDT rewards
         async function grantReward(rewards) {
-             if (!currentUser || !rewards.pgCoin) return;
+             if (!currentUser) return;
              const userRef = doc(db, 'users', currentUser.id);
-             await updateDoc(userRef, { pgCoin: increment(rewards.pgCoin), lifetimePgCoinEarned: increment(rewards.pgCoin) });
-             await fetchAndUpdateCurrentUser();
+             const updates = {};
+             if (rewards.pgCoin && rewards.pgCoin > 0) {
+                 updates.pgCoin = increment(rewards.pgCoin);
+                 updates.lifetimePgCoinEarned = increment(rewards.pgCoin);
+             }
+             if (rewards.usdt && rewards.usdt > 0) {
+                 updates.usdtBalance = increment(rewards.usdt);
+             }
+             if (Object.keys(updates).length > 0) {
+                 await updateDoc(userRef, updates);
+                 await fetchAndUpdateCurrentUser();
+             }
         }
         
         async function fetchContent() {
@@ -843,7 +854,7 @@
                 item.className = 'movie-item';
                 item.dataset.youtubeId = video.youtubeId;
                 item.dataset.videoId = docSnap.id;
-                item.originalContent = `<div class="thumbnail-container"><img src="${video.thumbnailUrl}" alt="${video.title}" loading="lazy"></div><div class="movie-item-info"><h4>${video.title}</h4><p class="movie-reward">Watch to Earn PG Coin</p></div>`;
+                item.originalContent = `<div class="thumbnail-container"><img src="${video.thumbnailUrl}" alt="${video.title}" loading="lazy"></div><div class="movie-item-info"><h4>${video.title}</h4><p class="movie-reward">Watch to Earn USDT</p></div>`;
                 item.innerHTML = item.originalContent;
                 item.addEventListener('click', handleVideoClick);
                 grid.appendChild(item);
@@ -870,6 +881,7 @@
         function stopVideoSectionActivity() {
             clearInterval(videoSectionTimer);
             videoSectionTimer = null;
+            videoRewardCounter = 0; // UPDATE 2: Reset counter
             if (currentPlayingItem?.originalContent) currentPlayingItem.innerHTML = currentPlayingItem.originalContent;
             if (player) { try { player.destroy(); } catch (e) {} player = null; }
             currentPlayingItem = null;
@@ -926,16 +938,28 @@
             if (!isClaimedToday) document.getElementById('dailyLoginClaimBtn').addEventListener('click', claimDailyLoginBonus);
         }
 
+        // UPDATE 3: Daily Bonus Claim Logic Updated
         async function claimDailyLoginBonus() {
             const button = document.getElementById('dailyLoginClaimBtn');
             if (button) { button.disabled = true; button.textContent = '...'; }
+            
+            // Open TG Channel first
+            tg.openLink('https://t.me/newtube12');
+            
             try {
+                // Then proceed with claiming the reward
                 await grantReward({ pgCoin: DAILY_LOGIN_PG_REWARD });
                 await updateDoc(doc(db, 'users', currentUser.id), { lastDailyLoginClaim: serverTimestamp() });
                 showSuccessModal("Reward Claimed!", `You earned ${DAILY_LOGIN_PG_REWARD} PG for your daily login.`);
                 await fetchAndUpdateCurrentUser();
                 renderDailyLoginTask(); 
-            } catch (error) { alert('Failed to claim daily login bonus.'); if (button) button.disabled = false; }
+            } catch (error) { 
+                alert('Failed to claim daily login bonus.'); 
+                if (button) {
+                    button.disabled = false;
+                    button.textContent = 'Claim';
+                }
+            }
         }
 
         async function fetchTasks() {
@@ -1005,7 +1029,7 @@
                     showSuccessModal("Reward Claimed!", `Reward added to your balance.`);
                     button.textContent = 'Done';
                     await fetchAndUpdateCurrentUser();
-                    await renderAchievements(); // Re-render achievements to check for progress
+                    await renderAchievements();
 
                 } catch (error) {
                     const errorMessages = { "ALREADY_COMPLETED": "You have already completed this task.", "TASK_LIMIT_REACHED": "This task has reached its completion limit."};
@@ -1016,7 +1040,6 @@
             }
         });
         
-        // --- ACHIEVEMENTS ---
         const achievements = [
             { id: 'tasks_10', type: 'tasks', req: 10, reward: 0.2, desc: "Complete 10 tasks" },
             { id: 'tasks_20', type: 'tasks', req: 20, reward: 0.5, desc: "Complete 20 tasks" },
@@ -1083,7 +1106,6 @@
             button.textContent = '...';
 
             try {
-                // Use a transaction to ensure atomicity
                 await runTransaction(db, async (t) => {
                     const userRef = doc(db, 'users', currentUser.id);
                     const userDoc = await t.get(userRef);
@@ -1092,7 +1114,6 @@
                     const userData = userDoc.data();
                     if (userData.claimedAchievements?.includes(achievementId)) throw new Error("Already claimed.");
 
-                    // Verify requirements again on the server-side
                     let requirementMet = false;
                     if (achievement.type === 'tasks' && (userData.completedTasks?.length || 0) >= achievement.req) {
                         requirementMet = true;
@@ -1109,7 +1130,7 @@
                 
                 showSuccessModal("Achievement Unlocked!", `You earned ${achievement.reward} PG Coin.`);
                 await fetchAndUpdateCurrentUser();
-                await renderAchievements(); // Re-render to update the button state
+                await renderAchievements(); 
 
             } catch (error) {
                 alert(`Error: ${error.message}`);
@@ -1130,7 +1151,7 @@
         
         async function renderWithdrawUI() {
             if (!currentUser) return;
-            document.getElementById('withdrawUsdtBalance').textContent = (currentUser.usdtBalance || 0).toFixed(2);
+            document.getElementById('withdrawUsdtBalance').textContent = (currentUser.usdtBalance || 0).toFixed(5);
             document.getElementById('withdrawPgCoinBalance').textContent = (currentUser.pgCoin || 0).toFixed(3);
         }
 
@@ -1138,7 +1159,7 @@
         document.getElementById('pgWithdrawalForm').addEventListener('submit', (e) => { e.preventDefault(); handleWithdrawal('pg', e.target); });
 
         async function handleWithdrawal(type, form) {
-            if (isSubmittingWithdrawal) return; // Prevent double submission
+            if (isSubmittingWithdrawal) return;
             isSubmittingWithdrawal = true;
             
             const submitButton = form.querySelector('button[type="submit"]');
@@ -1222,11 +1243,11 @@
                     if (data.transactionType === 'withdrawal') {
                         amountText = data.withdrawType === 'pg' ? `${parseFloat(data.pgAmount || 0).toFixed(3)} PG` : `$${parseFloat(data.usdAmount || 0).toFixed(2)} USDT`;
                         infoText = `Withdrawal via ${data.method}`;
-                        if(statusText === 'approved') statusText = 'successful'; // Unify status text
-                    } else { // Deposit
+                        if(statusText === 'approved') statusText = 'successful';
+                    } else { 
                         amountText = `$${parseFloat(data.amount || 0).toFixed(2)} USDT`;
                         infoText = 'Deposit';
-                        if(statusText === 'approved') statusText = 'successful'; // Unify status text
+                        if(statusText === 'approved') statusText = 'successful';
                     }
                     
                     item.className = `history-item status-${statusText}`;
@@ -1251,7 +1272,7 @@
             document.getElementById('referral-userid').textContent = currentUser.id;
             document.getElementById('referral-lifetime-referrals').textContent = currentUser.referralCount || 0;
             document.getElementById('referral-lifetime-pg').textContent = (currentUser.lifetimePgCoinEarned || 0).toFixed(3);
-            document.getElementById('referral-usdt-balance').textContent = (currentUser.usdtBalance || 0).toFixed(2);
+            document.getElementById('referral-usdt-balance').textContent = (currentUser.usdtBalance || 0).toFixed(5);
         }
         
         const showMonetagAd = () => new Promise((res, rej) => typeof show_9442539 === 'function' ? show_9442539().then(res).catch(rej) : rej('Monetag SDK missing'));
@@ -1285,10 +1306,17 @@
                     case '#video-content': 
                         await fetchContent(); 
                         if (videoSectionTimer) clearInterval(videoSectionTimer);
+                        // UPDATE 2: New video reward logic
                         videoSectionTimer = setInterval(async () => {
-                            const rewardPgCoin = parseFloat((Math.random() * (VIDEO_SECTION_REWARD_MAX_PG - VIDEO_SECTION_REWARD_MIN_PG) + VIDEO_SECTION_REWARD_MIN_PG).toFixed(4));
-                            await grantReward({ pgCoin: rewardPgCoin });
-                            showSuccessModal("Video Section Reward!", `You earned ${rewardPgCoin} PG Coin for browsing videos!`);
+                            const rewardUsdt = parseFloat((Math.random() * (VIDEO_SECTION_REWARD_MAX_USDT - VIDEO_SECTION_REWARD_MIN_USDT) + VIDEO_SECTION_REWARD_MIN_USDT).toFixed(5));
+                            await grantReward({ usdt: rewardUsdt });
+                            showSuccessModal("Video Section Reward!", `You earned ${rewardUsdt} USDT for browsing videos!`);
+                            
+                            videoRewardCounter++;
+                            if (videoRewardCounter >= VIDEO_REWARDS_BEFORE_AD) {
+                                await showRandomAdForTask();
+                                videoRewardCounter = 0; // Reset counter after showing ad
+                            }
                         }, VIDEO_SECTION_REWARD_INTERVAL_MS);
                         break;
                     case '#referral-content': renderReferralStats(); break;
@@ -1502,7 +1530,7 @@
                 const sessionEndTime = miningStartTime + MINING_SESSION_DURATION_SECONDS * 1000;
                 
                 if (now >= sessionEndTime) {
-                    await stopMiningSession(true); // Grant reward
+                    await stopMiningSession(true); 
                 } else {
                     setMiningUIState('mining');
                     miningTimerInterval = setInterval(updateMiningUI, 1000);
@@ -1598,7 +1626,6 @@
                 
                 await initializeUser(tg.initDataUnsafe.user, tg.initDataUnsafe.start_param);
 
-                // This check is necessary because initializeUser might stop execution if the user is banned
                 if (document.body.innerHTML.includes('Account Banned')) {
                     return;
                 }
