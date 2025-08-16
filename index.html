@@ -1326,13 +1326,33 @@
                 }
             });
         });
-
+        
+        // --- START OF UPDATE ---
         function setupWithdrawalTypeSwitcher() {
-            const usdtBtn = document.getElementById('withdraw-type-usdt'), pgBtn = document.getElementById('withdraw-type-pg');
-            const usdtForm = document.getElementById('usdt-withdraw-form'), pgForm = document.getElementById('pg-withdraw-form');
-            usdtBtn.addEventListener('click', () => { usdtBtn.classList.add('active'); pgBtn.classList.remove('active'); usdtForm.style.display = 'block'; pgForm.style.display = 'none'; });
-            pgBtn.addEventListener('click', () => { pgBtn.classList.add('active'); usdtBtn.classList.remove('active'); pgForm.style.display = 'block'; usdtForm.style.display = 'none'; });
+            const usdtBtn = document.getElementById('withdraw-type-usdt');
+            const pgBtn = document.getElementById('withdraw-type-pg');
+            const usdtForm = document.getElementById('usdt-withdraw-form');
+            const pgForm = document.getElementById('pg-withdraw-form');
+
+            usdtBtn.addEventListener('click', () => {
+                if (!usdtBtn.classList.contains('active')) {
+                    usdtBtn.classList.add('active');
+                    pgBtn.classList.remove('active');
+                    usdtForm.style.display = 'block';
+                    pgForm.style.display = 'none';
+                }
+            });
+            
+            pgBtn.addEventListener('click', () => {
+                if (!pgBtn.classList.contains('active')) {
+                    pgBtn.classList.add('active');
+                    usdtBtn.classList.remove('active');
+                    pgForm.style.display = 'block';
+                    usdtForm.style.display = 'none';
+                }
+            });
         }
+        // --- END OF UPDATE ---
         
         const adPackages = [
             { id: 1, visits: 250, cost_usdt: 0.5, cost_pg: 30 },
