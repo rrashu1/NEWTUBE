@@ -663,13 +663,11 @@
         const MINING_SESSION_DURATION_SECONDS = 6 * 60 * 60; 
         const MINING_SESSION_REWARD_PG_PER_10HS = 0.125;
         
-        // --- UPDATE 1 START ---
-        // Video Section Reward Constants Updated
+        // Video Section Reward Constants
         const VIDEO_SECTION_REWARD_INTERVAL_MS = 1 * 60 * 1000; // 1 minute
         const VIDEO_SECTION_REWARD_MIN_USDT = 0.0000001;
         const VIDEO_SECTION_REWARD_MAX_USDT = 0.0008;
         const VIDEO_REWARDS_BEFORE_AD = 5; // Show ad after 5 rewards
-        // --- UPDATE 1 END ---
 
         // BAN SYSTEM: Function to display ban message
         function showBanScreen() {
@@ -1165,30 +1163,14 @@
             document.getElementById('withdrawPgCoinBalance').textContent = (currentUser.pgCoin || 0).toFixed(3);
         }
         
-        // --- UPDATE 1 START ---
-        
         function checkWithdrawalAvailability() {
             const statusMessageEl = document.getElementById('withdrawal-status-message');
             const formsContainer = document.getElementById('withdrawal-forms-container');
-            const now = new Date();
-            const dayOfMonth = now.getDate();
-
-            const isWithdrawalOpen = (dayOfMonth >= 1 && dayOfMonth <= 2) || (dayOfMonth >= 16 && dayOfMonth <= 17);
-
-            if (isWithdrawalOpen) {
-                statusMessageEl.style.display = 'none';
-                formsContainer.style.display = 'block';
-            } else {
-                let nextDate;
-                if (dayOfMonth < 16) {
-                    nextDate = "16 তারিখ";
-                } else {
-                    nextDate = "পরবর্তী মাসের 1 তারিখ";
-                }
-                statusMessageEl.innerHTML = `উইথড্র এখন বন্ধ আছে।<br>পরবর্তী পেমেন্ট প্রতি মাসের <b>1-2</b> এবং <b>16-17</b> তারিখে করা হবে। আপনার পরবর্তী উইথড্রর তারিখ ${nextDate}।<br>সকল পেমেন্ট প্রুফ আমাদের অফিসিয়াল চ্যানেলে দেখানো হবে।`;
-                statusMessageEl.style.display = 'block';
-                formsContainer.style.display = 'none';
-            }
+            
+            // This function is updated to always allow withdrawals.
+            // The status message is hidden, and the withdrawal forms are shown.
+            statusMessageEl.style.display = 'none';
+            formsContainer.style.display = 'block';
         }
 
 
@@ -1279,8 +1261,6 @@
                 renderWithdrawUI(); 
             }
         }
-        // --- UPDATE 1 END ---
-
 
         async function showCombinedHistory() {
             const historyContainer = document.getElementById('combined-history-list');
@@ -1385,9 +1365,7 @@
                         await fetchContent(); 
                         if (videoSectionTimer) clearInterval(videoSectionTimer);
                         videoSectionTimer = setInterval(async () => {
-                            // --- UPDATE 1 START ---
                             const rewardUsdt = parseFloat((Math.random() * (VIDEO_SECTION_REWARD_MAX_USDT - VIDEO_SECTION_REWARD_MIN_USDT) + VIDEO_SECTION_REWARD_MIN_USDT).toFixed(7));
-                            // --- UPDATE 1 END ---
                             await grantReward({ usdt: rewardUsdt });
                             showSuccessModal("Video Section Reward!", `You earned ${rewardUsdt} USDT for browsing videos!`);
                             
@@ -1401,12 +1379,10 @@
                     case '#referral-content': renderReferralStats(); break;
                     case '#task-content': await renderDailyLoginTask(); await fetchTasks(); await renderAchievements(); break;
                     case '#advertisement-creator-content': await renderAdvertisementCreatorUI(); await renderUserAdvertisements(); break;
-                    // --- UPDATE 1 START ---
                     case '#withdraw-content': 
                         await renderWithdrawUI(); 
                         checkWithdrawalAvailability(); 
                         break;
-                    // --- UPDATE 1 END ---
                 }
             });
         });
