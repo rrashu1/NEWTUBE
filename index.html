@@ -328,6 +328,15 @@
             color: #ffc107;
             height: 20px;
         }
+        #withdrawal-status-message {
+            background-color: var(--dark-bg);
+            border: 1px solid var(--pg-coin-color);
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            text-align: center;
+            line-height: 1.6;
+        }
     </style>
 </head>
 <body>
@@ -452,53 +461,56 @@
         <section id="withdraw-content" class="content-section">
              <div class="card" style="max-width: none;">
                  <h3 class="section-title" style="border: none; margin-bottom: 20px; text-align: center;">Withdraw</h3>
-                 <div id="withdraw-type-selector">
-                     <button id="withdraw-type-usdt" class="active">Withdraw USDT</button>
-                     <button id="withdraw-type-pg">Withdraw PG Coin</button>
-                 </div>
-                 <div id="usdt-withdraw-form">
-                     <p>Your USDT Balance: <strong id="withdrawUsdtBalance">0.00</strong></p>
-                     <form id="usdtWithdrawalForm">
-                         <div class="form-group">
-                            <label for="usdtWithdrawalMethod">Payment Method</label>
-                            <select id="usdtWithdrawalMethod" required>
-                                <option value="Bkash">Bkash (Min: $0.20, Fee: $0.02)</option>
-                                <option value="Binance">Binance ID (Min: $0.50, Fee: $0.05)</option>
-                            </select>
-                         </div>
-                         <div class="form-group">
-                            <label for="usdtAccountDetails">Account Details</label>
-                            <input type="text" id="usdtAccountDetails" placeholder="Your Bkash Number or Binance ID" required>
-                         </div>
-                         <div class="form-group">
-                            <label for="usdtWithdrawalAmount">Amount (USDT)</label>
-                            <input type="number" id="usdtWithdrawalAmount" placeholder="e.g., 1.0" required step="0.01">
-                         </div>
-                         <p class="info-text" style="text-align: center;">1 Dollar = 120 Taka (BDT)</p>
-                         <button type="submit" class="form-button">Request USDT Withdrawal</button>
-                     </form>
-                 </div>
-                 <div id="pg-withdraw-form" style="display: none;">
-                     <p>Your PG Coin Balance: <strong id="withdrawPgCoinBalance">0.000</strong></p>
-                     <form id="pgWithdrawalForm">
-                         <div class="form-group">
-                            <label for="pgWithdrawalMethod">Payment Method</label>
-                            <select id="pgWithdrawalMethod" required>
-                                <option value="Bkash">Bkash (Min: 10 PG)</option>
-                                <option value="Binance">Binance ID (Min: 25 PG)</option>
-                            </select>
-                         </div>
-                         <div class="form-group">
-                            <label for="pgAccountDetails">Account Details</label>
-                            <input type="text" id="pgAccountDetails" placeholder="Your Bkash Number or Binance ID" required>
-                         </div>
-                         <div class="form-group">
-                            <label for="pgWithdrawalAmount">Amount (PG Coin)</label>
-                            <input type="number" id="pgWithdrawalAmount" placeholder="e.g., 10" required step="0.001">
-                         </div>
-                         <p class="info-text" style="text-align: center;">1 Dollar = 120 Taka (BDT)</p>
-                         <button type="submit" class="form-button">Request PG Coin Withdrawal</button>
-                     </form>
+                 <div id="withdrawal-status-message" style="display: none;"></div>
+                 <div id="withdrawal-forms-container">
+                     <div id="withdraw-type-selector">
+                         <button id="withdraw-type-usdt" class="active">Withdraw USDT</button>
+                         <button id="withdraw-type-pg">Withdraw PG Coin</button>
+                     </div>
+                     <div id="usdt-withdraw-form">
+                         <p>Your USDT Balance: <strong id="withdrawUsdtBalance">0.00</strong></p>
+                         <form id="usdtWithdrawalForm">
+                             <div class="form-group">
+                                <label for="usdtWithdrawalMethod">Payment Method</label>
+                                <select id="usdtWithdrawalMethod" required>
+                                    <option value="Bkash">Bkash (Min: $0.20, Fee: $0.03)</option>
+                                    <option value="Binance">Binance ID (Min: $0.50, Fee: $0.05)</option>
+                                </select>
+                             </div>
+                             <div class="form-group">
+                                <label for="usdtAccountDetails">Account Details</label>
+                                <input type="text" id="usdtAccountDetails" placeholder="Your Bkash Number or Binance ID" required>
+                             </div>
+                             <div class="form-group">
+                                <label for="usdtWithdrawalAmount">Amount (USDT)</label>
+                                <input type="number" id="usdtWithdrawalAmount" placeholder="e.g., 0.20" required step="0.01">
+                             </div>
+                             <p class="info-text" style="text-align: center;">1 Dollar = 120 Taka (BDT)</p>
+                             <button type="submit" class="form-button">Request USDT Withdrawal</button>
+                         </form>
+                     </div>
+                     <div id="pg-withdraw-form" style="display: none;">
+                         <p>Your PG Coin Balance: <strong id="withdrawPgCoinBalance">0.000</strong></p>
+                         <form id="pgWithdrawalForm">
+                             <div class="form-group">
+                                <label for="pgWithdrawalMethod">Payment Method</label>
+                                <select id="pgWithdrawalMethod" required>
+                                    <option value="Bkash">Bkash (Min: 10 PG, Fee: 2 PG)</option>
+                                    <option value="Binance">Binance ID (Min: 50 PG, Fee: 5 PG)</option>
+                                </select>
+                             </div>
+                             <div class="form-group">
+                                <label for="pgAccountDetails">Account Details</label>
+                                <input type="text" id="pgAccountDetails" placeholder="Your Bkash Number or Binance ID" required>
+                             </div>
+                             <div class="form-group">
+                                <label for="pgWithdrawalAmount">Amount (PG Coin)</label>
+                                <input type="number" id="pgWithdrawalAmount" placeholder="e.g., 10" required step="0.001">
+                             </div>
+                             <p class="info-text" style="text-align: center;">1 Dollar = 120 Taka (BDT)</p>
+                             <button type="submit" class="form-button">Request PG Coin Withdrawal</button>
+                         </form>
+                     </div>
                  </div>
              </div>
         </section>
@@ -633,7 +645,7 @@
         let player;
         let currentPlayingItem = null;
         let videoSectionTimer = null;
-        let videoRewardCounter = 0; // UPDATE 2: Counter for ads
+        let videoRewardCounter = 0; 
         let richAdsInitialized = false;
         let miningTimerInterval = null;
         let isSubmittingWithdrawal = false; 
@@ -651,11 +663,13 @@
         const MINING_SESSION_DURATION_SECONDS = 6 * 60 * 60; 
         const MINING_SESSION_REWARD_PG_PER_10HS = 0.125;
         
-        // UPDATE 2: Video Section Reward Constants Updated
+        // --- UPDATE 1 START ---
+        // Video Section Reward Constants Updated
         const VIDEO_SECTION_REWARD_INTERVAL_MS = 1 * 60 * 1000; // 1 minute
-        const VIDEO_SECTION_REWARD_MIN_USDT = 0.00001;
-        const VIDEO_SECTION_REWARD_MAX_USDT = 0.001;
+        const VIDEO_SECTION_REWARD_MIN_USDT = 0.0000001;
+        const VIDEO_SECTION_REWARD_MAX_USDT = 0.0008;
         const VIDEO_REWARDS_BEFORE_AD = 5; // Show ad after 5 rewards
+        // --- UPDATE 1 END ---
 
         // BAN SYSTEM: Function to display ban message
         function showBanScreen() {
@@ -771,7 +785,7 @@
         }
 
         function updateBalanceUI(usdtBalance, pgCoinBalance) {
-            const usdt = parseFloat(usdtBalance || 0).toFixed(5); // Increased precision for smaller rewards
+            const usdt = parseFloat(usdtBalance || 0).toFixed(7);
             const pgCoin = parseFloat(pgCoinBalance || 0).toFixed(3);
             document.getElementById('userUSDTBalanceDisplay').textContent = usdt;
             document.getElementById('userPgCoinDisplay').textContent = pgCoin;
@@ -813,7 +827,6 @@
             });
         });
         
-        // UPDATE 2: Modified to handle both PG and USDT rewards
         async function grantReward(rewards) {
              if (!currentUser) return;
              const userRef = doc(db, 'users', currentUser.id);
@@ -881,7 +894,7 @@
         function stopVideoSectionActivity() {
             clearInterval(videoSectionTimer);
             videoSectionTimer = null;
-            videoRewardCounter = 0; // UPDATE 2: Reset counter
+            videoRewardCounter = 0; 
             if (currentPlayingItem?.originalContent) currentPlayingItem.innerHTML = currentPlayingItem.originalContent;
             if (player) { try { player.destroy(); } catch (e) {} player = null; }
             currentPlayingItem = null;
@@ -938,16 +951,13 @@
             if (!isClaimedToday) document.getElementById('dailyLoginClaimBtn').addEventListener('click', claimDailyLoginBonus);
         }
 
-        // UPDATE 3: Daily Bonus Claim Logic Updated
         async function claimDailyLoginBonus() {
             const button = document.getElementById('dailyLoginClaimBtn');
             if (button) { button.disabled = true; button.textContent = '...'; }
             
-            // Open TG Channel first
             tg.openLink('https://t.me/newtube12');
             
             try {
-                // Then proceed with claiming the reward
                 await grantReward({ pgCoin: DAILY_LOGIN_PG_REWARD });
                 await updateDoc(doc(db, 'users', currentUser.id), { lastDailyLoginClaim: serverTimestamp() });
                 showSuccessModal("Reward Claimed!", `You earned ${DAILY_LOGIN_PG_REWARD} PG for your daily login.`);
@@ -1151,9 +1161,36 @@
         
         async function renderWithdrawUI() {
             if (!currentUser) return;
-            document.getElementById('withdrawUsdtBalance').textContent = (currentUser.usdtBalance || 0).toFixed(5);
+            document.getElementById('withdrawUsdtBalance').textContent = (currentUser.usdtBalance || 0).toFixed(7);
             document.getElementById('withdrawPgCoinBalance').textContent = (currentUser.pgCoin || 0).toFixed(3);
         }
+        
+        // --- UPDATE 1 START ---
+        
+        function checkWithdrawalAvailability() {
+            const statusMessageEl = document.getElementById('withdrawal-status-message');
+            const formsContainer = document.getElementById('withdrawal-forms-container');
+            const now = new Date();
+            const dayOfMonth = now.getDate();
+
+            const isWithdrawalOpen = (dayOfMonth >= 1 && dayOfMonth <= 2) || (dayOfMonth >= 16 && dayOfMonth <= 17);
+
+            if (isWithdrawalOpen) {
+                statusMessageEl.style.display = 'none';
+                formsContainer.style.display = 'block';
+            } else {
+                let nextDate;
+                if (dayOfMonth < 16) {
+                    nextDate = "16 তারিখ";
+                } else {
+                    nextDate = "পরবর্তী মাসের 1 তারিখ";
+                }
+                statusMessageEl.innerHTML = `উইথড্র এখন বন্ধ আছে।<br>পরবর্তী পেমেন্ট প্রতি মাসের <b>1-2</b> এবং <b>16-17</b> তারিখে করা হবে। আপনার পরবর্তী উইথড্রর তারিখ ${nextDate}।<br>সকল পেমেন্ট প্রুফ আমাদের অফিসিয়াল চ্যানেলে দেখানো হবে।`;
+                statusMessageEl.style.display = 'block';
+                formsContainer.style.display = 'none';
+            }
+        }
+
 
         document.getElementById('usdtWithdrawalForm').addEventListener('submit', (e) => { e.preventDefault(); handleWithdrawal('usdt', e.target); });
         document.getElementById('pgWithdrawalForm').addEventListener('submit', (e) => { e.preventDefault(); handleWithdrawal('pg', e.target); });
@@ -1164,45 +1201,86 @@
             
             const submitButton = form.querySelector('button[type="submit"]');
             submitButton.disabled = true; submitButton.textContent = 'Processing...';
+            
             try {
                 const method = form.querySelector('select').value;
                 const details = form.querySelector('input[type="text"]').value;
                 const amount = parseFloat(form.querySelector('input[type="number"]').value);
-                let minAmount, balanceField, amountField;
+
+                let minAmount, fee, balanceField, amountField, finalAmountField;
 
                 if (type === 'usdt') {
-                    balanceField = 'usdtBalance'; amountField = 'usdAmount';
-                    minAmount = method === 'Bkash' ? 0.20 : 0.50;
-                } else {
-                    balanceField = 'pgCoin'; amountField = 'pgAmount';
-                    minAmount = method === 'Bkash' ? 10 : 25;
+                    balanceField = 'usdtBalance';
+                    finalAmountField = 'usdAmount'; 
+                    if (method === 'Bkash') {
+                        minAmount = 0.20;
+                        fee = 0.03;
+                    } else { // Binance
+                        minAmount = 0.50;
+                        fee = 0.05;
+                    }
+                } else { // pg
+                    balanceField = 'pgCoin';
+                    finalAmountField = 'pgAmount';
+                    if (method === 'Bkash') {
+                        minAmount = 10;
+                        fee = 2;
+                    } else { // Binance
+                        minAmount = 50;
+                        fee = 5;
+                    }
                 }
 
-                if (isNaN(amount) || amount < minAmount) throw new Error(`Minimum withdrawal is ${minAmount} ${type.toUpperCase()}.`);
-                if (amount > (currentUser[balanceField] || 0)) throw new Error(`Insufficient ${type.toUpperCase()} balance.`);
+                if (isNaN(amount) || amount < minAmount) {
+                    throw new Error(`Minimum withdrawal is ${minAmount} ${type.toUpperCase()}.`);
+                }
+                if (amount > (currentUser[balanceField] || 0)) {
+                    throw new Error(`Insufficient ${type.toUpperCase()} balance.`);
+                }
+
+                const amountToSend = amount - fee;
 
                 await runTransaction(db, async (t) => {
                     const userRef = doc(db, 'users', currentUser.id);
                     const userDoc = await t.get(userRef);
-                    if (!userDoc.exists() || (userDoc.data()[balanceField] || 0) < amount) throw new Error(`Insufficient balance.`);
+                    if (!userDoc.exists() || (userDoc.data()[balanceField] || 0) < amount) {
+                        throw new Error(`Insufficient balance.`);
+                    }
                     
-                    const requestData = { userId: currentUser.id, telegramUsername: currentUser.telegramUsername, method, details, status: 'pending', createdAt: serverTimestamp(), withdrawType: type };
-                    requestData[amountField] = amount;
+                    const requestData = { 
+                        userId: currentUser.id, 
+                        telegramUsername: currentUser.telegramUsername, 
+                        method, 
+                        details, 
+                        status: 'pending', 
+                        createdAt: serverTimestamp(), 
+                        withdrawType: type,
+                        fee: fee,
+                        totalDeducted: amount
+                    };
+                    requestData[finalAmountField] = amountToSend; 
                     
                     t.set(doc(collection(db, 'withdrawals')), requestData);
-                    t.update(userRef, { [balanceField]: increment(-amount), withdrawalCount: increment(1) });
+                    t.update(userRef, { 
+                        [balanceField]: increment(-amount), 
+                        withdrawalCount: increment(1) 
+                    });
                 });
+
                 await fetchAndUpdateCurrentUser();
                 form.reset();
                 showSuccessModal("Request Sent!", "Your withdrawal request is pending. Check status in the History tab.");
-            } catch (error) { alert(`Error: ${error.message}`); } 
-            finally { 
+            } catch (error) { 
+                alert(`Error: ${error.message}`); 
+            } finally { 
                 isSubmittingWithdrawal = false;
                 submitButton.disabled = false; 
                 submitButton.textContent = `Request ${type.toUpperCase()} Withdrawal`; 
                 renderWithdrawUI(); 
             }
         }
+        // --- UPDATE 1 END ---
+
 
         async function showCombinedHistory() {
             const historyContainer = document.getElementById('combined-history-list');
@@ -1272,7 +1350,7 @@
             document.getElementById('referral-userid').textContent = currentUser.id;
             document.getElementById('referral-lifetime-referrals').textContent = currentUser.referralCount || 0;
             document.getElementById('referral-lifetime-pg').textContent = (currentUser.lifetimePgCoinEarned || 0).toFixed(3);
-            document.getElementById('referral-usdt-balance').textContent = (currentUser.usdtBalance || 0).toFixed(5);
+            document.getElementById('referral-usdt-balance').textContent = (currentUser.usdtBalance || 0).toFixed(7);
         }
         
         const showMonetagAd = () => new Promise((res, rej) => typeof show_9442539 === 'function' ? show_9442539().then(res).catch(rej) : rej('Monetag SDK missing'));
@@ -1306,28 +1384,33 @@
                     case '#video-content': 
                         await fetchContent(); 
                         if (videoSectionTimer) clearInterval(videoSectionTimer);
-                        // UPDATE 2: New video reward logic
                         videoSectionTimer = setInterval(async () => {
-                            const rewardUsdt = parseFloat((Math.random() * (VIDEO_SECTION_REWARD_MAX_USDT - VIDEO_SECTION_REWARD_MIN_USDT) + VIDEO_SECTION_REWARD_MIN_USDT).toFixed(5));
+                            // --- UPDATE 1 START ---
+                            const rewardUsdt = parseFloat((Math.random() * (VIDEO_SECTION_REWARD_MAX_USDT - VIDEO_SECTION_REWARD_MIN_USDT) + VIDEO_SECTION_REWARD_MIN_USDT).toFixed(7));
+                            // --- UPDATE 1 END ---
                             await grantReward({ usdt: rewardUsdt });
                             showSuccessModal("Video Section Reward!", `You earned ${rewardUsdt} USDT for browsing videos!`);
                             
                             videoRewardCounter++;
                             if (videoRewardCounter >= VIDEO_REWARDS_BEFORE_AD) {
                                 await showRandomAdForTask();
-                                videoRewardCounter = 0; // Reset counter after showing ad
+                                videoRewardCounter = 0;
                             }
                         }, VIDEO_SECTION_REWARD_INTERVAL_MS);
                         break;
                     case '#referral-content': renderReferralStats(); break;
                     case '#task-content': await renderDailyLoginTask(); await fetchTasks(); await renderAchievements(); break;
                     case '#advertisement-creator-content': await renderAdvertisementCreatorUI(); await renderUserAdvertisements(); break;
-                    case '#withdraw-content': await renderWithdrawUI(); break;
+                    // --- UPDATE 1 START ---
+                    case '#withdraw-content': 
+                        await renderWithdrawUI(); 
+                        checkWithdrawalAvailability(); 
+                        break;
+                    // --- UPDATE 1 END ---
                 }
             });
         });
         
-        // --- START OF UPDATE ---
         function setupWithdrawalTypeSwitcher() {
             const usdtBtn = document.getElementById('withdraw-type-usdt');
             const pgBtn = document.getElementById('withdraw-type-pg');
@@ -1352,7 +1435,6 @@
                 }
             });
         }
-        // --- END OF UPDATE ---
         
         const adPackages = [
             { id: 1, visits: 250, cost_usdt: 0.5, cost_pg: 30 },
