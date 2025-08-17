@@ -461,7 +461,6 @@
         <section id="withdraw-content" class="content-section">
              <div class="card" style="max-width: none;">
                  <h3 class="section-title" style="border: none; margin-bottom: 20px; text-align: center;">Withdraw</h3>
-                 <div id="withdrawal-status-message" style="display: none;"></div>
                  <div id="withdrawal-forms-container">
                      <div id="withdraw-type-selector">
                          <button id="withdraw-type-usdt" class="active">Withdraw USDT</button>
@@ -649,6 +648,7 @@
         let richAdsInitialized = false;
         let miningTimerInterval = null;
         let isSubmittingWithdrawal = false; 
+        let withdrawalUISetup = false; // Flag to ensure withdrawal UI setup runs only once
 
         const AD_PGCOIN_LIMIT = 15; 
         const AD_PGCOIN_REWARD = 0.03;
@@ -1163,17 +1163,6 @@
             document.getElementById('withdrawPgCoinBalance').textContent = (currentUser.pgCoin || 0).toFixed(3);
         }
         
-        function checkWithdrawalAvailability() {
-            const statusMessageEl = document.getElementById('withdrawal-status-message');
-            const formsContainer = document.getElementById('withdrawal-forms-container');
-            
-            // This function is updated to always allow withdrawals.
-            // The status message is hidden, and the withdrawal forms are shown.
-            statusMessageEl.style.display = 'none';
-            formsContainer.style.display = 'block';
-        }
-
-
         document.getElementById('usdtWithdrawalForm').addEventListener('submit', (e) => { e.preventDefault(); handleWithdrawal('usdt', e.target); });
         document.getElementById('pgWithdrawalForm').addEventListener('submit', (e) => { e.preventDefault(); handleWithdrawal('pg', e.target); });
 
@@ -1380,13 +1369,18 @@
                     case '#task-content': await renderDailyLoginTask(); await fetchTasks(); await renderAchievements(); break;
                     case '#advertisement-creator-content': await renderAdvertisementCreatorUI(); await renderUserAdvertisements(); break;
                     case '#withdraw-content': 
-                        await renderWithdrawUI(); 
-                        checkWithdrawalAvailability(); 
+                        await renderWithdrawUI();
+                        // This check ensures the button click handlers are set up only once
+                        if (!withdrawalUISetup) {
+                            setupWithdrawalTypeSwitcher();
+                            withdrawalUISetup = true;
+                        }
                         break;
                 }
             });
         });
         
+        // This function sets up the click events for the USDT and PG Coin withdrawal buttons.
         function setupWithdrawalTypeSwitcher() {
             const usdtBtn = document.getElementById('withdraw-type-usdt');
             const pgBtn = document.getElementById('withdraw-type-pg');
@@ -1705,8 +1699,6 @@
                 if (document.body.innerHTML.includes('Account Banned')) {
                     return;
                 }
-                
-                setupWithdrawalTypeSwitcher();
 
                 document.getElementById('referral-userid').addEventListener('click', () => {
                     if (currentUser?.id) navigator.clipboard.writeText(currentUser.id).then(() => {
