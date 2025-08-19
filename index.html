@@ -6,7 +6,7 @@
     <title>NEWTUBE - Watch & Earn</title>
     <script src="https://telegram.org/js/telegram-web-app.js?56"></script>
     
-    <!-- Adexium Ads SDK (As per your request) -->
+    <!-- Adexium Ads SDK -->
     <script type="text/javascript" src="https://cdn.tgads.space/assets/js/adexium-widget.min.js"></script>
     <script type="text/javascript">
         document.addEventListener('DOMContentLoaded', () => {
@@ -19,11 +19,9 @@
         });
     </script>
     
-    <!-- Other Ad Libraries (Unchanged as requested) -->
+    <!-- Other Ad Libraries -->
     <script src='//libtl.com/sdk.js' data-zone='9442539' data-sdk='show_9442539'></script>
     <script src="https://ad.gigapub.tech/script?id=846"></script>
-    <!-- RichInfo Ads SDK (Global Initialization) -->
-    <script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -69,12 +67,13 @@
         
         /* VFX Animation for Referral Button */
         .referral-button-vfx {
-            animation: referral-glow 2.5s infinite ease-in-out;
+            animation: referral-glow 3s infinite ease-in-out;
             border-radius: 50%;
+            color: var(--success-color); /* Green icon color */
         }
         @keyframes referral-glow {
-            0%, 100% { box-shadow: 0 0 5px rgba(74, 144, 226, 0); }
-            50% { box-shadow: 0 0 15px rgba(74, 144, 226, 0.7), 0 0 20px rgba(74, 144, 226, 0.5); }
+            0%, 100% { box-shadow: 0 0 4px rgba(40, 167, 69, 0); }
+            50% { box-shadow: 0 0 8px rgba(40, 167, 69, 0.6), 0 0 12px rgba(40, 167, 69, 0.4); }
         }
 
         .balance-display { background-color: rgba(0,0,0,0.2); color: var(--text-light); padding: 6px 12px; border-radius: 20px; font-weight: 600; font-size: 0.85em; }
@@ -395,7 +394,6 @@
 
         <section id="video-content" class="content-section">
             <h3 class="section-title">Trending Videos</h3>
-            <div id="richads-banner-container" style="margin-bottom: 20px;"></div>
             <div class="search-container">
                 <input type="search" id="videoSearchInput" placeholder="Search for videos...">
                 <button id="videoSearchBtn">Search</button>
@@ -408,7 +406,17 @@
             <div class="card">
                 <svg class="card-icon" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
                 <h3>Referral Program</h3>
-                <p>Invite friends and earn rewards! For each successful referral, you get <strong>0.4 PG Coin</strong> and a <strong>1.5 H/s mining speed boost</strong> for 30 days!</p>
+                <p style="text-align: left; line-height: 1.8;">
+                    Invite friends and earn lifetime commissions from their earnings! Plus, get a mining speed boost for every referral.
+                    <br><br>
+                    <strong>Your Rewards:</strong><br>
+                    • <strong>1.5 H/s Mining Power Boost</strong> for 30 days.<br>
+                    • <strong>Lifetime Earning Commissions:</strong><br>
+                    &nbsp;&nbsp;&nbsp;- <strong>1st Generation:</strong> 10%<br>
+                    &nbsp;&nbsp;&nbsp;- <strong>2nd Generation:</strong> 6%<br>
+                    &nbsp;&nbsp;&nbsp;- <strong>3rd Generation:</strong> 3%<br>
+                    &nbsp;&nbsp;&nbsp;- <strong>4th Generation:</strong> 2%<br>
+                </p>
                 <div class="referral-link-wrapper"><input type="text" id="referralLinkInput" readonly value="Generating link..."><button id="copyReferralLinkBtn" class="form-button">Copy</button></div>
                 
                 <div id="referral-stats-grid" style="margin-top: 30px;">
@@ -424,9 +432,9 @@
                         <h4>Lifetime PG Earned</h4>
                         <p id="referral-lifetime-pg" class="pg-val">0.000</p>
                     </div>
-                    <div class="profile-stat-item">
-                        <h4>USDT Balance</h4>
-                        <p id="referral-usdt-balance" class="usdt-val">0.00</p>
+                     <div class="profile-stat-item">
+                        <h4>Commission Earned (PG)</h4>
+                        <p id="referral-commission-pg" class="pg-val">0.000</p>
                     </div>
                 </div>
             </div>
@@ -645,14 +653,12 @@
         let currentPlayingItem = null;
         let videoSectionTimer = null;
         let videoRewardCounter = 0; 
-        let richAdsInitialized = false;
         let miningTimerInterval = null;
         let isSubmittingWithdrawal = false; 
-        let withdrawalUISetup = false; // Flag to ensure withdrawal UI setup runs only once
+        let withdrawalUISetup = false;
 
         const AD_PGCOIN_LIMIT = 15; 
         const AD_PGCOIN_REWARD = 0.03;
-        const REFERRAL_BONUS_PG_COIN = 0.4;
         const REFERRAL_MINING_BOOST_HS = 1.5;
         const REFERRAL_MINING_BOOST_DAYS = 30;
         const DAILY_LOGIN_PG_REWARD = 0.02;
@@ -724,7 +730,6 @@
                 };
 
                 await updateDoc(referrerRef, { 
-                    pgCoin: increment(REFERRAL_BONUS_PG_COIN), 
                     referralCount: increment(1),
                     referralBoosts: arrayUnion(newBoost)
                 });
@@ -739,6 +744,7 @@
             if (!userSnap.exists()) {
                 const defaultUserData = {
                     usdtBalance: 0, pgCoin: 0, lifetimePgCoinEarned: 0, referralCount: 0, gameTokens: 0,
+                    lifetimeCommissionPg: 0, lifetimeCommissionUsdt: 0,
                     completedTasks: [], pgCoinAdVisitsToday: 0,
                     lastDailyReset: serverTimestamp(), lastDailyLoginClaim: null,
                     withdrawalCount: 0, totalDepositedUSDT: 0, claimedAchievements: [],
@@ -762,6 +768,8 @@
             if (userData.usdtBalance === undefined) updates.usdtBalance = 0;
             if (userData.pgCoin === undefined) updates.pgCoin = 0;
             if (userData.lifetimePgCoinEarned === undefined) updates.lifetimePgCoinEarned = 0;
+            if (userData.lifetimeCommissionPg === undefined) updates.lifetimeCommissionPg = 0;
+            if (userData.lifetimeCommissionUsdt === undefined) updates.lifetimeCommissionUsdt = 0;
             if (userData.pgCoinAdVisitsToday === undefined) updates.pgCoinAdVisitsToday = 0;
             if (userData.miningStartTime === undefined) updates.miningStartTime = null;
             if (userData.referralBoosts === undefined) updates.referralBoosts = [];
@@ -808,7 +816,6 @@
             document.getElementById('miningDailyRate').textContent = `${dailyRate.toFixed(3)} PG`;
         }
 
-
         function generateReferralLink(userId) {
             const botUsername = "NewTube12_bot";
             const webAppShortName = "newtubecash";
@@ -825,6 +832,32 @@
             });
         });
         
+        async function distributeReferralCommissions(earnedRewards) {
+            // Only proceed if the current user was referred by someone (has a direct referrer)
+            if (!currentUser?.referredBy) return;
+
+            const referrerId = currentUser.referredBy;
+            const commissionRate = 0.10; // 1st Generation commission is 10%
+
+            try {
+                const referrerRef = doc(db, 'users', referrerId);
+                const pgCommission = (earnedRewards.pgCoin || 0) * commissionRate;
+                const usdtCommission = (earnedRewards.usdt || 0) * commissionRate;
+
+                if (pgCommission > 0 || usdtCommission > 0) {
+                    const updates = {
+                        pgCoin: increment(pgCommission),
+                        usdtBalance: increment(usdtCommission),
+                        lifetimeCommissionPg: increment(pgCommission),
+                        lifetimeCommissionUsdt: increment(usdtCommission)
+                    };
+                    await updateDoc(referrerRef, updates);
+                }
+            } catch (error) {
+                console.error(`Error distributing 1st gen commission to ${referrerId}:`, error);
+            }
+        }
+
         async function grantReward(rewards) {
              if (!currentUser) return;
              const userRef = doc(db, 'users', currentUser.id);
@@ -839,6 +872,7 @@
              if (Object.keys(updates).length > 0) {
                  await updateDoc(userRef, updates);
                  await fetchAndUpdateCurrentUser();
+                 await distributeReferralCommissions(rewards);
              }
         }
         
@@ -1319,7 +1353,7 @@
             document.getElementById('referral-userid').textContent = currentUser.id;
             document.getElementById('referral-lifetime-referrals').textContent = currentUser.referralCount || 0;
             document.getElementById('referral-lifetime-pg').textContent = (currentUser.lifetimePgCoinEarned || 0).toFixed(3);
-            document.getElementById('referral-usdt-balance').textContent = (currentUser.usdtBalance || 0).toFixed(7);
+            document.getElementById('referral-commission-pg').textContent = (currentUser.lifetimeCommissionPg || 0).toFixed(3);
         }
         
         const showMonetagAd = () => new Promise((res, rej) => typeof show_9442539 === 'function' ? show_9442539().then(res).catch(rej) : rej('Monetag SDK missing'));
@@ -1370,7 +1404,6 @@
                     case '#advertisement-creator-content': await renderAdvertisementCreatorUI(); await renderUserAdvertisements(); break;
                     case '#withdraw-content': 
                         await renderWithdrawUI();
-                        // This check ensures the button click handlers are set up only once
                         if (!withdrawalUISetup) {
                             setupWithdrawalTypeSwitcher();
                             withdrawalUISetup = true;
@@ -1380,7 +1413,6 @@
             });
         });
         
-        // This function sets up the click events for the USDT and PG Coin withdrawal buttons.
         function setupWithdrawalTypeSwitcher() {
             const usdtBtn = document.getElementById('withdraw-type-usdt');
             const pgBtn = document.getElementById('withdraw-type-pg');
@@ -1658,7 +1690,8 @@
             if (grantRewardOnStop && currentUser.miningStartTime) {
                 const currentPower = getCurrentHashPower();
                 const reward = (currentPower / BASE_HASH_POWER) * MINING_SESSION_REWARD_PG_PER_10HS;
-                await updateDoc(userRef, { pgCoin: increment(reward), miningStartTime: null });
+                await grantReward({pgCoin: reward});
+                await updateDoc(userRef, { miningStartTime: null });
                 showSuccessModal("Session Complete!", `You mined ${reward.toFixed(4)} PG Coin.`);
             } else {
                 await updateDoc(userRef, { miningStartTime: null });
@@ -1668,31 +1701,11 @@
         }
         
         startMiningButton.addEventListener('click', startMiningSession);
-        
-        function initializeRichAds() {
-            if (richAdsInitialized) return;
-            if (typeof TelegramAdsController === 'undefined') {
-                console.error("RichAds SDK (TelegramAdsController) is not available.");
-                return;
-            }
-            try {
-                window.TelegramAdsController = new TelegramAdsController(); 
-                window.TelegramAdsController.initialize({
-                  pubId: "978188",
-                  appId: "3041",
-                }); 
-                richAdsInitialized = true;
-                console.log("RichAds initialized globally.");
-            } 
-            catch (e) { console.error("Failed to initialize RichAds:", e); }
-        }
 
         async function main() {
             try {
                 if (!tg.initDataUnsafe?.user) { document.body.innerHTML = `<div class="card" style="margin-top: 50px;"><h3>Error</h3><p>This app can only be launched from Telegram.</p></div>`; return; }
                 tg.ready(); tg.expand();
-                
-                initializeRichAds();
                 
                 await initializeUser(tg.initDataUnsafe.user, tg.initDataUnsafe.start_param);
 
