@@ -187,33 +187,50 @@
         #withdraw-type-selector button { flex: 1; padding: 12px; font-size: 1em; font-weight: 600; border: 2px solid var(--border-color); background-color: transparent; color: var(--text-muted); border-radius: 8px; cursor: pointer; }
         #withdraw-type-selector button.active { background-color: var(--primary-accent-color); border-color: var(--primary-accent-color); color: var(--text-light); }
         
-        .history-list-container { display: flex; flex-direction: column; gap: 15px; }
+        .history-list-container { display: flex; flex-direction: column; gap: 0; }
+        .history-date-header {
+            padding: 10px 0 5px;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.9em;
+        }
         .history-item {
-            background-color: var(--card-bg);
-            padding: 15px 20px;
-            border-radius: 10px;
+            background-color: transparent;
+            padding: 12px 5px;
+            border-radius: 0;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-left: 5px solid var(--border-color);
-            transition: transform 0.2s ease, border-color 0.3s ease;
+            border-bottom: 1px solid var(--border-color);
         }
-        .history-item:hover { transform: translateX(5px); }
-        .history-item-info strong { font-size: 1.1em; }
-        .history-item-info small { color: var(--text-muted); display: block; margin-top: 5px; }
-        .history-item-status {
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-weight: bold;
-            font-size: 0.85em;
+        .history-list-container .history-item:last-child {
+            border-bottom: none;
+        }
+        .history-item-info strong {
+            font-size: 0.95em;
+            font-weight: 500;
+        }
+        .history-item-info small {
+            color: var(--text-muted);
+            display: block;
+            margin-top: 4px;
+            font-size: 0.8em;
+        }
+        .history-item-details {
+            text-align: right;
+        }
+        .history-item-details strong {
+            font-size: 1em;
+        }
+        .history-item-details small {
+            display: block;
+            margin-top: 4px;
+            font-size: 0.8em;
             text-transform: capitalize;
         }
-        .status-pending { background-color: #ffc107; color: #333; }
-        .history-item.status-pending { border-left-color: #ffc107; }
-        .status-completed, .status-approved, .status-successful { background-color: var(--success-color); color: white; }
-        .history-item.status-completed, .history-item.status-approved, .history-item.status-successful { border-left-color: var(--success-color); }
-        .status-rejected, .status-failed { background-color: #dc3545; color: white; }
-        .history-item.status-rejected, .history-item.status-failed { border-left-color: #dc3545; }
+        .status-text-pending { color: #ffc107; }
+        .status-text-completed, .status-text-approved, .status-text-successful { color: var(--success-color); }
+        .status-text-rejected, .status-text-failed { color: #dc3545; }
 
 
         .ad-package-card { padding: 20px; text-align: center; }
@@ -225,10 +242,6 @@
         .ad-package-button.usdt-btn { background-color: var(--success-color); }
         .ad-package-button.pg-btn { background-color: var(--pg-coin-color); }
         .ad-package-buttons-container { display: flex; flex-direction: column; gap: 10px; }
-
-        .deposit-card { background-color: var(--dark-bg); padding: 20px; border-radius: 10px; margin-bottom: 30px; border: 1px solid var(--border-color); }
-        .deposit-card h4 { margin-top: 0; }
-        .deposit-card .form-button { margin-top: 15px; background-color: var(--success-color); }
         
         .user-ad-item { padding: 15px; display: flex; flex-direction: column; gap: 10px; border: 1px solid var(--border-color); }
         .user-ad-item h4 { font-size: 1em; }
@@ -414,15 +427,12 @@
                 <svg class="card-icon" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
                 <h3>Referral Program</h3>
                 <p style="text-align: left; line-height: 1.8;">
-                    Invite friends and earn lifetime commissions from their earnings! Plus, get a mining speed boost for every referral.
+                    Invite friends and earn PG Coin for up to 3 generations of referrals!
                     <br><br>
                     <strong>Your Rewards:</strong><br>
-                    • <strong>1.5 H/s Mining Power Boost</strong> for 30 days.<br>
-                    • <strong>Lifetime Earning Commissions:</strong><br>
-                    &nbsp;&nbsp;&nbsp;- <strong>1st Generation:</strong> 10%<br>
-                    &nbsp;&nbsp;&nbsp;- <strong>2nd Generation:</strong> 6%<br>
-                    &nbsp;&nbsp;&nbsp;- <strong>3rd Generation:</strong> 3%<br>
-                    &nbsp;&nbsp;&nbsp;- <strong>4th Generation:</strong> 2%<br>
+                    &nbsp;&nbsp;&nbsp;- <strong>1st Generation:</strong> 0.3 PG Coin<br>
+                    &nbsp;&nbsp;&nbsp;- <strong>2nd Generation:</strong> 0.15 PG Coin<br>
+                    &nbsp;&nbsp;&nbsp;- <strong>3rd Generation:</strong> 0.07 PG Coin<br>
                 </p>
                 <div class="referral-link-wrapper"><input type="text" id="referralLinkInput" readonly value="Generating link..."><button id="copyReferralLinkBtn" class="form-button">Copy</button></div>
                 
@@ -459,12 +469,8 @@
         
         <section id="advertisement-creator-content" class="content-section">
             <h3 class="section-title">Create an Advertisement</h3>
-            <div class="deposit-card">
-                <h4>Deposit USDT</h4>
-                <p class="info-text">You need a USDT balance to create advertisement tasks. Use the button below to request a deposit.</p>
-                <p class="info-text" style="color: #ffc107;"><strong>Important:</strong> Do not advertise any 18+ or illegal content. Your account will be banned.</p>
-                <button class="form-button" id="openDepositModalBtn">Make a Deposit</button>
-            </div>
+            <p class="info-text" style="text-align: center; margin-bottom: 20px;">যেকোনো advertisement এবং payment সমস্যা হলে সরাসরি নক দিন: <a href="https://t.me/NEWTUBE12_admin" target="_blank" style="color: var(--primary-accent-color);">@NEWTUBE12_admin</a></p>
+            <p class="info-text" style="color: #ffc107; text-align: center;"><strong>Important:</strong> Do not advertise any 18+ or illegal content. Your account will be banned.</p>
 
             <h3 class="sub-section-title">Choose a Package</h3>
             <div id="ad-packages-grid" class="item-grid" style="grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));"></div>
@@ -553,7 +559,7 @@
             Advertise
         </a>
         <a href="#" class="bottom-nav-item" data-tab-target="#withdraw-content">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M21 8H3V6h18v2zm0 6H3v-2h18v2zM5 18h14v-2H5v2zM3 20h18c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2z"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M21 8H3V6h18v2zm0 6H3v-2h18v2zM5 18h14v-2H5v2zM3 20h18c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2z"/></svg>
             Withdraw
         </a>
     </nav>
@@ -562,7 +568,7 @@
     
     <!-- New History Modal -->
     <div id="historyModalOverlay" class="modal-overlay">
-        <div class="history-modal"><h3>Transaction History</h3><div id="combined-history-list" class="history-list-container"></div><button id="closeHistoryBtn" class="form-button" style="margin-top: 15px;">Close</button></div>
+        <div class="history-modal"><h3>History</h3><div id="combined-history-list" class="history-list-container"></div><button id="closeHistoryBtn" class="form-button" style="margin-top: 15px;">Close</button></div>
     </div>
 
     <div id="adCreatorModalOverlay" class="modal-overlay">
@@ -598,43 +604,6 @@
         </div>
     </div>
 
-    <div id="depositModalOverlay" class="modal-overlay">
-        <div class="modal-content" style="text-align: left;">
-            <h3>Request a Deposit</h3>
-            <div class="sub-card" style="background-color: #2a3b52;">
-                <strong>Terms & Conditions:</strong>
-                <ul style="padding-left: 20px; font-size: 0.9em; color: var(--text-muted);">
-                    <li>Minimum deposit is <strong>0.5 USDT</strong>.</li>
-                    <li>Only send USDT on the <strong>BEP20 (Binance Smart Chain)</strong> network.</li>
-                    <li>Do not promote any adult (18+) or illegal content.</li>
-                    <li>Violation of these terms will result in an immediate account ban without refund.</li>
-                </ul>
-            </div>
-             <div class="form-group">
-                <label>Binance (BEP20) Deposit Address</label>
-                 <!-- <img id="depositQrCode" src="YOUR_QR_CODE_IMAGE_URL_HERE" alt="Deposit QR Code" style="width: 150px; height: 150px; margin: 10px auto; display: block; border-radius: 8px;"> -->
-                <div class="referral-link-wrapper">
-                    <input type="text" id="depositAddressInput" readonly value="0xed5ff44a662b71023b082f5915faa49e3d386a1c">
-                    <button id="copyDepositAddressBtn" class="form-button" style="width: 80px;">Copy</button>
-                </div>
-            </div>
-            <form id="depositRequestForm">
-                <p class="info-text">After sending the payment, fill out the form below and submit your request. It will be reviewed by an admin.</p>
-                <div class="form-group">
-                    <label for="depositAmount">Amount (USDT)</label>
-                    <input type="number" id="depositAmount" placeholder="e.g., 1.5" required step="0.01" min="0.5">
-                </div>
-                <div class="form-group">
-                    <label for="depositTxId">Transaction ID / Hash</label>
-                    <input type="text" id="depositTxId" placeholder="Enter the transaction hash from Binance" required>
-                </div>
-                <button type="submit" class="form-button">Submit Deposit Request</button>
-                <button type="button" class="form-button" style="background-color: #444; margin-top: 10px;" onclick="document.getElementById('depositModalOverlay').classList.remove('show')">Cancel</button>
-            </form>
-        </div>
-    </div>
-
-
     <script src="https://www.youtube.com/iframe_api" async></script>
     
     <script type="module">
@@ -666,8 +635,6 @@
 
         const AD_PGCOIN_LIMIT = 15; 
         const AD_PGCOIN_REWARD = 0.03;
-        const REFERRAL_MINING_BOOST_HS = 1.5;
-        const REFERRAL_MINING_BOOST_DAYS = 30;
         const DAILY_LOGIN_PG_REWARD = 0.02;
         const AD_CREATOR_TASK_REWARD = 0.04; 
 
@@ -724,24 +691,46 @@
             }
         }
 
-        async function grantReferralBonus(referrerId) {
-            if (!referrerId) return;
-            const referrerRef = doc(db, 'users', referrerId);
-            try {
-                const now = new Date();
-                const expiryDate = new Date(now.getTime() + REFERRAL_MINING_BOOST_DAYS * 24 * 60 * 60 * 1000);
-                
-                const newBoost = {
-                    activatedAt: serverTimestamp(),
-                    expiresAt: Timestamp.fromDate(expiryDate)
-                };
+        async function grantMultiLevelReferralRewards(referrerId, newUserId) {
+            const rewards = [0.3, 0.15, 0.07]; // 1st, 2nd, 3rd gen rewards
+            let currentReferrerId = referrerId;
 
-                await updateDoc(referrerRef, { 
-                    referralCount: increment(1),
-                    referralBoosts: arrayUnion(newBoost)
-                });
-            } catch (error) { console.error("Failed to grant referral bonus:", error); }
+            for (let i = 0; i < rewards.length; i++) {
+                if (!currentReferrerId) break;
+
+                try {
+                    const referrerRef = doc(db, 'users', currentReferrerId);
+                    const referrerSnap = await getDoc(referrerRef);
+
+                    if (referrerSnap.exists()) {
+                        const rewardAmount = rewards[i];
+                        await updateDoc(referrerRef, {
+                            pgCoin: increment(rewardAmount),
+                            lifetimeCommissionPg: increment(rewardAmount),
+                            referralCount: increment(i === 0 ? 1 : 0) // Only increment for direct referral
+                        });
+                        
+                        await addDoc(collection(db, 'transactions'), {
+                            userId: currentReferrerId,
+                            type: 'Referral Bonus',
+                            details: `Gen ${i+1} bonus from user ${newUserId}`,
+                            pgAmount: rewardAmount,
+                            status: 'Completed',
+                            createdAt: serverTimestamp()
+                        });
+                        
+                        const referrerData = referrerSnap.data();
+                        currentReferrerId = referrerData.referredBy || null;
+                    } else {
+                        break; 
+                    }
+                } catch (error) {
+                    console.error(`Failed to grant gen ${i+1} referral bonus to ${currentReferrerId}:`, error);
+                    break;
+                }
+            }
         }
+
 
         async function initializeUser(tgUser, referrerCode) {
             const userId = String(tgUser.id);
@@ -750,17 +739,17 @@
 
             if (!userSnap.exists()) {
                 const defaultUserData = {
-                    usdtBalance: 0, pgCoin: 0, lifetimePgCoinEarned: 0, referralCount: 0, gameTokens: 0,
+                    usdtBalance: 0, pgCoin: 0, lifetimePgCoinEarned: 0, referralCount: 0,
                     lifetimeCommissionPg: 0, lifetimeCommissionUsdt: 0,
                     completedTasks: [], pgCoinAdVisitsToday: 0,
                     lastDailyReset: serverTimestamp(), lastDailyLoginClaim: null,
-                    withdrawalCount: 0, totalDepositedUSDT: 0, claimedAchievements: [],
+                    withdrawalCount: 0, claimedAchievements: [],
                     createdAt: serverTimestamp(), telegramUsername: tgUser.username || 'N/A',
-                    miningStartTime: null, referralBoosts: [], isBanned: false,
+                    miningStartTime: null, isBanned: false,
                 };
                 if (referrerCode && referrerCode !== userId) defaultUserData.referredBy = referrerCode;
                 await setDoc(userRef, defaultUserData);
-                if (referrerCode && referrerCode !== userId) await grantReferralBonus(referrerCode);
+                if (referrerCode && referrerCode !== userId) await grantMultiLevelReferralRewards(referrerCode, userId);
                 userSnap = await getDoc(userRef);
             }
 
@@ -771,7 +760,6 @@
             
             const userData = userSnap.data();
             const updates = {};
-            if (userData.gameTokens === undefined) updates.gameTokens = 0;
             if (userData.usdtBalance === undefined) updates.usdtBalance = 0;
             if (userData.pgCoin === undefined) updates.pgCoin = 0;
             if (userData.lifetimePgCoinEarned === undefined) updates.lifetimePgCoinEarned = 0;
@@ -779,8 +767,6 @@
             if (userData.lifetimeCommissionUsdt === undefined) updates.lifetimeCommissionUsdt = 0;
             if (userData.pgCoinAdVisitsToday === undefined) updates.pgCoinAdVisitsToday = 0;
             if (userData.miningStartTime === undefined) updates.miningStartTime = null;
-            if (userData.referralBoosts === undefined) updates.referralBoosts = [];
-            if (userData.totalDepositedUSDT === undefined) updates.totalDepositedUSDT = 0;
             if (userData.claimedAchievements === undefined) updates.claimedAchievements = [];
             if (userData.isBanned === undefined) updates.isBanned = false; 
 
@@ -808,12 +794,7 @@
         }
         
         function getCurrentHashPower() {
-            const now = new Date();
-            let activeBoosts = 0;
-            if (currentUser?.referralBoosts) {
-                activeBoosts = currentUser.referralBoosts.filter(boost => boost.expiresAt.toDate() > now).length;
-            }
-            return BASE_HASH_POWER + (activeBoosts * REFERRAL_MINING_BOOST_HS);
+            return BASE_HASH_POWER;
         }
 
         function updateMiningPowerUI() {
@@ -839,32 +820,6 @@
             });
         });
         
-        async function distributeReferralCommissions(earnedRewards) {
-            // Only proceed if the current user was referred by someone (has a direct referrer)
-            if (!currentUser?.referredBy) return;
-
-            const referrerId = currentUser.referredBy;
-            const commissionRate = 0.10; // 1st Generation commission is 10%
-
-            try {
-                const referrerRef = doc(db, 'users', referrerId);
-                const pgCommission = (earnedRewards.pgCoin || 0) * commissionRate;
-                const usdtCommission = (earnedRewards.usdt || 0) * commissionRate;
-
-                if (pgCommission > 0 || usdtCommission > 0) {
-                    const updates = {
-                        pgCoin: increment(pgCommission),
-                        usdtBalance: increment(usdtCommission),
-                        lifetimeCommissionPg: increment(pgCommission),
-                        lifetimeCommissionUsdt: increment(usdtCommission)
-                    };
-                    await updateDoc(referrerRef, updates);
-                }
-            } catch (error) {
-                console.error(`Error distributing 1st gen commission to ${referrerId}:`, error);
-            }
-        }
-
         async function grantReward(rewards) {
              if (!currentUser) return;
              const userRef = doc(db, 'users', currentUser.id);
@@ -879,7 +834,6 @@
              if (Object.keys(updates).length > 0) {
                  await updateDoc(userRef, updates);
                  await fetchAndUpdateCurrentUser();
-                 await distributeReferralCommissions(rewards);
              }
         }
         
@@ -1096,8 +1050,6 @@
             { id: 'tasks_100', type: 'tasks', req: 100, reward: 3, desc: "Complete 100 tasks" },
             { id: 'tasks_200', type: 'tasks', req: 200, reward: 8, desc: "Complete 200 tasks" },
             { id: 'tasks_500', type: 'tasks', req: 500, reward: 20, desc: "Complete 500 tasks" },
-            { id: 'deposit_0.5', type: 'deposit', req: 0.5, reward: 2, desc: "Make a first deposit of at least $0.50" },
-            { id: 'deposit_1.0', type: 'deposit', req: 1, reward: 6, desc: "Make a first deposit of at least $1.00" },
         ];
         
         async function renderAchievements() {
@@ -1106,7 +1058,6 @@
             if (!currentUser) return;
 
             const completedTasksCount = currentUser.completedTasks?.length || 0;
-            const totalDeposited = currentUser.totalDepositedUSDT || 0;
             const claimed = currentUser.claimedAchievements || [];
 
             achievements.forEach(ach => {
@@ -1116,9 +1067,6 @@
                 if (ach.type === 'tasks') {
                     isComplete = completedTasksCount >= ach.req;
                     progressText = `(${completedTasksCount}/${ach.req})`;
-                } else if (ach.type === 'deposit') {
-                    isComplete = totalDeposited >= ach.req;
-                    progressText = `($${totalDeposited.toFixed(2)}/$${ach.req.toFixed(2)})`;
                 }
                 
                 let buttonHtml;
@@ -1165,8 +1113,6 @@
 
                     let requirementMet = false;
                     if (achievement.type === 'tasks' && (userData.completedTasks?.length || 0) >= achievement.req) {
-                        requirementMet = true;
-                    } else if (achievement.type === 'deposit' && (userData.totalDepositedUSDT || 0) >= achievement.req) {
                         requirementMet = true;
                     }
                     if (!requirementMet) throw new Error("Requirement not met.");
@@ -1300,51 +1246,68 @@
 
             try {
                 const withdrawalsQuery = query(collection(db, "withdrawals"), where("userId", "==", currentUser.id), orderBy("createdAt", "desc"), limit(25));
-                const depositsQuery = query(collection(db, "deposits"), where("userId", "==", currentUser.id), orderBy("createdAt", "desc"), limit(25));
+                const transactionsQuery = query(collection(db, "transactions"), where("userId", "==", currentUser.id), orderBy("createdAt", "desc"), limit(25));
                 
-                const [withdrawalsSnapshot, depositsSnapshot] = await Promise.all([getDocs(withdrawalsQuery), getDocs(depositsQuery)]);
+                const [withdrawalsSnapshot, transactionsSnapshot] = await Promise.all([getDocs(withdrawalsQuery), getDocs(transactionsQuery)]);
                 
                 let combinedList = [];
 
                 withdrawalsSnapshot.forEach(docSnap => {
                     const data = docSnap.data();
-                    combinedList.push({ ...data, transactionType: 'withdrawal', timestamp: data.createdAt });
+                    combinedList.push({ ...data, transactionType: 'Withdrawal', timestamp: data.createdAt });
                 });
 
-                depositsSnapshot.forEach(docSnap => {
+                transactionsSnapshot.forEach(docSnap => {
                     const data = docSnap.data();
-                    combinedList.push({ ...data, transactionType: 'deposit', timestamp: data.createdAt });
+                    combinedList.push({ ...data, transactionType: data.type, timestamp: data.createdAt });
                 });
 
                 combinedList.sort((a, b) => b.timestamp.toMillis() - a.timestamp.toMillis());
 
                 if (combinedList.length === 0) {
-                    historyContainer.innerHTML = '<p style="text-align:center;">No transaction history found.</p>';
+                    historyContainer.innerHTML = '<p style="text-align:center;">No history found.</p>';
                     return;
                 }
 
                 historyContainer.innerHTML = '';
+                let lastDate = null;
+
                 combinedList.forEach(data => {
-                    const item = document.createElement('div');
-                    let amountText, infoText, statusText = data.status;
-                    
-                    if (data.transactionType === 'withdrawal') {
-                        amountText = data.withdrawType === 'pg' ? `${parseFloat(data.pgAmount || 0).toFixed(3)} PG` : `$${parseFloat(data.usdAmount || 0).toFixed(2)} USDT`;
-                        infoText = `Withdrawal via ${data.method}`;
-                        if(statusText === 'approved') statusText = 'successful';
-                    } else { 
-                        amountText = `$${parseFloat(data.amount || 0).toFixed(2)} USDT`;
-                        infoText = 'Deposit';
-                        if(statusText === 'approved') statusText = 'successful';
+                    const date = data.timestamp.toDate();
+                    const formattedDate = date.toLocaleDateString('en-CA'); // YYYY-MM-DD
+                    const formattedTime = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                    if (formattedDate !== lastDate) {
+                        const dateHeader = document.createElement('div');
+                        dateHeader.className = 'history-date-header';
+                        dateHeader.textContent = formattedDate.replace(/-/g, '.');
+                        historyContainer.appendChild(dateHeader);
+                        lastDate = formattedDate;
                     }
-                    
-                    item.className = `history-item status-${statusText}`;
+
+                    const item = document.createElement('div');
+                    let amountText, statusText = data.status, statusClass = data.status;
+
+                    if (data.transactionType === 'Withdrawal') {
+                        amountText = data.withdrawType === 'pg' ? `-${parseFloat(data.totalDeducted || 0).toFixed(3)} PG` : `-$${parseFloat(data.totalDeducted || 0).toFixed(2)}`;
+                        if(statusText === 'approved') statusText = 'successful';
+                    } else if (data.transactionType === 'Mining' || data.transactionType === 'Referral Bonus') {
+                        amountText = `+${parseFloat(data.pgAmount || 0).toFixed(3)} PG`;
+                    } else {
+                        amountText = 'N/A';
+                    }
+                    statusClass = statusText.toLowerCase();
+
+                    item.className = `history-item`;
                     item.innerHTML = `
                         <div class="history-item-info">
-                            <strong>${amountText}</strong>
-                            <small>${infoText} - ${data.timestamp?.toDate().toLocaleDateString() || 'N/A'}</small>
+                            <strong>${data.transactionType}</strong>
+                            <small>${formattedTime}</small>
                         </div>
-                        <div class="history-item-status status-${statusText}">${statusText}</div>
+                        <div class="history-item-details">
+                            <strong>${amountText}</strong>
+                            <small class="status-text-${statusClass}">${statusText}</small>
+                        </div>
                     `;
                     historyContainer.appendChild(item);
                 });
@@ -1512,47 +1475,6 @@
             }
         });
 
-        document.getElementById('openDepositModalBtn').addEventListener('click', () => {
-             document.getElementById('depositModalOverlay').classList.add('show');
-        });
-        
-        document.getElementById('copyDepositAddressBtn').addEventListener('click', () => {
-             navigator.clipboard.writeText(document.getElementById('depositAddressInput').value).then(() => {
-                if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-                showSuccessModal("Copied!", `Address copied to clipboard.`);
-            });
-        });
-        
-        document.getElementById('depositRequestForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const form = e.target;
-            const button = form.querySelector('button[type="submit"]');
-            button.disabled = true; button.textContent = 'Submitting...';
-
-            const amount = parseFloat(document.getElementById('depositAmount').value);
-            const txId = document.getElementById('depositTxId').value;
-
-            try {
-                const depositData = {
-                    userId: currentUser.id,
-                    telegramUsername: currentUser.telegramUsername,
-                    amount: amount,
-                    txId: txId,
-                    status: 'pending',
-                    createdAt: serverTimestamp()
-                };
-                await addDoc(collection(db, 'deposits'), depositData);
-
-                document.getElementById('depositModalOverlay').classList.remove('show');
-                form.reset();
-                showSuccessModal("Request Submitted!", "Your deposit request has been sent for review. Your balance will be updated upon approval.");
-            } catch (error) {
-                alert("Error submitting request: " + error.message);
-            } finally {
-                button.disabled = false; button.textContent = 'Submit Deposit Request';
-            }
-        });
-
         function openAdCreatorModal(pkg, paymentType) {
             const userUSDT = currentUser.usdtBalance || 0;
             const userPG = currentUser.pgCoin || 0;
@@ -1698,6 +1620,15 @@
                 const currentPower = getCurrentHashPower();
                 const reward = (currentPower / BASE_HASH_POWER) * MINING_SESSION_REWARD_PG_PER_10HS;
                 await grantReward({pgCoin: reward});
+
+                await addDoc(collection(db, 'transactions'), {
+                    userId: currentUser.id,
+                    type: 'Mining',
+                    pgAmount: reward,
+                    status: 'Completed',
+                    createdAt: serverTimestamp()
+                });
+
                 await updateDoc(userRef, { miningStartTime: null });
                 showSuccessModal("Session Complete!", `You mined ${reward.toFixed(4)} PG Coin.`);
             } else {
