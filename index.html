@@ -32,14 +32,14 @@
         :root {
             --primary-accent-color: #4A90E2; 
             --primary-accent-hover-color: #357ABD; 
-            --dark-bg: #0e1621;
-            --card-bg: #1c293a;
-            --header-bg: #1c293a;
-            --text-light: #ffffff;
-            --text-muted: #a0b3d1;
-            --border-color: #2a3b52;
+            --dark-bg: #f4f6f9; /* UPDATED: Light Background */
+            --card-bg: #ffffff; /* UPDATED: White Card */
+            --header-bg: #ffffff; /* UPDATED: White Header */
+            --text-light: #212529; /* UPDATED: Dark Text */
+            --text-muted: #6c757d; /* UPDATED: Grey Text */
+            --border-color: #dee2e6; /* UPDATED: Light Border */
             --success-color: #28a745;
-            --disabled-color: #444;
+            --disabled-color: #6c757d;
             --pg-coin-color: #ff9900;
         }
         body { 
@@ -57,25 +57,25 @@
             position: fixed; top: 0; left: 0; right: 0; z-index: 1000; 
             display: flex; justify-content: space-between; align-items: center; 
             height: 50px; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
         .header-left { display: flex; align-items: center; gap: 15px; }
         .site-title { font-size: 1.4em; color: var(--primary-accent-color); font-weight: 700; margin: 0; }
-        .header-right { display: flex; align-items: center; gap: 8px; } /* Reduced gap to pull button in */
+        .header-right { display: flex; align-items: center; gap: 8px; }
         
         .header-icon-btn { position: relative; cursor: pointer; background: none; border: none; color: var(--text-light); padding: 5px; }
         .header-icon-btn svg { width: 26px; height: 26px; }
         
-        /* VFX Animation for Referral Button */
         .referral-button-vfx {
-            background-color: var(--success-color); /* Solid green background */
-            color: var(--text-light); /* White icon */
+            background-color: var(--success-color);
+            color: #ffffff; /* Keep icon white */
             border-radius: 50%;
             width: 36px;
             height: 36px;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 0; /* Override default padding */
+            padding: 0;
             animation: referral-glow 3s infinite ease-in-out;
         }
         @keyframes referral-glow {
@@ -83,7 +83,7 @@
             50% { box-shadow: 0 0 10px rgba(40, 167, 69, 1), 0 0 15px rgba(40, 167, 69, 0.8); }
         }
 
-        .balance-display { background-color: rgba(0,0,0,0.2); color: var(--text-light); padding: 6px 12px; border-radius: 20px; font-weight: 600; font-size: 0.85em; }
+        .balance-display { background-color: rgba(0,0,0,0.05); color: var(--text-light); padding: 6px 12px; border-radius: 20px; font-weight: 600; font-size: 0.85em; }
         .balance-display .pg-label { color: var(--pg-coin-color); }
 
         .bottom-nav {
@@ -103,7 +103,7 @@
             transition: color 0.2s, background-color 0.2s;
         }
         .bottom-nav-item svg { width: 24px; height: 24px; }
-        .bottom-nav-item:hover { color: var(--text-light); }
+        .bottom-nav-item:hover { color: var(--primary-accent-color); }
         .bottom-nav-item.active { color: var(--primary-accent-color); }
 
         .content-section { display: none; padding-top: 25px; } 
@@ -113,15 +113,15 @@
         .section-title { font-size: 1.6em; margin-bottom: 25px; padding-bottom: 10px; color: var(--text-light); border-bottom: 2px solid var(--border-color); font-weight: 600; }
         .sub-section-title { font-size: 1.2em; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-top: 40px; margin-bottom: 20px; font-weight: 500; }
         .search-container { display: flex; gap: 10px; margin-bottom: 20px; }
-        .search-container input { flex-grow: 1; padding: 12px; box-sizing: border-box; border-radius: 8px; border: 1px solid var(--border-color); background-color: #000; color: var(--text-light); font-size: 1em; }
-        .search-container button { padding: 12px 18px; border: none; border-radius: 8px; background-color: var(--primary-accent-color); color: var(--text-light); font-weight: bold; cursor: pointer; }
-        .search-container button#clearSearchBtn { background-color: #444; }
+        .search-container input { flex-grow: 1; padding: 12px; box-sizing: border-box; border-radius: 8px; border: 1px solid var(--border-color); background-color: #fff; color: var(--text-light); font-size: 1em; }
+        .search-container button { padding: 12px 18px; border: none; border-radius: 8px; background-color: var(--primary-accent-color); color: #ffffff; font-weight: bold; cursor: pointer; }
+        .search-container button#clearSearchBtn { background-color: #6c757d; }
         .item-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
         
-        .movie-item, .ad-task-card, .task-card, .ad-package-card, .user-ad-item { background-color: var(--card-bg); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; border: 1px solid var(--border-color); transition: transform 0.2s, box-shadow 0.2s; }
+        .movie-item, .ad-task-card, .task-card, .ad-package-card, .user-ad-item { background-color: var(--card-bg); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; border: 1px solid var(--border-color); transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 8px rgba(0,0,0,0.05); }
         .movie-item { cursor: pointer; } 
-        .movie-item:hover{ transform: scale(1.03); box-shadow: 0 8px 25px rgba(0,0,0,0.3); }
-        .thumbnail-container { width: 100%; aspect-ratio: 16/9; background-color: #333; position: relative; }
+        .movie-item:hover{ transform: scale(1.03); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
+        .thumbnail-container { width: 100%; aspect-ratio: 16/9; background-color: #e9ecef; position: relative; }
         .thumbnail-container img { width: 100%; height: 100%; object-fit: cover; }
         .player-container { width: 100%; aspect-ratio: 16/9; background: #000; }
         .player-container iframe { width: 100%; height: 100%; border: none; }
@@ -132,17 +132,17 @@
         
         .ad-task-card p { margin: 8px 0 15px; color: var(--text-muted); font-weight: bold; }
         .task-reward-pg { color: var(--pg-coin-color); }
-        .ad-task-button { width: 100%; padding: 12px; border: none; border-radius: 0 0 10px 10px; font-weight: bold; cursor: pointer; background-color: var(--primary-accent-color); color: var(--text-light); transition: background-color .2s; margin-top: auto; font-size: 1em;}
-        .task-button, .daily-task-button, .achievement-button { width: auto; flex-shrink: 0; padding: 10px 20px; font-size: 0.9em; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; background-color: var(--primary-accent-color); color: var(--text-light); transition: background-color .2s; margin-top: 0; }
-        .task-button:disabled, .ad-task-button:disabled, .daily-task-button:disabled, .achievement-button:disabled { background-color: var(--disabled-color); cursor: not-allowed; }
+        .ad-task-button { width: 100%; padding: 12px; border: none; border-radius: 0 0 10px 10px; font-weight: bold; cursor: pointer; background-color: var(--primary-accent-color); color: #ffffff; transition: background-color .2s; margin-top: auto; font-size: 1em;}
+        .task-button, .daily-task-button, .achievement-button { width: auto; flex-shrink: 0; padding: 10px 20px; font-size: 0.9em; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; background-color: var(--primary-accent-color); color: #ffffff; transition: background-color .2s; margin-top: 0; }
+        .task-button:disabled, .ad-task-button:disabled, .daily-task-button:disabled, .achievement-button:disabled { background-color: var(--disabled-color); color: #fff; cursor: not-allowed; }
         
         .card { max-width: 500px; margin: 20px auto; background-color: var(--card-bg); padding: 30px; border-radius: 12px; border: 1px solid var(--border-color); text-align: center; }
         .card-icon { width: 50px; height: 50px; margin: 0 auto 15px; color: var(--primary-accent-color); }
         .card h3 { margin-top: 0; font-size: 1.4em; } .card p { color: var(--text-muted); line-height: 1.6; }
         .form-group { margin-bottom: 20px; text-align: left; }
         .form-group label { display: block; margin-bottom: 8px; font-weight: 500; color: var(--text-muted); }
-        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px; box-sizing: border-box; border-radius: 8px; border: 1px solid var(--border-color); background-color: #000; color: var(--text-light); font-size: 1em; }
-        .form-button { width: 100%; padding: 14px; border: none; border-radius: 8px; background-color: var(--primary-accent-color); color: var(--text-light); font-weight: bold; font-size: 1em; cursor: pointer; transition: background-color 0.2s; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px; box-sizing: border-box; border-radius: 8px; border: 1px solid var(--border-color); background-color: #fff; color: var(--text-light); font-size: 1em; }
+        .form-button { width: 100%; padding: 14px; border: none; border-radius: 8px; background-color: var(--primary-accent-color); color: #ffffff; font-weight: bold; font-size: 1em; cursor: pointer; transition: background-color 0.2s; }
         .form-button:hover:not(:disabled) { background-color: var(--primary-accent-hover-color); }
         .form-button:disabled { background-color: var(--disabled-color); cursor: not-allowed; }
         
@@ -153,9 +153,9 @@
         .loader { border: 4px solid var(--border-color); border-top: 4px solid var(--primary-accent-color); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 50px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 2000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
         .modal-overlay.show { display: flex; }
-        .modal-content { background-color: var(--card-bg); color: var(--text-light); padding: 30px 40px; border-radius: 15px; text-align: center; transform: scale(0.9); opacity: 0; animation: modal-pop-in 0.3s forwards; max-width: 90%; width: 450px; }
+        .modal-content { background-color: var(--card-bg); color: var(--text-light); padding: 30px 40px; border-radius: 15px; text-align: center; transform: scale(0.9); opacity: 0; animation: modal-pop-in 0.3s forwards; max-width: 90%; width: 450px; border: 1px solid var(--border-color); }
         @keyframes modal-pop-in { to { transform: scale(1); opacity: 1; } }
         .success-modal-icon { width: 70px; height: 70px; border-radius: 50%; background-color: var(--success-color); display: flex; justify-content: center; align-items: center; font-size: 40px; font-weight: bold; color: white; margin: 0 auto 20px; animation: icon-pop-in 0.5s 0.2s backwards; }
         @keyframes icon-pop-in { 0% { transform: scale(0); } 70% { transform: scale(1.1); } 100% { transform: scale(1); } }
@@ -165,10 +165,10 @@
         .history-modal h3 { text-align: center; margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
         #combined-history-list { overflow-y: auto; flex-grow: 1; margin-bottom: 15px; }
         
-        .sub-card { background-color: #0e1621; padding: 20px; border-radius: 10px; margin-bottom: 25px; }
+        .sub-card { background-color: #e9ecef; padding: 20px; border-radius: 10px; margin-bottom: 25px; }
         .info-text { font-size: 0.9em; color: var(--text-muted); margin-top: 10px; line-height: 1.5; }
         
-        .task-card, .achievement-card, #daily-login-task-container .task-card { background-color: var(--card-bg); border-radius: 8px; display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 15px; transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; border: none; }
+        .task-card, .achievement-card, #daily-login-task-container .task-card { background-color: var(--card-bg); border-radius: 8px; display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 15px; transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; border: 1px solid var(--border-color); }
         .task-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(74, 144, 226, 0.15); }
         #ad-task-list.item-grid, #task-list.item-grid, #achievement-list.item-grid { grid-template-columns: 1fr; gap: 15px; } 
         .task-card-info, .achievement-card-info { padding: 0; flex-grow: 1; text-align: left; }
@@ -176,7 +176,7 @@
         .task-card-info p, .achievement-card-info p { margin: 5px 0 0; }
 
         #referral-stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
-        .profile-stat-item { background-color: var(--dark-bg); padding: 20px; border-radius: 10px; }
+        .profile-stat-item { background-color: var(--dark-bg); padding: 20px; border-radius: 10px; border: 1px solid var(--border-color); }
         .profile-stat-item h4 { margin: 0 0 8px; font-size: 1em; color: var(--text-muted); font-weight: 500;}
         .profile-stat-item p { margin: 0; font-size: 1.5em; font-weight: bold; word-break: break-all; }
         .profile-stat-item .usdt-val { color: var(--success-color); }
@@ -185,52 +185,39 @@
 
         #withdraw-type-selector { display: flex; gap: 10px; margin-bottom: 25px; }
         #withdraw-type-selector button { flex: 1; padding: 12px; font-size: 1em; font-weight: 600; border: 2px solid var(--border-color); background-color: transparent; color: var(--text-muted); border-radius: 8px; cursor: pointer; }
-        #withdraw-type-selector button.active { background-color: var(--primary-accent-color); border-color: var(--primary-accent-color); color: var(--text-light); }
+        #withdraw-type-selector button.active { background-color: var(--primary-accent-color); border-color: var(--primary-accent-color); color: #ffffff; }
         
+        /* UPDATED: New History Styles based on image */
         .history-list-container { display: flex; flex-direction: column; gap: 0; }
         .history-date-header {
-            padding: 10px 0 5px;
+            padding: 15px 5px 5px;
             color: var(--text-muted);
             font-weight: 600;
             font-size: 0.9em;
         }
         .history-item {
-            background-color: transparent;
-            padding: 12px 5px;
-            border-radius: 0;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding: 15px 5px;
             border-bottom: 1px solid var(--border-color);
         }
-        .history-list-container .history-item:last-child {
-            border-bottom: none;
-        }
-        .history-item-info strong {
-            font-size: 0.95em;
+        .history-list-container .history-item:last-child { border-bottom: none; }
+        .history-item-left strong, .history-item-right strong {
+            font-size: 1em;
             font-weight: 500;
+            color: var(--text-light);
         }
-        .history-item-info small {
+        .history-item-left small, .history-item-right small {
+            font-size: 0.85em;
             color: var(--text-muted);
             display: block;
             margin-top: 4px;
-            font-size: 0.8em;
         }
-        .history-item-details {
-            text-align: right;
-        }
-        .history-item-details strong {
-            font-size: 1em;
-        }
-        .history-item-details small {
-            display: block;
-            margin-top: 4px;
-            font-size: 0.8em;
-            text-transform: capitalize;
-        }
-        .status-text-pending { color: #ffc107; }
-        .status-text-completed, .status-text-approved, .status-text-successful { color: var(--success-color); }
-        .status-text-rejected, .status-text-failed { color: #dc3545; }
+        .history-item-right { text-align: right; }
+        .history-item-right .status-success { color: var(--success-color); font-weight: 600; text-transform: capitalize; }
+        .history-item-right .status-pending { color: #ffc107; font-weight: 600; text-transform: capitalize; }
+        .history-item-right .status-failed, .history-item-right .status-rejected { color: #dc3545; font-weight: 600; text-transform: capitalize; }
 
 
         .ad-package-card { padding: 20px; text-align: center; }
@@ -238,85 +225,78 @@
         .ad-package-card p { color: var(--text-light); font-size: 1.1em; font-weight: 600; margin: 15px 0; }
         .ad-package-card .price-pg { color: var(--pg-coin-color); }
         .ad-package-card .price-usdt { color: var(--success-color); }
-        .ad-package-button { width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; color: var(--text-light); transition: background-color .2s; font-size: 1em; margin-top: 10px; }
+        .ad-package-button { width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; color: #ffffff; transition: background-color .2s; font-size: 1em; margin-top: 10px; }
         .ad-package-button.usdt-btn { background-color: var(--success-color); }
         .ad-package-button.pg-btn { background-color: var(--pg-coin-color); }
         .ad-package-buttons-container { display: flex; flex-direction: column; gap: 10px; }
         
-        .user-ad-item { padding: 15px; display: flex; flex-direction: column; gap: 10px; border: 1px solid var(--border-color); }
+        .user-ad-item { padding: 15px; display: flex; flex-direction: column; gap: 10px; }
         .user-ad-item h4 { font-size: 1em; }
         .user-ad-item p { margin: 0; color: var(--text-muted); font-size: 0.9em; word-break: break-all; }
-        .ad-progress-bar { width: 100%; background-color: var(--dark-bg); border-radius: 5px; height: 10px; overflow: hidden; }
+        .ad-progress-bar { width: 100%; background-color: var(--dark-bg); border-radius: 5px; height: 10px; overflow: hidden; border: 1px solid var(--border-color); }
         .ad-progress-bar-inner { height: 100%; background-color: var(--primary-accent-color); border-radius: 5px; width: 0%; transition: width 0.5s; }
         #user-ads-list { display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 25px;}
 
+        /* UPDATED: Mining UI for light theme */
         #home-content .mining-body {
             font-family: 'Roboto Mono', monospace;
             display: flex;
             justify-content: center;
             align-items: center;
-            color: #e0e0e0;
-            background: linear-gradient(-45deg, #0a0218, #0d112e, #0f0a24, #231a4b);
-            background-size: 400% 400%;
-            animation: background-pan 15s ease infinite;
+            color: var(--text-light);
+            background: var(--card-bg);
             padding: 20px 0;
             border-radius: 20px;
-        }
-        @keyframes background-pan {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+            border: 1px solid var(--border-color);
         }
         @keyframes subtle-glow {
-            0%, 100% { text-shadow: 0 0 4px #00aaff, 0 0 8px #00aaff; }
-            50% { text-shadow: 0 0 8px #00aaff, 0 0 12px #00aaff; }
+            0%, 100% { text-shadow: 0 0 4px var(--primary-accent-color), 0 0 8px var(--primary-accent-color); }
+            50% { text-shadow: 0 0 8px var(--primary-accent-color), 0 0 12px var(--primary-accent-color); }
         }
         @keyframes subtle-pulse {
-            0%, 100% { text-shadow: 0 0 5px rgba(255, 255, 255, 0.2); transform: scale(1); }
-            50% { text-shadow: 0 0 10px rgba(255, 255, 255, 0.4); transform: scale(1.02); }
+            0%, 100% { text-shadow: 0 0 5px rgba(0, 0, 0, 0.1); transform: scale(1); }
+            50% { text-shadow: 0 0 10px rgba(0, 0, 0, 0.2); transform: scale(1.02); }
         }
         .mining-container-new {
             width: 90%;
             max-width: 450px;
-            background: rgba(10, 2, 24, 0.6);
-            border: 1px solid rgba(0, 170, 255, 0.3);
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(74, 144, 226, 0.3);
             border-radius: 15px;
             padding: 30px;
-            box-shadow: 0 0 25px rgba(0, 170, 255, 0.2), inset 0 0 10px rgba(0, 170, 255, 0.1);
-            backdrop-filter: blur(10px);
+            box-shadow: 0 0 25px rgba(74, 144, 226, 0.2);
             text-align: center;
         }
         .mining-container-new h1 {
             font-family: 'Orbitron', sans-serif;
-            color: #ffffff;
+            color: var(--primary-accent-color);
             font-size: 2.5rem;
             margin-bottom: 15px;
-            animation: subtle-glow 3s infinite alternate;
         }
         .mining-stats {
             display: flex;
             justify-content: space-around;
             margin-bottom: 30px;
             padding: 10px 0;
-            border-top: 1px solid rgba(0, 170, 255, 0.2);
-            border-bottom: 1px solid rgba(0, 170, 255, 0.2);
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
         }
-        .mining-stat-item { font-size: 0.9rem; }
-        .mining-stat-item span { display: block; font-size: 1.2rem; font-weight: bold; color: #00aaff; }
+        .mining-stat-item { font-size: 0.9rem; color: var(--text-muted); }
+        .mining-stat-item span { display: block; font-size: 1.2rem; font-weight: bold; color: var(--primary-accent-color); }
         .mining-display { margin-bottom: 30px; }
-        .mining-display p { font-size: 1rem; color: #aaa; }
+        .mining-display p { font-size: 1rem; color: var(--text-muted); }
         #balance-container {
             font-family: 'Roboto Mono', monospace;
             font-size: 3rem;
             font-weight: 700;
-            color: #ffffff;
+            color: var(--text-light);
             margin: 10px 0;
             animation: subtle-pulse 2.5s infinite ease-in-out;
             word-wrap: break-word;
             transition: color 0.5s ease;
         }
         #balance-container #balance { font-size: 3rem; }
-        #balance-container span.pg-label { font-size: 1.5rem; color: #00aaff; }
+        #balance-container span.pg-label { font-size: 1.5rem; color: var(--primary-accent-color); }
         .mining-controls #mining-button {
             font-family: 'Orbitron', sans-serif;
             width: 100%;
@@ -336,20 +316,21 @@
             box-shadow: 0 0 25px rgba(0, 170, 255, 0.8);
         }
         .mining-controls #mining-button:disabled {
-            background: #555;
-            color: #999;
+            background: #adb5bd;
+            color: #fff;
             cursor: not-allowed;
             box-shadow: none;
         }
         #status-message {
             margin-top: 20px;
             font-size: 1rem;
-            color: #ffc107;
+            color: var(--text-muted);
             height: 20px;
         }
         #withdrawal-status-message {
-            background-color: var(--dark-bg);
-            border: 1px solid var(--pg-coin-color);
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            color: #856404;
             padding: 15px;
             margin-bottom: 20px;
             border-radius: 8px;
@@ -363,8 +344,12 @@
     <header class="main-header">
         <div class="header-left">
             <h1 class="site-title">NEWTUBE</h1>
+            <!-- UPDATED: History button icon changed to a book -->
             <button class="header-icon-btn" id="history-btn" title="History">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M0 0h24v24H0z" fill="none"/>
+                    <path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
+                </svg>
             </button>
         </div>
         <div class="header-right">
@@ -470,7 +455,7 @@
         <section id="advertisement-creator-content" class="content-section">
             <h3 class="section-title">Create an Advertisement</h3>
             <p class="info-text" style="text-align: center; margin-bottom: 20px;">যেকোনো advertisement এবং payment সমস্যা হলে সরাসরি নক দিন: <a href="https://t.me/NEWTUBE12_admin" target="_blank" style="color: var(--primary-accent-color);">@NEWTUBE12_admin</a></p>
-            <p class="info-text" style="color: #ffc107; text-align: center;"><strong>Important:</strong> Do not advertise any 18+ or illegal content. Your account will be banned.</p>
+            <p class="info-text" style="color: #dc3545; text-align: center;"><strong>Important:</strong> Do not advertise any 18+ or illegal content. Your account will be banned.</p>
 
             <h3 class="sub-section-title">Choose a Package</h3>
             <div id="ad-packages-grid" class="item-grid" style="grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));"></div>
@@ -599,7 +584,7 @@
                 </div>
                 <p id="adCreatorModalSummary" class="info-text" style="margin-bottom: 20px;"></p>
                 <button type="submit" class="form-button">Confirm & Create Task</button>
-                 <button type="button" class="form-button" style="background-color: #444; margin-top: 10px;" onclick="document.getElementById('adCreatorModalOverlay').classList.remove('show')">Cancel</button>
+                 <button type="button" class="form-button" style="background-color: #6c757d; margin-top: 10px;" onclick="document.getElementById('adCreatorModalOverlay').classList.remove('show')">Cancel</button>
             </form>
         </div>
     </div>
@@ -1237,7 +1222,8 @@
                 renderWithdrawUI(); 
             }
         }
-
+        
+        // UPDATED: History function reworked to match new design and logic
         async function showCombinedHistory() {
             const historyContainer = document.getElementById('combined-history-list');
             const modal = document.getElementById('historyModalOverlay');
@@ -1272,41 +1258,63 @@
                 historyContainer.innerHTML = '';
                 let lastDate = null;
 
+                const BDT_PER_USDT = 120;
+                // Estimate BDT per PG from ad packages: 30 PG = 0.5 USDT => 1 PG = (0.5/30) USDT. 
+                // So, 1 PG = (0.5/30) * 120 BDT = 2 BDT.
+                const BDT_PER_PG = 2;
+
                 combinedList.forEach(data => {
                     const date = data.timestamp.toDate();
-                    const formattedDate = date.toLocaleDateString('en-CA'); // YYYY-MM-DD
-                    const formattedTime = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    const formattedDate = date.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/-/g, '.');
+                    const formattedTime = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
 
                     if (formattedDate !== lastDate) {
                         const dateHeader = document.createElement('div');
                         dateHeader.className = 'history-date-header';
-                        dateHeader.textContent = formattedDate.replace(/-/g, '.');
+                        dateHeader.textContent = formattedDate;
                         historyContainer.appendChild(dateHeader);
                         lastDate = formattedDate;
                     }
 
                     const item = document.createElement('div');
-                    let amountText, statusText = data.status, statusClass = data.status;
+                    item.className = 'history-item';
+                    
+                    let title = data.transactionType || 'Transaction';
+                    if (title === 'Mining') title = 'Harvest';
+                    if (title === 'Referral Bonus') title = 'out_invite_reward';
 
+                    let bdtAmount = 0;
+                    let sign = '+';
                     if (data.transactionType === 'Withdrawal') {
-                        amountText = data.withdrawType === 'pg' ? `-${parseFloat(data.totalDeducted || 0).toFixed(3)} PG` : `-$${parseFloat(data.totalDeducted || 0).toFixed(2)}`;
-                        if(statusText === 'approved') statusText = 'successful';
-                    } else if (data.transactionType === 'Mining' || data.transactionType === 'Referral Bonus') {
-                        amountText = `+${parseFloat(data.pgAmount || 0).toFixed(3)} PG`;
-                    } else {
-                        amountText = 'N/A';
+                        sign = '-';
+                        if(data.withdrawType === 'pg') {
+                            bdtAmount = (data.totalDeducted || 0) * BDT_PER_PG;
+                        } else {
+                            bdtAmount = (data.totalDeducted || 0) * BDT_PER_USDT;
+                        }
+                    } else if (data.pgAmount) {
+                        bdtAmount = (data.pgAmount || 0) * BDT_PER_PG;
+                    } else if (data.usdAmount) {
+                        bdtAmount = (data.usdAmount || 0) * BDT_PER_USDT;
                     }
-                    statusClass = statusText.toLowerCase();
+                    
+                    const amountDisplay = `${sign}৳${bdtAmount.toFixed(1)}`;
 
-                    item.className = `history-item`;
+                    let status = data.status || 'Success';
+                    let statusClass = status.toLowerCase();
+                    if(statusClass === 'approved' || statusClass === 'completed' || statusClass === 'successful') {
+                        status = 'Success';
+                        statusClass = 'success';
+                    }
+
                     item.innerHTML = `
-                        <div class="history-item-info">
-                            <strong>${data.transactionType}</strong>
+                        <div class="history-item-left">
+                            <strong>${title}</strong>
                             <small>${formattedTime}</small>
                         </div>
-                        <div class="history-item-details">
-                            <strong>${amountText}</strong>
-                            <small class="status-text-${statusClass}">${statusText}</small>
+                        <div class="history-item-right">
+                            <strong>${amountDisplay}</strong>
+                            <small class="status-${statusClass}">${status}</small>
                         </div>
                     `;
                     historyContainer.appendChild(item);
@@ -1314,7 +1322,7 @@
 
             } catch (error) {
                 console.error("Error fetching combined history:", error);
-                historyContainer.innerHTML = '<p style="color:red;">Error loading history.</p>';
+                historyContainer.innerHTML = '<p style="color:red;text-align:center;">Error loading history. Please try again later.</p>';
             }
         }
         
