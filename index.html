@@ -962,18 +962,17 @@
                 let tasksRendered = 0;
                 snapshot.forEach(docSnap => {
                     const task = docSnap.data();
-                    if (task.creatorId === currentUser.id) return;
-                    
                     const isCompleted = currentUser.completedTasks?.includes(docSnap.id);
+
+                    // Skip task if created by user or if already completed
+                    if (task.creatorId === currentUser.id || isCompleted) return;
+                    
                     const isLimitReached = (task.limit || 0) > 0 && (task.completionCount || 0) >= task.limit;
                     if (isLimitReached) return; 
 
-                    let buttonText = 'Go', buttonDisabled = false, buttonState = 'start';
-                    if (isCompleted) { buttonText = 'Done'; buttonDisabled = true; buttonState = 'done'; }
-
                     const card = document.createElement('div');
                     card.className = 'task-card';
-                    card.innerHTML = `<div class="task-card-info"><h4>${task.title}</h4><p>Reward: <span class="task-reward-pg">${task.rewardPg || 0} PG</span></p></div><button class="task-button" data-task-id="${docSnap.id}" data-task-url="${task.url}" data-reward-pg="${task.rewardPg || 0}" data-state="${buttonState}" ${buttonDisabled ? 'disabled' : ''}>${buttonText}</button>`;
+                    card.innerHTML = `<div class="task-card-info"><h4>${task.title}</h4><p>Reward: <span class="task-reward-pg">${task.rewardPg || 0} PG</span></p></div><button class="task-button" data-task-id="${docSnap.id}" data-task-url="${task.url}" data-reward-pg="${task.rewardPg || 0}" data-state="start">Go</button>`;
                     taskListContainer.appendChild(card);
                     tasksRendered++;
                 });
@@ -993,6 +992,7 @@
             const button = e.target;
             const taskCard = button.closest('.task-card');
             const { taskId, taskUrl, state } = button.dataset;
+
             if (state === 'start') {
                 tg.openLink(taskUrl);
                 button.textContent = 'Claim Reward';
@@ -1016,15 +1016,14 @@
                     
                     await grantReward({ pgCoin: Number(button.dataset.rewardPg) || 0 });
                     showSuccessModal("Reward Claimed!", `Reward added to your balance.`);
-                    button.textContent = 'Done';
                     
-                    setTimeout(() => {
-                        if(taskCard) {
-                            taskCard.style.transition = 'opacity 0.5s ease';
-                            taskCard.style.opacity = '0';
-                            setTimeout(() => taskCard.remove(), 500);
-                        }
-                    }, 60000); // 1 minute
+                    // Remove the task card from the view immediately with a fade-out effect
+                    if (taskCard) {
+                        taskCard.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                        taskCard.style.opacity = '0';
+                        taskCard.style.transform = 'scale(0.95)';
+                        setTimeout(() => taskCard.remove(), 500);
+                    }
 
                     await fetchAndUpdateCurrentUser();
                     await renderAchievements();
@@ -1032,8 +1031,12 @@
                 } catch (error) {
                     const errorMessages = { "ALREADY_COMPLETED": "You have already completed this task.", "TASK_LIMIT_REACHED": "This task has reached its completion limit."};
                     alert(errorMessages[error] || 'Failed to claim reward.');
-                    button.disabled = (error === "ALREADY_COMPLETED" || error === "TASK_LIMIT_REACHED");
-                    button.textContent = button.disabled ? 'Done' : 'Claim Reward';
+                    if (error === "ALREADY_COMPLETED" || error === "TASK_LIMIT_REACHED") {
+                         if (taskCard) taskCard.remove(); // Remove if state is invalid
+                    } else {
+                        button.disabled = false;
+                        button.textContent = 'Claim Reward';
+                    }
                 }
             }
         });
@@ -1233,7 +1236,6 @@
             }
         }
         
-        // UPDATED: History function reworked to match new design and logic
         async function showCombinedHistory() {
             const historyContainer = document.getElementById('combined-history-list');
             const modal = document.getElementById('historyModalOverlay');
@@ -1241,8 +1243,9 @@
             historyContainer.innerHTML = '<div class="loader"></div>';
 
             try {
-                const withdrawalsQuery = query(collection(db, "withdrawals"), where("userId", "==", currentUser.id), orderBy("createdAt", "desc"), limit(25));
-                const transactionsQuery = query(collection(db, "transactions"), where("userId", "==", currentUser.id), orderBy("createdAt", "desc"), limit(25));
+                // Fetch data without ordering to prevent index-related errors
+                const withdrawalsQuery = query(collection(db, "withdrawals"), where("userId", "==", currentUser.id), limit(25));
+                const transactionsQuery = query(collection(db, "transactions"), where("userId", "==", currentUser.id), limit(25));
                 
                 const [withdrawalsSnapshot, transactionsSnapshot] = await Promise.all([getDocs(withdrawalsQuery), getDocs(transactionsQuery)]);
                 
@@ -1258,6 +1261,7 @@
                     combinedList.push({ ...data, transactionType: data.type, timestamp: data.createdAt });
                 });
 
+                // Sort the combined data by timestamp client-side
                 combinedList.sort((a, b) => b.timestamp.toMillis() - a.timestamp.toMillis());
 
                 if (combinedList.length === 0) {
@@ -1269,9 +1273,7 @@
                 let lastDate = null;
 
                 const BDT_PER_USDT = 120;
-                // Estimate BDT per PG from ad packages: 30 PG = 0.5 USDT => 1 PG = (0.5/30) USDT. 
-                // So, 1 PG = (0.5/30) * 120 BDT = 2 BDT.
-                const BDT_PER_PG = 2;
+                const BDT_PER_PG = 2; // Estimated value
 
                 combinedList.forEach(data => {
                     const date = data.timestamp.toDate();
