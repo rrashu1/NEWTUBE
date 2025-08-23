@@ -1243,9 +1243,9 @@
             historyContainer.innerHTML = '<div class="loader"></div>';
 
             try {
-                // Fetch data without ordering to prevent index-related errors
+                // Fetch withdrawals and REFERRAL BONUS transactions
                 const withdrawalsQuery = query(collection(db, "withdrawals"), where("userId", "==", currentUser.id), limit(25));
-                const transactionsQuery = query(collection(db, "transactions"), where("userId", "==", currentUser.id), limit(25));
+                const transactionsQuery = query(collection(db, "transactions"), where("userId", "==", currentUser.id), where("type", "==", "Referral Bonus"), limit(25));
                 
                 const [withdrawalsSnapshot, transactionsSnapshot] = await Promise.all([getDocs(withdrawalsQuery), getDocs(transactionsQuery)]);
                 
@@ -1262,7 +1262,11 @@
                 });
 
                 // Sort the combined data by timestamp client-side
-                combinedList.sort((a, b) => b.timestamp.toMillis() - a.timestamp.toMillis());
+                combinedList.sort((a, b) => {
+                    const timeA = a.timestamp ? a.timestamp.toMillis() : 0;
+                    const timeB = b.timestamp ? b.timestamp.toMillis() : 0;
+                    return timeB - timeA;
+                });
 
                 if (combinedList.length === 0) {
                     historyContainer.innerHTML = '<p style="text-align:center;">No history found.</p>';
@@ -1276,6 +1280,7 @@
                 const BDT_PER_PG = 2; // Estimated value
 
                 combinedList.forEach(data => {
+                    if (!data.timestamp) return; // Skip items without a timestamp
                     const date = data.timestamp.toDate();
                     const formattedDate = date.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/-/g, '.');
                     const formattedTime = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
@@ -1292,7 +1297,6 @@
                     item.className = 'history-item';
                     
                     let title = data.transactionType || 'Transaction';
-                    if (title === 'Mining') title = 'Harvest';
                     if (title === 'Referral Bonus') title = 'out_invite_reward';
 
                     let bdtAmount = 0;
