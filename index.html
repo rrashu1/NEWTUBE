@@ -22,8 +22,6 @@
     <!-- Other Ad Libraries -->
     <script src='//libtl.com/sdk.js' data-zone='9442539' data-sdk='show_9442539'></script>
     <script src="https://ad.gigapub.tech/script?id=846"></script>
-    <!-- RichInfo Ads SDK -->
-    <script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -401,7 +399,6 @@
 
         <section id="video-content" class="content-section">
             <h3 class="section-title">Trending Videos</h3>
-            <div id="richads-banner-container" style="margin-bottom: 20px;"></div>
             <div class="search-container">
                 <input type="search" id="videoSearchInput" placeholder="Search for videos...">
                 <button id="videoSearchBtn">Search</button>
@@ -617,13 +614,13 @@
         let currentPlayingItem = null;
         let videoSectionTimer = null;
         let videoRewardCounter = 0; 
-        let richAdsInitialized = false;
         let miningTimerInterval = null;
         let isSubmittingWithdrawal = false; 
         let withdrawalUISetup = false;
 
         const AD_PGCOIN_LIMIT = 15; 
         const AD_PGCOIN_REWARD = 0.03;
+        const AD_TASK_HASH_REWARD = 0.1;
         const DAILY_LOGIN_PG_REWARD = 0.02;
         const AD_CREATOR_TASK_REWARD = 0.04; 
 
@@ -634,8 +631,8 @@
         
         // Video Section Reward Constants
         const VIDEO_SECTION_REWARD_INTERVAL_MS = 1 * 60 * 1000; // 1 minute
-        const VIDEO_SECTION_REWARD_MIN_USDT = 0.0000001;
-        const VIDEO_SECTION_REWARD_MAX_USDT = 0.0008;
+        const VIDEO_SECTION_REWARD_MIN_USDT = 0.000001;
+        const VIDEO_SECTION_REWARD_MAX_USDT = 0.0003;
         const VIDEO_REWARDS_BEFORE_AD = 5; // Show ad after 5 rewards
 
         // BAN SYSTEM: Function to display ban message
@@ -735,6 +732,7 @@
                     withdrawalCount: 0, claimedAchievements: [],
                     createdAt: serverTimestamp(), telegramUsername: tgUser.username || 'N/A',
                     miningStartTime: null, isBanned: false,
+                    bonusHashPower: 0,
                 };
                 if (referrerCode && referrerCode !== userId) defaultUserData.referredBy = referrerCode;
                 await setDoc(userRef, defaultUserData);
@@ -758,6 +756,7 @@
             if (userData.miningStartTime === undefined) updates.miningStartTime = null;
             if (userData.claimedAchievements === undefined) updates.claimedAchievements = [];
             if (userData.isBanned === undefined) updates.isBanned = false; 
+            if (userData.bonusHashPower === undefined) updates.bonusHashPower = 0;
 
             if (Object.keys(updates).length > 0) {
                 await updateDoc(userRef, updates);
@@ -783,7 +782,7 @@
         }
         
         function getCurrentHashPower() {
-            return BASE_HASH_POWER;
+            return BASE_HASH_POWER + (currentUser?.bonusHashPower || 0);
         }
 
         function updateMiningPowerUI() {
@@ -819,6 +818,9 @@
              }
              if (rewards.usdt && rewards.usdt > 0) {
                  updates.usdtBalance = increment(rewards.usdt);
+             }
+             if (rewards.bonusHashPower && rewards.bonusHashPower > 0) {
+                 updates.bonusHashPower = increment(rewards.bonusHashPower);
              }
              if (Object.keys(updates).length > 0) {
                  await updateDoc(userRef, updates);
@@ -892,7 +894,7 @@
             const isPgCoinLimitReached = pgCoinVisitsLeft <= 0;
             const pgCoinCard = document.createElement('div');
             pgCoinCard.className = 'ad-task-card';
-            pgCoinCard.innerHTML = `<div class="ad-task-card-info"><h4>Watch Ad & Earn PG Coin</h4><p>Reward: <span class="task-reward-pg">${AD_PGCOIN_REWARD} PG Coin</span></p><p class="ad-visits-left">Today's Visits Left: ${pgCoinVisitsLeft > 0 ? pgCoinVisitsLeft : 0} / ${AD_PGCOIN_LIMIT}</p></div><button class="ad-task-button" data-ad-type="pgcoin" ${isPgCoinLimitReached ? 'disabled' : ''}>${isPgCoinLimitReached ? 'Daily Limit Reached' : 'Watch Ad'}</button>`;
+            pgCoinCard.innerHTML = `<div class="ad-task-card-info"><h4>Watch Ad & Earn Rewards</h4><p>Reward: <span class="task-reward-pg">${AD_PGCOIN_REWARD} PG Coin</span> + ${AD_TASK_HASH_REWARD} H/s</p><p class="ad-visits-left">Today's Visits Left: ${pgCoinVisitsLeft > 0 ? pgCoinVisitsLeft : 0} / ${AD_PGCOIN_LIMIT}</p></div><button class="ad-task-button" data-ad-type="pgcoin" ${isPgCoinLimitReached ? 'disabled' : ''}>${isPgCoinLimitReached ? 'Daily Limit Reached' : 'Watch Ad'}</button>`;
             adTaskListContainer.appendChild(pgCoinCard);
         }
         
@@ -903,9 +905,9 @@
             try {
                 await showRandomAdForTask();
                 if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-                await grantReward({ pgCoin: AD_PGCOIN_REWARD });
+                await grantReward({ pgCoin: AD_PGCOIN_REWARD, bonusHashPower: AD_TASK_HASH_REWARD });
                 await updateDoc(doc(db, 'users', currentUser.id), { pgCoinAdVisitsToday: increment(1) });
-                showSuccessModal("Congratulations!", `You've earned ${AD_PGCOIN_REWARD} PG Coin.`);
+                showSuccessModal("Congratulations!", `You've earned ${AD_PGCOIN_REWARD} PG Coin and ${AD_TASK_HASH_REWARD} H/s hash power.`);
                 await fetchAndUpdateCurrentUser();
                 setupAdsToEarn();
             } catch (err) {
@@ -968,7 +970,6 @@
                     const task = docSnap.data();
                     const isCompleted = currentUser.completedTasks?.includes(docSnap.id);
 
-                    // Skip task if created by user or if already completed
                     if (task.creatorId === currentUser.id || isCompleted) return;
                     
                     const isLimitReached = (task.limit || 0) > 0 && (task.completionCount || 0) >= task.limit;
@@ -1021,7 +1022,6 @@
                     await grantReward({ pgCoin: Number(button.dataset.rewardPg) || 0 });
                     showSuccessModal("Reward Claimed!", `Reward added to your balance.`);
                     
-                    // Remove the task card from the view immediately with a fade-out effect
                     if (taskCard) {
                         taskCard.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
                         taskCard.style.opacity = '0';
@@ -1036,7 +1036,7 @@
                     const errorMessages = { "ALREADY_COMPLETED": "You have already completed this task.", "TASK_LIMIT_REACHED": "This task has reached its completion limit."};
                     alert(errorMessages[error] || 'Failed to claim reward.');
                     if (error === "ALREADY_COMPLETED" || error === "TASK_LIMIT_REACHED") {
-                         if (taskCard) taskCard.remove(); // Remove if state is invalid
+                         if (taskCard) taskCard.remove();
                     } else {
                         button.disabled = false;
                         button.textContent = 'Claim Reward';
@@ -1247,7 +1247,6 @@
             historyContainer.innerHTML = '<div class="loader"></div>';
 
             try {
-                // Fetch withdrawals and REFERRAL BONUS transactions
                 const withdrawalsQuery = query(collection(db, "withdrawals"), where("userId", "==", currentUser.id), limit(25));
                 const transactionsQuery = query(collection(db, "transactions"), where("userId", "==", currentUser.id), where("type", "==", "Referral Bonus"), limit(25));
                 
@@ -1265,7 +1264,6 @@
                     combinedList.push({ ...data, transactionType: data.type, timestamp: data.createdAt });
                 });
 
-                // Sort the combined data by timestamp client-side
                 combinedList.sort((a, b) => {
                     const timeA = a.timestamp ? a.timestamp.toMillis() : 0;
                     const timeB = b.timestamp ? b.timestamp.toMillis() : 0;
@@ -1284,7 +1282,7 @@
                 const BDT_PER_PG = 2; // Estimated value
 
                 combinedList.forEach(data => {
-                    if (!data.timestamp) return; // Skip items without a timestamp
+                    if (!data.timestamp) return; 
                     const date = data.timestamp.toDate();
                     const formattedDate = date.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/-/g, '.');
                     const formattedTime = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
@@ -1384,17 +1382,12 @@
                     case '#ads-content': setupAdsToEarn(); break;
                     case '#video-content': 
                         await fetchContent();
-                        if (richAdsInitialized) {
-                            TelegramAdsController.showBanner({
-                                el: document.getElementById("richads-banner-container"),
-                                zoneId: 3042,
-                            });
-                        }
                         if (videoSectionTimer) clearInterval(videoSectionTimer);
                         videoSectionTimer = setInterval(async () => {
                             const rewardUsdt = parseFloat((Math.random() * (VIDEO_SECTION_REWARD_MAX_USDT - VIDEO_SECTION_REWARD_MIN_USDT) + VIDEO_SECTION_REWARD_MIN_USDT).toFixed(7));
+                            // UPDATE: Removed hash power reward from video section
                             await grantReward({ usdt: rewardUsdt });
-                            showSuccessModal("Video Section Reward!", `You earned ${rewardUsdt.toFixed(4)} USDT for browsing videos!`);
+                            showSuccessModal("Video Section Reward!", `You earned ${rewardUsdt.toFixed(4)} USDT!`);
                             
                             videoRewardCounter++;
                             if (videoRewardCounter >= VIDEO_REWARDS_BEFORE_AD) {
@@ -1586,7 +1579,6 @@
         
         async function initializeMiningState() {
             if (!currentUser) return;
-            const userRef = doc(db, 'users', currentUser.id);
             if (miningTimerInterval) clearInterval(miningTimerInterval);
 
             const miningStartTime = currentUser.miningStartTime?.toDate().getTime();
@@ -1606,7 +1598,10 @@
         }
 
         function updateMiningUI() {
-            if (!currentUser.miningStartTime) { stopMiningSession(false); return; }
+            if (!currentUser || !currentUser.miningStartTime) { 
+                stopMiningSession(false); 
+                return; 
+            }
             
             const miningStartTime = currentUser.miningStartTime.toDate().getTime();
             const now = Date.now();
@@ -1625,7 +1620,7 @@
             } else {
                 startMiningButton.disabled = false;
                 startMiningButton.textContent = 'Start Mining';
-                statusMessageEl.textContent = 'Session ended. Start a new session.';
+                statusMessageEl.textContent = 'Press \'Start\' to begin mining.';
             }
         }
 
@@ -1666,7 +1661,9 @@
                 await updateDoc(userRef, { miningStartTime: null });
                 showSuccessModal("Session Complete!", `You mined ${reward.toFixed(4)} PG Coin.`);
             } else {
-                await updateDoc(userRef, { miningStartTime: null });
+                if(currentUser && currentUser.miningStartTime){
+                    await updateDoc(userRef, { miningStartTime: null });
+                }
             }
             await fetchAndUpdateCurrentUser();
             setMiningUIState('ready');
@@ -1674,30 +1671,10 @@
         
         startMiningButton.addEventListener('click', startMiningSession);
 
-        function initializeRichAds() {
-            if (richAdsInitialized) return;
-            if (typeof TelegramAdsController === 'undefined') {
-                console.error("RichAds SDK (TelegramAdsController) is not available.");
-                return;
-            }
-            try {
-                window.TelegramAdsController = new TelegramAdsController(); 
-                window.TelegramAdsController.initialize({
-                  pubId: "978188",
-                  appId: "3041",
-                }); 
-                richAdsInitialized = true;
-                console.log("RichAds initialized globally.");
-            } 
-            catch (e) { console.error("Failed to initialize RichAds:", e); }
-        }
-
         async function main() {
             try {
                 if (!tg.initDataUnsafe?.user) { document.body.innerHTML = `<div class="card" style="margin-top: 50px;"><h3>Error</h3><p>This app can only be launched from Telegram.</p></div>`; return; }
                 tg.ready(); tg.expand();
-                
-                initializeRichAds();
                 
                 await initializeUser(tg.initDataUnsafe.user, tg.initDataUnsafe.start_param);
 
