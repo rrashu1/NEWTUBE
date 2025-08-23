@@ -22,6 +22,8 @@
     <!-- Other Ad Libraries -->
     <script src='//libtl.com/sdk.js' data-zone='9442539' data-sdk='show_9442539'></script>
     <script src="https://ad.gigapub.tech/script?id=846"></script>
+    <!-- RichInfo Ads SDK -->
+    <script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -399,6 +401,7 @@
 
         <section id="video-content" class="content-section">
             <h3 class="section-title">Trending Videos</h3>
+            <div id="richads-banner-container" style="margin-bottom: 20px;"></div>
             <div class="search-container">
                 <input type="search" id="videoSearchInput" placeholder="Search for videos...">
                 <button id="videoSearchBtn">Search</button>
@@ -614,6 +617,7 @@
         let currentPlayingItem = null;
         let videoSectionTimer = null;
         let videoRewardCounter = 0; 
+        let richAdsInitialized = false;
         let miningTimerInterval = null;
         let isSubmittingWithdrawal = false; 
         let withdrawalUISetup = false;
@@ -1379,7 +1383,13 @@
                     case '#home-content': updateMiningPowerUI(); break;
                     case '#ads-content': setupAdsToEarn(); break;
                     case '#video-content': 
-                        await fetchContent(); 
+                        await fetchContent();
+                        if (richAdsInitialized) {
+                            TelegramAdsController.showBanner({
+                                el: document.getElementById("richads-banner-container"),
+                                zoneId: 3042,
+                            });
+                        }
                         if (videoSectionTimer) clearInterval(videoSectionTimer);
                         videoSectionTimer = setInterval(async () => {
                             const rewardUsdt = parseFloat((Math.random() * (VIDEO_SECTION_REWARD_MAX_USDT - VIDEO_SECTION_REWARD_MIN_USDT) + VIDEO_SECTION_REWARD_MIN_USDT).toFixed(7));
@@ -1664,10 +1674,30 @@
         
         startMiningButton.addEventListener('click', startMiningSession);
 
+        function initializeRichAds() {
+            if (richAdsInitialized) return;
+            if (typeof TelegramAdsController === 'undefined') {
+                console.error("RichAds SDK (TelegramAdsController) is not available.");
+                return;
+            }
+            try {
+                window.TelegramAdsController = new TelegramAdsController(); 
+                window.TelegramAdsController.initialize({
+                  pubId: "978188",
+                  appId: "3041",
+                }); 
+                richAdsInitialized = true;
+                console.log("RichAds initialized globally.");
+            } 
+            catch (e) { console.error("Failed to initialize RichAds:", e); }
+        }
+
         async function main() {
             try {
                 if (!tg.initDataUnsafe?.user) { document.body.innerHTML = `<div class="card" style="margin-top: 50px;"><h3>Error</h3><p>This app can only be launched from Telegram.</p></div>`; return; }
                 tg.ready(); tg.expand();
+                
+                initializeRichAds();
                 
                 await initializeUser(tg.initDataUnsafe.user, tg.initDataUnsafe.start_param);
 
