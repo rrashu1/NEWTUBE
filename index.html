@@ -187,7 +187,6 @@
         #withdraw-type-selector button { flex: 1; padding: 12px; font-size: 1em; font-weight: 600; border: 2px solid var(--border-color); background-color: transparent; color: var(--text-muted); border-radius: 8px; cursor: pointer; }
         #withdraw-type-selector button.active { background-color: var(--primary-accent-color); border-color: var(--primary-accent-color); color: #ffffff; }
         
-        /* UPDATED: New History Styles based on image */
         .history-list-container { display: flex; flex-direction: column; gap: 0; }
         .history-date-header {
             padding: 15px 5px 5px;
@@ -219,7 +218,6 @@
         .history-item-right .status-pending { color: #ffc107; font-weight: 600; text-transform: capitalize; }
         .history-item-right .status-failed, .history-item-right .status-rejected { color: #dc3545; font-weight: 600; text-transform: capitalize; }
 
-
         .ad-package-card { padding: 20px; text-align: center; }
         .ad-package-card h4 { font-size: 1.3em; color: var(--primary-accent-color); }
         .ad-package-card p { color: var(--text-light); font-size: 1.1em; font-weight: 600; margin: 15px 0; }
@@ -237,7 +235,6 @@
         .ad-progress-bar-inner { height: 100%; background-color: var(--primary-accent-color); border-radius: 5px; width: 0%; transition: width 0.5s; }
         #user-ads-list { display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 25px;}
 
-        /* UPDATED: Mining UI for light theme */
         #home-content .mining-body {
             font-family: 'Roboto Mono', monospace;
             display: flex;
@@ -249,14 +246,7 @@
             border-radius: 20px;
             border: 1px solid var(--border-color);
         }
-        @keyframes subtle-glow {
-            0%, 100% { text-shadow: 0 0 4px var(--primary-accent-color), 0 0 8px var(--primary-accent-color); }
-            50% { text-shadow: 0 0 8px var(--primary-accent-color), 0 0 12px var(--primary-accent-color); }
-        }
-        @keyframes subtle-pulse {
-            0%, 100% { text-shadow: 0 0 5px rgba(0, 0, 0, 0.1); transform: scale(1); }
-            50% { text-shadow: 0 0 10px rgba(0, 0, 0, 0.2); transform: scale(1.02); }
-        }
+
         .mining-container-new {
             width: 90%;
             max-width: 450px;
@@ -291,7 +281,6 @@
             font-weight: 700;
             color: var(--text-light);
             margin: 10px 0;
-            animation: subtle-pulse 2.5s infinite ease-in-out;
             word-wrap: break-word;
             transition: color 0.5s ease;
         }
@@ -327,16 +316,6 @@
             color: var(--text-muted);
             height: 20px;
         }
-        #withdrawal-status-message {
-            background-color: #fff3cd;
-            border: 1px solid #ffeeba;
-            color: #856404;
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 8px;
-            text-align: center;
-            line-height: 1.6;
-        }
     </style>
 </head>
 <body>
@@ -344,7 +323,6 @@
     <header class="main-header">
         <div class="header-left">
             <h1 class="site-title">NEWTUBE</h1>
-            <!-- UPDATED: History button icon changed to a book -->
             <button class="header-icon-btn" id="history-btn" title="History">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M0 0h24v24H0z" fill="none"/>
@@ -630,10 +608,10 @@
         const MINING_SESSION_REWARD_PG_PER_10HS = 0.125;
         
         // Video Section Reward Constants
-        const VIDEO_SECTION_REWARD_INTERVAL_MS = 1 * 60 * 1000; // 1 minute
+        const VIDEO_SECTION_REWARD_INTERVAL_MS = 1.5 * 60 * 1000; // UPDATE: 1.5 minutes
         const VIDEO_SECTION_REWARD_MIN_USDT = 0.000001;
         const VIDEO_SECTION_REWARD_MAX_USDT = 0.0003;
-        const VIDEO_REWARDS_BEFORE_AD = 5; // Show ad after 5 rewards
+        const VIDEO_REWARDS_BEFORE_AD = 4; // UPDATE: Show ad after 4 rewards
 
         // BAN SYSTEM: Function to display ban message
         function showBanScreen() {
@@ -646,18 +624,36 @@
                 </div>
             `;
         }
+        
+        // UPDATE: Centralized function to clean up expired boosts
+        async function cleanupAndGetUser(userId) {
+            const userRef = doc(db, 'users', userId);
+            const userSnap = await getDoc(userRef);
+            if (!userSnap.exists()) return null;
+
+            const userData = userSnap.data();
+            const allBoosts = userData.tempHashBoosts || [];
+            const now = new Date();
+            const validBoosts = allBoosts.filter(boost => boost.expiresAt.toDate() > now);
+
+            if (allBoosts.length > validBoosts.length) {
+                console.log(`Cleaning up ${allBoosts.length - validBoosts.length} expired hash boosts.`);
+                await updateDoc(userRef, { tempHashBoosts: validBoosts });
+            }
+            
+            return { id: userSnap.id, ...userData, tempHashBoosts: validBoosts };
+        }
 
         async function fetchAndUpdateCurrentUser() {
             if (!currentUser?.id) return;
             try {
-                const userRef = doc(db, 'users', currentUser.id);
-                const userSnap = await getDoc(userRef);
-                if (userSnap.exists()) {
-                    currentUser = { id: userSnap.id, ...userSnap.data() };
+                const updatedUser = await cleanupAndGetUser(currentUser.id);
+                if (updatedUser) {
+                    currentUser = updatedUser;
                     updateBalanceUI(currentUser.usdtBalance, currentUser.pgCoin);
                     updateMiningPowerUI();
                 }
-            } catch (error) { console.error("Error fetching current user:", error); }
+            } catch (error) { console.error("Error fetching/cleaning current user:", error); }
         }
         
         async function checkAndResetDailies() {
@@ -732,7 +728,7 @@
                     withdrawalCount: 0, claimedAchievements: [],
                     createdAt: serverTimestamp(), telegramUsername: tgUser.username || 'N/A',
                     miningStartTime: null, isBanned: false,
-                    bonusHashPower: 0,
+                    tempHashBoosts: [], // UPDATE: Changed from bonusHashPower
                 };
                 if (referrerCode && referrerCode !== userId) defaultUserData.referredBy = referrerCode;
                 await setDoc(userRef, defaultUserData);
@@ -756,17 +752,17 @@
             if (userData.miningStartTime === undefined) updates.miningStartTime = null;
             if (userData.claimedAchievements === undefined) updates.claimedAchievements = [];
             if (userData.isBanned === undefined) updates.isBanned = false; 
-            if (userData.bonusHashPower === undefined) updates.bonusHashPower = 0;
+            if (userData.tempHashBoosts === undefined) updates.tempHashBoosts = []; // UPDATE: Changed from bonusHashPower
 
             if (Object.keys(updates).length > 0) {
                 await updateDoc(userRef, updates);
-                userSnap = await getDoc(userRef);
             }
             
-            currentUser = { id: userSnap.id, ...userSnap.data() };
+            // currentUser will be set by fetchAndUpdateCurrentUser which also cleans boosts
+            currentUser = { id: userSnap.id }; // Set temporary ID
+            await fetchAndUpdateCurrentUser(); 
+            
             await checkAndResetDailies();
-            updateBalanceUI(currentUser.usdtBalance, currentUser.pgCoin);
-            updateMiningPowerUI();
             generateReferralLink(currentUser.id);
             await initializeMiningState();
         }
@@ -781,14 +777,16 @@
             }
         }
         
+        // UPDATE: Calculates hash power based on temporary boosts
         function getCurrentHashPower() {
-            return BASE_HASH_POWER + (currentUser?.bonusHashPower || 0);
+            const totalBonusPower = (currentUser?.tempHashBoosts || []).reduce((sum, boost) => sum + (boost.power || 0), 0);
+            return BASE_HASH_POWER + totalBonusPower;
         }
 
         function updateMiningPowerUI() {
             const currentPower = getCurrentHashPower();
             const dailyRate = (currentPower / BASE_HASH_POWER) * (MINING_SESSION_REWARD_PG_PER_10HS * 4);
-            document.getElementById('miningHashPower').textContent = `${currentPower.toFixed(1)} H/s`;
+            document.getElementById('miningHashPower').textContent = `${currentPower.toFixed(2)} H/s`;
             document.getElementById('miningDailyRate').textContent = `${dailyRate.toFixed(3)} PG`;
         }
 
@@ -819,9 +817,7 @@
              if (rewards.usdt && rewards.usdt > 0) {
                  updates.usdtBalance = increment(rewards.usdt);
              }
-             if (rewards.bonusHashPower && rewards.bonusHashPower > 0) {
-                 updates.bonusHashPower = increment(rewards.bonusHashPower);
-             }
+             // NOTE: Temporary hash power is handled separately via arrayUnion
              if (Object.keys(updates).length > 0) {
                  await updateDoc(userRef, updates);
                  await fetchAndUpdateCurrentUser();
@@ -894,7 +890,7 @@
             const isPgCoinLimitReached = pgCoinVisitsLeft <= 0;
             const pgCoinCard = document.createElement('div');
             pgCoinCard.className = 'ad-task-card';
-            pgCoinCard.innerHTML = `<div class="ad-task-card-info"><h4>Watch Ad & Earn Rewards</h4><p>Reward: <span class="task-reward-pg">${AD_PGCOIN_REWARD} PG Coin</span> + ${AD_TASK_HASH_REWARD} H/s</p><p class="ad-visits-left">Today's Visits Left: ${pgCoinVisitsLeft > 0 ? pgCoinVisitsLeft : 0} / ${AD_PGCOIN_LIMIT}</p></div><button class="ad-task-button" data-ad-type="pgcoin" ${isPgCoinLimitReached ? 'disabled' : ''}>${isPgCoinLimitReached ? 'Daily Limit Reached' : 'Watch Ad'}</button>`;
+            pgCoinCard.innerHTML = `<div class="ad-task-card-info"><h4>Watch Ad & Earn Rewards</h4><p>Reward: <span class="task-reward-pg">${AD_PGCOIN_REWARD} PG Coin</span> + ${AD_TASK_HASH_REWARD} H/s (24h)</p><p class="ad-visits-left">Today's Visits Left: ${pgCoinVisitsLeft > 0 ? pgCoinVisitsLeft : 0} / ${AD_PGCOIN_LIMIT}</p></div><button class="ad-task-button" data-ad-type="pgcoin" ${isPgCoinLimitReached ? 'disabled' : ''}>${isPgCoinLimitReached ? 'Daily Limit Reached' : 'Watch Ad'}</button>`;
             adTaskListContainer.appendChild(pgCoinCard);
         }
         
@@ -905,9 +901,24 @@
             try {
                 await showRandomAdForTask();
                 if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-                await grantReward({ pgCoin: AD_PGCOIN_REWARD, bonusHashPower: AD_TASK_HASH_REWARD });
-                await updateDoc(doc(db, 'users', currentUser.id), { pgCoinAdVisitsToday: increment(1) });
-                showSuccessModal("Congratulations!", `You've earned ${AD_PGCOIN_REWARD} PG Coin and ${AD_TASK_HASH_REWARD} H/s hash power.`);
+                
+                // UPDATE: Grant temporary hash power
+                const userRef = doc(db, 'users', currentUser.id);
+                const expiryDate = new Date(Date.now() + 24 * 60 * 60 * 1000);
+                const newBoost = {
+                    power: AD_TASK_HASH_REWARD,
+                    expiresAt: Timestamp.fromDate(expiryDate)
+                };
+                
+                await updateDoc(userRef, {
+                    pgCoin: increment(AD_PGCOIN_REWARD),
+                    lifetimePgCoinEarned: increment(AD_PGCOIN_REWARD),
+                    pgCoinAdVisitsToday: increment(1),
+                    tempHashBoosts: arrayUnion(newBoost)
+                });
+
+                showSuccessModal("Congratulations!", `You've earned ${AD_PGCOIN_REWARD} PG Coin and a temporary ${AD_TASK_HASH_REWARD} H/s boost for 24 hours.`);
+                
                 await fetchAndUpdateCurrentUser();
                 setupAdsToEarn();
             } catch (err) {
@@ -1385,7 +1396,6 @@
                         if (videoSectionTimer) clearInterval(videoSectionTimer);
                         videoSectionTimer = setInterval(async () => {
                             const rewardUsdt = parseFloat((Math.random() * (VIDEO_SECTION_REWARD_MAX_USDT - VIDEO_SECTION_REWARD_MIN_USDT) + VIDEO_SECTION_REWARD_MIN_USDT).toFixed(7));
-                            // UPDATE: Removed hash power reward from video section
                             await grantReward({ usdt: rewardUsdt });
                             showSuccessModal("Video Section Reward!", `You earned ${rewardUsdt.toFixed(4)} USDT!`);
                             
