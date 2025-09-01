@@ -301,6 +301,27 @@
         }
         
         /* --- Lottery Styles --- */
+        .lottery-promo-header {
+            background: linear-gradient(45deg, #ff9900, #ff5f6d);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-fill-color: transparent;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 1.5em;
+            text-align: center;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .lottery-promo-subheader {
+            font-family: 'Inter', sans-serif;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 1em;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
         .lottery-container-wrapper {
             display: flex;
             justify-content: center;
@@ -363,6 +384,9 @@
         #spinButton:hover:not(:disabled) {
             transform: translateY(-3px);
             box-shadow: 0 8px 20px rgba(252, 74, 26, 0.4);
+        }
+        #spinButton[data-action="watch_ad"] {
+             background: linear-gradient(45deg, var(--success-color), #20c997);
         }
         #spinButton:disabled {
             background: var(--disabled-color);
@@ -484,8 +508,8 @@
         </section>
         
         <section id="lottery-content" class="content-section">
-            <h3 class="section-title">Lottery Spin</h3>
-            <p class="info-text" style="text-align: center; margin-bottom: 20px;">1000 PG coin Lottery te daoya Hobe refer Kore jeno beshi beshi spin Kore</p>
+            <h2 class="lottery-promo-header">🎉 Win 1000 PG Coins in the Lottery! 🎉</h2>
+            <p class="lottery-promo-subheader">Refer your friends to get more spins – the more you spin, the higher your chances! 🍀<br>Lucky winners can grab 1K PG Coins instantly!</p>
             <p class="info-text" style="text-align: center; margin-bottom: 30px;">For sponsor, advertisement, promotion, or any issues, contact directly at: <a href="https://t.me/NEWTUBE12_admin" target="_blank" style="color: var(--primary-accent-color);">@NEWTUBE12_admin</a></p>
 
             <div class="lottery-container-wrapper">
@@ -495,7 +519,7 @@
                     <div id="lottery-result">
                         <span>Spin to test your luck!</span>
                     </div>
-                    <button id="spinButton">SPIN NOW</button>
+                    <button id="spinButton" data-action="none">SPIN NOW</button>
                 </div>
             </div>
         </section>
@@ -621,7 +645,7 @@
         let isSubmittingWithdrawal = false; 
         let withdrawalUISetup = false;
 
-        const AD_PGCOIN_LIMIT = 25; // UPDATE: Changed from 15 to 25
+        const AD_PGCOIN_LIMIT = 25;
         const AD_PGCOIN_REWARD = 0.03;
         const AD_TASK_HASH_REWARD = 0.1;
         const DAILY_LOGIN_PG_REWARD = 0.02;
@@ -738,6 +762,7 @@
                     tempHashBoosts: [], 
                     lotterySpins: 1, // New user gets 1 free spin
                     totalSpinsUsed: 0,
+                    lastDailyAdSpin: null, // For daily ad-based spin
                 };
                 if (referrerCode && referrerCode !== userId) {
                     defaultUserData.referredBy = referrerCode;
@@ -775,6 +800,7 @@
             if (userData.tempHashBoosts === undefined) updates.tempHashBoosts = [];
             if (userData.lotterySpins === undefined) updates.lotterySpins = 0;
             if (userData.totalSpinsUsed === undefined) updates.totalSpinsUsed = 0;
+            if (userData.lastDailyAdSpin === undefined) updates.lastDailyAdSpin = null;
 
             if (Object.keys(updates).length > 0) {
                 await updateDoc(userRef, updates);
@@ -1133,7 +1159,6 @@
             button.textContent = '...';
 
             try {
-                // Simplified logic using grantReward
                 await grantReward({ pgCoin: achievement.reward });
                 await updateDoc(doc(db, 'users', currentUser.id), {
                     claimedAchievements: arrayUnion(achievementId)
@@ -1369,7 +1394,7 @@
         const showGigaPubAd = () => new Promise((res, rej) => typeof window.showGiga === 'function' ? window.showGiga("main").then(res).catch(rej) : rej('GigaPub SDK missing'));
         async function showRandomAdForTask() {
             try { await [showMonetagAd, showGigaPubAd][Math.floor(Math.random() * 2)](); } 
-            catch(err) { console.warn("Ad provider failed to show ad:", err); }
+            catch(err) { console.warn("Ad provider failed to show ad:", err); throw err; }
         }
         
         document.getElementById('history-btn').addEventListener('click', showCombinedHistory);
@@ -1410,7 +1435,7 @@
                         break;
                     case '#referral-content': renderReferralStats(); break;
                     case '#task-content': await renderDailyLoginTask(); await fetchTasks(); await renderAchievements(); break;
-                    case '#lottery-content': updateLotteryUI(); break;
+                    case '#lottery-content': await renderLotteryUI(); break;
                     case '#withdraw-content': 
                         await renderWithdrawUI();
                         if (!withdrawalUISetup) {
@@ -1561,20 +1586,42 @@
             return prize;
         }
 
-        function updateLotteryUI() {
+        async function renderLotteryUI() {
             if (!currentUser) return;
-            document.getElementById('spin-count').textContent = currentUser.lotterySpins || 0;
+            const spinButton = document.getElementById('spinButton');
+            const spinCountEl = document.getElementById('spin-count');
+            const spins = currentUser.lotterySpins || 0;
+            spinCountEl.textContent = spins;
+
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+            const lastSpinAd = currentUser.lastDailyAdSpin?.toDate();
+            const lastSpinAdTime = lastSpinAd ? new Date(lastSpinAd.getFullYear(), lastSpinAd.getMonth(), lastSpinAd.getDate()).getTime() : 0;
+            const hasClaimedDailyAdSpin = lastSpinAdTime >= today;
+
+            if (spins > 0) {
+                spinButton.textContent = 'SPIN NOW';
+                spinButton.dataset.action = 'spin';
+                spinButton.disabled = false;
+            } else if (!hasClaimedDailyAdSpin) {
+                spinButton.textContent = 'Watch Ad for 1 Spin';
+                spinButton.dataset.action = 'watch_ad';
+                spinButton.disabled = false;
+            } else {
+                spinButton.textContent = 'No Spins Left';
+                spinButton.dataset.action = 'none';
+                spinButton.disabled = true;
+            }
         }
 
-        document.getElementById('spinButton').addEventListener('click', async () => {
+        async function handleLotterySpin() {
             const spinButton = document.getElementById('spinButton');
             const resultDiv = document.getElementById('lottery-result');
 
             if (!currentUser || (currentUser.lotterySpins || 0) < 1) {
-                alert("You don't have any spins! Invite friends to earn more spins.");
+                alert("You don't have any spins! Invite friends or watch an ad to earn more.");
                 return;
             }
-            
             spinButton.disabled = true;
 
             try {
@@ -1583,9 +1630,9 @@
                     lotterySpins: increment(-1),
                     totalSpinsUsed: increment(1)
                 });
+                await fetchAndUpdateCurrentUser(); // Fetch immediately to update spin count locally
 
                 const finalPrize = calculatePrize();
-                
                 let animationInterval = setInterval(() => {
                     const randomDisplayPrize = Math.random() * 10;
                     resultDiv.innerHTML = `<span class="value">${randomDisplayPrize.toFixed(4)} PG</span>`;
@@ -1605,8 +1652,7 @@
                     });
 
                     await fetchAndUpdateCurrentUser();
-                    updateLotteryUI();
-                    spinButton.disabled = false;
+                    await renderLotteryUI(); // Refresh UI after granting reward
 
                 }, 2000);
 
@@ -1615,8 +1661,38 @@
                 alert("An error occurred. Please try again.");
                 spinButton.disabled = false;
             }
-        });
+        }
 
+        async function handleDailyAdSpin() {
+            const button = document.getElementById('spinButton');
+            button.disabled = true;
+            button.textContent = 'Loading Ad...';
+            try {
+                await showRandomAdForTask();
+                const userRef = doc(db, 'users', currentUser.id);
+                await updateDoc(userRef, {
+                    lotterySpins: increment(1),
+                    lastDailyAdSpin: serverTimestamp()
+                });
+                await fetchAndUpdateCurrentUser();
+                showSuccessModal("Spin Awarded!", "You've earned 1 free spin for watching an ad.");
+            } catch (error) {
+                alert('Ad failed to load or was closed. Please try again.');
+            } finally {
+                await renderLotteryUI();
+            }
+        }
+
+        document.getElementById('spinButton').addEventListener('click', async () => {
+            const button = document.getElementById('spinButton');
+            const action = button.dataset.action;
+
+            if (action === 'spin') {
+                await handleLotterySpin();
+            } else if (action === 'watch_ad') {
+                await handleDailyAdSpin();
+            }
+        });
 
         async function main() {
             try {
