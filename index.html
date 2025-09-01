@@ -1576,14 +1576,35 @@
 
         // --- Lottery Functions ---
         function calculatePrize() {
-            const rand = Math.random() * 100;
-            let prize = 0;
-            if (rand < 2) {
-                prize = Math.random() * (10 - 1) + 1; // 1 to 10 PG
-            } else {
-                prize = Math.random() * (1 - 0.01) + 0.01; // 0.01 to 1 PG
+            const prizeTypeRand = Math.random(); // Decide between PG and USDT
+
+            // 50% chance for PG Coin, 50% for USDT
+            if (prizeTypeRand < 0.5) { 
+                const chanceRand = Math.random();
+                let prizeAmount;
+
+                if (chanceRand < 0.9) { // 90% chance for smaller PG reward
+                    // Range: 0.008 to 0.5
+                    prizeAmount = Math.random() * (0.5 - 0.008) + 0.008;
+                } else { // 10% chance for larger PG reward
+                    // Range: 0.5 to 1
+                    prizeAmount = Math.random() * (1 - 0.5) + 0.5;
+                }
+                return { type: 'pg', amount: prizeAmount };
+
+            } else { 
+                const chanceRand = Math.random();
+                let prizeAmount;
+                
+                if (chanceRand < 0.9) { // 90% chance for smaller USDT reward
+                    // Range: 0.0008 to 0.01
+                    prizeAmount = Math.random() * (0.01 - 0.0008) + 0.0008;
+                } else { // 10% chance for larger USDT reward
+                    // Range: 0.001 to 0.02
+                    prizeAmount = Math.random() * (0.02 - 0.001) + 0.001;
+                }
+                return { type: 'usdt', amount: prizeAmount };
             }
-            return prize;
         }
 
         async function renderLotteryUI() {
@@ -1630,29 +1651,44 @@
                     lotterySpins: increment(-1),
                     totalSpinsUsed: increment(1)
                 });
-                await fetchAndUpdateCurrentUser(); // Fetch immediately to update spin count locally
+                await fetchAndUpdateCurrentUser(); 
 
                 const finalPrize = calculatePrize();
+                const currencyLabel = finalPrize.type.toUpperCase();
+                const precision = finalPrize.type === 'pg' ? 4 : 6;
+
                 let animationInterval = setInterval(() => {
-                    const randomDisplayPrize = Math.random() * 10;
-                    resultDiv.innerHTML = `<span class="value">${randomDisplayPrize.toFixed(4)} PG</span>`;
+                    const randomDisplayPrize = calculatePrize();
+                    const randomLabel = randomDisplayPrize.type.toUpperCase();
+                    const randomPrecision = randomDisplayPrize.type === 'pg' ? 4 : 6;
+                    resultDiv.innerHTML = `<span class="value">${randomDisplayPrize.amount.toFixed(randomPrecision)} ${randomLabel}</span>`;
                 }, 75); 
 
                 setTimeout(async () => {
                     clearInterval(animationInterval);
-                    resultDiv.innerHTML = `You Won: <span class="value">${finalPrize.toFixed(4)} PG</span>`;
+                    resultDiv.innerHTML = `You Won: <span class="value">${finalPrize.amount.toFixed(precision)} ${currencyLabel}</span>`;
                     
-                    await grantReward({ pgCoin: finalPrize });
-                     await addDoc(collection(db, 'transactions'), {
+                    if (finalPrize.type === 'pg') {
+                        await grantReward({ pgCoin: finalPrize.amount });
+                    } else {
+                        await grantReward({ usdt: finalPrize.amount });
+                    }
+
+                    const transactionData = {
                         userId: currentUser.id,
                         type: 'Lottery Win',
-                        pgAmount: finalPrize,
                         status: 'Completed',
                         createdAt: serverTimestamp()
-                    });
+                    };
+                    if (finalPrize.type === 'pg') {
+                        transactionData.pgAmount = finalPrize.amount;
+                    } else {
+                        transactionData.usdAmount = finalPrize.amount;
+                    }
+                    await addDoc(collection(db, 'transactions'), transactionData);
 
                     await fetchAndUpdateCurrentUser();
-                    await renderLotteryUI(); // Refresh UI after granting reward
+                    await renderLotteryUI();
 
                 }, 2000);
 
