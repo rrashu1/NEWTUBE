@@ -1,5 +1,3 @@
-
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -24,8 +22,6 @@
     <!-- Other Ad Libraries -->
     <script src='//libtl.com/sdk.js' data-zone='9442539' data-sdk='show_9442539'></script>
     <script src="https://ad.gigapub.tech/script?id=846"></script>
-    <!-- Adextra Ad Script -->
-    <script async src="https://partner.adextra.io/jt/fa6b30e404e1046793d70db4a424966f97960abe.js"></script>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -36,12 +32,12 @@
         :root {
             --primary-accent-color: #4A90E2; 
             --primary-accent-hover-color: #357ABD; 
-            --dark-bg: #f8f9fa; /* UPDATED: Light grey Background */
-            --card-bg: #ffffff;
-            --header-bg: #ffffff;
-            --text-light: #212529;
-            --text-muted: #6c757d;
-            --border-color: #dee2e6;
+            --dark-bg: #f4f6f9; /* UPDATED: Light Background */
+            --card-bg: #ffffff; /* UPDATED: White Card */
+            --header-bg: #ffffff; /* UPDATED: White Header */
+            --text-light: #212529; /* UPDATED: Dark Text */
+            --text-muted: #6c757d; /* UPDATED: Grey Text */
+            --border-color: #dee2e6; /* UPDATED: Light Border */
             --success-color: #28a745;
             --disabled-color: #6c757d;
             --pg-coin-color: #ff9900;
@@ -63,12 +59,8 @@
             height: 50px; 
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
-        .header-left { display: flex; align-items: center; gap: 10px; }
-        .site-branding { display: flex; flex-direction: column; align-items: flex-start; }
-        .site-title { font-size: 1.4em; color: var(--primary-accent-color); font-weight: 700; margin: 0; line-height: 1; }
-        .user-id-display { font-size: 0.65em; color: var(--text-muted); font-family: 'Roboto Mono', monospace; cursor: pointer; display: flex; align-items: center; gap: 4px; padding: 2px 4px; border-radius: 4px; transition: background-color .2s;}
-        .user-id-display:hover { background-color: #e9ecef; }
-        .user-id-display .copy-icon { width: 12px; height: 12px; }
+        .header-left { display: flex; align-items: center; gap: 15px; }
+        .site-title { font-size: 1.4em; color: var(--primary-accent-color); font-weight: 700; margin: 0; }
         .header-right { display: flex; align-items: center; gap: 5px; }
         
         .header-icon-btn { position: relative; cursor: pointer; background: none; border: none; color: var(--text-light); padding: 5px; }
@@ -169,9 +161,9 @@
         @keyframes icon-pop-in { 0% { transform: scale(0); } 70% { transform: scale(1.1); } 100% { transform: scale(1); } }
         .modal-content h3 { margin: 0 0 10px; font-size: 1.6em; }
         .modal-content p { margin: 0; color: var(--text-muted); font-size: 1em; white-space: pre-wrap;}
-        .history-modal, .task-modal { background-color: var(--card-bg); color: var(--text-light); padding: 20px; border-radius: 15px; text-align: left; width: 90%; max-width: 500px; max-height: 90vh; display: flex; flex-direction: column; }
-        .history-modal h3, .task-modal h3 { text-align: center; margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
-        #combined-history-list, .task-modal .modal-body { overflow-y: auto; flex-grow: 1; margin-bottom: 15px; }
+        .history-modal { background-color: var(--card-bg); color: var(--text-light); padding: 20px; border-radius: 15px; text-align: left; width: 90%; max-width: 400px; max-height: 80vh; display: flex; flex-direction: column; }
+        .history-modal h3 { text-align: center; margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
+        #combined-history-list { overflow-y: auto; flex-grow: 1; margin-bottom: 15px; }
         
         .sub-card { background-color: #e9ecef; padding: 20px; border-radius: 10px; margin-bottom: 25px; }
         .info-text { font-size: 0.9em; color: var(--text-muted); margin-top: 10px; line-height: 1.5; }
@@ -451,13 +443,7 @@
 
     <header class="main-header">
         <div class="header-left">
-            <div class="site-branding">
-                <h1 class="site-title">NEWTUBE</h1>
-                <div class="user-id-display" id="header-user-id">
-                    <span>ID: Loading...</span>
-                    <svg class="copy-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-                </div>
-            </div>
+            <h1 class="site-title">NEWTUBE</h1>
             <button class="header-icon-btn" id="history-btn" title="History">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M0 0h24v24H0z" fill="none"/>
@@ -508,8 +494,6 @@
         <section id="ads-content" class="content-section">
              <h3 class="section-title">Watch Ads, Earn Rewards</h3>
              <div id="ad-task-list" class="item-grid"></div>
-             <!-- Adextra Banner Ad Block -->
-             <div id="fa6b30e404e1046793d70db4a424966f97960abe" style="margin-top: 25px;"></div>
         </section>
 
         <section id="video-content" class="content-section">
@@ -562,6 +546,35 @@
                 <button id="show-create-task-btn" class="task-button">Add Task +</button>
             </div>
             <div id="daily-login-task-container" style="margin-bottom: 30px;"></div>
+
+            <!-- Create Task Section (Initially Hidden) -->
+            <div id="create-task-section" style="display: none; margin-bottom: 30px;">
+                <h3 class="sub-section-title">Create New Task Advertisement</h3>
+                <div class="card" style="max-width: none; padding: 25px;">
+                     <p class="info-text" style="text-align: center; margin-bottom: 20px;">
+                        Purchase tasks using your USDT balance. Your task will be shown to other users to complete.<br>
+                        <strong>For manual deposits or promotions, contact admin: <a href="https://t.me/NEWTUBE12_admin" target="_blank" style="color: var(--primary-accent-color);">@NEWTUBE12_admin</a></strong>
+                    </p>
+                    
+                    <form id="create-task-form">
+                        <div class="form-group">
+                            <label>1. Select a Package</label>
+                            <div id="ad-package-grid" class="item-grid">
+                                <!-- Packages will be injected here by JS -->
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="task-title-input">2. Task Title</label>
+                            <input type="text" id="task-title-input" placeholder="e.g., Join My Telegram Channel" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="task-url-input">3. Task URL</label>
+                            <input type="url" id="task-url-input" placeholder="https://t.me/your_channel" required>
+                        </div>
+                        <button type="submit" class="form-button">Create Task</button>
+                    </form>
+                </div>
+            </div>
             
             <!-- My Ads Section -->
             <div id="my-ads-section-container">
@@ -677,42 +690,10 @@
     
     <div id="successModalOverlay" class="modal-overlay"><div class="modal-content"><div class="success-modal-icon">✓</div><h3 id="successModalTitle">Success!</h3><p id="successModalMessage">Your request has been sent.</p></div></div>
     
-    <!-- History Modal -->
+    <!-- New History Modal -->
     <div id="historyModalOverlay" class="modal-overlay">
         <div class="history-modal"><h3>History</h3><div id="combined-history-list" class="history-list-container"></div><button id="closeHistoryBtn" class="form-button" style="margin-top: 15px;">Close</button></div>
     </div>
-    
-    <!-- Create Task Modal -->
-    <div id="createTaskModalOverlay" class="modal-overlay">
-        <div class="task-modal">
-            <h3>Create New Task Advertisement</h3>
-            <div class="modal-body">
-                <p class="info-text" style="text-align: center; margin-bottom: 20px;">
-                    Purchase tasks using your USDT balance. Your task will be shown to other users to complete.<br>
-                    <strong>For manual deposits or promotions, contact admin: <a href="https://t.me/NEWTUBE12_admin" target="_blank" style="color: var(--primary-accent-color);">@NEWTUBE12_admin</a></strong>
-                </p>
-                <form id="create-task-form">
-                    <div class="form-group">
-                        <label>1. Select a Package</label>
-                        <div id="ad-package-grid" class="item-grid">
-                            <!-- Packages will be injected here by JS -->
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="task-title-input">2. Task Title</label>
-                        <input type="text" id="task-title-input" placeholder="e.g., Join My Telegram Channel" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="task-url-input">3. Task URL</label>
-                        <input type="url" id="task-url-input" placeholder="https://t.me/your_channel" required>
-                    </div>
-                    <button type="submit" class="form-button">Create Task</button>
-                </form>
-            </div>
-            <button id="closeTaskModalBtn" class="form-button" style="margin-top: 15px; background-color: var(--text-muted);">Close</button>
-        </div>
-    </div>
-
 
     <script src="https://www.youtube.com/iframe_api" async></script>
     
@@ -744,11 +725,11 @@
         let withdrawalUISetup = false;
         let selectedAdPackage = null;
 
-        const AD_PGCOIN_LIMIT = 30;
+        const AD_PGCOIN_LIMIT = 25;
         const AD_PGCOIN_REWARD = 0.03;
         const AD_TASK_HASH_REWARD = 0.1;
         const DAILY_LOGIN_PG_REWARD = 0.02;
-        const USER_CREATED_TASK_REWARD_PG = 0.02; // UPDATED REWARD
+        const USER_CREATED_TASK_REWARD_PG = 0.005; 
 
         // Mining Constants
         const BASE_HASH_POWER = 10;
@@ -878,19 +859,12 @@
                 }
                 await setDoc(userRef, defaultUserData);
 
-                // Grant reward to referrer if exists
                 if (referrerCode && referrerCode !== userId) {
                      try {
                         const referrerRef = doc(db, 'users', referrerCode);
-                        // Using a transaction to ensure atomicity
-                        await runTransaction(db, async (transaction) => {
-                            const referrerDoc = await transaction.get(referrerRef);
-                            if (referrerDoc.exists()) {
-                                transaction.update(referrerRef, {
-                                    lotterySpins: increment(1),
-                                    referralCount: increment(1)
-                                });
-                            }
+                        await updateDoc(referrerRef, {
+                            lotterySpins: increment(1),
+                            referralCount: increment(1)
                         });
                     } catch (error) { console.error("Failed to grant referral spin:", error); }
                 }
@@ -1058,17 +1032,8 @@
             if (!e.target.matches('.ad-task-button') || e.target.disabled) return;
             const button = e.target;
             button.disabled = true; button.textContent = 'Loading Ad...';
-
-            const startTime = Date.now();
-
             try {
                 await showRandomAdForTask();
-                
-                const elapsedTime = Date.now() - startTime;
-                if (elapsedTime < 5000) { // 5-second check
-                    throw new Error("Ad was closed too quickly.");
-                }
-
                 if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
                 
                 const userRef = doc(db, 'users', currentUser.id);
@@ -1086,14 +1051,10 @@
 
                 showSuccessModal("Congratulations!", `You've earned ${AD_PGCOIN_REWARD} PG Coin and a temporary ${AD_TASK_HASH_REWARD} H/s boost for 24 hours.`);
                 
-            } catch (err) {
-                if (err.message === "Ad was closed too quickly.") {
-                    alert('You must watch the ad for at least 5 seconds to earn a reward.');
-                } else {
-                    alert('Ad failed to load or was closed before completion.');
-                }
-            } finally {
                 await fetchAndUpdateCurrentUser();
+                setupAdsToEarn();
+            } catch (err) {
+                alert('You need to watch the complete ad to earn the reward.');
                 setupAdsToEarn();
             }
         });
@@ -1341,7 +1302,6 @@
                 e.target.reset();
                 document.querySelectorAll('#ad-package-grid .ad-package-card.selected').forEach(c => c.classList.remove('selected'));
                 selectedAdPackage = null;
-                document.getElementById('createTaskModalOverlay').classList.remove('show');
                 
                 await fetchAndUpdateCurrentUser();
                 await renderMyAds();
@@ -1570,42 +1530,19 @@
             document.getElementById('referral-commission-pg').textContent = (currentUser.lifetimeCommissionPg || 0).toFixed(3);
         }
         
-        // --- AD PROVIDER FUNCTIONS ---
         const showMonetagAd = () => new Promise((res, rej) => typeof show_9442539 === 'function' ? show_9442539().then(res).catch(rej) : rej('Monetag SDK missing'));
         const showGigaPubAd = () => new Promise((res, rej) => typeof window.showGiga === 'function' ? window.showGiga("main").then(res).catch(rej) : rej('GigaPub SDK missing'));
-        
-        const showAdextraAd = () => new Promise((resolve, reject) => {
-            if (typeof p_adextra === 'function') {
-                p_adextra({
-                    onSuccess: () => { console.log("Adextra ad shown successfully."); resolve(); },
-                    onError: (err) => { console.error("Adextra ad failed to show:", err); reject(new Error("Adextra ad failed to show.")); }
-                });
-            } else {
-                reject(new Error('Adextra SDK function (p_adextra) not found.'));
-            }
-        });
-
         async function showRandomAdForTask() {
-            const adProviders = [showMonetagAd, showGigaPubAd, showAdextraAd];
-            const randomAdProvider = adProviders[Math.floor(Math.random() * adProviders.length)];
-            try { 
-                await randomAdProvider(); 
-            } 
-            catch(err) { 
-                console.warn("An ad provider failed to load:", err); 
-                throw err;
-            }
+            try { await [showMonetagAd, showGigaPubAd][Math.floor(Math.random() * 2)](); } 
+            catch(err) { console.warn("Ad provider failed to show ad:", err); throw err; }
         }
         
         document.getElementById('history-btn').addEventListener('click', showCombinedHistory);
         document.getElementById('closeHistoryBtn').addEventListener('click', () => document.getElementById('historyModalOverlay').classList.remove('show'));
         document.getElementById('show-create-task-btn').addEventListener('click', () => {
-             document.getElementById('createTaskModalOverlay').classList.add('show');
+            const section = document.getElementById('create-task-section');
+            section.style.display = section.style.display === 'none' ? 'block' : 'none';
         });
-        document.getElementById('closeTaskModalBtn').addEventListener('click', () => {
-             document.getElementById('createTaskModalOverlay').classList.remove('show');
-        });
-
 
         document.querySelectorAll('.bottom-nav-item, .header-icon-btn').forEach(link => {
             if(!link.dataset.tabTarget) return;
@@ -1941,18 +1878,6 @@
             }
         });
 
-        function setupUserIdDisplay(userId) {
-            const userIdContainer = document.getElementById('header-user-id');
-            const userIdSpan = userIdContainer.querySelector('span');
-            userIdSpan.textContent = `ID: ${userId}`;
-            userIdContainer.addEventListener('click', () => {
-                navigator.clipboard.writeText(userId).then(() => {
-                    if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-                    showSuccessModal("Copied!", `User ID ${userId} copied to clipboard.`);
-                });
-            });
-        }
-
         async function main() {
             try {
                 if (!tg.initDataUnsafe?.user) { document.body.innerHTML = `<div class="card" style="margin-top: 50px;"><h3>Error</h3><p>This app can only be launched from Telegram.</p></div>`; return; }
@@ -1963,8 +1888,6 @@
                 if (document.body.innerHTML.includes('Account Banned')) {
                     return;
                 }
-
-                setupUserIdDisplay(currentUser.id);
 
                 document.getElementById('referral-userid').addEventListener('click', () => {
                     if (currentUser?.id) navigator.clipboard.writeText(currentUser.id).then(() => {
@@ -1983,4 +1906,3 @@
 
 </body>
 </html>
-```
