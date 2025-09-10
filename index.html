@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -26,7 +28,7 @@
     <script async src="https://partner.adextra.io/jt/fa6b30e404e1046793d70db4a424966f97960abe.js"></script>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;600;700&family=Roboto+Mono:wght@700&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
@@ -138,6 +140,7 @@
         
         .ad-task-card p { margin: 8px 0 15px; color: var(--text-muted); font-weight: bold; }
         .task-reward-pg { color: var(--pg-coin-color); }
+        .task-reward-usdt { color: var(--success-color); }
         .ad-task-button { width: 100%; padding: 12px; border: none; border-radius: 0 0 10px 10px; font-weight: bold; cursor: pointer; background-color: var(--primary-accent-color); color: #ffffff; transition: background-color .2s; margin-top: auto; font-size: 1em;}
         .task-button, .daily-task-button { width: auto; flex-shrink: 0; padding: 10px 20px; font-size: 0.9em; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; background-color: var(--primary-accent-color); color: #ffffff; transition: background-color .2s; margin-top: 0; }
         .task-button:disabled, .ad-task-button:disabled, .daily-task-button:disabled { background-color: var(--disabled-color); color: #fff; cursor: not-allowed; }
@@ -167,9 +170,12 @@
         @keyframes icon-pop-in { 0% { transform: scale(0); } 70% { transform: scale(1.1); } 100% { transform: scale(1); } }
         .modal-content h3 { margin: 0 0 10px; font-size: 1.6em; }
         .modal-content p { margin: 0; color: var(--text-muted); font-size: 1em; white-space: pre-wrap;}
-        .history-modal, .task-modal, .welcome-modal { background-color: var(--card-bg); color: var(--text-light); padding: 20px; border-radius: 15px; text-align: left; width: 90%; max-width: 500px; max-height: 90vh; display: flex; flex-direction: column; }
-        .history-modal h3, .task-modal h3, .welcome-modal h3 { text-align: center; margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
-        #combined-history-list, .task-modal .modal-body, .welcome-modal .modal-body { overflow-y: auto; flex-grow: 1; margin-bottom: 15px; }
+        .history-modal, .task-modal, .welcome-modal, .task-confirm-modal { background-color: var(--card-bg); color: var(--text-light); padding: 20px; border-radius: 15px; text-align: left; width: 90%; max-width: 500px; max-height: 90vh; display: flex; flex-direction: column; }
+        .history-modal h3, .task-modal h3, .welcome-modal h3, .task-confirm-modal h3 { text-align: center; margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
+        #combined-history-list, .task-modal .modal-body, .welcome-modal .modal-body, .task-confirm-modal .modal-body { overflow-y: auto; flex-grow: 1; margin-bottom: 15px; }
+        .task-confirm-modal .modal-body { text-align: center; }
+        .task-confirm-modal-buttons { display: flex; gap: 10px; margin-top: 20px; }
+        .task-confirm-modal-buttons button { flex: 1; }
         
         .sub-card { background-color: #e9ecef; padding: 20px; border-radius: 10px; margin-bottom: 25px; }
         .info-text { font-size: 0.9em; color: var(--text-muted); margin-top: 10px; line-height: 1.5; }
@@ -332,6 +338,9 @@
         </section>
 
         <section id="video-content" class="content-section">
+            <div id="adsterra-social-bar-container" style="display:none;">
+                <!-- Adsterra Social Bar will be injected here -->
+            </div>
             <h3 class="section-title">Trending Videos</h3>
             <div class="search-container">
                 <input type="search" id="videoSearchInput" placeholder="Search for videos...">
@@ -554,6 +563,21 @@
         </div>
     </div>
 
+    <!-- Task Confirmation Modal -->
+    <div id="taskConfirmModalOverlay" class="modal-overlay">
+        <div class="task-confirm-modal">
+            <h3>Confirm Task Completion</h3>
+            <div class="modal-body">
+                <p>Have you completed the task correctly? If not, please go back and complete it now.</p>
+                <p class="info-text">Note: Your submission may be reviewed by an administrator. Failure to complete tasks honestly can result in account suspension.</p>
+                <div class="task-confirm-modal-buttons">
+                    <button id="taskConfirmGoBackBtn" class="form-button" style="background-color: var(--text-muted);">Go Back to Task</button>
+                    <button id="taskConfirmSubmitBtn" class="form-button">Yes, I Completed It</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <script src="https://www.youtube.com/iframe_api" async></script>
     
@@ -578,9 +602,8 @@
         let currentUser = null;
         let player;
         let currentPlayingItem = null;
-        let videoSectionTimer = null;
-        let adextraTimer = null;
-        let videoRewardCounter = 0; 
+        let videoWatchTimer = null;
+        let lastRewardedWatchSecond = 0;
         let miningTimerInterval = null;
         let miningDisplayUpdateInterval = null;
         let isSubmittingWithdrawal = false; 
@@ -588,27 +611,31 @@
         let selectedAdPackage = null;
         let dailyBrowseTimer = null;
 
-        const AD_PGCOIN_LIMIT = 30;
-        const AD_PGCOIN_REWARD = 0.03;
-        const AD_TASK_HASH_REWARD = 0.1;
+        // Ads Section Constants
+        const AD_TASK_DAILY_LIMIT = 5;
+        const AD_TASK_REWARDS = {
+            'task1': { type: 'pgCoin', amount: 0.04 },
+            'task2': { type: 'pgCoin', amount: 0.04 },
+            'task3': { type: 'usdt', amount: 0.0005 }
+        };
+
         const DAILY_LOGIN_PG_REWARD = 0.02;
-        const USER_CREATED_TASK_REWARD_PG = 0.02;
+        const USER_CREATED_TASK_REWARD_PG = 0.06;
 
         // Mining Constants
         const BASE_HASH_POWER = 10;
         const MINING_SESSION_DURATION_SECONDS = 6 * 60 * 60; 
         const MINING_SESSION_REWARD_PG_PER_10HS = 0.125;
         
-        // Video Section Reward Constants
-        const VIDEO_SECTION_REWARD_INTERVAL_MS = 1.5 * 60 * 1000;
-        const VIDEO_SECTION_REWARD_MIN_USDT = 0.000001;
-        const VIDEO_SECTION_REWARD_MAX_USDT = 0.0003;
-        const VIDEO_REWARDS_BEFORE_AD = 4;
+        // Video Section Reward Constants (NEW)
+        const VIDEO_REWARD_PER_MINUTE_PG = 0.013;
+        const MAX_DAILY_VIDEO_REWARD_SECONDS = 5 * 60 * 60; // 5 hours
 
+        // UPDATE 4: New Ad Packages
         const adPackages = [
-            { id: 1, tasks: 100, price: 0.25 }, { id: 2, tasks: 300, price: 0.70 },
-            { id: 3, tasks: 500, price: 1.10 }, { id: 4, tasks: 700, price: 1.35 },
-            { id: 5, tasks: 900, price: 1.65 }, { id: 6, tasks: 1100, price: 2.00 }
+            { id: 1, tasks: 100, price: 0.30 }, { id: 2, tasks: 200, price: 0.50 },
+            { id: 3, tasks: 500, price: 1.10 }, { id: 4, tasks: 1000, price: 2.00 },
+            { id: 5, tasks: 2000, price: 3.50 }, { id: 6, tasks: 5000, price: 7.00 }
         ];
 
         // BAN SYSTEM: Function to display ban message
@@ -662,12 +689,15 @@
             if (!lastDailyReset || lastDailyResetTime < today) {
                 const updates = { 
                     'lastDailyReset': serverTimestamp(), 
-                    'pgCoinAdVisitsToday': 0,
                     'dailyReferralCount': 0,
                     'dailyTasksCompletedCount': 0,
                     'dailyRewardsClaimed': [],
                     'dailyBrowseVisit1Completed': false,
-                    'dailyBrowseVisit2Completed': false
+                    'dailyBrowseVisit2Completed': false,
+                    'dailyAdViews_1': 0, // Reset new ad counters
+                    'dailyAdViews_2': 0,
+                    'dailyAdViews_3': 0,
+                    'totalVideoWatchSecondsToday': 0 // Reset video watch time
                 };
                 try {
                     const userRef = doc(db, 'users', currentUser.id);
@@ -712,7 +742,7 @@
                 const defaultUserData = {
                     usdtBalance: 0, pgCoin: 0, lifetimePgCoinEarned: 0, referralCount: 0,
                     lifetimeCommissionPg: 0, lifetimeCommissionUsdt: 0,
-                    completedTasks: [], pgCoinAdVisitsToday: 0,
+                    completedTasks: [], 
                     lastDailyReset: serverTimestamp(), lastDailyLoginClaim: null,
                     withdrawalCount: 0, 
                     createdAt: serverTimestamp(), telegramUsername: tgUser.username || 'N/A',
@@ -720,10 +750,12 @@
                     tempHashBoosts: [], 
                     lotterySpins: 1, totalSpinsUsed: 0,
                     lastDailyAdSpin: null,
-                    isActivated: false, // For new user agreement flow
+                    isActivated: false,
                     dailyReferralCount: 0, dailyTasksCompletedCount: 0, 
                     dailyRewardsClaimed: [], dailyBrowseVisit1Completed: false, 
-                    dailyBrowseVisit2Completed: false
+                    dailyBrowseVisit2Completed: false,
+                    dailyAdViews_1: 0, dailyAdViews_2: 0, dailyAdViews_3: 0,
+                    totalVideoWatchSecondsToday: 0
                 };
                 if (referrerCode && referrerCode !== userId) {
                     defaultUserData.referredBy = referrerCode;
@@ -735,11 +767,19 @@
             const userData = userSnap.data();
             if (userData?.isBanned === true) { showBanScreen(); return null; }
             
+            // Migration for existing users
             const updates = {};
             if (userData.isActivated === undefined) updates.isActivated = true;
             if (userData.dailyReferralCount === undefined) updates.dailyReferralCount = 0;
             if (userData.dailyTasksCompletedCount === undefined) updates.dailyTasksCompletedCount = 0;
             if (userData.dailyRewardsClaimed === undefined) updates.dailyRewardsClaimed = [];
+            if (userData.dailyAdViews_1 === undefined) {
+                updates.dailyAdViews_1 = 0;
+                updates.dailyAdViews_2 = 0;
+                updates.dailyAdViews_3 = 0;
+            }
+            if (userData.totalVideoWatchSecondsToday === undefined) updates.totalVideoWatchSecondsToday = 0;
+
 
             if (Object.keys(updates).length > 0) {
                 await updateDoc(userRef, updates);
@@ -817,7 +857,6 @@
                  await updateDoc(userRef, updates);
              }
              
-             // Log transaction if info is provided
              if (transactionInfo.type) {
                  const transactionData = {
                     userId: currentUser.id,
@@ -855,7 +894,7 @@
                 item.className = 'movie-item';
                 item.dataset.youtubeId = video.youtubeId;
                 item.dataset.videoId = docSnap.id;
-                item.originalContent = `<div class="thumbnail-container"><img src="${video.thumbnailUrl}" alt="${video.title}" loading="lazy"></div><div class="movie-item-info"><h4>${video.title}</h4><p class="movie-reward">Watch to Earn USDT</p></div>`;
+                item.originalContent = `<div class="thumbnail-container"><img src="${video.thumbnailUrl}" alt="${video.title}" loading="lazy"></div><div class="movie-item-info"><h4>${video.title}</h4><p class="movie-reward">Watch to Earn PG Coin</p></div>`;
                 item.innerHTML = item.originalContent;
                 item.addEventListener('click', handleVideoClick);
                 grid.appendChild(item);
@@ -875,83 +914,121 @@
             clickedItem.innerHTML = `<div id="${playerDivId}" class="player-container"></div>`;
             player = new YT.Player(playerDivId, {
                 height: '100%', width: '100%', videoId: youtubeId,
-                playerVars: { 'autoplay': 1, 'controls': 1, 'rel': 0, 'fs': 1 }
+                playerVars: { 'autoplay': 1, 'controls': 1, 'rel': 0, 'fs': 1 },
+                events: { 'onStateChange': onPlayerStateChange }
             });
         }
-        
-        function stopVideoSectionActivity() {
-            clearInterval(videoSectionTimer);
-            clearInterval(adextraTimer);
-            videoSectionTimer = null;
-            adextraTimer = null;
-            videoRewardCounter = 0; 
-            if (currentPlayingItem?.originalContent) currentPlayingItem.innerHTML = currentPlayingItem.originalContent;
-            if (player) { try { player.destroy(); } catch (e) {} player = null; }
-            currentPlayingItem = null;
-        }
-        
-        function setupAdsToEarn() {
-            const adTaskListContainer = document.getElementById('ad-task-list');
-            adTaskListContainer.innerHTML = '';
-            if (!currentUser) return;
 
-            const visitsToday = currentUser.pgCoinAdVisitsToday || 0;
-            const totalTasks = 3;
-            const visitsPerTask = 10;
+        // UPDATE 6: New Video Watch Reward Logic
+        function onPlayerStateChange(event) {
+            if (event.data == YT.PlayerState.PLAYING) {
+                if (videoWatchTimer) clearInterval(videoWatchTimer);
+                videoWatchTimer = setInterval(async () => {
+                    if (!currentUser) return;
+                    let watchTimeToday = currentUser.totalVideoWatchSecondsToday || 0;
+                    if (watchTimeToday >= MAX_DAILY_VIDEO_REWARD_SECONDS) {
+                        clearInterval(videoWatchTimer);
+                        return;
+                    }
+                    watchTimeToday++;
+                    currentUser.totalVideoWatchSecondsToday = watchTimeToday; // Update local state
 
-            for (let i = 1; i <= totalTasks; i++) {
-                const lowerBound = (i - 1) * visitsPerTask;
-                const upperBound = i * visitsPerTask;
-                
-                const visitsLeftInBlock = Math.max(0, upperBound - visitsToday);
-                const visitsToShow = Math.min(visitsPerTask, visitsLeftInBlock);
-                
-                const isCompleted = visitsToday >= upperBound;
-                const isLocked = visitsToday < lowerBound;
-                const isDisabled = isCompleted || isLocked;
+                    const currentMinute = Math.floor(watchTimeToday / 60);
+                    const lastRewardedMinute = Math.floor(lastRewardedWatchSecond / 60);
 
-                const card = document.createElement('div');
-                card.className = 'ad-task-card';
-                let buttonText = 'Watch Ad';
-                if (isCompleted) {
-                    buttonText = 'Completed';
-                } else if (isLocked) {
-                    buttonText = 'Locked';
-                }
-                
-                card.innerHTML = `
-                    <div class="ad-task-card-info">
-                        <h4>Watch Ad & Earn (Part ${i})</h4>
-                        <p>Reward: <span class="task-reward-pg">${AD_PGCOIN_REWARD} PG Coin</span> + ${AD_TASK_HASH_REWARD} H/s (24h)</p>
-                        <p class="ad-visits-left">Visits Left: ${visitsToShow} / ${visitsPerTask}</p>
-                    </div>
-                    <button class="ad-task-button" data-ad-type="pgcoin" ${isDisabled ? 'disabled' : ''}>${buttonText}</button>
-                `;
-                adTaskListContainer.appendChild(card);
+                    if (currentMinute > lastRewardedMinute) {
+                        lastRewardedWatchSecond = watchTimeToday;
+                        await grantReward({ pgCoin: VIDEO_REWARD_PER_MINUTE_PG }, { type: 'Video Watch' });
+                        await updateDoc(doc(db, 'users', currentUser.id), {
+                           totalVideoWatchSecondsToday: increment(1)
+                        });
+                        showSuccessModal("Video Reward!", `You earned ${VIDEO_REWARD_PER_MINUTE_PG} PG for watching!`);
+                    }
+                }, 1000);
+            } else {
+                if (videoWatchTimer) clearInterval(videoWatchTimer);
             }
         }
         
+        function stopVideoSectionActivity() {
+            if(videoWatchTimer) clearInterval(videoWatchTimer);
+            videoWatchTimer = null;
+            if (currentPlayingItem?.originalContent) currentPlayingItem.innerHTML = currentPlayingItem.originalContent;
+            if (player) { try { player.destroy(); } catch (e) {} player = null; }
+            currentPlayingItem = null;
+            
+            // UPDATE 3: Hide Adsterra social bar
+            document.getElementById('adsterra-social-bar-container').style.display = 'none';
+        }
+
+        // UPDATE 2: New Ads Section Logic
+        function setupAdsToEarn() {
+            const container = document.getElementById('ad-task-list');
+            container.innerHTML = '';
+            if (!currentUser) return;
+
+            const adTasks = [
+                { id: 'task1', title: 'Watch Ad & Earn PG', reward: AD_TASK_REWARDS.task1, viewsToday: currentUser.dailyAdViews_1 || 0 },
+                { id: 'task2', title: 'Watch Ad & Earn PG', reward: AD_TASK_REWARDS.task2, viewsToday: currentUser.dailyAdViews_2 || 0 },
+                { id: 'task3', title: 'Watch Ad & Earn USDT', reward: AD_TASK_REWARDS.task3, viewsToday: currentUser.dailyAdViews_3 || 0 },
+            ];
+
+            adTasks.forEach(task => {
+                const isCompleted = task.viewsToday >= AD_TASK_DAILY_LIMIT;
+                const rewardText = task.reward.type === 'pgCoin' 
+                    ? `<span class="task-reward-pg">${task.reward.amount} PG</span>` 
+                    : `<span class="task-reward-usdt">${task.reward.amount} USDT</span>`;
+
+                const card = document.createElement('div');
+                card.className = 'ad-task-card';
+                card.innerHTML = `
+                    <div class="ad-task-card-info">
+                        <h4>${task.title}</h4>
+                        <p>Reward: ${rewardText}</p>
+                        <p class="ad-visits-left">Views Left: ${AD_TASK_DAILY_LIMIT - task.viewsToday} / ${AD_TASK_DAILY_LIMIT}</p>
+                    </div>
+                    <button class="ad-task-button" data-ad-task-id="${task.id}" ${isCompleted ? 'disabled' : ''}>
+                        ${isCompleted ? 'Completed' : 'Watch Ad'}
+                    </button>`;
+                container.appendChild(card);
+            });
+        }
+        
         document.getElementById('ad-task-list').addEventListener('click', async (e) => {
-            if (!e.target.matches('.ad-task-button') || e.target.disabled) return;
-            const button = e.target;
-            button.disabled = true; button.textContent = 'Loading Ad...';
+            const button = e.target.closest('.ad-task-button');
+            if (!button || button.disabled) return;
+            
+            const taskId = button.dataset.adTaskId;
+            button.disabled = true;
+            button.textContent = 'Loading Ad...';
 
             try {
                 await showRandomAdForTask();
                 if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
                 
-                const userRef = doc(db, 'users', currentUser.id);
-                const expiryDate = new Date(Date.now() + 24 * 60 * 60 * 1000);
-                const newBoost = { power: AD_TASK_HASH_REWARD, expiresAt: Timestamp.fromDate(expiryDate) };
-                
-                await grantReward({ pgCoin: AD_PGCOIN_REWARD }, {type: 'Ad Watch'});
-                await updateDoc(userRef, { pgCoinAdVisitsToday: increment(1), tempHashBoosts: arrayUnion(newBoost) });
-
-                showSuccessModal("Congratulations!", `You've earned ${AD_PGCOIN_REWARD} PG Coin and a temporary ${AD_TASK_HASH_REWARD} H/s boost for 24 hours.`);
-                
+                let countdown = 10;
+                button.textContent = `Please Wait ${countdown}s`;
+                const timer = setInterval(async () => {
+                    countdown--;
+                    button.textContent = `Please Wait ${countdown}s`;
+                    if (countdown <= 0) {
+                        clearInterval(timer);
+                        const rewardInfo = AD_TASK_REWARDS[taskId];
+                        const updateField = `dailyAdViews_${taskId.replace('task', '')}`;
+                        
+                        await grantReward(
+                            { [rewardInfo.type]: rewardInfo.amount },
+                            { type: 'Ad Watch', details: `Completed ad task ${taskId}` }
+                        );
+                        await updateDoc(doc(db, 'users', currentUser.id), { [updateField]: increment(1) });
+                        
+                        showSuccessModal("Reward Claimed!", `Your reward has been added to your balance.`);
+                        await fetchAndUpdateCurrentUser();
+                        setupAdsToEarn();
+                    }
+                }, 1000);
             } catch (err) {
-                alert('Ad failed to load or was closed before completion.');
-            } finally {
+                alert('Ad failed to load or was closed. Please try again.');
                 await fetchAndUpdateCurrentUser();
                 setupAdsToEarn();
             }
@@ -1027,49 +1104,86 @@
             }
         }
         
+        // UPDATE 5: New Task Completion Flow
         document.getElementById('task-list').addEventListener('click', async (e) => {
-            if (!e.target.matches('.task-button') || e.target.disabled) return;
-            const button = e.target;
-            const taskCard = button.closest('.task-card');
+            const button = e.target.closest('.task-button');
+            if (!button || button.disabled) return;
+            
             const { taskId, taskUrl, state } = button.dataset;
 
             if (state === 'start') {
                 tg.openLink(taskUrl);
-                button.textContent = 'Claim Reward';
-                button.dataset.state = 'claim';
-            } else if (state === 'claim') {
-                button.disabled = true; button.textContent = 'Verifying...';
-                try {
-                    await runTransaction(db, async (t) => {
-                        const userRef = doc(db, 'users', currentUser.id);
-                        const taskRef = doc(db, 'tasks', taskId);
-                        const userDoc = await t.get(userRef);
-                        const taskDoc = await t.get(taskRef);
-                        if (!userDoc.exists() || !taskDoc.exists()) throw "USER_OR_TASK_NOT_FOUND";
-                        if (userDoc.data().completedTasks?.includes(taskId)) throw "ALREADY_COMPLETED";
-                        const taskData = taskDoc.data();
-                        if ((taskData.limit || 0) > 0 && (taskData.completionCount || 0) >= taskData.limit) throw "TASK_LIMIT_REACHED";
-                        
-                        t.update(userRef, { completedTasks: arrayUnion(taskId), dailyTasksCompletedCount: increment(1) });
-                        t.update(taskRef, { completionCount: increment(1) });
-                    });
-                    
-                    await grantReward({ pgCoin: Number(button.dataset.rewardPg) || 0 }, { type: 'Task Completion'});
-                    showSuccessModal("Reward Claimed!", `Reward added to your balance.`);
-                    if (taskCard) taskCard.remove();
-                    await fetchAndUpdateCurrentUser();
-
-                } catch (error) {
-                    const errorMessages = { "ALREADY_COMPLETED": "You have already completed this task.", "TASK_LIMIT_REACHED": "This task has reached its completion limit."};
-                    alert(errorMessages[error] || 'Failed to claim reward.');
-                    if (error === "ALREADY_COMPLETED" || error === "TASK_LIMIT_REACHED") {
-                         if (taskCard) taskCard.remove();
-                    } else {
-                        button.disabled = false; button.textContent = 'Claim Reward';
+                button.disabled = true;
+                let countdown = 8;
+                button.textContent = `Claim in ${countdown}s`;
+                const timer = setInterval(() => {
+                    countdown--;
+                    button.textContent = `Claim in ${countdown}s`;
+                    if (countdown <= 0) {
+                        clearInterval(timer);
+                        button.disabled = false;
+                        button.textContent = 'Claim Reward';
+                        button.dataset.state = 'claim';
                     }
-                }
+                }, 1000);
+            } else if (state === 'claim') {
+                showTaskConfirmationModal(taskId, taskUrl, button);
             }
         });
+        
+        function showTaskConfirmationModal(taskId, taskUrl, buttonElement) {
+            const modal = document.getElementById('taskConfirmModalOverlay');
+            const goBackButton = document.getElementById('taskConfirmGoBackBtn');
+            const submitButton = document.getElementById('taskConfirmSubmitBtn');
+
+            // Using .onclick to easily remove previous listeners
+            goBackButton.onclick = () => {
+                tg.openLink(taskUrl);
+                modal.classList.remove('show');
+            };
+            
+            submitButton.onclick = async () => {
+                modal.classList.remove('show');
+                await processTaskClaim(taskId, buttonElement);
+            };
+
+            modal.classList.add('show');
+        }
+
+        async function processTaskClaim(taskId, button) {
+            const taskCard = button.closest('.task-card');
+            button.disabled = true;
+            button.textContent = 'Verifying...';
+            try {
+                await runTransaction(db, async (t) => {
+                    const userRef = doc(db, 'users', currentUser.id);
+                    const taskRef = doc(db, 'tasks', taskId);
+                    const userDoc = await t.get(userRef);
+                    const taskDoc = await t.get(taskRef);
+                    if (!userDoc.exists() || !taskDoc.exists()) throw "USER_OR_TASK_NOT_FOUND";
+                    if (userDoc.data().completedTasks?.includes(taskId)) throw "ALREADY_COMPLETED";
+                    const taskData = taskDoc.data();
+                    if ((taskData.limit || 0) > 0 && (taskData.completionCount || 0) >= taskData.limit) throw "TASK_LIMIT_REACHED";
+                    
+                    t.update(userRef, { completedTasks: arrayUnion(taskId), dailyTasksCompletedCount: increment(1) });
+                    t.update(taskRef, { completionCount: increment(1) });
+                });
+                
+                await grantReward({ pgCoin: Number(button.dataset.rewardPg) || 0 }, { type: 'Task Completion'});
+                showSuccessModal("Reward Claimed!", `Reward added to your balance.`);
+                if (taskCard) taskCard.remove();
+                await fetchAndUpdateCurrentUser();
+
+            } catch (error) {
+                const errorMessages = { "ALREADY_COMPLETED": "You have already completed this task.", "TASK_LIMIT_REACHED": "This task has reached its completion limit."};
+                alert(errorMessages[error] || 'Failed to claim reward.');
+                if (error === "ALREADY_COMPLETED" || error === "TASK_LIMIT_REACHED") {
+                     if (taskCard) taskCard.remove();
+                } else {
+                    button.disabled = false; button.textContent = 'Claim Reward';
+                }
+            }
+        }
         
         function renderTaskPackages() {
             const grid = document.getElementById('ad-package-grid');
@@ -1283,10 +1397,17 @@
         const showAdextraAd = () => new Promise((res, rej) => typeof p_adextra === 'function' ? p_adextra({ onSuccess: res, onError: (e) => rej(new Error("Adextra ad failed: " + e))}) : rej('Adextra SDK missing'));
 
         async function showRandomAdForTask() {
-            const adProviders = [showMonetagAd, showGigaPubAd]; // Only Monetag and GigaPub
+            // UPDATE 2: Add Adextra to the random pool
+            const adProviders = [showMonetagAd, showGigaPubAd, showAdextraAd];
             const randomAdProvider = adProviders[Math.floor(Math.random() * adProviders.length)];
             try { await randomAdProvider(); } 
-            catch(err) { console.warn("An ad provider failed to load:", err); throw err; }
+            catch(err) { console.warn("An ad provider failed, trying another one...", err);
+                const otherProviders = adProviders.filter(p => p !== randomAdProvider);
+                if (otherProviders.length > 0) {
+                    const fallbackProvider = otherProviders[Math.floor(Math.random() * otherProviders.length)];
+                    try { await fallbackProvider(); } catch(fallbackErr) { console.error("Fallback ad provider also failed:", fallbackErr); throw fallbackErr; }
+                } else { throw err; }
+            }
         }
         
         document.getElementById('history-btn').addEventListener('click', showCombinedHistory);
@@ -1317,18 +1438,16 @@
                     case '#ads-content': setupAdsToEarn(); break;
                     case '#video-content': 
                         await fetchContent();
-                        if (videoSectionTimer) clearInterval(videoSectionTimer);
-                        videoSectionTimer = setInterval(async () => {
-                            const rewardUsdt = parseFloat((Math.random() * (VIDEO_SECTION_REWARD_MAX_USDT - VIDEO_SECTION_REWARD_MIN_USDT) + VIDEO_SECTION_REWARD_MIN_USDT).toFixed(7));
-                            await grantReward({ usdt: rewardUsdt }, {type: 'Video Watch'});
-                            showSuccessModal("Video Section Reward!", `You earned ${rewardUsdt.toFixed(4)} USDT!`);
-                        }, VIDEO_SECTION_REWARD_INTERVAL_MS);
-                        
-                        // Adextra timer
-                        if (adextraTimer) clearInterval(adextraTimer);
-                        adextraTimer = setInterval(async () => {
-                            try { await showAdextraAd(); } catch(e) { console.error("Adextra ad failed to show in video section", e); }
-                        }, 4 * 60 * 1000);
+                        lastRewardedWatchSecond = currentUser.totalVideoWatchSecondsToday || 0;
+                        // UPDATE 3: Show Adsterra social bar
+                        const adsterraContainer = document.getElementById('adsterra-social-bar-container');
+                        adsterraContainer.style.display = 'block';
+                        if (!adsterraContainer.querySelector('script')) {
+                            const script = document.createElement('script');
+                            script.type = 'text/javascript';
+                            script.src = '//suggestbingo.com/55/02/5c/55025c7818ef24365e262ed0d416a7a0.js';
+                            adsterraContainer.appendChild(script);
+                        }
                         break;
                     case '#referral-content': renderReferralStats(); break;
                     case '#task-content': 
@@ -1495,17 +1614,32 @@
                 }, 2000);
             } catch (error) { console.error("Error during spin:", error); alert("An error occurred. Please try again."); spinButton.disabled = false; }
         }
-
+        
+        // UPDATE 1: New Lottery Ad Spin Logic
         async function handleDailyAdSpin() {
             const button = document.getElementById('spinButton');
-            button.disabled = true; button.textContent = 'Loading Ad...';
+            button.disabled = true; 
+            button.textContent = 'Loading Ad...';
             try {
                 await showRandomAdForTask();
-                await updateDoc(doc(db, 'users', currentUser.id), { lotterySpins: increment(1), lastDailyAdSpin: serverTimestamp() });
-                await fetchAndUpdateCurrentUser();
-                showSuccessModal("Spin Awarded!", "You've earned 1 free spin for watching an ad.");
-            } catch (error) { alert('Ad failed to load or was closed. Please try again.'); } 
-            finally { await renderLotteryUI(); }
+                let countdown = 14;
+                button.textContent = `Please Wait ${countdown}s`;
+                const timer = setInterval(async () => {
+                    countdown--;
+                    button.textContent = `Please Wait ${countdown}s`;
+                    if (countdown <= 0) {
+                        clearInterval(timer);
+                        button.textContent = 'Claiming...';
+                        await updateDoc(doc(db, 'users', currentUser.id), { lotterySpins: increment(1), lastDailyAdSpin: serverTimestamp() });
+                        await fetchAndUpdateCurrentUser();
+                        showSuccessModal("Spin Awarded!", "You've earned 1 free spin for watching an ad.");
+                        await renderLotteryUI();
+                    }
+                }, 1000);
+            } catch (error) { 
+                alert('Ad failed to load or was closed. Please try again.'); 
+                await renderLotteryUI();
+            } 
         }
 
         document.getElementById('spinButton').addEventListener('click', async () => {
@@ -1709,12 +1843,10 @@
                     });
                 });
                 
-                // Show welcome popup if user is not activated
                 if (!initStatus.isActivated) {
                     showWelcomePopup();
                 }
 
-                // Initial render for the home screen
                 await renderDailyLoginTask();
                 await renderDailyRewardTasks();
 
