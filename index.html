@@ -206,12 +206,16 @@
         .history-date-header { padding: 15px 5px 5px; color: var(--text-muted); font-weight: 600; font-size: 0.9em; }
         .history-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 5px; border-bottom: 1px solid var(--border-color); }
         .history-list-container .history-item:last-child { border-bottom: none; }
-        .history-item-left strong, .history-item-right strong { font-size: 1em; font-weight: 500; color: var(--text-light); }
-        .history-item-left small, .history-item-right small { font-size: 0.85em; color: var(--text-muted); display: block; margin-top: 4px; }
+        .history-item-left strong { font-size: 1em; font-weight: 500; color: var(--text-light); }
+        .history-item-left small { font-size: 0.85em; color: var(--text-muted); display: block; margin-top: 4px; }
         .history-item-right { text-align: right; }
-        .history-item-right .status-success { color: var(--success-color); font-weight: 600; text-transform: capitalize; }
-        .history-item-right .status-pending { color: #ffc107; font-weight: 600; text-transform: capitalize; }
-        .history-item-right .status-failed, .history-item-right .status-rejected { color: #dc3545; font-weight: 600; text-transform: capitalize; }
+        .history-item-right strong { font-size: 1em; font-weight: bold; }
+        .history-item-right small { font-size: 0.85em; display: block; margin-top: 4px; text-transform: capitalize; }
+        .history-item-right .amount-positive { color: var(--success-color); }
+        .history-item-right .amount-negative { color: #dc3545; }
+        .history-item-right .status-success { color: var(--success-color); font-weight: 600; }
+        .history-item-right .status-pending { color: #ffc107; font-weight: 600; }
+        .history-item-right .status-failed, .history-item-right .status-rejected { color: #dc3545; font-weight: 600; }
         
         #home-content .mining-body { font-family: 'Roboto Mono', monospace; display: flex; justify-content: center; align-items: center; color: var(--text-light); background: var(--card-bg); padding: 20px 0; border-radius: 20px; border: 1px solid var(--border-color); }
         .mining-container-new { width: 90%; max-width: 450px; background: rgba(255, 255, 255, 0.6); border: 1px solid rgba(74, 144, 226, 0.3); border-radius: 15px; padding: 30px; box-shadow: 0 0 25px rgba(74, 144, 226, 0.2); text-align: center; }
@@ -662,6 +666,7 @@
         let player;
         let currentPlayingItem = null;
         let videoWatchTimer = null;
+        let videoSyncTimer = null;
         let miningTimerInterval = null;
         let miningDisplayUpdateInterval = null;
         let isSubmittingWithdrawal = false; 
@@ -669,9 +674,6 @@
         let selectedAdPackage = null;
         let dailyBrowseTimer = null;
 
-        let localRewardCache = {
-            videoWatchPg: 0
-        };
         const VIDEO_CLAIM_THRESHOLD = 1.0;
 
         const AD_TASK_VIEWS_REQUIRED = 5;
@@ -749,6 +751,24 @@
                 } catch (error) { console.error("Error resetting daily limits:", error); }
             }
         }
+        
+        async function checkAndResetUnclaimedVideoPg() {
+            if (!currentUser) return;
+            const now = Date.now();
+            const lastUpdate = currentUser.unclaimedVideoPgLastUpdated?.toDate().getTime() || 0;
+            const oneWeekAgo = now - 7 * 24 * 60 * 60 * 1000;
+            
+            if (lastUpdate < oneWeekAgo && (currentUser.unclaimedVideoPg || 0) < VIDEO_CLAIM_THRESHOLD) {
+                try {
+                    await updateDoc(doc(db, 'users', currentUser.id), { unclaimedVideoPg: 0 });
+                    currentUser.unclaimedVideoPg = 0;
+                    console.log("Unclaimed video PG reset due to inactivity.");
+                } catch (error) {
+                    console.error("Error resetting unclaimed video PG:", error);
+                }
+            }
+        }
+
 
         async function grantCommission(rewardPg) {
             if (!currentUser.referredBy || !rewardPg || rewardPg <= 0) return;
@@ -799,7 +819,8 @@
                     dailyRewardsClaimed: [], dailyBrowseVisit1Completed: false, 
                     dailyBrowseVisit2Completed: false,
                     dailyAdViews_1: 0, dailyAdViews_2: 0, dailyAdViews_3: 0,
-                    totalVideoWatchSecondsToday: 0
+                    totalVideoWatchSecondsToday: 0,
+                    unclaimedVideoPg: 0, unclaimedVideoPgLastUpdated: null,
                 };
                 if (referrerCode && referrerCode !== userId) { defaultUserData.referredBy = referrerCode; }
                 await setDoc(userRef, defaultUserData);
@@ -821,6 +842,11 @@
             }
             if (userData.totalVideoWatchSecondsToday === undefined) updates.totalVideoWatchSecondsToday = 0;
             if (userData.lastNoticeShown === undefined) updates.lastNoticeShown = null;
+            if (userData.unclaimedVideoPg === undefined) {
+                updates.unclaimedVideoPg = 0;
+                updates.unclaimedVideoPgLastUpdated = null;
+            }
+
 
             if (Object.keys(updates).length > 0) { await updateDoc(userRef, updates); }
             
@@ -828,6 +854,7 @@
             await fetchAndUpdateCurrentUser(); 
             
             await checkAndResetDailies();
+            await checkAndResetUnclaimedVideoPg();
             generateReferralLink(currentUser.id);
             await initializeMiningState();
             
@@ -950,13 +977,17 @@
             const unclaimedBalanceEl = document.getElementById('video-unclaimed-balance-box');
             const claimButton = document.getElementById('video-claim-button-box');
 
-            unclaimedBalanceEl.textContent = `${localRewardCache.videoWatchPg.toFixed(4)} / ${VIDEO_CLAIM_THRESHOLD.toFixed(3)} PG`;
+            const unclaimedBalance = currentUser?.unclaimedVideoPg || 0;
 
-            if (localRewardCache.videoWatchPg > 0 && !claimBox.classList.contains('visible')) {
+            unclaimedBalanceEl.textContent = `${unclaimedBalance.toFixed(4)} / ${VIDEO_CLAIM_THRESHOLD.toFixed(3)} PG`;
+
+            if (unclaimedBalance > 0 && !claimBox.classList.contains('visible')) {
                 claimBox.classList.add('visible');
+            } else if (unclaimedBalance <= 0) {
+                 claimBox.classList.remove('visible');
             }
 
-            if (localRewardCache.videoWatchPg >= VIDEO_CLAIM_THRESHOLD) {
+            if (unclaimedBalance >= VIDEO_CLAIM_THRESHOLD) {
                 claimButton.disabled = false;
                 if (!claimBox.classList.contains('pulsate')) {
                     claimBox.classList.add('pulsate');
@@ -966,20 +997,58 @@
                 claimBox.classList.remove('pulsate');
             }
         }
+        
+        async function syncUnclaimedVideoPg() {
+            if (!currentUser) return;
+            try {
+                const userRef = doc(db, 'users', currentUser.id);
+                await updateDoc(userRef, {
+                    unclaimedVideoPg: currentUser.unclaimedVideoPg,
+                    unclaimedVideoPgLastUpdated: serverTimestamp()
+                });
+            } catch (error) {
+                console.error("Failed to sync unclaimed video PG:", error);
+            }
+        }
+
 
         async function claimVideoRewards() {
             const claimButton = document.getElementById('video-claim-button-box');
-            if (localRewardCache.videoWatchPg < VIDEO_CLAIM_THRESHOLD) return;
+            if (currentUser.unclaimedVideoPg < VIDEO_CLAIM_THRESHOLD) return;
 
             claimButton.disabled = true;
             claimButton.textContent = 'Claiming...';
             
-            const amountToClaim = Math.floor(localRewardCache.videoWatchPg / VIDEO_CLAIM_THRESHOLD) * VIDEO_CLAIM_THRESHOLD;
+            const amountToClaim = Math.floor(currentUser.unclaimedVideoPg / VIDEO_CLAIM_THRESHOLD) * VIDEO_CLAIM_THRESHOLD;
+            if (amountToClaim <= 0) {
+                claimButton.textContent = 'Claim';
+                updateVideoClaimUI();
+                return;
+            }
 
             try {
-                await grantReward({ pgCoin: amountToClaim }, { type: 'Video Watch' });
-                localRewardCache.videoWatchPg -= amountToClaim;
+                await runTransaction(db, async (t) => {
+                    const userRef = doc(db, 'users', currentUser.id);
+                    const userDoc = await t.get(userRef);
+                    if (!userDoc.exists()) throw new Error("User not found");
+
+                    const currentUnclaimed = userDoc.data().unclaimedVideoPg || 0;
+                    if (currentUnclaimed < amountToClaim) throw new Error("Inconsistent balance");
+                    
+                    t.update(userRef, {
+                        pgCoin: increment(amountToClaim),
+                        lifetimePgCoinEarned: increment(amountToClaim),
+                        unclaimedVideoPg: increment(-amountToClaim)
+                    });
+                });
                 
+                await grantCommission(amountToClaim);
+
+                await addDoc(collection(db, 'transactions'), {
+                    userId: currentUser.id, type: 'Video Watch',
+                    pgAmount: amountToClaim, status: 'Completed', createdAt: serverTimestamp()
+                });
+
                 showSuccessModal("Reward Claimed!", `You claimed ${amountToClaim.toFixed(3)} PG from watching videos.`);
                 await fetchAndUpdateCurrentUser();
                 updateVideoClaimUI();
@@ -1022,6 +1091,7 @@
         function onPlayerStateChange(event) {
             if (event.data == YT.PlayerState.PLAYING) {
                 if (videoWatchTimer) clearInterval(videoWatchTimer);
+                if (videoSyncTimer) clearInterval(videoSyncTimer);
 
                 videoWatchTimer = setInterval(async () => {
                     if (!currentUser) return;
@@ -1032,12 +1102,8 @@
                         return;
                     }
                     
-                    if (watchTimeToday % 10 === 0) {
-                         await updateDoc(doc(db, 'users', currentUser.id), { totalVideoWatchSecondsToday: increment(10) });
-                    }
                     currentUser.totalVideoWatchSecondsToday++;
-                    
-                    localRewardCache.videoWatchPg += VIDEO_REWARD_PER_SECOND_PG;
+                    currentUser.unclaimedVideoPg = (currentUser.unclaimedVideoPg || 0) + VIDEO_REWARD_PER_SECOND_PG;
                     
                     if (currentUser.totalVideoWatchSecondsToday % 5 === 0) {
                         triggerCoinVFX(event.target.getIframe());
@@ -1045,15 +1111,29 @@
 
                     updateVideoClaimUI();
                 }, 1000);
+                
+                videoSyncTimer = setInterval(async () => {
+                    await syncUnclaimedVideoPg();
+                    await updateDoc(doc(db, 'users', currentUser.id), { totalVideoWatchSecondsToday: currentUser.totalVideoWatchSecondsToday });
+                }, 15000); // Sync with Firestore every 15 seconds
 
             } else {
                 if (videoWatchTimer) clearInterval(videoWatchTimer);
+                if (videoSyncTimer) { // On pause/stop, do a final sync
+                    clearInterval(videoSyncTimer);
+                    syncUnclaimedVideoPg();
+                }
             }
         }
         
         function stopVideoSectionActivity() {
             if(videoWatchTimer) clearInterval(videoWatchTimer);
+            if(videoSyncTimer) {
+                clearInterval(videoSyncTimer);
+                syncUnclaimedVideoPg(); // Final sync before leaving
+            }
             videoWatchTimer = null;
+            videoSyncTimer = null;
             if (currentPlayingItem?.originalContent) currentPlayingItem.innerHTML = currentPlayingItem.originalContent;
             if (player) { try { player.destroy(); } catch (e) {} player = null; }
             currentPlayingItem = null;
@@ -1098,7 +1178,6 @@
             });
         }
         
-        // --- UPDATED: Ads section event listener with visibility check ---
         document.getElementById('ad-task-list').addEventListener('click', async (e) => {
             const button = e.target.closest('.ad-task-button');
             if (!button || button.disabled) return;
@@ -1162,13 +1241,12 @@
             };
 
             try {
-                // This will be called if the ad is closed by the user
                 window.onAdClosed = () => {
                     clearInterval(adTimer);
                     document.removeEventListener("visibilitychange", handleVisibilityChange);
                     if (!adSuccess) {
                         alert('Ad closed too early. No reward given.');
-                        setupAdsToEarn(); // Re-enable the button
+                        setupAdsToEarn(); 
                     }
                 };
 
@@ -1312,7 +1390,7 @@
                         submittedAt: serverTimestamp()
                     });
                     await updateDoc(doc(db, 'users', currentUser.id), { completedTasks: arrayUnion(taskId) });
-                    showSuccessModal("Task Submitted!", "Your submission is pending review by an admin. Reward will be added upon approval.");
+                    showSuccessModal("Task Submitted! ✅", "Your submission is pending admin review. Your reward will be added to your balance upon approval.");
                 } else {
                     // This is an admin task, grant reward instantly
                     await runTransaction(db, async (t) => {
@@ -1504,43 +1582,94 @@
             modal.classList.add('show');
             historyContainer.innerHTML = '<div class="loader"></div>';
             try {
-                const withdrawalsQuery = query(collection(db, "withdrawals"), where("userId", "==", currentUser.id), orderBy("createdAt", "desc"), limit(25));
-                const transactionsQuery = query(collection(db, "transactions"), where("userId", "==", currentUser.id), orderBy("createdAt", "desc"), limit(25));
-                const [withdrawalsSnapshot, transactionsSnapshot] = await Promise.all([getDocs(withdrawalsQuery), getDocs(transactionsQuery)]);
+                const withdrawalsQuery = query(collection(db, "withdrawals"), where("userId", "==", currentUser.id), orderBy("createdAt", "desc"), limit(20));
+                const transactionsQuery = query(collection(db, "transactions"), where("userId", "==", currentUser.id), orderBy("createdAt", "desc"), limit(20));
+                const submissionsQuery = query(collection(db, "task_submissions"), where("submitterId", "==", currentUser.id), orderBy("submittedAt", "desc"), limit(20));
+                
+                const [withdrawalsSnap, transactionsSnap, submissionsSnap] = await Promise.all([
+                    getDocs(withdrawalsQuery), getDocs(transactionsQuery), getDocs(submissionsQuery)
+                ]);
+
                 let combinedList = [];
-                withdrawalsSnapshot.forEach(docSnap => combinedList.push({ ...docSnap.data(), transactionType: 'Withdrawal', timestamp: docSnap.data().createdAt }));
-                transactionsSnapshot.forEach(docSnap => combinedList.push({ ...docSnap.data(), transactionType: docSnap.data().type, timestamp: docSnap.data().createdAt }));
+
+                withdrawalsSnap.forEach(doc => {
+                    const data = doc.data();
+                    combinedList.push({
+                        ...data, type: 'Withdrawal', timestamp: data.createdAt
+                    });
+                });
+                transactionsSnap.forEach(doc => {
+                    const data = doc.data();
+                    combinedList.push({
+                        ...data, timestamp: data.createdAt
+                    });
+                });
+                submissionsSnap.forEach(doc => {
+                    const data = doc.data();
+                    combinedList.push({
+                        ...data, type: 'Task Submission', timestamp: data.submittedAt
+                    });
+                });
+
                 combinedList.sort((a, b) => (b.timestamp?.toMillis() || 0) - (a.timestamp?.toMillis() || 0));
 
-                if (combinedList.length === 0) { historyContainer.innerHTML = '<p style="text-align:center;">No history found.</p>'; return; }
+                if (combinedList.length === 0) {
+                    historyContainer.innerHTML = '<p style="text-align:center;">No history found.</p>';
+                    return;
+                }
+                
                 historyContainer.innerHTML = '';
                 let lastDate = null;
-                const BDT_PER_USDT = 120, BDT_PER_PG = 2; 
 
                 combinedList.forEach(data => {
-                    if (!data.timestamp) return; 
+                    if (!data.timestamp) return;
+                    
                     const date = data.timestamp.toDate();
-                    const formattedDate = date.toLocaleDateString('en-CA').replace(/-/g, '.');
-                    const formattedTime = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+                    const formattedDate = date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+                    const formattedTime = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+
                     if (formattedDate !== lastDate) {
                         const dateHeader = document.createElement('div');
-                        dateHeader.className = 'history-date-header'; dateHeader.textContent = formattedDate;
-                        historyContainer.appendChild(dateHeader); lastDate = formattedDate;
+                        dateHeader.className = 'history-date-header';
+                        dateHeader.textContent = formattedDate;
+                        historyContainer.appendChild(dateHeader);
+                        lastDate = formattedDate;
                     }
+
+                    let title = data.type;
+                    let amountStr = '';
+                    let amountClass = '';
+                    let status = data.status || 'Completed';
+                    let statusClass = `status-${status.toLowerCase()}`;
+                    
+                    if (title === 'Withdrawal') {
+                        amountStr = `- ${(data.totalDeducted || 0).toFixed(data.withdrawType === 'usdt' ? 4 : 3)} ${data.withdrawType.toUpperCase()}`;
+                        amountClass = 'amount-negative';
+                    } else if (data.pgAmount) {
+                        amountStr = `+ ${data.pgAmount.toFixed(3)} PG`;
+                        amountClass = 'amount-positive';
+                    } else if (data.usdAmount) {
+                        amountStr = `+ ${data.usdAmount.toFixed(4)} USDT`;
+                        amountClass = 'amount-positive';
+                    } else if (title === 'Task Submission') {
+                        amountStr = 'Pending Reward';
+                        amountClass = '';
+                    }
+
                     const item = document.createElement('div');
                     item.className = 'history-item';
-                    let sign = '+', bdtAmount = 0;
-                    if (data.transactionType === 'Withdrawal') { sign = '-'; bdtAmount = data.withdrawType === 'pg' ? (data.totalDeducted || 0) * BDT_PER_PG : (data.totalDeducted || 0) * BDT_PER_USDT; } 
-                    else if (data.pgAmount) { bdtAmount = (data.pgAmount || 0) * BDT_PER_PG; } 
-                    else if (data.usdAmount) { bdtAmount = (data.usdAmount || 0) * BDT_PER_USDT; }
-                    
-                    let status = data.status || 'Success', statusClass = status.toLowerCase();
-                    if (['approved', 'completed', 'successful'].includes(statusClass)) { status = 'Success'; statusClass = 'success'; }
                     item.innerHTML = `
-                        <div class="history-item-left"><strong>${data.transactionType || 'Transaction'}</strong><small>${formattedTime}</small></div>
-                        <div class="history-item-right"><strong>${sign}৳${bdtAmount.toFixed(1)}</strong><small class="status-${statusClass}">${status}</small></div>`;
+                        <div class="history-item-left">
+                            <strong>${title}</strong>
+                            <small>${formattedTime}</small>
+                        </div>
+                        <div class="history-item-right">
+                            <strong class="${amountClass}">${amountStr}</strong>
+                            <small class="${statusClass}">${status}</small>
+                        </div>`;
                     historyContainer.appendChild(item);
                 });
+
             } catch (error) {
                 console.error("Error fetching combined history:", error);
                 historyContainer.innerHTML = '<p style="color:red;text-align:center;">Error loading history.</p>';
@@ -1816,7 +1945,6 @@
             } catch (error) { console.error("Error during spin:", error); alert("An error occurred. Please try again."); spinButton.disabled = false; }
         }
         
-        // --- UPDATED: Lottery ad function with visibility check ---
         async function handleDailyAdSpin() {
             const button = document.getElementById('spinButton');
             button.disabled = true; 
