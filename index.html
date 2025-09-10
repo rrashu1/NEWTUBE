@@ -169,7 +169,6 @@
         .modal-content h3 { margin: 0 0 10px; font-size: 1.6em; }
         .modal-content p { margin: 0; color: var(--text-muted); font-size: 1em; white-space: pre-wrap;}
         .history-modal, .task-modal, .welcome-modal, .task-confirm-modal, .notice-modal { background-color: var(--card-bg); color: var(--text-light); padding: 20px; border-radius: 15px; text-align: left; width: 90%; max-height: 90vh; display: flex; flex-direction: column; }
-        /* UPDATED: Notice Modal width reduced */
         .notice-modal { max-width: 400px; }
         .history-modal, .task-modal, .welcome-modal, .task-confirm-modal { max-width: 500px; }
 
@@ -272,7 +271,6 @@
         .welcome-modal .modal-body li { margin-bottom: 10px; }
         #welcome-agree-container { margin-top: 20px; display: flex; align-items: center; gap: 10px; }
 
-        /* --- UPDATED: Video Claim Box made smaller --- */
         #video-claim-box {
             position: fixed;
             bottom: 100px;
@@ -280,7 +278,7 @@
             background-color: rgba(255, 255, 255, 0.95);
             border: 1px solid var(--border-color);
             border-radius: 12px;
-            padding: 10px 12px; /* Reduced padding */
+            padding: 10px 12px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             text-align: center;
             z-index: 1001;
@@ -299,16 +297,16 @@
             100% { transform: scale(1); box-shadow: 0 5px 15px rgba(40, 167, 69, 0.2); }
         }
         #video-claim-box #video-unclaimed-balance-box {
-            font-size: 1em; /* Reduced font size */
+            font-size: 1em;
             font-weight: 700;
             color: var(--pg-coin-color);
             display: block;
-            margin-bottom: 8px; /* Reduced margin */
+            margin-bottom: 8px;
         }
         #video-claim-button-box {
             width: 100%;
-            padding: 6px 12px; /* Reduced padding */
-            font-size: 0.9em; /* Reduced font size */
+            padding: 6px 12px;
+            font-size: 0.9em;
         }
         .coin-vfx {
             position: absolute;
@@ -421,7 +419,6 @@
             <div class="card">
                 <svg class="card-icon" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
                 <h3>Referral Program</h3>
-                <!-- UPDATED: Referral Text with 8% commission info (but 10% displayed for user benefit as requested) -->
                 <p style="text-align: left; line-height: 1.8;">
                     Invite friends to get amazing rewards!
                     <br><br>
@@ -677,26 +674,17 @@
         };
         const VIDEO_CLAIM_THRESHOLD = 1.0;
 
-        // NEW ADS CONSTANTS
         const AD_TASK_VIEWS_REQUIRED = 5;
-        const AD_TASK_REWARD = 0.21; // PG Coin for completing 5 ads
-
+        const AD_TASK_REWARD = 0.21;
         const DAILY_LOGIN_PG_REWARD = 0.02;
-        const USER_CREATED_TASK_REWARD_PG = 0.07; // Updated reward
-
-        // Mining Constants
+        const USER_CREATED_TASK_REWARD_PG = 0.07;
         const BASE_HASH_POWER = 10;
         const MINING_SESSION_DURATION_SECONDS = 6 * 60 * 60; 
         const MINING_SESSION_REWARD_PG_PER_10HS = 0.125;
-        
-        // --- UPDATED: Video and Referral Reward Constants ---
-        // Video Reward: 0.0005 PG every 5 seconds = 0.0001 PG per second
         const VIDEO_REWARD_PER_SECOND_PG = 0.0001; 
         const MAX_DAILY_VIDEO_REWARD_SECONDS = 5 * 60 * 60;
-        // Referral Commission: 8% actual rate, but 10% is shown in UI text
         const REFERRAL_COMMISSION_RATE = 0.08; 
 
-        // Ad Packages
         const adPackages = [
             { id: 1, tasks: 100, price: 0.30 }, { id: 2, tasks: 200, price: 0.50 },
             { id: 3, tasks: 500, price: 1.10 }, { id: 4, tasks: 1000, price: 2.00 },
@@ -777,7 +765,7 @@
                      await addDoc(collection(db, 'transactions'), {
                         userId: referrerId,
                         type: 'Commission',
-                        details: `Commission from user ${currentUser.id}`, // Simplified details
+                        details: `Commission from user ${currentUser.id}`,
                         pgAmount: commissionAmount,
                         status: 'Completed',
                         createdAt: serverTimestamp()
@@ -799,7 +787,7 @@
                     lifetimeCommissionPg: 0,
                     completedTasks: [], 
                     lastDailyReset: serverTimestamp(), lastDailyLoginClaim: null,
-                    lastNoticeShown: null, // New field for notice
+                    lastNoticeShown: null,
                     withdrawalCount: 0, 
                     createdAt: serverTimestamp(), telegramUsername: tgUser.username || 'N/A',
                     miningStartTime: null, isBanned: false,
@@ -1044,7 +1032,6 @@
                         return;
                     }
                     
-                    // Update server every 10 seconds to reduce writes
                     if (watchTimeToday % 10 === 0) {
                          await updateDoc(doc(db, 'users', currentUser.id), { totalVideoWatchSecondsToday: increment(10) });
                     }
@@ -1052,7 +1039,6 @@
                     
                     localRewardCache.videoWatchPg += VIDEO_REWARD_PER_SECOND_PG;
                     
-                    // UPDATED: Trigger VFX every 5 seconds (5000ms)
                     if (currentUser.totalVideoWatchSecondsToday % 5 === 0) {
                         triggerCoinVFX(event.target.getIframe());
                     }
@@ -1112,6 +1098,7 @@
             });
         }
         
+        // --- UPDATED: Ads section event listener with visibility check ---
         document.getElementById('ad-task-list').addEventListener('click', async (e) => {
             const button = e.target.closest('.ad-task-button');
             if (!button || button.disabled) return;
@@ -1136,40 +1123,64 @@
 
             button.disabled = true;
             button.textContent = 'Loading Ad...';
+            
             let adTimer = null;
+            let adSuccess = false;
+            let countdown = 10;
 
-            try {
-                const onAdClosed = () => {
-                    clearInterval(adTimer);
-                    if (!adSuccess) {
-                        alert('Ad closed too early. Please watch for at least 10 seconds.');
-                        setupAdsToEarn(); // Re-enable the button
-                    }
-                };
-                window.onAdClosed = onAdClosed; // Make it globally accessible for ad SDKs if needed
-
-                await showRandomAdForTask(); 
-                let adSuccess = false;
-                
-                let countdown = 10;
-                button.textContent = `Wait ${countdown}s`;
+            const handleVisibilityChange = () => {
+                if (document.hidden) {
+                    if (adTimer) clearInterval(adTimer);
+                } else {
+                    if (countdown > 0) startTimer();
+                }
+            };
+            
+            const startTimer = () => {
+                if (adTimer) clearInterval(adTimer);
                 adTimer = setInterval(async () => {
                     countdown--;
                     button.textContent = `Wait ${countdown}s`;
                     if (countdown <= 0) {
                         adSuccess = true;
                         clearInterval(adTimer);
+                        document.removeEventListener("visibilitychange", handleVisibilityChange);
                         button.textContent = 'Processing...';
                         
-                        const updateField = `dailyAdViews_${taskId}`;
-                        await updateDoc(doc(db, 'users', currentUser.id), { [updateField]: increment(1) });
-                        
-                        await fetchAndUpdateCurrentUser();
-                        setupAdsToEarn(); 
+                        try {
+                            const updateField = `dailyAdViews_${taskId}`;
+                            await updateDoc(doc(db, 'users', currentUser.id), { [updateField]: increment(1) });
+                            await fetchAndUpdateCurrentUser();
+                            setupAdsToEarn(); 
+                        } catch (error) {
+                            console.error("Error updating ad views:", error);
+                            alert("Failed to update progress. Please try again.");
+                            setupAdsToEarn();
+                        }
                     }
                 }, 1000);
+            };
+
+            try {
+                // This will be called if the ad is closed by the user
+                window.onAdClosed = () => {
+                    clearInterval(adTimer);
+                    document.removeEventListener("visibilitychange", handleVisibilityChange);
+                    if (!adSuccess) {
+                        alert('Ad closed too early. No reward given.');
+                        setupAdsToEarn(); // Re-enable the button
+                    }
+                };
+
+                await showRandomAdForTask(); 
+                button.textContent = `Wait ${countdown}s`;
+                startTimer();
+                document.addEventListener("visibilitychange", handleVisibilityChange);
+
             } catch (err) {
+                console.error("Ad failed to load:", err);
                 clearInterval(adTimer);
+                document.removeEventListener("visibilitychange", handleVisibilityChange);
                 alert('Ad failed to load or was closed. Please try again.');
                 setupAdsToEarn();
             }
@@ -1325,6 +1336,7 @@
                 
                 if (taskCard) taskCard.remove();
                 await fetchAndUpdateCurrentUser();
+                await fetchTasks();
 
             } catch (error) {
                 const errorMessages = { "ALREADY_COMPLETED": "You have already completed this task.", "TASK_LIMIT_REACHED": "This task has reached its completion limit."};
@@ -1804,27 +1816,68 @@
             } catch (error) { console.error("Error during spin:", error); alert("An error occurred. Please try again."); spinButton.disabled = false; }
         }
         
+        // --- UPDATED: Lottery ad function with visibility check ---
         async function handleDailyAdSpin() {
             const button = document.getElementById('spinButton');
             button.disabled = true; 
             button.textContent = 'Loading Ad...';
-            try {
-                await showRandomAdForTask();
-                let countdown = 14;
-                button.textContent = `Please Wait ${countdown}s`;
-                const timer = setInterval(async () => {
+
+            let adTimer = null;
+            let adSuccess = false;
+            let countdown = 14;
+
+            const handleVisibilityChange = () => {
+                if (document.hidden) {
+                    if (adTimer) clearInterval(adTimer);
+                } else {
+                    if (countdown > 0) startTimer();
+                }
+            };
+            
+            const startTimer = () => {
+                if (adTimer) clearInterval(adTimer);
+                adTimer = setInterval(async () => {
                     countdown--;
                     button.textContent = `Please Wait ${countdown}s`;
                     if (countdown <= 0) {
-                        clearInterval(timer);
+                        adSuccess = true;
+                        clearInterval(adTimer);
+                        document.removeEventListener("visibilitychange", handleVisibilityChange);
                         button.textContent = 'Claiming...';
-                        await updateDoc(doc(db, 'users', currentUser.id), { lotterySpins: increment(1), lastDailyAdSpin: serverTimestamp() });
-                        await fetchAndUpdateCurrentUser();
-                        showSuccessModal("Spin Awarded!", "You've earned 1 free spin for watching an ad.");
-                        await renderLotteryUI();
+
+                        try {
+                            await updateDoc(doc(db, 'users', currentUser.id), { lotterySpins: increment(1), lastDailyAdSpin: serverTimestamp() });
+                            await fetchAndUpdateCurrentUser();
+                            showSuccessModal("Spin Awarded!", "You've earned 1 free spin for watching an ad.");
+                            await renderLotteryUI();
+                        } catch (error) {
+                            console.error("Error claiming ad spin:", error);
+                            alert("Failed to claim spin. Please try again.");
+                            await renderLotteryUI();
+                        }
                     }
                 }, 1000);
+            };
+
+            try {
+                window.onAdClosed = () => {
+                    clearInterval(adTimer);
+                    document.removeEventListener("visibilitychange", handleVisibilityChange);
+                    if (!adSuccess) {
+                        alert('Ad closed too early. No reward given.');
+                        renderLotteryUI();
+                    }
+                };
+
+                await showRandomAdForTask();
+                button.textContent = `Please Wait ${countdown}s`;
+                startTimer();
+                document.addEventListener("visibilitychange", handleVisibilityChange);
+                
             } catch (error) { 
+                console.error("Ad failed to load:", error);
+                clearInterval(adTimer);
+                document.removeEventListener("visibilitychange", handleVisibilityChange);
                 alert('Ad failed to load or was closed. Please try again.'); 
                 await renderLotteryUI();
             } 
@@ -1955,7 +2008,7 @@
             const lastShown = currentUser.lastNoticeShown?.toDate();
             const now = new Date();
             if (lastShown && (now.getTime() - lastShown.getTime()) < 24 * 60 * 60 * 1000) {
-                return; // Less than 24 hours have passed
+                return;
             }
             
             const overlay = document.getElementById('noticeModalOverlay');
