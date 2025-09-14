@@ -607,8 +607,8 @@
         const AD_TASK_REWARD = 0.2; // UPDATED from 0.21
         const DAILY_LOGIN_PG_REWARD = 0.02;
         const USER_CREATED_TASK_REWARD_PG = 0.07;
-        const VIDEO_REWARD_PER_SECOND_PG = 0.0001; 
-        const MAX_DAILY_VIDEO_REWARD_SECONDS = 10000; // UPDATED: Approx 2.77 hours for 1 PG daily cap
+        const VIDEO_REWARD_PER_SECOND_PG = 1 / 86400; // UPDATED: 1 PG per 24 hours (86400 seconds) of watch time.
+        const MAX_DAILY_VIDEO_REWARD_SECONDS = 86400; // UPDATED: 24 hours * 60 mins * 60 secs. Daily cap is 1 PG.
         const REFERRAL_COMMISSION_RATE = 0.06; // UPDATED from 0.08 (6%). UI still shows 10%.
 
         const adPackages = [
@@ -764,7 +764,7 @@
             await fetchAndUpdateCurrentUser(); 
             
             await checkAndResetDailies();
-            await checkAndResetUnclaimedVideoPg();
+            // await checkAndResetUnclaimedVideoPg(); // REMOVED as per user request: No 7-day reset for unclaimed PG.
             generateReferralLink(currentUser.id);
             
             return { isNewUser, isActivated: currentUser.isActivated };
