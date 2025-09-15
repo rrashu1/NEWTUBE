@@ -32,16 +32,16 @@
 
     <style>
         :root {
-            --primary-accent-color: #E50914; /* UPDATED: Red */
+            --primary-accent-color: #E50914; /* UPDATED: Netflix Red */
             --primary-accent-hover-color: #B20710; /* UPDATED: Darker Red */
-            --dark-bg: #121212; /* UPDATED: Dark Background */
-            --card-bg: #1c1c1c; /* UPDATED: Dark Card BG */
-            --header-bg: #1c1c1c; /* UPDATED: Dark Header BG */
-            --text-light: #ffffff; /* UPDATED: White text */
-            --text-muted: #a0a0a0; /* UPDATED: Grey text */
-            --border-color: #333333; /* UPDATED: Dark border */
+            --dark-bg: #141414; /* UPDATED: Almost Black */
+            --card-bg: #1F1F1F; /* UPDATED: Dark Grey */
+            --header-bg: #1F1F1F; /* UPDATED: Dark Grey */
+            --text-light: #FFFFFF; /* UPDATED: White */
+            --text-muted: #A0A0A0; /* UPDATED: Light Grey */
+            --border-color: #303030; /* UPDATED: Darker Grey */
             --success-color: #28a745;
-            --disabled-color: #6c757d;
+            --disabled-color: #404040; /* UPDATED */
             --pg-coin-color: #ff9900;
         }
         body { 
@@ -65,7 +65,7 @@
         .site-branding { display: flex; flex-direction: column; align-items: flex-start; }
         .site-title { font-size: 1.4em; color: var(--primary-accent-color); font-weight: 700; margin: 0; line-height: 1; }
         .user-id-display { font-size: 0.65em; color: var(--text-muted); font-family: 'Roboto Mono', monospace; cursor: pointer; display: flex; align-items: center; gap: 4px; padding: 2px 4px; border-radius: 4px; transition: background-color .2s;}
-        .user-id-display:hover { background-color: #333; }
+        .user-id-display:hover { background-color: #303030; }
         .user-id-display .copy-icon { width: 12px; height: 12px; }
         .header-right { display: flex; align-items: center; gap: 5px; }
         
@@ -73,7 +73,7 @@
         .header-icon-btn svg { width: 26px; height: 26px; }
         
         .referral-button-vfx {
-            background-color: var(--primary-accent-color); /* UPDATED */
+            background-color: var(--success-color);
             color: #ffffff;
             border-radius: 50%;
             width: 36px;
@@ -84,12 +84,12 @@
             padding: 0;
             animation: referral-glow 2s infinite ease-in-out;
         }
-        @keyframes referral-glow { /* UPDATED */
-            0%, 100% { box-shadow: 0 0 5px rgba(229, 9, 20, 0.6); }
-            50% { box-shadow: 0 0 12px rgba(229, 9, 20, 1), 0 0 18px rgba(229, 9, 20, 0.9); }
+        @keyframes referral-glow {
+            0%, 100% { box-shadow: 0 0 5px rgba(40, 167, 69, 0.6); }
+            50% { box-shadow: 0 0 12px rgba(40, 167, 69, 1), 0 0 18px rgba(40, 167, 69, 0.9); }
         }
 
-        .balance-display { background-color: rgba(255,255,255,0.05); color: var(--text-light); padding: 6px 12px; border-radius: 20px; font-weight: 600; font-size: 0.85em; }
+        .balance-display { background-color: rgba(255,255,255,0.08); color: var(--text-light); padding: 6px 12px; border-radius: 20px; font-weight: 600; font-size: 0.85em; }
         .balance-display .pg-label { color: var(--pg-coin-color); }
 
         .bottom-nav {
@@ -119,14 +119,14 @@
         .section-title { font-size: 1.6em; margin-bottom: 25px; padding-bottom: 10px; color: var(--text-light); border-bottom: 2px solid var(--border-color); font-weight: 600; }
         .sub-section-title { font-size: 1.2em; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-top: 40px; margin-bottom: 20px; font-weight: 500; }
         .search-container { display: flex; gap: 10px; margin-bottom: 20px; }
-        .search-container input { flex-grow: 1; padding: 12px; box-sizing: border-box; border-radius: 8px; border: 1px solid var(--border-color); background-color: #2b2b2b; color: var(--text-light); font-size: 1em; }
+        .search-container input { flex-grow: 1; padding: 12px; box-sizing: border-box; border-radius: 8px; border: 1px solid #444; background-color: #333; color: var(--text-light); font-size: 1em; }
         .search-container button { padding: 12px 18px; border: none; border-radius: 8px; background-color: var(--primary-accent-color); color: #ffffff; font-weight: bold; cursor: pointer; }
         .search-container button#clearSearchBtn { background-color: #6c757d; }
         .item-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
         
-        .movie-item, .ad-task-card, .task-card, .ad-package-card, .user-ad-item { background-color: var(--card-bg); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; border: 1px solid var(--border-color); transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .movie-item, .ad-task-card, .task-card, .ad-package-card, .user-ad-item { background-color: var(--card-bg); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; border: 1px solid var(--border-color); transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
         .movie-item { cursor: pointer; } 
-        .movie-item:hover{ transform: scale(1.03); box-shadow: 0 8px 25px rgba(0,0,0,0.2); }
+        .movie-item:hover{ transform: scale(1.03); box-shadow: 0 8px 25px rgba(0,0,0,0.3); }
         .thumbnail-container { width: 100%; aspect-ratio: 16/9; background-color: #333; position: relative; }
         .thumbnail-container img { width: 100%; height: 100%; object-fit: cover; }
         .player-container { width: 100%; aspect-ratio: 16/9; background: #000; }
@@ -140,17 +140,17 @@
         .task-reward-usdt { color: var(--success-color); }
         .ad-task-button { width: 100%; padding: 12px; border: none; border-radius: 0 0 10px 10px; font-weight: bold; cursor: pointer; background-color: var(--primary-accent-color); color: #ffffff; transition: background-color .2s; margin-top: auto; font-size: 1em;}
         .task-button, .daily-task-button { width: auto; flex-shrink: 0; padding: 10px 20px; font-size: 0.9em; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; background-color: var(--primary-accent-color); color: #ffffff; transition: background-color .2s; margin-top: 0; }
-        .task-button:disabled, .ad-task-button:disabled, .daily-task-button:disabled { background-color: var(--disabled-color); color: #fff; cursor: not-allowed; }
+        .task-button:disabled, .ad-task-button:disabled, .daily-task-button:disabled { background-color: var(--disabled-color); color: #aaa; cursor: not-allowed; }
         
         .card { max-width: 500px; margin: 20px auto; background-color: var(--card-bg); padding: 30px; border-radius: 12px; border: 1px solid var(--border-color); text-align: center; }
         .card-icon { width: 50px; height: 50px; margin: 0 auto 15px; color: var(--primary-accent-color); }
         .card h3 { margin-top: 0; font-size: 1.4em; } .card p { color: var(--text-muted); line-height: 1.6; }
         .form-group { margin-bottom: 20px; text-align: left; }
         .form-group label { display: block; margin-bottom: 8px; font-weight: 500; color: var(--text-muted); }
-        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px; box-sizing: border-box; border-radius: 8px; border: 1px solid var(--border-color); background-color: #2b2b2b; color: var(--text-light); font-size: 1em; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px; box-sizing: border-box; border-radius: 8px; border: 1px solid #444; background-color: #333; color: var(--text-light); font-size: 1em; }
         .form-button { width: 100%; padding: 14px; border: none; border-radius: 8px; background-color: var(--primary-accent-color); color: #ffffff; font-weight: bold; font-size: 1em; cursor: pointer; transition: background-color 0.2s; }
         .form-button:hover:not(:disabled) { background-color: var(--primary-accent-hover-color); }
-        .form-button:disabled { background-color: var(--disabled-color); cursor: not-allowed; }
+        .form-button:disabled { background-color: var(--disabled-color); cursor: not-allowed; color: #aaa; }
         
         .referral-link-wrapper { display: flex; gap: 10px; margin-top: 20px; }
         .referral-link-wrapper input { flex-grow: 1; text-align: center; }
@@ -173,10 +173,13 @@
 
         .history-modal h3, .task-modal h3, .welcome-modal h3, .task-confirm-modal h3, .notice-modal h3 { text-align: center; margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
         #combined-history-list, .task-modal .modal-body, .welcome-modal .modal-body, .task-confirm-modal .modal-body, .notice-modal .modal-body { overflow-y: auto; flex-grow: 1; margin-bottom: 15px; }
+        .task-confirm-modal .modal-body { text-align: center; }
+        .task-confirm-modal-buttons { display: flex; gap: 10px; margin-top: 20px; }
+        .task-confirm-modal-buttons button { flex: 1; }
         .notice-modal .modal-body ul { padding-left: 20px; list-style-type: '✓ '; }
         .notice-modal .modal-body li { margin-bottom: 10px; line-height: 1.6; }
         
-        .sub-card { background-color: #2b2b2b; padding: 20px; border-radius: 10px; margin-bottom: 25px; }
+        .sub-card { background-color: #2a2a2a; padding: 20px; border-radius: 10px; margin-bottom: 25px; }
         .info-text { font-size: 0.9em; color: var(--text-muted); margin-top: 10px; line-height: 1.5; }
         
         .task-card, .daily-reward-card { background-color: var(--card-bg); border-radius: 8px; display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 15px; transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; border: 1px solid var(--border-color); }
@@ -185,6 +188,12 @@
         .task-card-info, .daily-reward-card-info { padding: 0; flex-grow: 1; text-align: left; }
         .task-card-info h4, .daily-reward-card-info h4 { margin: 0 0 5px; font-size: 1em;}
         .task-card-info p, .daily-reward-card-info p { margin: 5px 0 0; font-size: 0.9em; }
+
+        @keyframes task-pulse {
+            0% { box-shadow: 0 4px 12px rgba(229, 9, 20, 0.15); }
+            50% { box-shadow: 0 6px 18px rgba(229, 9, 20, 0.25); }
+            100% { box-shadow: 0 4px 12px rgba(229, 9, 20, 0.15); }
+        }
 
         #referral-stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
         .profile-stat-item { background-color: var(--dark-bg); padding: 20px; border-radius: 10px; border: 1px solid var(--border-color); }
@@ -216,7 +225,7 @@
         .ad-package-card { padding: 15px; text-align: center; cursor: pointer; border: 2px solid var(--border-color); transition: all 0.2s ease-in-out; }
         .ad-package-card h4 { font-size: 1.1em; margin-bottom: 5px; }
         .ad-package-card p { margin: 0; font-weight: 600; color: var(--primary-accent-color); }
-        .ad-package-card.selected { border-color: var(--primary-accent-color); background-color: rgba(229, 9, 20, 0.1); transform: translateY(-3px); box-shadow: 0 4px 12px rgba(229, 9, 20, 0.2); }
+        .ad-package-card.selected { border-color: var(--primary-accent-color); background-color: #4d1c20; transform: translateY(-3px); box-shadow: 0 4px 12px rgba(229, 9, 20, 0.2); }
         .user-ad-item { padding: 20px; text-align: left; }
         .user-ad-item .progress-text { font-weight: bold; color: var(--primary-accent-color); margin-top: 10px; display: block; }
         .user-ad-item .status-text { font-weight: 600; margin-top: 5px; display: block; }
@@ -225,10 +234,18 @@
         #ad-package-grid { grid-template-columns: repeat(3, 1fr); gap: 15px; }
         @media (max-width: 600px) { #ad-package-grid { grid-template-columns: repeat(2, 1fr); } }
         
-        #video-claim-box, #task-claim-box {
+        .daily-reward-card-info .progress-bar { height: 6px; background-color: #333; border-radius: 3px; margin-top: 8px; overflow: hidden; }
+        .daily-reward-card-info .progress-bar-inner { height: 100%; width: 0%; background-color: var(--primary-accent-color); border-radius: 3px; transition: width 0.3s; }
+        .daily-reward-card-info .progress-text { font-size: 0.8em; color: var(--text-muted); font-weight: 500; }
+        .welcome-modal .modal-body ul { padding-left: 20px; }
+        .welcome-modal .modal-body li { margin-bottom: 10px; }
+        #welcome-agree-container { margin-top: 20px; display: flex; align-items: center; gap: 10px; }
+
+        #video-claim-box {
             position: fixed;
             bottom: 100px;
-            background-color: rgba(28, 28, 28, 0.95);
+            right: 15px;
+            background-color: rgba(31, 31, 31, 0.95);
             border: 1px solid var(--border-color);
             border-radius: 12px;
             padding: 10px 12px;
@@ -238,32 +255,39 @@
             transform: scale(0);
             transition: transform 0.3s ease-in-out;
         }
-        #video-claim-box { right: 15px; }
-        #task-claim-box { left: 15px; } /* NEW POSITION */
-
-        #video-claim-box.visible, #task-claim-box.visible {
-            transform: scale(1);
-        }
-        #video-claim-box.pulsate, #task-claim-box.pulsate {
-            animation: pulsate-animation 1.5s infinite;
-        }
+        #video-claim-box.visible { transform: scale(1); }
+        #video-claim-box.pulsate { animation: pulsate-animation 1.5s infinite; }
         @keyframes pulsate-animation {
-            0% { transform: scale(1); box-shadow: 0 5px 15px rgba(255, 153, 0, 0.2); }
-            50% { transform: scale(1.05); box-shadow: 0 8px 25px rgba(255, 153, 0, 0.4); }
-            100% { transform: scale(1); box-shadow: 0 5px 15px rgba(255, 153, 0, 0.2); }
+            0% { transform: scale(1); box-shadow: 0 5px 15px rgba(40, 167, 69, 0.2); }
+            50% { transform: scale(1.05); box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4); }
+            100% { transform: scale(1); box-shadow: 0 5px 15px rgba(40, 167, 69, 0.2); }
         }
-        #video-unclaimed-balance-box, #task-unclaimed-balance-box {
-            font-size: 1em;
-            font-weight: 700;
-            color: var(--pg-coin-color);
-            display: block;
-            margin-bottom: 8px;
+        #video-claim-box #video-unclaimed-balance-box { font-size: 1em; font-weight: 700; color: var(--pg-coin-color); display: block; margin-bottom: 8px; }
+        #video-claim-button-box { width: 100%; padding: 6px 12px; font-size: 0.9em; }
+        
+        #task-claim-box {
+            display: none;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            text-align: center;
+            z-index: 10;
+            transition: transform 0.3s ease-in-out;
+            max-width: 400px;
+            margin: 0 auto 25px;
         }
-        #video-claim-button-box, #task-claim-button-box {
-            width: 100%;
-            padding: 6px 12px;
-            font-size: 0.9em;
+        #task-claim-box.visible { display: block; }
+        #task-claim-box.pulsate { animation: pulsate-animation-red 1.5s infinite; }
+        @keyframes pulsate-animation-red {
+            0% { transform: scale(1); box-shadow: 0 5px 15px rgba(229, 9, 20, 0.2); }
+            50% { transform: scale(1.02); box-shadow: 0 8px 25px rgba(229, 9, 20, 0.4); }
+            100% { transform: scale(1); box-shadow: 0 5px 15px rgba(229, 9, 20, 0.2); }
         }
+        #task-claim-box #task-unclaimed-balance-box { font-size: 1.1em; font-weight: 700; color: var(--pg-coin-color); display: block; margin-bottom: 10px; }
+        #task-claim-button-box { width: 100%; padding: 8px 15px; font-size: 1em; }
+
         .coin-vfx {
             position: absolute;
             background-color: var(--pg-coin-color);
@@ -301,15 +325,15 @@
         <div class="header-right">
             <div class="balance-display">$: <span id="userUSDTBalanceDisplay">0.0000</span></div>
             <div class="balance-display"><span class="pg-label">PG:</span> <span id="userPgCoinDisplay">0.000</span></div>
-             <button class="header-icon-btn bottom-nav-item referral-button-vfx" data-tab-target="#referral-content" title="Referral Program">
+             <button class="header-icon-btn bottom-nav-item referral-button-vfx" data-tab-target="#profile-content" title="Profile & Referral">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
             </button>
         </div>
     </header>
 
     <main class="container">
-        <!-- Profile Section (Previously Referral) - NOW THE DEFAULT VIEW -->
-        <section id="referral-content" class="content-section active">
+        <!-- Profile / Referral Section -->
+        <section id="profile-content" class="content-section active">
             <div class="card">
                 <svg class="card-icon" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
                 <h3>Referral Program</h3>
@@ -341,16 +365,14 @@
                 </div>
             </div>
         </section>
-
-        <!-- Ads Section -->
+        
         <section id="ads-content" class="content-section">
              <h3 class="section-title">Watch Ads, Earn Rewards</h3>
              <div id="ad-task-list" class="item-grid"></div>
              <!-- Adextra Banner Ad Block -->
              <div id="fa6b30e404e1046793d70db4a424966f97960abe" style="margin-top: 25px;"></div>
         </section>
-        
-        <!-- Video Section -->
+
         <section id="video-content" class="content-section">
             <div id="adsterra-social-bar-container" style="display:none;"></div>
             <h3 class="section-title">Trending Videos</h3>
@@ -362,25 +384,26 @@
             <div class="item-grid" id="video-grid"></div>
         </section>
 
-        <!-- NEW Video Claim Box -->
+        <!-- Video Claim Box with VFX -->
         <div id="video-claim-box">
             <span id="video-unclaimed-balance-box">0.000 / 1.000 PG</span>
             <button id="video-claim-button-box" class="form-button" disabled>Claim</button>
         </div>
-        <!-- NEW Task Claim Box -->
-        <div id="task-claim-box">
-            <span id="task-unclaimed-balance-box">0.000 / 5.000 PG</span>
-            <button id="task-claim-button-box" class="form-button" disabled>Claim</button>
-        </div>
         
-        <!-- Task Section -->
         <section id="task-content" class="content-section">
+            <h3 class="section-title">Complete Tasks to Earn</h3>
+            
+             <!-- NEW Task Claim Box -->
+            <div id="task-claim-box">
+                <span id="task-unclaimed-balance-box">0.000 / 5.000 PG</span>
+                <button id="task-claim-button-box" class="form-button" disabled>Claim</button>
+            </div>
+
             <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-bottom: 20px;">
                 <h3 class="sub-section-title" style="margin: 0; border: none; padding: 0; font-size: 1.1em;">Available Tasks</h3>
                 <button id="show-create-task-btn" class="task-button">Add Task +</button>
             </div>
             
-            <h3 class="section-title">Complete Tasks to Earn</h3>
             <div id="task-list" class="item-grid"></div>
 
              <!-- My Ads Section -->
@@ -390,7 +413,6 @@
             </div>
         </section>
         
-        <!-- Withdraw Section -->
         <section id="withdraw-content" class="content-section">
              <div class="card" style="max-width: none;">
                  <h3 class="section-title" style="border: none; margin-bottom: 20px; text-align: center;">Withdraw</h3>
@@ -450,7 +472,7 @@
     </main>
 
     <nav class="bottom-nav">
-        <a href="#" class="bottom-nav-item active" data-tab-target="#referral-content">
+        <a href="#" class="bottom-nav-item active" data-tab-target="#profile-content">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
             Profile
         </a>
@@ -528,6 +550,21 @@
     </div>
 
 
+    <div id="taskConfirmModalOverlay" class="modal-overlay">
+        <div class="task-confirm-modal">
+            <h3>Confirm Task Completion</h3>
+            <div class="modal-body">
+                <p>Have you completed the task correctly? If not, please go back and complete it now.</p>
+                <p class="info-text">Note: Your submission may be reviewed by an administrator. Failure to complete tasks honestly can result in account suspension.</p>
+                <div class="task-confirm-modal-buttons">
+                    <button id="taskConfirmGoBackBtn" class="form-button" style="background-color: var(--text-muted);">Go Back to Task</button>
+                    <button id="taskConfirmSubmitBtn" class="form-button">Yes, I Completed It</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     <script src="https://www.youtube.com/iframe_api" async></script>
     
     <script type="module">
@@ -559,13 +596,13 @@
         let dailyBrowseTimer = null;
 
         const VIDEO_CLAIM_THRESHOLD = 1.0;
-        const TASK_CLAIM_THRESHOLD = 5.0; // NEW: Task loot box claim threshold
+        const TASK_CLAIM_THRESHOLD = 5.0; // NEW
 
         const AD_TASK_VIEWS_REQUIRED = 5;
         const AD_TASK_REWARD = 0.2;
         const DAILY_LOGIN_PG_REWARD = 0.02;
         const USER_CREATED_TASK_REWARD_PG = 0.07;
-        const VIDEO_REWARD_PER_SECOND_PG = 1 / 86400; 
+        const VIDEO_REWARD_PER_SECOND_PG = 1 / 86400;
         const MAX_DAILY_VIDEO_REWARD_SECONDS = 86400;
         const REFERRAL_COMMISSION_RATE = 0.06;
 
@@ -671,7 +708,7 @@
                     dailyAdViews_1: 0, dailyAdViews_2: 0, dailyAdViews_3: 0,
                     totalVideoWatchSecondsToday: 0,
                     unclaimedVideoPg: 0, unclaimedVideoPgLastUpdated: null,
-                    unclaimedTaskPg: 0, // NEW: Task loot box balance
+                    unclaimedTaskPg: 0 // NEW FIELD
                 };
                 if (referrerCode && referrerCode !== userId) { defaultUserData.referredBy = referrerCode; }
                 await setDoc(userRef, defaultUserData);
@@ -683,8 +720,24 @@
             
             const updates = {};
             if (userData.isActivated === undefined) updates.isActivated = true;
-            if (userData.unclaimedVideoPg === undefined) updates.unclaimedVideoPg = 0;
-            if (userData.unclaimedTaskPg === undefined) updates.unclaimedTaskPg = 0; // NEW: Task loot box balance check
+            if (userData.dailyReferralCount === undefined) updates.dailyReferralCount = 0;
+            if (userData.dailyTasksCompletedCount === undefined) updates.dailyTasksCompletedCount = 0;
+            if (userData.dailyRewardsClaimed === undefined) updates.dailyRewardsClaimed = [];
+            if (userData.dailyAdViews_1 === undefined) {
+                updates.dailyAdViews_1 = 0;
+                updates.dailyAdViews_2 = 0;
+                updates.dailyAdViews_3 = 0;
+            }
+            if (userData.totalVideoWatchSecondsToday === undefined) updates.totalVideoWatchSecondsToday = 0;
+            if (userData.lastNoticeShown === undefined) updates.lastNoticeShown = null;
+            if (userData.unclaimedVideoPg === undefined) {
+                updates.unclaimedVideoPg = 0;
+                updates.unclaimedVideoPgLastUpdated = null;
+            }
+            if (userData.unclaimedTaskPg === undefined) { // NEW MIGRATION
+                updates.unclaimedTaskPg = 0;
+            }
+
 
             if (Object.keys(updates).length > 0) { await updateDoc(userRef, updates); }
             
@@ -794,39 +847,22 @@
             const claimBox = document.getElementById('video-claim-box');
             const unclaimedBalanceEl = document.getElementById('video-unclaimed-balance-box');
             const claimButton = document.getElementById('video-claim-button-box');
+
             const unclaimedBalance = currentUser?.unclaimedVideoPg || 0;
 
             unclaimedBalanceEl.textContent = `${unclaimedBalance.toFixed(4)} / ${VIDEO_CLAIM_THRESHOLD.toFixed(3)} PG`;
+
             if (unclaimedBalance > 0 && !claimBox.classList.contains('visible')) {
                 claimBox.classList.add('visible');
             } else if (unclaimedBalance <= 0) {
                  claimBox.classList.remove('visible');
             }
+
             if (unclaimedBalance >= VIDEO_CLAIM_THRESHOLD) {
                 claimButton.disabled = false;
-                if (!claimBox.classList.contains('pulsate')) claimBox.classList.add('pulsate');
-            } else {
-                claimButton.disabled = true;
-                claimBox.classList.remove('pulsate');
-            }
-        }
-
-        // NEW: Function to update the task loot box UI
-        function updateTaskClaimUI() {
-            const claimBox = document.getElementById('task-claim-box');
-            const unclaimedBalanceEl = document.getElementById('task-unclaimed-balance-box');
-            const claimButton = document.getElementById('task-claim-button-box');
-            const unclaimedBalance = currentUser?.unclaimedTaskPg || 0;
-
-            unclaimedBalanceEl.textContent = `${unclaimedBalance.toFixed(3)} / ${TASK_CLAIM_THRESHOLD.toFixed(3)} PG`;
-            if (unclaimedBalance > 0 && !claimBox.classList.contains('visible')) {
-                claimBox.classList.add('visible');
-            } else if (unclaimedBalance <= 0) {
-                 claimBox.classList.remove('visible');
-            }
-            if (unclaimedBalance >= TASK_CLAIM_THRESHOLD) {
-                claimButton.disabled = false;
-                if (!claimBox.classList.contains('pulsate')) claimBox.classList.add('pulsate');
+                if (!claimBox.classList.contains('pulsate')) {
+                    claimBox.classList.add('pulsate');
+                }
             } else {
                 claimButton.disabled = true;
                 claimBox.classList.remove('pulsate');
@@ -841,82 +877,77 @@
                     unclaimedVideoPg: currentUser.unclaimedVideoPg,
                     unclaimedVideoPgLastUpdated: serverTimestamp()
                 });
-            } catch (error) { console.error("Failed to sync unclaimed video PG:", error); }
+            } catch (error) {
+                console.error("Failed to sync unclaimed video PG:", error);
+            }
         }
+
 
         async function claimVideoRewards() {
             const claimButton = document.getElementById('video-claim-button-box');
             if (currentUser.unclaimedVideoPg < VIDEO_CLAIM_THRESHOLD) return;
-            claimButton.disabled = true; claimButton.textContent = 'Claiming...';
+
+            claimButton.disabled = true;
+            claimButton.textContent = 'Claiming...';
+            
             const amountToClaim = Math.floor(currentUser.unclaimedVideoPg / VIDEO_CLAIM_THRESHOLD) * VIDEO_CLAIM_THRESHOLD;
-            if (amountToClaim <= 0) { claimButton.textContent = 'Claim'; updateVideoClaimUI(); return; }
+            if (amountToClaim <= 0) {
+                claimButton.textContent = 'Claim';
+                updateVideoClaimUI();
+                return;
+            }
 
             try {
                 await runTransaction(db, async (t) => {
                     const userRef = doc(db, 'users', currentUser.id);
                     const userDoc = await t.get(userRef);
                     if (!userDoc.exists()) throw new Error("User not found");
+
                     const currentUnclaimed = userDoc.data().unclaimedVideoPg || 0;
                     if (currentUnclaimed < amountToClaim) throw new Error("Inconsistent balance");
-                    t.update(userRef, { pgCoin: increment(amountToClaim), lifetimePgCoinEarned: increment(amountToClaim), unclaimedVideoPg: increment(-amountToClaim) });
+                    
+                    t.update(userRef, {
+                        pgCoin: increment(amountToClaim),
+                        lifetimePgCoinEarned: increment(amountToClaim),
+                        unclaimedVideoPg: increment(-amountToClaim)
+                    });
                 });
+                
                 await grantCommission(amountToClaim);
-                await addDoc(collection(db, 'transactions'), { userId: currentUser.id, type: 'Video Watch', pgAmount: amountToClaim, status: 'Completed', createdAt: serverTimestamp() });
+
+                await addDoc(collection(db, 'transactions'), {
+                    userId: currentUser.id, type: 'Video Watch',
+                    pgAmount: amountToClaim, status: 'Completed', createdAt: serverTimestamp()
+                });
+
                 showSuccessModal("Reward Claimed!", `You claimed ${amountToClaim.toFixed(3)} PG from watching videos.`);
                 await fetchAndUpdateCurrentUser();
                 updateVideoClaimUI();
+
             } catch(error) {
                 console.error("Error claiming video rewards:", error);
                 alert("Failed to claim rewards. Please try again.");
             } finally {
-                claimButton.textContent = 'Claim'; updateVideoClaimUI();
+                claimButton.textContent = 'Claim';
+                updateVideoClaimUI();
             }
         }
         document.getElementById('video-claim-button-box').addEventListener('click', claimVideoRewards);
-        
-        // NEW: Logic to claim rewards from the task loot box
-        async function claimTaskRewards() {
-            const claimButton = document.getElementById('task-claim-button-box');
-            if (currentUser.unclaimedTaskPg < TASK_CLAIM_THRESHOLD) return;
-            claimButton.disabled = true; claimButton.textContent = 'Claiming...';
-            const amountToClaim = Math.floor(currentUser.unclaimedTaskPg / TASK_CLAIM_THRESHOLD) * TASK_CLAIM_THRESHOLD;
-            if (amountToClaim <= 0) { claimButton.textContent = 'Claim'; updateTaskClaimUI(); return; }
 
-            try {
-                await runTransaction(db, async (t) => {
-                    const userRef = doc(db, 'users', currentUser.id);
-                    const userDoc = await t.get(userRef);
-                    if (!userDoc.exists()) throw new Error("User not found");
-                    const currentUnclaimed = userDoc.data().unclaimedTaskPg || 0;
-                    if (currentUnclaimed < amountToClaim) throw new Error("Inconsistent task balance");
-                    t.update(userRef, { pgCoin: increment(amountToClaim), lifetimePgCoinEarned: increment(amountToClaim), unclaimedTaskPg: increment(-amountToClaim) });
-                });
-                await grantCommission(amountToClaim);
-                await addDoc(collection(db, 'transactions'), { userId: currentUser.id, type: 'Task Reward Claim', pgAmount: amountToClaim, status: 'Completed', createdAt: serverTimestamp() });
-                showSuccessModal("Reward Claimed!", `You claimed ${amountToClaim.toFixed(3)} PG from completed tasks.`);
-                await fetchAndUpdateCurrentUser();
-                updateTaskClaimUI();
-            } catch(error) {
-                console.error("Error claiming task rewards:", error);
-                alert("Failed to claim task rewards. Please try again.");
-            } finally {
-                claimButton.textContent = 'Claim'; updateTaskClaimUI();
-            }
-        }
-        document.getElementById('task-claim-button-box').addEventListener('click', claimTaskRewards);
+        function triggerCoinVFX(playerElement) {
+            const claimBox = document.getElementById('video-claim-box');
+            if (!claimBox || !playerElement) return;
 
+            const playerRect = playerElement.getBoundingClientRect();
+            const boxRect = claimBox.getBoundingClientRect();
 
-        function triggerCoinVFX(element, targetBoxId) {
-            const targetBox = document.getElementById(targetBoxId);
-            if (!targetBox || !element) return;
-
-            const elementRect = element.getBoundingClientRect();
-            const boxRect = targetBox.getBoundingClientRect();
             const coin = document.createElement('div');
             coin.className = 'coin-vfx';
             document.body.appendChild(coin);
-            const startX = elementRect.left + elementRect.width / 2;
-            const startY = elementRect.top + elementRect.height / 2;
+            
+            const startX = playerRect.left + playerRect.width / 2;
+            const startY = playerRect.top + playerRect.height / 2;
+            
             const endX = boxRect.left + boxRect.width / 2;
             const endY = boxRect.top + boxRect.height / 2;
 
@@ -934,12 +965,21 @@
                 if (videoSyncTimer) clearInterval(videoSyncTimer);
 
                 videoWatchTimer = setInterval(async () => {
-                    if (!currentUser || (currentUser.totalVideoWatchSecondsToday || 0) >= MAX_DAILY_VIDEO_REWARD_SECONDS) {
-                        clearInterval(videoWatchTimer); return;
+                    if (!currentUser) return;
+                    
+                    let watchTimeToday = currentUser.totalVideoWatchSecondsToday || 0;
+                    if (watchTimeToday >= MAX_DAILY_VIDEO_REWARD_SECONDS) {
+                        clearInterval(videoWatchTimer);
+                        return;
                     }
-                    currentUser.totalVideoWatchSecondsToday = (currentUser.totalVideoWatchSecondsToday || 0) + 1;
+                    
+                    currentUser.totalVideoWatchSecondsToday++;
                     currentUser.unclaimedVideoPg = (currentUser.unclaimedVideoPg || 0) + VIDEO_REWARD_PER_SECOND_PG;
-                    if (currentUser.totalVideoWatchSecondsToday % 5 === 0) { triggerCoinVFX(event.target.getIframe(), 'video-claim-box'); }
+                    
+                    if (currentUser.totalVideoWatchSecondsToday % 5 === 0) {
+                        triggerCoinVFX(event.target.getIframe());
+                    }
+
                     updateVideoClaimUI();
                 }, 1000);
                 
@@ -950,39 +990,61 @@
 
             } else {
                 if (videoWatchTimer) clearInterval(videoWatchTimer);
-                if (videoSyncTimer) { clearInterval(videoSyncTimer); syncUnclaimedVideoPg(); }
+                if (videoSyncTimer) {
+                    clearInterval(videoSyncTimer);
+                    syncUnclaimedVideoPg();
+                }
             }
         }
         
         function stopVideoSectionActivity() {
             if(videoWatchTimer) clearInterval(videoWatchTimer);
-            if(videoSyncTimer) { clearInterval(videoSyncTimer); syncUnclaimedVideoPg(); }
-            videoWatchTimer = null; videoSyncTimer = null;
+            if(videoSyncTimer) {
+                clearInterval(videoSyncTimer);
+                syncUnclaimedVideoPg();
+            }
+            videoWatchTimer = null;
+            videoSyncTimer = null;
             if (currentPlayingItem?.originalContent) currentPlayingItem.innerHTML = currentPlayingItem.originalContent;
             if (player) { try { player.destroy(); } catch (e) {} player = null; }
             currentPlayingItem = null;
             document.getElementById('video-claim-box').classList.remove('visible');
             document.getElementById('adsterra-social-bar-container').style.display = 'none';
         }
-
-        function stopTaskSectionActivity() {
-             document.getElementById('task-claim-box').classList.remove('visible');
-        }
         
         function setupAdsToEarn() {
             const container = document.getElementById('ad-task-list');
             container.innerHTML = '';
             if (!currentUser) return;
-            const adTasks = [ { id: '1', title: 'Watch Ads & Earn PG', viewsToday: currentUser.dailyAdViews_1 || 0 }, { id: '2', title: 'Watch Ads & Earn PG', viewsToday: currentUser.dailyAdViews_2 || 0 }, { id: '3', title: 'Watch Ads & Earn PG', viewsToday: currentUser.dailyAdViews_3 || 0 }, ];
+
+            const adTasks = [
+                { id: '1', title: 'Watch Ads & Earn PG', viewsToday: currentUser.dailyAdViews_1 || 0 },
+                { id: '2', title: 'Watch Ads & Earn PG', viewsToday: currentUser.dailyAdViews_2 || 0 },
+                { id: '3', title: 'Watch Ads & Earn PG', viewsToday: currentUser.dailyAdViews_3 || 0 },
+            ];
+
             adTasks.forEach(task => {
                 const viewsLeft = AD_TASK_VIEWS_REQUIRED - task.viewsToday;
                 const isCompleted = viewsLeft <= 0;
                 let buttonText = isCompleted ? 'Claimed Today' : `Watch Ad (${viewsLeft} left)`;
                 let buttonAction = 'watch';
-                if (isCompleted && !currentUser.dailyRewardsClaimed?.includes(`ad_task_${task.id}`)) { buttonText = 'Claim Reward'; buttonAction = 'claim'; }
+
+                if (isCompleted && !currentUser.dailyRewardsClaimed?.includes(`ad_task_${task.id}`)) {
+                    buttonText = 'Claim Reward';
+                    buttonAction = 'claim';
+                }
+
                 const card = document.createElement('div');
                 card.className = 'ad-task-card';
-                card.innerHTML = `<div class="ad-task-card-info"><h4>${task.title} #${task.id}</h4><p>Reward: <span class="task-reward-pg">${AD_TASK_REWARD} PG</span> (after 5 ads)</p><p>Progress: ${task.viewsToday} / ${AD_TASK_VIEWS_REQUIRED} ads watched</p></div><button class="ad-task-button" data-task-id="${task.id}" data-action="${buttonAction}" ${isCompleted && buttonAction !== 'claim' ? 'disabled' : ''}>${buttonText}</button>`;
+                card.innerHTML = `
+                    <div class="ad-task-card-info">
+                        <h4>${task.title} #${task.id}</h4>
+                        <p>Reward: <span class="task-reward-pg">${AD_TASK_REWARD} PG</span> (after 5 ads)</p>
+                        <p>Progress: ${task.viewsToday} / ${AD_TASK_VIEWS_REQUIRED} ads watched</p>
+                    </div>
+                    <button class="ad-task-button" data-task-id="${task.id}" data-action="${buttonAction}" ${isCompleted && buttonAction !== 'claim' ? 'disabled' : ''}>
+                        ${buttonText}
+                    </button>`;
                 container.appendChild(card);
             });
         }
@@ -990,41 +1052,89 @@
         document.getElementById('ad-task-list').addEventListener('click', async (e) => {
             const button = e.target.closest('.ad-task-button');
             if (!button || button.disabled) return;
+            
             const taskId = button.dataset.taskId;
             const action = button.dataset.action;
+
             if (action === 'claim') {
                 button.disabled = true; button.textContent = 'Claiming...';
                 try {
                     await grantReward({ pgCoin: AD_TASK_REWARD }, { type: 'Ad Task Reward', details: `Claimed for ad task set ${taskId}` });
                     await updateDoc(doc(db, 'users', currentUser.id), { dailyRewardsClaimed: arrayUnion(`ad_task_${taskId}`) });
                     showSuccessModal('Reward Claimed!', `${AD_TASK_REWARD} PG has been added to your balance.`);
-                    await fetchAndUpdateCurrentUser(); setupAdsToEarn();
-                } catch(err) { alert('Failed to claim reward.'); button.disabled = false; }
+                    await fetchAndUpdateCurrentUser();
+                    setupAdsToEarn();
+                } catch(err) {
+                    alert('Failed to claim reward.');
+                    button.disabled = false;
+                }
                 return;
             }
-            button.disabled = true; button.textContent = 'Loading Ad...';
-            let adTimer = null; let adSuccess = false; let countdown = 10;
-            const handleVisibilityChange = () => { if (document.hidden) { if (adTimer) clearInterval(adTimer); } else { if (countdown > 0) startTimer(); } };
+
+            button.disabled = true;
+            button.textContent = 'Loading Ad...';
+            
+            let adTimer = null;
+            let adSuccess = false;
+            let countdown = 10;
+
+            const handleVisibilityChange = () => {
+                if (document.hidden) {
+                    if (adTimer) clearInterval(adTimer);
+                } else {
+                    if (countdown > 0) startTimer();
+                }
+            };
+            
             const startTimer = () => {
                 if (adTimer) clearInterval(adTimer);
                 adTimer = setInterval(async () => {
-                    countdown--; button.textContent = `Wait ${countdown}s`;
+                    countdown--;
+                    button.textContent = `Wait ${countdown}s`;
                     if (countdown <= 0) {
-                        adSuccess = true; clearInterval(adTimer); document.removeEventListener("visibilitychange", handleVisibilityChange); button.textContent = 'Processing...';
+                        adSuccess = true;
+                        clearInterval(adTimer);
+                        document.removeEventListener("visibilitychange", handleVisibilityChange);
+                        button.textContent = 'Processing...';
+                        
                         try {
                             const updateField = `dailyAdViews_${taskId}`;
                             await updateDoc(doc(db, 'users', currentUser.id), { [updateField]: increment(1) });
-                            await fetchAndUpdateCurrentUser(); setupAdsToEarn(); 
-                        } catch (error) { console.error("Error updating ad views:", error); alert("Failed to update progress. Please try again."); setupAdsToEarn(); }
+                            await fetchAndUpdateCurrentUser();
+                            setupAdsToEarn(); 
+                        } catch (error) {
+                            console.error("Error updating ad views:", error);
+                            alert("Failed to update progress. Please try again.");
+                            setupAdsToEarn();
+                        }
                     }
                 }, 1000);
             };
+
             try {
-                window.onAdClosed = () => { clearInterval(adTimer); document.removeEventListener("visibilitychange", handleVisibilityChange); if (!adSuccess) { alert('Ad closed too early. No reward given.'); setupAdsToEarn(); } };
-                await showRandomAdForTask(); button.textContent = `Wait ${countdown}s`; startTimer(); document.addEventListener("visibilitychange", handleVisibilityChange);
-            } catch (err) { console.error("Ad failed to load:", err); clearInterval(adTimer); document.removeEventListener("visibilitychange", handleVisibilityChange); alert('Ad failed to load or was closed. Please try again.'); setupAdsToEarn(); }
+                window.onAdClosed = () => {
+                    clearInterval(adTimer);
+                    document.removeEventListener("visibilitychange", handleVisibilityChange);
+                    if (!adSuccess) {
+                        alert('Ad closed too early. No reward given.');
+                        setupAdsToEarn(); 
+                    }
+                };
+
+                await showRandomAdForTask(); 
+                button.textContent = `Wait ${countdown}s`;
+                startTimer();
+                document.addEventListener("visibilitychange", handleVisibilityChange);
+
+            } catch (err) {
+                console.error("Ad failed to load:", err);
+                clearInterval(adTimer);
+                document.removeEventListener("visibilitychange", handleVisibilityChange);
+                alert('Ad failed to load or was closed. Please try again.');
+                setupAdsToEarn();
+            }
         });
-        
+
         async function fetchAndRenderTasks(containerId, count) {
             const taskListContainer = document.getElementById(containerId);
             taskListContainer.innerHTML = '<div class="loader"></div>';
@@ -1033,76 +1143,127 @@
                 const q = query(collection(db, 'tasks'), where("isApproved", "==", true), orderBy("createdAt", "desc"), limit(count));
                 const snapshot = await getDocs(q);
                 taskListContainer.innerHTML = '';
+                
                 let tasksRendered = 0;
                 snapshot.forEach(docSnap => {
                     const task = docSnap.data();
                     if (task.creatorId === currentUser.id || currentUser.completedTasks?.includes(docSnap.id)) return;
                     const isLimitReached = (task.limit || 0) > 0 && (task.completionCount || 0) >= task.limit;
                     if (isLimitReached) return; 
+
                     const card = document.createElement('div');
                     card.className = 'task-card';
-                    card.innerHTML = `<div class="task-card-info"><h4>${task.title}</h4><p>Reward: <span class="task-reward-pg">${task.rewardPg || 0} PG</span></p></div><button class="task-button" data-task-id="${docSnap.id}" data-task-url="${task.url}" data-state="start">Go</button>`;
+                    card.innerHTML = `<div class="task-card-info"><h4>${task.title}</h4><p>Reward: <span class="task-reward-pg">${task.rewardPg || 0} PG</span></p></div><button class="task-button" data-task-id="${docSnap.id}" data-task-url="${task.url}" data-task-creator="${task.creatorId || 'admin'}" data-state="start">Go</button>`;
                     taskListContainer.appendChild(card);
                     tasksRendered++;
                 });
-                if (tasksRendered === 0) { taskListContainer.innerHTML = '<p style="text-align:center; grid-column: 1 / -1;">No new tasks available for you right now.</p>'; }
-            } catch (error) { console.error("Error fetching tasks:", error); taskListContainer.innerHTML = '<p style="color:red; text-align:center; grid-column: 1 / -1;">Could not load tasks.</p>'; }
+
+                if (tasksRendered === 0) {
+                    taskListContainer.innerHTML = '<p style="text-align:center; grid-column: 1 / -1;">No new tasks available for you right now.</p>';
+                }
+
+            } catch (error) {
+                console.error("Error fetching tasks:", error);
+                taskListContainer.innerHTML = '<p style="color:red; text-align:center; grid-column: 1 / -1;">Could not load tasks.</p>';
+            }
         }
         
         async function handleTaskButtonClick(e) {
             const button = e.target.closest('.task-button');
             if (!button || button.disabled) return;
+            
             const { taskId, taskUrl, state } = button.dataset;
 
             if (state === 'start') {
-                tg.openLink(taskUrl); button.disabled = true; let countdown = 8; button.textContent = `Claim in ${countdown}s`;
+                tg.openLink(taskUrl);
+                button.disabled = true;
+                let countdown = 8;
+                button.textContent = `Claim in ${countdown}s`;
                 const timer = setInterval(() => {
-                    countdown--; button.textContent = `Claim in ${countdown}s`;
-                    if (countdown <= 0) { clearInterval(timer); button.disabled = false; button.textContent = 'Claim Reward'; button.dataset.state = 'claim'; }
+                    countdown--;
+                    button.textContent = `Claim in ${countdown}s`;
+                    if (countdown <= 0) {
+                        clearInterval(timer);
+                        button.disabled = false;
+                        button.textContent = 'Claim Reward';
+                        button.dataset.state = 'claim';
+                    }
                 }, 1000);
             } else if (state === 'claim') {
-                button.disabled = true; let countdown = 10; button.textContent = `Verifying ${countdown}s`;
-                const timer = setInterval(() => {
-                    countdown--; button.textContent = `Verifying ${countdown}s`;
-                    if (countdown <= 0) { clearInterval(timer); processTaskClaim(taskId, button); }
-                }, 1000);
+                showTaskConfirmationModal(taskId, taskUrl, button);
             }
         }
         document.getElementById('task-list').addEventListener('click', handleTaskButtonClick);
 
+        function showTaskConfirmationModal(taskId, taskUrl, buttonElement) {
+            const modal = document.getElementById('taskConfirmModalOverlay');
+            const goBackButton = document.getElementById('taskConfirmGoBackBtn');
+            const submitButton = document.getElementById('taskConfirmSubmitBtn');
+            
+            goBackButton.onclick = () => { tg.openLink(taskUrl); modal.classList.remove('show'); };
+            
+            submitButton.onclick = async () => {
+                modal.classList.remove('show');
+                await processTaskClaim(taskId, buttonElement);
+            };
+
+            modal.classList.add('show');
+        }
+
         async function processTaskClaim(taskId, button) {
             const taskCard = button.closest('.task-card');
+            button.disabled = true;
+            
+            let countdown = 10;
+            button.textContent = `Verifying... ${countdown}s`;
+            const timer = setInterval(() => {
+                countdown--;
+                if(countdown > 0) {
+                    button.textContent = `Verifying... ${countdown}s`;
+                }
+            }, 1000);
+
+            await new Promise(resolve => setTimeout(resolve, 10000));
+            clearInterval(timer);
             button.textContent = 'Processing...';
+
             try {
-                const taskDoc = await getDoc(doc(db, 'tasks', taskId));
-                if (!taskDoc.exists()) throw new Error("Task not found.");
-                const taskData = taskDoc.data();
+                const taskDocSnap = await getDoc(doc(db, 'tasks', taskId));
+                if (!taskDocSnap.exists()) throw new Error("Task not found.");
+                const taskData = taskDocSnap.data();
                 const rewardAmount = taskData.rewardPg || 0;
-                if (rewardAmount <= 0) throw new Error("Invalid reward amount.");
+                
+                if (rewardAmount <= 0) throw new Error("Task has no reward.");
 
                 await runTransaction(db, async (t) => {
                     const userRef = doc(db, 'users', currentUser.id);
                     const taskRef = doc(db, 'tasks', taskId);
                     const userDoc = await t.get(userRef);
-                    const currentTaskDoc = await t.get(taskRef);
-                    if (!userDoc.exists() || !currentTaskDoc.exists()) throw "USER_OR_TASK_NOT_FOUND";
+                    const taskDoc = await t.get(taskRef);
+
+                    if (!userDoc.exists() || !taskDoc.exists()) throw "USER_OR_TASK_NOT_FOUND";
                     if (userDoc.data().completedTasks?.includes(taskId)) throw "ALREADY_COMPLETED";
-                    const currentTaskData = currentTaskDoc.data();
+                    
+                    const currentTaskData = taskDoc.data();
                     if ((currentTaskData.limit || 0) > 0 && (currentTaskData.completionCount || 0) >= currentTaskData.limit) throw "TASK_LIMIT_REACHED";
                     
-                    t.update(userRef, { completedTasks: arrayUnion(taskId), unclaimedTaskPg: increment(rewardAmount), dailyTasksCompletedCount: increment(1) });
+                    t.update(userRef, { 
+                        completedTasks: arrayUnion(taskId), 
+                        dailyTasksCompletedCount: increment(1),
+                        unclaimedTaskPg: increment(rewardAmount) 
+                    });
                     t.update(taskRef, { completionCount: increment(1) });
                 });
 
-                showSuccessModal("Task Verified! ✅", `${rewardAmount.toFixed(3)} PG has been added to your Task Loot Box.`);
+                showSuccessModal("Task Verified!", `Reward of ${rewardAmount.toFixed(3)} PG added to your Task Loot Box.`);
+                
                 if (taskCard) taskCard.remove();
                 await fetchAndUpdateCurrentUser();
                 updateTaskClaimUI();
-                triggerCoinVFX(button, 'task-claim-box');
 
             } catch (error) {
                 const errorMessages = { "ALREADY_COMPLETED": "You have already completed this task.", "TASK_LIMIT_REACHED": "This task has reached its completion limit."};
-                alert(errorMessages[error] || 'Failed to claim reward.');
+                alert(errorMessages[error] || 'Failed to claim reward. ' + error.message);
                 if (error === "ALREADY_COMPLETED" || error === "TASK_LIMIT_REACHED") {
                      if (taskCard) taskCard.remove();
                 } else {
@@ -1111,11 +1272,92 @@
             }
         }
         
+        function updateTaskClaimUI() {
+            const claimBox = document.getElementById('task-claim-box');
+            const unclaimedBalanceEl = document.getElementById('task-unclaimed-balance-box');
+            const claimButton = document.getElementById('task-claim-button-box');
+
+            const unclaimedBalance = currentUser?.unclaimedTaskPg || 0;
+
+            unclaimedBalanceEl.textContent = `${unclaimedBalance.toFixed(3)} / ${TASK_CLAIM_THRESHOLD.toFixed(3)} PG`;
+
+            if (unclaimedBalance > 0 && !claimBox.classList.contains('visible')) {
+                claimBox.classList.add('visible');
+            } else if (unclaimedBalance <= 0) {
+                 claimBox.classList.remove('visible');
+            }
+
+            if (unclaimedBalance >= TASK_CLAIM_THRESHOLD) {
+                claimButton.disabled = false;
+                if (!claimBox.classList.contains('pulsate')) {
+                    claimBox.classList.add('pulsate');
+                }
+            } else {
+                claimButton.disabled = true;
+                claimBox.classList.remove('pulsate');
+            }
+        }
+
+        async function claimTaskRewards() {
+            const claimButton = document.getElementById('task-claim-button-box');
+            if (!currentUser || (currentUser.unclaimedTaskPg || 0) < TASK_CLAIM_THRESHOLD) return;
+
+            claimButton.disabled = true;
+            claimButton.textContent = 'Claiming...';
+            
+            const amountToClaim = Math.floor(currentUser.unclaimedTaskPg / TASK_CLAIM_THRESHOLD) * TASK_CLAIM_THRESHOLD;
+            if (amountToClaim <= 0) {
+                claimButton.textContent = 'Claim';
+                updateTaskClaimUI();
+                return;
+            }
+
+            try {
+                await runTransaction(db, async (t) => {
+                    const userRef = doc(db, 'users', currentUser.id);
+                    const userDoc = await t.get(userRef);
+                    if (!userDoc.exists()) throw new Error("User not found");
+
+                    const currentUnclaimed = userDoc.data().unclaimedTaskPg || 0;
+                    if (currentUnclaimed < amountToClaim) throw new Error("Inconsistent task balance");
+                    
+                    t.update(userRef, {
+                        pgCoin: increment(amountToClaim),
+                        lifetimePgCoinEarned: increment(amountToClaim),
+                        unclaimedTaskPg: increment(-amountToClaim)
+                    });
+                });
+                
+                await grantCommission(amountToClaim);
+
+                await addDoc(collection(db, 'transactions'), {
+                    userId: currentUser.id, type: 'Task Reward',
+                    details: 'Claimed from Task Loot Box',
+                    pgAmount: amountToClaim, status: 'Completed', createdAt: serverTimestamp()
+                });
+
+                showSuccessModal("Reward Claimed!", `You claimed ${amountToClaim.toFixed(3)} PG from completed tasks.`);
+                await fetchAndUpdateCurrentUser();
+                updateTaskClaimUI();
+
+            } catch(error) {
+                console.error("Error claiming task rewards:", error);
+                alert("Failed to claim task rewards. Please try again.");
+            } finally {
+                claimButton.textContent = 'Claim';
+                updateTaskClaimUI();
+            }
+        }
+        document.getElementById('task-claim-button-box').addEventListener('click', claimTaskRewards);
+
         function renderTaskPackages() {
-            const grid = document.getElementById('ad-package-grid'); grid.innerHTML = '';
+            const grid = document.getElementById('ad-package-grid');
+            grid.innerHTML = '';
             adPackages.forEach(pkg => {
-                const card = document.createElement('div'); card.className = 'ad-package-card';
-                card.dataset.packageId = pkg.id; card.innerHTML = `<h4>${pkg.tasks} Tasks</h4><p>${pkg.price.toFixed(2)} USDT</p>`;
+                const card = document.createElement('div');
+                card.className = 'ad-package-card';
+                card.dataset.packageId = pkg.id;
+                card.innerHTML = `<h4>${pkg.tasks} Tasks</h4><p>${pkg.price.toFixed(2)} USDT</p>`;
                 grid.appendChild(card);
             });
         }
@@ -1265,31 +1507,46 @@
             try {
                 const withdrawalsQuery = query(collection(db, "withdrawals"), where("userId", "==", currentUser.id), orderBy("createdAt", "desc"), limit(20));
                 const transactionsQuery = query(collection(db, "transactions"), where("userId", "==", currentUser.id), orderBy("createdAt", "desc"), limit(20));
+                const submissionsQuery = query(collection(db, "task_submissions"), where("submitterId", "==", currentUser.id), orderBy("submittedAt", "desc"), limit(20));
                 
-                const [withdrawalsSnap, transactionsSnap] = await Promise.all([
-                    getDocs(withdrawalsQuery), getDocs(transactionsQuery)
+                const [withdrawalsSnap, transactionsSnap, submissionsSnap] = await Promise.all([
+                    getDocs(withdrawalsQuery), getDocs(transactionsQuery), getDocs(submissionsQuery)
                 ]);
 
                 let combinedList = [];
 
                 withdrawalsSnap.forEach(doc => {
                     const data = doc.data();
-                    combinedList.push({ ...data, type: 'Withdrawal', timestamp: data.createdAt });
+                    combinedList.push({
+                        ...data, type: 'Withdrawal', timestamp: data.createdAt
+                    });
                 });
                 transactionsSnap.forEach(doc => {
                     const data = doc.data();
-                    combinedList.push({ ...data, timestamp: data.createdAt });
+                    combinedList.push({
+                        ...data, timestamp: data.createdAt
+                    });
+                });
+                submissionsSnap.forEach(doc => {
+                    const data = doc.data();
+                    combinedList.push({
+                        ...data, type: 'Task Submission', timestamp: data.submittedAt
+                    });
                 });
 
                 combinedList.sort((a, b) => (b.timestamp?.toMillis() || 0) - (a.timestamp?.toMillis() || 0));
 
-                if (combinedList.length === 0) { historyContainer.innerHTML = '<p style="text-align:center;">No history found.</p>'; return; }
+                if (combinedList.length === 0) {
+                    historyContainer.innerHTML = '<p style="text-align:center;">No history found.</p>';
+                    return;
+                }
                 
                 historyContainer.innerHTML = '';
                 let lastDate = null;
 
                 combinedList.forEach(data => {
                     if (!data.timestamp) return;
+                    
                     const date = data.timestamp.toDate();
                     const formattedDate = date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
                     const formattedTime = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
@@ -1317,6 +1574,9 @@
                     } else if (data.usdAmount) {
                         amountStr = `+ ${data.usdAmount.toFixed(4)} USDT`;
                         amountClass = 'amount-positive';
+                    } else if (title === 'Task Submission') {
+                        amountStr = 'Pending Reward';
+                        amountClass = '';
                     }
 
                     const item = document.createElement('div');
@@ -1389,13 +1649,13 @@
                 if (!currentUser || document.querySelector(targetId)?.classList.contains('active')) return;
                 
                 stopVideoSectionActivity();
-                stopTaskSectionActivity(); // NEW: Hide task claim box on tab change
                 document.querySelectorAll('.bottom-nav-item.active, .header-icon-btn.active, .content-section.active').forEach(el => el.classList.remove('active'));
                 
                 document.querySelectorAll(`[data-tab-target="${targetId}"]`).forEach(l => l.classList.add('active'));
                 document.querySelector(targetId).classList.add('active');
 
                 switch(targetId) {
+                    case '#profile-content': renderReferralStats(); break;
                     case '#ads-content': setupAdsToEarn(); break;
                     case '#video-content': 
                         await fetchContent();
@@ -1409,12 +1669,11 @@
                             adsterraContainer.appendChild(script);
                         }
                         break;
-                    case '#referral-content': renderReferralStats(); break;
                     case '#task-content': 
                         renderTaskPackages();
                         await renderMyAds(); 
                         await fetchAndRenderTasks('task-list', 50);
-                        updateTaskClaimUI(); // NEW: Show task claim box on entering tab
+                        updateTaskClaimUI();
                         break;
                     case '#withdraw-content': 
                         await renderWithdrawUI();
@@ -1476,7 +1735,6 @@
                 });
                 
                 showDailyNoticePopup();
-                // Load default page content (Profile)
                 renderReferralStats();
 
             } catch (error) {
