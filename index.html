@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -184,7 +185,7 @@
         
         .task-card, .daily-reward-card { background-color: var(--card-bg); border-radius: 8px; display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 15px; transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; border: 1px solid var(--border-color); }
         .task-card:hover, .daily-reward-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(229, 9, 20, 0.15); }
-        #ad-task-list.item-grid, #task-list.item-grid, #my-ads-list.item-grid { grid-template-columns: 1fr; gap: 15px; display: grid;} 
+        #ad-task-list.item-grid, #task-list.item-grid, #my-ads-list.item-grid, #daily-tasks-grid { grid-template-columns: 1fr; gap: 15px; display: grid;} 
         .task-card-info, .daily-reward-card-info { padding: 0; flex-grow: 1; text-align: left; }
         .task-card-info h4, .daily-reward-card-info h4 { margin: 0 0 5px; font-size: 1em;}
         .task-card-info p, .daily-reward-card-info p { margin: 5px 0 0; font-size: 0.9em; }
@@ -245,7 +246,7 @@
         .welcome-modal .modal-body li { margin-bottom: 10px; }
         #welcome-agree-container { margin-top: 20px; display: flex; align-items: center; gap: 10px; }
 
-        #video-claim-box, #task-claim-box {
+        #video-claim-box, #task-claim-box, #daily-claim-box {
             position: fixed;
             bottom: 100px;
             right: 15px;
@@ -259,9 +260,10 @@
             transform: scale(0);
             transition: transform 0.3s ease-in-out;
         }
-        #video-claim-box.visible, #task-claim-box.visible { transform: scale(1); }
+        #video-claim-box.visible, #task-claim-box.visible, #daily-claim-box.visible { transform: scale(1); }
         #video-claim-box.pulsate { animation: pulsate-animation 1.5s infinite; }
         #task-claim-box.pulsate { animation: pulsate-animation-red 1.5s infinite; }
+        #daily-claim-box.pulsate { animation: pulsate-animation-green 1.5s infinite; }
 
         @keyframes pulsate-animation {
             0% { transform: scale(1); box-shadow: 0 5px 15px rgba(40, 167, 69, 0.2); }
@@ -273,11 +275,20 @@
             50% { transform: scale(1.02); box-shadow: 0 8px 25px rgba(229, 9, 20, 0.4); }
             100% { transform: scale(1); box-shadow: 0 5px 15px rgba(229, 9, 20, 0.2); }
         }
+        @keyframes pulsate-animation-green {
+            0% { transform: scale(1); box-shadow: 0 5px 15px rgba(40, 167, 69, 0.2); }
+            50% { transform: scale(1.02); box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4); }
+            100% { transform: scale(1); box-shadow: 0 5px 15px rgba(40, 167, 69, 0.2); }
+        }
 
-        #video-claim-box #video-unclaimed-balance-box, #task-claim-box #task-unclaimed-balance-box { 
+        #video-claim-box #video-unclaimed-balance-box, 
+        #task-claim-box #task-unclaimed-balance-box,
+        #daily-claim-box #daily-unclaimed-balance-box { 
             font-size: 1em; font-weight: 700; color: var(--pg-coin-color); display: block; margin-bottom: 8px; 
         }
-        #video-claim-button-box, #task-claim-button-box { 
+        #video-claim-button-box, 
+        #task-claim-button-box,
+        #daily-claim-button-box { 
             width: 100%; padding: 6px 12px; font-size: 0.9em; 
         }
 
@@ -357,6 +368,14 @@
                     </div>
                 </div>
             </div>
+            
+            <!-- Daily Tasks Section -->
+            <div id="daily-tasks-section" style="margin-top: 30px;">
+                <h3 class="sub-section-title">Daily Rewards</h3>
+                <div id="daily-tasks-grid" class="item-grid">
+                    <!-- Daily tasks will be rendered here by JS -->
+                </div>
+            </div>
         </section>
         
         <section id="ads-content" class="content-section">
@@ -396,9 +415,16 @@
         
         <section id="withdraw-content" class="content-section">
              <div class="card" style="max-width: none;">
+                <p class="info-text" style="text-align: center; margin-bottom: 25px;">
+                    For any promotion or payment-related issues, please contact our support: 
+                    <a href="https://t.me/newtube12_Admin" target="_blank" style="color: var(--primary-accent-color); font-weight: bold;">@newtube12_Admin</a>
+                </p>
                 <h3 class="section-title" style="border: none; margin-bottom: 10px; text-align: center;">Withdraw PG Coin</h3>
                 <p>Your PG Coin Balance: <strong id="withdrawPgCoinBalance">0.000</strong></p>
-                <p class="info-text" style="text-align: center; margin-bottom: 25px;">Select a package to withdraw. Withdrawals are processed within 1-5 hours.</p>
+                <p class="info-text" style="text-align: center; margin-bottom: 25px;">
+                    Select a package to withdraw. Withdrawals are processed within 1-5 hours.
+                    <br><strong style="color: var(--pg-coin-color);">Note: You must have at least 2 new referrals since your last withdrawal.</strong>
+                </p>
                 
                 <form id="pgWithdrawalDetailsForm" style="margin-bottom: 30px;">
                      <div class="form-group">
@@ -418,7 +444,7 @@
                 <div id="withdraw-package-grid" class="item-grid">
                     <!-- JS will generate boxes here -->
                 </div>
-                <p class="info-text" style="text-align: center; margin-top: 20px;">1 Dollar = 120 Taka (BDT)</p>
+                <p class="info-text" style="text-align: center; margin-top: 20px; font-weight: bold;">1 PG coin = 2 Taka (BDT)</p>
              </div>
         </section>
         
@@ -457,6 +483,12 @@
         <span id="task-unclaimed-balance-box">0.000 / 5.000 PG</span>
         <button id="task-claim-button-box" class="form-button" disabled>Claim</button>
     </div>
+    <!-- Daily Rewards Claim Box -->
+    <div id="daily-claim-box">
+        <span id="daily-unclaimed-balance-box">0.000 / 3.000 PG</span>
+        <button id="daily-claim-button-box" class="form-button" disabled>Claim</button>
+    </div>
+
 
     <div id="successModalOverlay" class="modal-overlay"><div class="modal-content"><div class="success-modal-icon">✓</div><h3 id="successModalTitle">Success!</h3><p id="successModalMessage">Your request has been sent.</p></div></div>
     
@@ -574,6 +606,7 @@
 
         const VIDEO_CLAIM_THRESHOLD = 1.0;
         const TASK_CLAIM_THRESHOLD = 5.0;
+        const DAILY_CLAIM_THRESHOLD = 3.0;
 
         const AD_TASK_VIEWS_REQUIRED = 5;
         const AD_TASK_REWARD = 0.2;
@@ -624,6 +657,9 @@
                     'dailyReferralCount': 0,
                     'dailyTasksCompletedCount': 0,
                     'dailyRewardsClaimed': [],
+                    'claimedDailyRewards': [],
+                    'dailyTelegramVisit1Completed': false,
+                    'dailyTelegramVisit2Completed': false,
                     'dailyBrowseVisit1Completed': false,
                     'dailyBrowseVisit2Completed': false,
                     'dailyAdViews_1': 0, 
@@ -647,17 +683,20 @@
             if (commissionAmount > 0) {
                 try {
                     const referrerRef = doc(db, 'users', referrerId);
-                    await updateDoc(referrerRef, {
-                        pgCoin: increment(commissionAmount),
-                        lifetimeCommissionPg: increment(commissionAmount)
-                    });
-                     await addDoc(collection(db, 'transactions'), {
-                        userId: referrerId,
-                        type: 'Commission',
-                        details: `Commission from user ${currentUser.id}`,
-                        pgAmount: commissionAmount,
-                        status: 'Completed',
-                        createdAt: serverTimestamp()
+                    await runTransaction(db, async (t) => {
+                         t.update(referrerRef, {
+                            pgCoin: increment(commissionAmount),
+                            lifetimeCommissionPg: increment(commissionAmount)
+                        });
+                        const transactionData = {
+                            userId: referrerId,
+                            type: 'Commission',
+                            details: `Commission from user ${currentUser.id}`,
+                            pgAmount: commissionAmount,
+                            status: 'Completed',
+                            createdAt: serverTimestamp()
+                        };
+                        t.set(doc(collection(db, 'transactions')), transactionData);
                     });
                 } catch (error) { console.error(`Failed to grant commission to ${referrerId}:`, error); }
             }
@@ -682,14 +721,30 @@
                     isBanned: false,
                     isActivated: false,
                     dailyReferralCount: 0, dailyTasksCompletedCount: 0, 
-                    dailyRewardsClaimed: [], dailyBrowseVisit1Completed: false, 
-                    dailyBrowseVisit2Completed: false,
+                    dailyRewardsClaimed: [], 
+                    claimedDailyRewards: [],
+                    dailyTelegramVisit1Completed: false, dailyTelegramVisit2Completed: false,
+                    dailyBrowseVisit1Completed: false, dailyBrowseVisit2Completed: false,
                     dailyAdViews_1: 0, dailyAdViews_2: 0, dailyAdViews_3: 0,
                     totalVideoWatchSecondsToday: 0,
                     unclaimedVideoPg: 0, unclaimedVideoPgLastUpdated: null,
-                    unclaimedTaskPg: 0
+                    unclaimedTaskPg: 0,
+                    unclaimedDailyPg: 0,
+                    referralsSinceLastWithdrawal: 0,
                 };
-                if (referrerCode && referrerCode !== userId) { defaultUserData.referredBy = referrerCode; }
+                if (referrerCode && referrerCode !== userId) { 
+                    defaultUserData.referredBy = referrerCode; 
+                    try {
+                        const referrerRef = doc(db, 'users', referrerCode);
+                        await updateDoc(referrerRef, {
+                            referralCount: increment(1),
+                            dailyReferralCount: increment(1),
+                            referralsSinceLastWithdrawal: increment(1)
+                        });
+                    } catch (e) {
+                        console.error("Failed to update referrer stats on new user creation", e);
+                    }
+                }
                 await setDoc(userRef, defaultUserData);
                 userSnap = await getDoc(userRef);
             }
@@ -702,6 +757,15 @@
             if (userData.dailyReferralCount === undefined) updates.dailyReferralCount = 0;
             if (userData.dailyTasksCompletedCount === undefined) updates.dailyTasksCompletedCount = 0;
             if (userData.dailyRewardsClaimed === undefined) updates.dailyRewardsClaimed = [];
+            if (userData.claimedDailyRewards === undefined) updates.claimedDailyRewards = [];
+            if (userData.dailyTelegramVisit1Completed === undefined) {
+                 updates.dailyTelegramVisit1Completed = false;
+                 updates.dailyTelegramVisit2Completed = false;
+            }
+            if (userData.dailyBrowseVisit1Completed === undefined) {
+                 updates.dailyBrowseVisit1Completed = false;
+                 updates.dailyBrowseVisit2Completed = false;
+            }
             if (userData.dailyAdViews_1 === undefined) {
                 updates.dailyAdViews_1 = 0;
                 updates.dailyAdViews_2 = 0;
@@ -713,9 +777,9 @@
                 updates.unclaimedVideoPg = 0;
                 updates.unclaimedVideoPgLastUpdated = null;
             }
-            if (userData.unclaimedTaskPg === undefined) {
-                updates.unclaimedTaskPg = 0;
-            }
+            if (userData.unclaimedTaskPg === undefined) updates.unclaimedTaskPg = 0;
+            if (userData.unclaimedDailyPg === undefined) updates.unclaimedDailyPg = 0;
+            if (userData.referralsSinceLastWithdrawal === undefined) updates.referralsSinceLastWithdrawal = 0;
 
 
             if (Object.keys(updates).length > 0) { await updateDoc(userRef, updates); }
@@ -894,7 +958,8 @@
                 await grantCommission(amountToClaim);
 
                 await addDoc(collection(db, 'transactions'), {
-                    userId: currentUser.id, type: 'Video Watch',
+                    userId: currentUser.id, type: 'Video Reward',
+                    details: 'Claimed from Video Loot Box',
                     pgAmount: amountToClaim, status: 'Completed', createdAt: serverTimestamp()
                 });
 
@@ -978,6 +1043,7 @@
         function hideAllFloatingElements() {
             document.getElementById('video-claim-box').classList.remove('visible', 'pulsate');
             document.getElementById('task-claim-box').classList.remove('visible', 'pulsate');
+            document.getElementById('daily-claim-box').classList.remove('visible', 'pulsate');
             document.getElementById('adsterra-social-bar-container').style.display = 'none';
         }
 
@@ -1162,7 +1228,7 @@
             if (state === 'start') {
                 tg.openLink(taskUrl);
                 button.disabled = true;
-                let countdown = 6; // UPDATED from 8 to 6
+                let countdown = 6;
                 button.textContent = `Claim in ${countdown}s`;
                 const timer = setInterval(() => {
                     countdown--;
@@ -1335,6 +1401,188 @@
         }
         document.getElementById('task-claim-button-box').addEventListener('click', claimTaskRewards);
 
+        // --- NEW DAILY REWARDS LOGIC ---
+
+        function updateDailyClaimUI() {
+            const claimBox = document.getElementById('daily-claim-box');
+            const unclaimedBalanceEl = document.getElementById('daily-unclaimed-balance-box');
+            const claimButton = document.getElementById('daily-claim-button-box');
+            const unclaimedBalance = currentUser?.unclaimedDailyPg || 0;
+
+            unclaimedBalanceEl.textContent = `${unclaimedBalance.toFixed(3)} / ${DAILY_CLAIM_THRESHOLD.toFixed(3)} PG`;
+
+            if (unclaimedBalance > 0) {
+                claimBox.classList.add('visible');
+            } else {
+                claimBox.classList.remove('visible');
+            }
+
+            if (unclaimedBalance >= DAILY_CLAIM_THRESHOLD) {
+                claimButton.disabled = false;
+                if (!claimBox.classList.contains('pulsate')) claimBox.classList.add('pulsate');
+            } else {
+                claimButton.disabled = true;
+                claimBox.classList.remove('pulsate');
+            }
+        }
+
+        async function claimDailyRewards() {
+            const claimButton = document.getElementById('daily-claim-button-box');
+            if (!currentUser || (currentUser.unclaimedDailyPg || 0) < DAILY_CLAIM_THRESHOLD) return;
+
+            claimButton.disabled = true;
+            claimButton.textContent = 'Claiming...';
+
+            const amountToClaim = Math.floor(currentUser.unclaimedDailyPg / DAILY_CLAIM_THRESHOLD) * DAILY_CLAIM_THRESHOLD;
+            if (amountToClaim <= 0) {
+                claimButton.textContent = 'Claim';
+                updateDailyClaimUI();
+                return;
+            }
+
+            try {
+                 await runTransaction(db, async (t) => {
+                    const userRef = doc(db, 'users', currentUser.id);
+                    const userDoc = await t.get(userRef);
+                    if (!userDoc.exists()) throw new Error("User not found");
+
+                    const currentUnclaimed = userDoc.data().unclaimedDailyPg || 0;
+                    if (currentUnclaimed < amountToClaim) throw new Error("Inconsistent daily balance");
+
+                    t.update(userRef, {
+                        pgCoin: increment(amountToClaim),
+                        lifetimePgCoinEarned: increment(amountToClaim),
+                        unclaimedDailyPg: increment(-amountToClaim)
+                    });
+                });
+                
+                await grantCommission(amountToClaim);
+
+                await addDoc(collection(db, 'transactions'), {
+                    userId: currentUser.id, type: 'Daily Reward',
+                    details: 'Claimed from Daily Loot Box',
+                    pgAmount: amountToClaim, status: 'Completed', createdAt: serverTimestamp()
+                });
+
+                showSuccessModal("Reward Claimed!", `You claimed ${amountToClaim.toFixed(3)} PG from daily tasks.`);
+                await fetchAndUpdateCurrentUser();
+                updateDailyClaimUI();
+            } catch (error) {
+                console.error("Error claiming daily rewards:", error);
+                alert("Failed to claim daily rewards. Please try again.");
+            } finally {
+                claimButton.textContent = 'Claim';
+                updateDailyClaimUI();
+            }
+        }
+        document.getElementById('daily-claim-button-box').addEventListener('click', claimDailyRewards);
+
+
+        function renderDailyTasks() {
+            const container = document.getElementById('daily-tasks-grid');
+            if (!currentUser) { container.innerHTML = ''; return; }
+            
+            const dailyReferralCount = currentUser.dailyReferralCount || 0;
+            const claimedDaily = currentUser.claimedDailyRewards || [];
+
+            const tasks = [
+                // Referral Tasks
+                { id: 'ref_1', title: 'Refer 1 Friend Today', required: 1, reward: 0.050, condition: dailyReferralCount >= 1 },
+                { id: 'ref_3', title: 'Refer 3 Friends Today', required: 3, reward: 0.200, condition: dailyReferralCount >= 3 },
+                { id: 'ref_5', title: 'Refer 5 Friends Today', required: 5, reward: 0.600, condition: dailyReferralCount >= 5 },
+                { id: 'ref_10', title: 'Refer 10 Friends Today', required: 10, reward: 1.000, condition: dailyReferralCount >= 10 },
+                { id: 'ref_20', title: 'Refer 20+ Friends Today', required: 20, reward: 2.500, condition: dailyReferralCount >= 20 },
+                // Telegram Tasks
+                { id: 'tg_1', type: 'visit', title: 'Visit Official Channel', reward: 0.01, url: 'https://t.me/tech_and_touch', completed: currentUser.dailyTelegramVisit1Completed, visitTime: 5 },
+                { id: 'tg_2', type: 'visit', title: 'Visit Payment Channel', reward: 0.01, url: 'https://t.me/newtube12', completed: currentUser.dailyTelegramVisit2Completed, visitTime: 5 },
+                // Website Visit Tasks
+                { id: 'web_1', type: 'visit', title: 'Visit Website 1', reward: 0.03, url: 'https://suggestbingo.com/qr4ys636p?key=0098a30fe6a07c76104029fc8045e1bd', completed: currentUser.dailyBrowseVisit1Completed, visitTime: 15 },
+                { id: 'web_2', type: 'visit', title: 'Visit Website 2', reward: 0.03, url: 'https://suggestbingo.com/qr4ys636p?key=0098a30fe6a07c76104029fc8045e1bd', completed: currentUser.dailyBrowseVisit2Completed, visitTime: 15 },
+            ];
+
+            container.innerHTML = tasks.map(task => {
+                let buttonHtml = '';
+                const isClaimed = claimedDaily.includes(task.id);
+                if (isClaimed) {
+                    buttonHtml = `<button class="daily-task-button" disabled>Claimed</button>`;
+                } else if (task.type === 'visit') {
+                    if (task.completed) {
+                         buttonHtml = `<button class="daily-task-button" data-task-id="${task.id}" data-reward="${task.reward}" data-action="claim-visit">Claim</button>`;
+                    } else {
+                        buttonHtml = `<button class="daily-task-button" data-task-id="${task.id}" data-url="${task.url}" data-time="${task.visitTime}" data-action="visit">Go</button>`;
+                    }
+                } else { // Referral task
+                    if (task.condition) {
+                         buttonHtml = `<button class="daily-task-button" data-task-id="${task.id}" data-reward="${task.reward}" data-action="claim-ref">Claim</button>`;
+                    } else {
+                        buttonHtml = `<button class="daily-task-button" disabled>Invite</button>`;
+                    }
+                }
+                
+                const progressText = task.required ? `<p>Progress: ${dailyReferralCount} / ${task.required}</p>` : `<p>Visit to claim reward.</p>`;
+
+                return `
+                    <div class="daily-reward-card">
+                        <div class="daily-reward-card-info">
+                            <h4>${task.title}</h4>
+                            ${progressText}
+                            <p>Reward: <span class="task-reward-pg">${task.reward.toFixed(3)} PG</span></p>
+                        </div>
+                        ${buttonHtml}
+                    </div>`;
+            }).join('');
+        }
+
+        document.getElementById('daily-tasks-grid').addEventListener('click', async (e) => {
+            const button = e.target.closest('.daily-task-button');
+            if (!button || button.disabled) return;
+
+            const { taskId, reward, action, url, time } = button.dataset;
+            const userRef = doc(db, 'users', currentUser.id);
+
+            if (action === 'claim-ref' || action === 'claim-visit') {
+                button.disabled = true; button.textContent = "Claiming...";
+                try {
+                    await updateDoc(userRef, {
+                        unclaimedDailyPg: increment(parseFloat(reward)),
+                        claimedDailyRewards: arrayUnion(taskId)
+                    });
+                    showSuccessModal("Reward Added!", `+${reward} PG added to your Daily Loot Box.`);
+                    await fetchAndUpdateCurrentUser();
+                    renderDailyTasks();
+                    updateDailyClaimUI();
+                } catch (err) {
+                    alert('Failed to claim reward.');
+                    button.disabled = false; button.textContent = "Claim";
+                }
+            } else if (action === 'visit') {
+                tg.openLink(url);
+                button.disabled = true;
+                let countdown = parseInt(time, 10);
+                button.textContent = `Wait ${countdown}s`;
+                const timer = setInterval(async () => {
+                    countdown--;
+                    button.textContent = `Wait ${countdown}s`;
+                    if (countdown <= 0) {
+                        clearInterval(timer);
+                        button.textContent = `Processing...`;
+                        const updateField = {
+                            'tg_1': 'dailyTelegramVisit1Completed', 'tg_2': 'dailyTelegramVisit2Completed',
+                            'web_1': 'dailyBrowseVisit1Completed', 'web_2': 'dailyBrowseVisit2Completed'
+                        }[taskId];
+                        if (updateField) {
+                            await updateDoc(userRef, { [updateField]: true });
+                            await fetchAndUpdateCurrentUser();
+                            renderDailyTasks();
+                        }
+                    }
+                }, 1000);
+            }
+        });
+
+        // --- END DAILY REWARDS LOGIC ---
+
+
         function renderTaskPackages() {
             const grid = document.getElementById('ad-package-grid');
             grid.innerHTML = '';
@@ -1459,6 +1707,10 @@
                 document.getElementById('pgAccountDetails').focus();
                 return;
             }
+            if ((currentUser.referralsSinceLastWithdrawal || 0) < 2) {
+                alert(`Withdrawal Failed: You need at least 2 new referrals to make a withdrawal. You currently have ${currentUser.referralsSinceLastWithdrawal || 0}.`);
+                return;
+            }
 
             showWithdrawalConfirmationModal(amount, method, details);
         });
@@ -1490,11 +1742,17 @@
             try {
                 if (isNaN(amount) || amount <= 0) throw new Error(`Invalid withdrawal amount.`);
                 if (amount > (currentUser.pgCoin || 0)) throw new Error(`Insufficient PG Coin balance.`);
+                if ((currentUser.referralsSinceLastWithdrawal || 0) < 2) {
+                    throw new Error(`You need at least 2 new referrals to make a withdrawal. You currently have ${currentUser.referralsSinceLastWithdrawal || 0}.`);
+                }
 
                 await runTransaction(db, async (t) => {
                     const userRef = doc(db, 'users', currentUser.id);
                     const userDoc = await t.get(userRef);
-                    if (!userDoc.exists() || (userDoc.data().pgCoin || 0) < amount) throw new Error(`Insufficient balance.`);
+                    if (!userDoc.exists()) throw new Error(`User not found.`);
+                    const userData = userDoc.data();
+                    if ((userData.pgCoin || 0) < amount) throw new Error(`Insufficient balance.`);
+                    if ((userData.referralsSinceLastWithdrawal || 0) < 2) throw new Error(`Referral requirement not met.`);
                     
                     const requestData = { 
                         userId: currentUser.id, 
@@ -1504,13 +1762,17 @@
                         status: 'pending', 
                         createdAt: serverTimestamp(), 
                         withdrawType: 'pg', 
-                        fee: 0, // No fee mentioned in new spec
+                        fee: 0,
                         totalDeducted: amount,
                         pgAmount: amount 
                     };
                     
                     t.set(doc(collection(db, 'withdrawals')), requestData);
-                    t.update(userRef, { pgCoin: increment(-amount), withdrawalCount: increment(1) });
+                    t.update(userRef, { 
+                        pgCoin: increment(-amount), 
+                        withdrawalCount: increment(1),
+                        referralsSinceLastWithdrawal: 0 // Reset after successful request
+                    });
                 });
 
                 await fetchAndUpdateCurrentUser();
@@ -1530,12 +1792,11 @@
             modal.classList.add('show');
             historyContainer.innerHTML = '<div class="loader"></div>';
             try {
-                const withdrawalsQuery = query(collection(db, "withdrawals"), where("userId", "==", currentUser.id), orderBy("createdAt", "desc"), limit(20));
-                const transactionsQuery = query(collection(db, "transactions"), where("userId", "==", currentUser.id), orderBy("createdAt", "desc"), limit(20));
-                const submissionsQuery = query(collection(db, "task_submissions"), where("submitterId", "==", currentUser.id), orderBy("submittedAt", "desc"), limit(20));
+                const withdrawalsQuery = query(collection(db, "withdrawals"), where("userId", "==", currentUser.id), orderBy("createdAt", "desc"), limit(25));
+                const transactionsQuery = query(collection(db, "transactions"), where("userId", "==", currentUser.id), orderBy("createdAt", "desc"), limit(25));
                 
-                const [withdrawalsSnap, transactionsSnap, submissionsSnap] = await Promise.all([
-                    getDocs(withdrawalsQuery), getDocs(transactionsQuery), getDocs(submissionsSnap)
+                const [withdrawalsSnap, transactionsSnap] = await Promise.all([
+                    getDocs(withdrawalsQuery), getDocs(transactionsQuery)
                 ]);
 
                 let combinedList = [];
@@ -1550,12 +1811,6 @@
                     const data = doc.data();
                     combinedList.push({
                         ...data, timestamp: data.createdAt
-                    });
-                });
-                submissionsSnap.forEach(doc => {
-                    const data = doc.data();
-                    combinedList.push({
-                        ...data, type: 'Task Submission', timestamp: data.submittedAt
                     });
                 });
 
@@ -1599,9 +1854,6 @@
                     } else if (data.usdAmount) {
                         amountStr = `+ ${data.usdAmount.toFixed(4)} USDT`;
                         amountClass = 'amount-positive';
-                    } else if (title === 'Task Submission') {
-                        amountStr = 'Pending Reward';
-                        amountClass = '';
                     }
 
                     const item = document.createElement('div');
@@ -1609,7 +1861,7 @@
                     item.innerHTML = `
                         <div class="history-item-left">
                             <strong>${title}</strong>
-                            <small>${formattedTime}</small>
+                            <small>${data.details || formattedTime}</small>
                         </div>
                         <div class="history-item-right">
                             <strong class="${amountClass}">${amountStr}</strong>
@@ -1666,6 +1918,17 @@
         document.getElementById('show-create-task-btn').addEventListener('click', () => document.getElementById('createTaskModalOverlay').classList.add('show'));
         document.getElementById('closeTaskModalBtn').addEventListener('click', () => document.getElementById('createTaskModalOverlay').classList.remove('show'));
 
+        let adsterraScriptLoaded = false;
+        function loadAdsterraScript() {
+            if (adsterraScriptLoaded) return;
+            const container = document.getElementById('adsterra-social-bar-container');
+            const script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.src = '//suggestbingo.com/55/02/5c/55025c7818ef24365e262ed0d416a7a0.js';
+            container.appendChild(script);
+            adsterraScriptLoaded = true;
+        }
+
         document.querySelectorAll('.bottom-nav-item, .header-icon-btn').forEach(link => {
             if(!link.dataset.tabTarget) return;
             link.addEventListener('click', async (e) => {
@@ -1680,11 +1943,16 @@
                 document.querySelector(targetId).classList.add('active');
 
                 switch(targetId) {
-                    case '#profile-content': renderReferralStats(); break;
+                    case '#profile-content': 
+                        renderReferralStats(); 
+                        renderDailyTasks();
+                        updateDailyClaimUI();
+                        break;
                     case '#ads-content': setupAdsToEarn(); break;
                     case '#video-content': 
                         await fetchContent();
                         updateVideoClaimUI();
+                        loadAdsterraScript();
                         document.getElementById('adsterra-social-bar-container').style.display = 'block';
                         break;
                     case '#task-content': 
@@ -1746,6 +2014,8 @@
                 
                 showDailyNoticePopup();
                 renderReferralStats();
+                renderDailyTasks();
+                updateDailyClaimUI();
 
             } catch (error) {
                 console.error("Initialization failed:", error);
@@ -1757,3 +2027,4 @@
 
 </body>
 </html>
+```
