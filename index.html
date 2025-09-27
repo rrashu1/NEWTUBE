@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -457,7 +458,6 @@
         </section>
 
         <section id="video-content" class="content-section">
-            <div id="adsterra-social-bar-container" style="display:none;"></div>
             <h3 class="section-title">Trending Videos</h3>
             <div class="search-container">
                 <input type="search" id="videoSearchInput" placeholder="Search for videos...">
@@ -1241,7 +1241,6 @@
             document.getElementById('video-claim-box').classList.remove('visible', 'pulsate');
             document.getElementById('task-claim-box').classList.remove('visible', 'pulsate');
             document.getElementById('daily-claim-box').classList.remove('visible', 'pulsate');
-            document.getElementById('adsterra-social-bar-container').style.display = 'none';
         }
 
         function stopAllSectionActivity() {
@@ -2121,17 +2120,6 @@
         document.getElementById('show-create-task-btn').addEventListener('click', () => document.getElementById('createTaskModalOverlay').classList.add('show'));
         document.getElementById('closeTaskModalBtn').addEventListener('click', () => document.getElementById('createTaskModalOverlay').classList.remove('show'));
 
-        let adsterraScriptLoaded = false;
-        function loadAdsterraScript() {
-            if (adsterraScriptLoaded) return;
-            const container = document.getElementById('adsterra-social-bar-container');
-            const script = document.createElement('script');
-            script.type = 'text/javascript';
-            script.src = '//suggestbingo.com/55/02/5c/55025c7818ef24365e262ed0d416a7a0.js';
-            container.appendChild(script);
-            adsterraScriptLoaded = true;
-        }
-
         document.querySelectorAll('.bottom-nav-item, .header-icon-btn').forEach(link => {
             if(!link.dataset.tabTarget) return;
             link.addEventListener('click', async (e) => {
@@ -2155,8 +2143,6 @@
                     case '#video-content': 
                         await fetchContent();
                         updateVideoClaimUI();
-                        loadAdsterraScript();
-                        document.getElementById('adsterra-social-bar-container').style.display = 'block';
                         break;
                     case '#game-content':
                         GameZone.initialize();
