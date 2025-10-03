@@ -1,5 +1,6 @@
 
-
+---
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -34,17 +35,17 @@
 
     <style>
         :root {
-            --primary-accent-color: #E50914; /* UPDATED: Netflix Red */
-            --primary-accent-hover-color: #B20710; /* UPDATED: Darker Red */
-            --dark-bg: #141414; /* UPDATED: Almost Black */
-            --card-bg: #1F1F1F; /* UPDATED: Dark Grey */
-            --header-bg: #1F1F1F; /* UPDATED: Dark Grey */
-            --text-light: #FFFFFF; /* UPDATED: White */
-            --text-muted: #A0A0A0; /* UPDATED: Light Grey */
-            --border-color: #303030; /* UPDATED: Darker Grey */
+            --primary-accent-color: #FFC107; /* UPDATED: Yellow */
+            --primary-accent-hover-color: #E0A800; /* UPDATED: Darker Yellow */
+            --dark-bg: #141414; 
+            --card-bg: #1F1F1F; 
+            --header-bg: #1F1F1F; 
+            --text-light: #FFFFFF; 
+            --text-muted: #A0A0A0; 
+            --border-color: #303030; 
             --success-color: #28a745;
-            --disabled-color: #404040; /* UPDATED */
-            --pg-coin-color: #ff9900;
+            --disabled-color: #404040;
+            --pg-coin-color: #FFC107; /* UPDATED: Match accent */
         }
         body { 
             background-color: var(--dark-bg); 
@@ -122,8 +123,8 @@
         .sub-section-title { font-size: 1.2em; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-top: 40px; margin-bottom: 20px; font-weight: 500; }
         .search-container { display: flex; gap: 10px; margin-bottom: 20px; }
         .search-container input { flex-grow: 1; padding: 12px; box-sizing: border-box; border-radius: 8px; border: 1px solid #444; background-color: #333; color: var(--text-light); font-size: 1em; }
-        .search-container button { padding: 12px 18px; border: none; border-radius: 8px; background-color: var(--primary-accent-color); color: #ffffff; font-weight: bold; cursor: pointer; }
-        .search-container button#clearSearchBtn { background-color: #6c757d; }
+        .search-container button { padding: 12px 18px; border: none; border-radius: 8px; background-color: var(--primary-accent-color); color: #000; font-weight: bold; cursor: pointer; }
+        .search-container button#clearSearchBtn { background-color: #6c757d; color: #fff; }
         .item-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
         
         .movie-item, .ad-task-card, .task-card, .ad-package-card, .user-ad-item, .withdraw-package-card { background-color: var(--card-bg); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; border: 1px solid var(--border-color); transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
@@ -140,8 +141,8 @@
         .ad-task-card p { margin: 8px 0 15px; color: var(--text-muted); font-weight: bold; }
         .task-reward-pg { color: var(--pg-coin-color); }
         .task-reward-usdt { color: var(--success-color); }
-        .ad-task-button { width: 100%; padding: 12px; border: none; border-radius: 0 0 10px 10px; font-weight: bold; cursor: pointer; background-color: var(--primary-accent-color); color: #ffffff; transition: background-color .2s; margin-top: auto; font-size: 1em;}
-        .task-button, .daily-task-button { width: auto; flex-shrink: 0; padding: 10px 20px; font-size: 0.9em; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; background-color: var(--primary-accent-color); color: #ffffff; transition: background-color .2s; margin-top: 0; }
+        .ad-task-button { width: 100%; padding: 12px; border: none; border-radius: 0 0 10px 10px; font-weight: bold; cursor: pointer; background-color: var(--primary-accent-color); color: #000; transition: background-color .2s; margin-top: auto; font-size: 1em;}
+        .task-button, .daily-task-button { width: auto; flex-shrink: 0; padding: 10px 20px; font-size: 0.9em; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; background-color: var(--primary-accent-color); color: #000; transition: background-color .2s; margin-top: 0; }
         .task-button:disabled, .ad-task-button:disabled, .daily-task-button:disabled { background-color: var(--disabled-color); color: #aaa; cursor: not-allowed; }
         
         .card { max-width: 500px; margin: 20px auto; background-color: var(--card-bg); padding: 30px; border-radius: 12px; border: 1px solid var(--border-color); text-align: center; }
@@ -150,7 +151,7 @@
         .form-group { margin-bottom: 20px; text-align: left; }
         .form-group label { display: block; margin-bottom: 8px; font-weight: 500; color: var(--text-muted); }
         .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px; box-sizing: border-box; border-radius: 8px; border: 1px solid #444; background-color: #333; color: var(--text-light); font-size: 1em; }
-        .form-button { width: 100%; padding: 14px; border: none; border-radius: 8px; background-color: var(--primary-accent-color); color: #ffffff; font-weight: bold; font-size: 1em; cursor: pointer; transition: background-color 0.2s; }
+        .form-button { width: 100%; padding: 14px; border: none; border-radius: 8px; background-color: var(--primary-accent-color); color: #000; font-weight: bold; font-size: 1em; cursor: pointer; transition: background-color 0.2s; }
         .form-button:hover:not(:disabled) { background-color: var(--primary-accent-hover-color); }
         .form-button:disabled { background-color: var(--disabled-color); cursor: not-allowed; color: #aaa; }
         
@@ -185,16 +186,16 @@
         .info-text { font-size: 0.9em; color: var(--text-muted); margin-top: 10px; line-height: 1.5; }
         
         .task-card, .daily-reward-card { background-color: var(--card-bg); border-radius: 8px; display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 15px; transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; border: 1px solid var(--border-color); }
-        .task-card:hover, .daily-reward-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(229, 9, 20, 0.15); }
+        .task-card:hover, .daily-reward-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(255, 193, 7, 0.15); }
         #ad-task-list.item-grid, #task-list.item-grid, #my-ads-list.item-grid, #daily-tasks-grid { grid-template-columns: 1fr; gap: 15px; display: grid;} 
         .task-card-info, .daily-reward-card-info { padding: 0; flex-grow: 1; text-align: left; }
         .task-card-info h4, .daily-reward-card-info h4 { margin: 0 0 5px; font-size: 1em;}
         .task-card-info p, .daily-reward-card-info p { margin: 5px 0 0; font-size: 0.9em; }
 
         @keyframes task-pulse {
-            0% { box-shadow: 0 4px 12px rgba(229, 9, 20, 0.15); }
-            50% { box-shadow: 0 6px 18px rgba(229, 9, 20, 0.25); }
-            100% { box-shadow: 0 4px 12px rgba(229, 9, 20, 0.15); }
+            0% { box-shadow: 0 4px 12px rgba(255, 193, 7, 0.15); }
+            50% { box-shadow: 0 6px 18px rgba(255, 193, 7, 0.25); }
+            100% { box-shadow: 0 4px 12px rgba(255, 193, 7, 0.15); }
         }
 
         #referral-stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
@@ -223,7 +224,7 @@
         .ad-package-card { padding: 15px; text-align: center; cursor: pointer; border: 2px solid var(--border-color); transition: all 0.2s ease-in-out; }
         .ad-package-card h4 { font-size: 1.1em; margin-bottom: 5px; }
         .ad-package-card p { margin: 0; font-weight: 600; color: var(--primary-accent-color); }
-        .ad-package-card.selected { border-color: var(--primary-accent-color); background-color: #4d1c20; transform: translateY(-3px); box-shadow: 0 4px 12px rgba(229, 9, 20, 0.2); }
+        .ad-package-card.selected { border-color: var(--primary-accent-color); background-color: rgba(255, 193, 7, 0.15); transform: translateY(-3px); box-shadow: 0 4px 12px rgba(255, 193, 7, 0.2); }
         .user-ad-item { padding: 20px; text-align: left; }
         .user-ad-item .progress-text { font-weight: bold; color: var(--primary-accent-color); margin-top: 10px; display: block; }
         .user-ad-item .status-text { font-weight: 600; margin-top: 5px; display: block; }
@@ -237,7 +238,7 @@
         .withdraw-package-card h4 { font-size: 1.3em; margin: 0; font-weight: 700; color: var(--pg-coin-color); }
         .withdraw-package-card p { margin: 5px 0 0; color: var(--text-muted); font-size: 0.9em; }
         .withdraw-package-card:hover:not(.disabled) { transform: translateY(-3px); border-color: var(--primary-accent-color); }
-        .withdraw-package-card.selected { border-color: var(--primary-accent-color); background-color: rgba(229, 9, 20, 0.1); transform: translateY(-3px); }
+        .withdraw-package-card.selected { border-color: var(--primary-accent-color); background-color: rgba(255, 193, 7, 0.1); transform: translateY(-3px); }
         .withdraw-package-card.disabled { background-color: var(--disabled-color); cursor: not-allowed; opacity: 0.6; }
 
         .daily-reward-card-info .progress-bar { height: 6px; background-color: #333; border-radius: 3px; margin-top: 8px; overflow: hidden; }
@@ -247,7 +248,7 @@
         .welcome-modal .modal-body li { margin-bottom: 10px; }
         #welcome-agree-container { margin-top: 20px; display: flex; align-items: center; gap: 10px; }
 
-        #video-claim-box, #task-claim-box, #daily-claim-box {
+        #video-claim-box {
             position: fixed;
             bottom: 100px;
             right: 15px;
@@ -261,35 +262,19 @@
             transform: scale(0);
             transition: transform 0.3s ease-in-out;
         }
-        #video-claim-box.visible, #task-claim-box.visible, #daily-claim-box.visible { transform: scale(1); }
+        #video-claim-box.visible { transform: scale(1); }
         #video-claim-box.pulsate { animation: pulsate-animation 1.5s infinite; }
-        #task-claim-box.pulsate { animation: pulsate-animation-red 1.5s infinite; }
-        #daily-claim-box.pulsate { animation: pulsate-animation-green 1.5s infinite; }
 
         @keyframes pulsate-animation {
-            0% { transform: scale(1); box-shadow: 0 5px 15px rgba(40, 167, 69, 0.2); }
-            50% { transform: scale(1.05); box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4); }
-            100% { transform: scale(1); box-shadow: 0 5px 15px rgba(40, 167, 69, 0.2); }
-        }
-        @keyframes pulsate-animation-red {
-            0% { transform: scale(1); box-shadow: 0 5px 15px rgba(229, 9, 20, 0.2); }
-            50% { transform: scale(1.02); box-shadow: 0 8px 25px rgba(229, 9, 20, 0.4); }
-            100% { transform: scale(1); box-shadow: 0 5px 15px rgba(229, 9, 20, 0.2); }
-        }
-        @keyframes pulsate-animation-green {
-            0% { transform: scale(1); box-shadow: 0 5px 15px rgba(40, 167, 69, 0.2); }
-            50% { transform: scale(1.02); box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4); }
-            100% { transform: scale(1); box-shadow: 0 5px 15px rgba(40, 167, 69, 0.2); }
+            0% { transform: scale(1); box-shadow: 0 5px 15px rgba(255, 193, 7, 0.2); }
+            50% { transform: scale(1.05); box-shadow: 0 8px 25px rgba(255, 193, 7, 0.4); }
+            100% { transform: scale(1); box-shadow: 0 5px 15px rgba(255, 193, 7, 0.2); }
         }
 
-        #video-claim-box #video-unclaimed-balance-box, 
-        #task-claim-box #task-unclaimed-balance-box,
-        #daily-claim-box #daily-unclaimed-balance-box { 
+        #video-claim-box #video-unclaimed-balance-box { 
             font-size: 1em; font-weight: 700; color: var(--pg-coin-color); display: block; margin-bottom: 8px; 
         }
-        #video-claim-button-box, 
-        #task-claim-button-box,
-        #daily-claim-button-box { 
+        #video-claim-button-box { 
             width: 100%; padding: 6px 12px; font-size: 0.9em; 
         }
 
@@ -571,56 +556,6 @@
                 <p class="info-text" style="text-align: center; margin-top: 20px; font-weight: bold;">1 PG coin = 2 Taka (BDT)</p>
              </div>
         </section>
-
-        <section id="about-content" class="content-section">
-            <div class="card" style="max-width: none; text-align: left;">
-                <h3 style="text-align: center; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">About NEWTUBE</h3>
-        
-                <div class="sub-card" style="margin-top: 20px;">
-                    <h4>1. How to Complete Tasks</h4>
-                    <p class="info-text">Navigate to the "Tasks" tab. You will see a list of available tasks. Click the "Go" button, which will take you to a social media page (like Telegram, YouTube, etc.). Complete the required action (e.g., join channel, subscribe). Return to our app, wait for the timer, and then click "Claim Reward". Your reward will be added to the Task Loot Box.</p>
-                </div>
-        
-                <div class="sub-card">
-                    <h4>2. How to Earn from Videos</h4>
-                    <p class="info-text">Go to the "Video" tab. Simply click on any video to start watching. You will earn PG Coins for every second you watch. The coins you earn are automatically collected in your Video Loot Box at the bottom right of the screen.</p>
-                </div>
-
-                <div class="sub-card">
-                    <h4>3. How to Earn from Games</h4>
-                    <p class="info-text">Go to the "Games" tab. Play simple and fun games like Scratch Card or Math Quizzes. Each game has a daily play limit. The PG coins you win are collected in the Daily Rewards Loot Box.</p>
-                </div>
-                
-                <div class="sub-card">
-                    <h4>4. Daily & Referral Rewards</h4>
-                    <p class="info-text">On the "Profile" tab, you'll find daily tasks like visiting channels or referring new friends. Invite friends with your unique referral link to earn significant daily bonuses. Plus, you will earn a <strong>10% lifetime commission</strong> on all PG Coins your friends earn!</p>
-                </div>
-        
-                <div class="sub-card">
-                    <h4>5. How to Withdraw</h4>
-                    <p class="info-text">Visit the "Withdraw" tab. Select a withdrawal package, choose your payment method, and enter your account number/ID. <strong>Important:</strong> To be eligible for a withdrawal, you must have enough referrals. Each withdrawal you make requires 2 total referrals. For example, to make your first withdrawal, you need 2 referrals. To make a second, you need a total of 4 referrals, and so on. Requests are processed within 1-5 hours.</p>
-                </div>
-        
-                <div class="sub-card">
-                    <h4>6. The Loot Box System Explained</h4>
-                    <p class="info-text">To make earning fun and prevent spam, rewards from Videos, Tasks, Games, and Daily Activities are first collected in "Loot Boxes". These are small pop-ups at the bottom-right corner. Once a loot box collects a certain amount of PG Coins, the "Claim" button becomes active. Click it to transfer the coins to your main balance. This keeps the system fair and engaging.</p>
-                </div>
-                
-                <div class="sub-card">
-                    <h4>7. Our Policy & Promise</h4>
-                    <p class="info-text" style="line-height: 1.8;">
-                        This platform was launched in December 2024. Our goal is to provide a place where you can earn a modest, halal income through honest work. There is no place for cheating or fraud here.
-                        <br><br>
-                        - Using a VPN or bots is strictly forbidden and will lead to a permanent ban.
-                        <br>
-                        - Submitting fake or incomplete tasks will result in account suspension.
-                        <br><br>
-                        This app won't make you rich, but it offers a chance to earn real money through simple, organic tasks. Please work honestly and enjoy your earnings.
-                    </p>
-                </div>
-        
-            </div>
-        </section>
         
     </main>
 
@@ -649,26 +584,12 @@
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M21 8H3V6h18v2zm0 6H3v-2h18v2zM5 18h14v-2H5v2zM3 20h18c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2H3c-1.1 0-2 .9 2 2v12c0 1.1.9 2 2z"/></svg>
             Withdraw
         </a>
-        <a href="#" class="bottom-nav-item" data-tab-target="#about-content">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
-            About
-        </a>
     </nav>
     
     <!-- Video Claim Box -->
     <div id="video-claim-box">
         <span id="video-unclaimed-balance-box">0.000 / 1.000 PG</span>
         <button id="video-claim-button-box" class="form-button" disabled>Claim</button>
-    </div>
-    <!-- Task Claim Box -->
-    <div id="task-claim-box">
-        <span id="task-unclaimed-balance-box">0.000 / 5.000 PG</span>
-        <button id="task-claim-button-box" class="form-button" disabled>Claim</button>
-    </div>
-    <!-- Daily Rewards Claim Box -->
-    <div id="daily-claim-box">
-        <span id="daily-unclaimed-balance-box">0.000 / 3.000 PG</span>
-        <button id="daily-claim-button-box" class="form-button" disabled>Claim</button>
     </div>
 
 
@@ -794,9 +715,7 @@
         let dailyBrowseTimer = null;
 
         const VIDEO_CLAIM_THRESHOLD = 1.0;
-        const TASK_CLAIM_THRESHOLD = 5.0;
-        const DAILY_CLAIM_THRESHOLD = 3.0;
-
+        
         const AD_TASK_VIEWS_REQUIRED = 5;
         const AD_TASK_REWARD = 0.2;
         const DAILY_LOGIN_PG_REWARD = 0.02;
@@ -921,8 +840,6 @@
                     dailyAdViews_1: 0, dailyAdViews_2: 0, dailyAdViews_3: 0,
                     totalVideoWatchSecondsToday: 0,
                     unclaimedVideoPg: 0, unclaimedVideoPgLastUpdated: null,
-                    unclaimedTaskPg: 0,
-                    unclaimedDailyPg: 0,
                     // Game Fields
                     scratchPlaysToday: 0, mathPlaysToday: 0, quickChoicePlayedToday: false,
                 };
@@ -970,8 +887,6 @@
                 updates.unclaimedVideoPg = 0;
                 updates.unclaimedVideoPgLastUpdated = null;
             }
-            if (userData.unclaimedTaskPg === undefined) updates.unclaimedTaskPg = 0;
-            if (userData.unclaimedDailyPg === undefined) updates.unclaimedDailyPg = 0;
             if (userData.withdrawalCount === undefined) updates.withdrawalCount = 0;
             // Game field checks
             if (userData.scratchPlaysToday === undefined) updates.scratchPlaysToday = 0;
@@ -1019,10 +934,12 @@
              if (rewards.pgCoin && rewards.pgCoin > 0) {
                  updates.pgCoin = increment(rewards.pgCoin);
                  updates.lifetimePgCoinEarned = increment(rewards.pgCoin);
-                 await grantCommission(rewards.pgCoin);
              }
              if (rewards.usdt && rewards.usdt > 0) { updates.usdtBalance = increment(rewards.usdt); }
-             if (Object.keys(updates).length > 0) { await updateDoc(userRef, updates); }
+             
+             if (Object.keys(updates).length > 0) { 
+                await updateDoc(userRef, updates); 
+             }
              
              if (transactionInfo.type) {
                  const transactionData = {
@@ -1033,6 +950,11 @@
                 if (rewards.usdt) transactionData.usdAmount = rewards.usdt;
                 await addDoc(collection(db, 'transactions'), transactionData);
              }
+             // Grant commission AFTER main reward is granted
+             if (rewards.pgCoin && rewards.pgCoin > 0) {
+                 await grantCommission(rewards.pgCoin);
+             }
+             await fetchAndUpdateCurrentUser();
         }
         
         async function fetchContent() {
@@ -1239,8 +1161,6 @@
         
         function hideAllFloatingElements() {
             document.getElementById('video-claim-box').classList.remove('visible', 'pulsate');
-            document.getElementById('task-claim-box').classList.remove('visible', 'pulsate');
-            document.getElementById('daily-claim-box').classList.remove('visible', 'pulsate');
         }
 
         function stopAllSectionActivity() {
@@ -1502,16 +1422,26 @@
                     t.update(userRef, { 
                         completedTasks: arrayUnion(taskId), 
                         dailyTasksCompletedCount: increment(1),
-                        unclaimedTaskPg: increment(rewardAmount) 
+                        pgCoin: increment(rewardAmount),
+                        lifetimePgCoinEarned: increment(rewardAmount)
                     });
                     t.update(taskRef, { completionCount: increment(1) });
                 });
 
-                showSuccessModal("Task Verified!", `Reward of ${rewardAmount.toFixed(3)} PG added to your Task Loot Box.`);
+                await grantCommission(rewardAmount);
+                await addDoc(collection(db, 'transactions'), {
+                    userId: currentUser.id,
+                    type: 'Task Reward',
+                    details: 'Completed user-created task',
+                    pgAmount: rewardAmount,
+                    status: 'Completed',
+                    createdAt: serverTimestamp()
+                });
+
+                showSuccessModal("Task Verified!", `${rewardAmount.toFixed(3)} PG has been added to your balance.`);
                 
                 if (taskCard) taskCard.remove();
                 await fetchAndUpdateCurrentUser();
-                updateTaskClaimUI();
 
             } catch (error) {
                 const errorMessages = { "ALREADY_COMPLETED": "You have already completed this task.", "TASK_LIMIT_REACHED": "This task has reached its completion limit."};
@@ -1524,160 +1454,7 @@
             }
         }
         
-        function updateTaskClaimUI() {
-            const claimBox = document.getElementById('task-claim-box');
-            const unclaimedBalanceEl = document.getElementById('task-unclaimed-balance-box');
-            const claimButton = document.getElementById('task-claim-button-box');
-
-            const unclaimedBalance = currentUser?.unclaimedTaskPg || 0;
-
-            unclaimedBalanceEl.textContent = `${unclaimedBalance.toFixed(3)} / ${TASK_CLAIM_THRESHOLD.toFixed(3)} PG`;
-
-            if (unclaimedBalance > 0) {
-                claimBox.classList.add('visible');
-            } else {
-                 claimBox.classList.remove('visible');
-            }
-
-            if (unclaimedBalance >= TASK_CLAIM_THRESHOLD) {
-                claimButton.disabled = false;
-                if (!claimBox.classList.contains('pulsate')) {
-                    claimBox.classList.add('pulsate');
-                }
-            } else {
-                claimButton.disabled = true;
-                claimBox.classList.remove('pulsate');
-            }
-        }
-
-        async function claimTaskRewards() {
-            const claimButton = document.getElementById('task-claim-button-box');
-            if (!currentUser || (currentUser.unclaimedTaskPg || 0) < TASK_CLAIM_THRESHOLD) return;
-
-            claimButton.disabled = true;
-            claimButton.textContent = 'Claiming...';
-            
-            const amountToClaim = Math.floor(currentUser.unclaimedTaskPg / TASK_CLAIM_THRESHOLD) * TASK_CLAIM_THRESHOLD;
-            if (amountToClaim <= 0) {
-                claimButton.textContent = 'Claim';
-                updateTaskClaimUI();
-                return;
-            }
-
-            try {
-                await runTransaction(db, async (t) => {
-                    const userRef = doc(db, 'users', currentUser.id);
-                    const userDoc = await t.get(userRef);
-                    if (!userDoc.exists()) throw new Error("User not found");
-
-                    const currentUnclaimed = userDoc.data().unclaimedTaskPg || 0;
-                    if (currentUnclaimed < amountToClaim) throw new Error("Inconsistent task balance");
-                    
-                    t.update(userRef, {
-                        pgCoin: increment(amountToClaim),
-                        lifetimePgCoinEarned: increment(amountToClaim),
-                        unclaimedTaskPg: increment(-amountToClaim)
-                    });
-                });
-                
-                await grantCommission(amountToClaim);
-
-                await addDoc(collection(db, 'transactions'), {
-                    userId: currentUser.id, type: 'Task Reward',
-                    details: 'Claimed from Task Loot Box',
-                    pgAmount: amountToClaim, status: 'Completed', createdAt: serverTimestamp()
-                });
-
-                showSuccessModal("Reward Claimed!", `You claimed ${amountToClaim.toFixed(3)} PG from completed tasks.`);
-                await fetchAndUpdateCurrentUser();
-                updateTaskClaimUI();
-
-            } catch(error) {
-                console.error("Error claiming task rewards:", error);
-                alert("Failed to claim task rewards. Please try again.");
-            } finally {
-                claimButton.textContent = 'Claim';
-                updateTaskClaimUI();
-            }
-        }
-        document.getElementById('task-claim-button-box').addEventListener('click', claimTaskRewards);
-
         // --- NEW DAILY REWARDS LOGIC ---
-
-        function updateDailyClaimUI() {
-            const claimBox = document.getElementById('daily-claim-box');
-            const unclaimedBalanceEl = document.getElementById('daily-unclaimed-balance-box');
-            const claimButton = document.getElementById('daily-claim-button-box');
-            const unclaimedBalance = currentUser?.unclaimedDailyPg || 0;
-
-            unclaimedBalanceEl.textContent = `${unclaimedBalance.toFixed(3)} / ${DAILY_CLAIM_THRESHOLD.toFixed(3)} PG`;
-
-            if (unclaimedBalance > 0) {
-                claimBox.classList.add('visible');
-            } else {
-                claimBox.classList.remove('visible');
-            }
-
-            if (unclaimedBalance >= DAILY_CLAIM_THRESHOLD) {
-                claimButton.disabled = false;
-                if (!claimBox.classList.contains('pulsate')) claimBox.classList.add('pulsate');
-            } else {
-                claimButton.disabled = true;
-                claimBox.classList.remove('pulsate');
-            }
-        }
-
-        async function claimDailyRewards() {
-            const claimButton = document.getElementById('daily-claim-button-box');
-            if (!currentUser || (currentUser.unclaimedDailyPg || 0) < DAILY_CLAIM_THRESHOLD) return;
-
-            claimButton.disabled = true;
-            claimButton.textContent = 'Claiming...';
-
-            const amountToClaim = Math.floor(currentUser.unclaimedDailyPg / DAILY_CLAIM_THRESHOLD) * DAILY_CLAIM_THRESHOLD;
-            if (amountToClaim <= 0) {
-                claimButton.textContent = 'Claim';
-                updateDailyClaimUI();
-                return;
-            }
-
-            try {
-                 await runTransaction(db, async (t) => {
-                    const userRef = doc(db, 'users', currentUser.id);
-                    const userDoc = await t.get(userRef);
-                    if (!userDoc.exists()) throw new Error("User not found");
-
-                    const currentUnclaimed = userDoc.data().unclaimedDailyPg || 0;
-                    if (currentUnclaimed < amountToClaim) throw new Error("Inconsistent daily balance");
-
-                    t.update(userRef, {
-                        pgCoin: increment(amountToClaim),
-                        lifetimePgCoinEarned: increment(amountToClaim),
-                        unclaimedDailyPg: increment(-amountToClaim)
-                    });
-                });
-                
-                await grantCommission(amountToClaim);
-
-                await addDoc(collection(db, 'transactions'), {
-                    userId: currentUser.id, type: 'Daily Reward',
-                    details: 'Claimed from Daily Loot Box',
-                    pgAmount: amountToClaim, status: 'Completed', createdAt: serverTimestamp()
-                });
-
-                showSuccessModal("Reward Claimed!", `You claimed ${amountToClaim.toFixed(3)} PG from daily tasks & games.`);
-                await fetchAndUpdateCurrentUser();
-                updateDailyClaimUI();
-            } catch (error) {
-                console.error("Error claiming daily rewards:", error);
-                alert("Failed to claim daily rewards. Please try again.");
-            } finally {
-                claimButton.textContent = 'Claim';
-                updateDailyClaimUI();
-            }
-        }
-        document.getElementById('daily-claim-button-box').addEventListener('click', claimDailyRewards);
-
 
         function renderDailyTasks() {
             const container = document.getElementById('daily-tasks-grid');
@@ -1744,14 +1521,12 @@
             if (action === 'claim-ref' || action === 'claim-visit') {
                 button.disabled = true; button.textContent = "Claiming...";
                 try {
+                    await grantReward({ pgCoin: parseFloat(reward) }, { type: 'Daily Reward', details: `Claimed for daily task ${taskId}` });
                     await updateDoc(userRef, {
-                        unclaimedDailyPg: increment(parseFloat(reward)),
                         claimedDailyRewards: arrayUnion(taskId)
                     });
-                    showSuccessModal("Reward Added!", `+${reward} PG added to your Daily Loot Box.`);
-                    await fetchAndUpdateCurrentUser();
+                    showSuccessModal("Reward Claimed!", `+${reward} PG added to your balance.`);
                     renderDailyTasks();
-                    updateDailyClaimUI();
                 } catch (err) {
                     alert('Failed to claim reward.');
                     button.disabled = false; button.textContent = "Claim";
@@ -2137,7 +1912,6 @@
                     case '#profile-content': 
                         renderReferralStats(); 
                         renderDailyTasks();
-                        updateDailyClaimUI();
                         break;
                     case '#ads-content': setupAdsToEarn(); break;
                     case '#video-content': 
@@ -2146,13 +1920,11 @@
                         break;
                     case '#game-content':
                         GameZone.initialize();
-                        updateDailyClaimUI();
                         break;
                     case '#task-content': 
                         renderTaskPackages();
                         await renderMyAds(); 
                         await fetchAndRenderTasks('task-list', 50);
-                        updateTaskClaimUI();
                         break;
                     case '#withdraw-content': 
                         renderPgWithdrawalUI();
@@ -2291,15 +2063,11 @@
                     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
                     this.parent.createParticles(this.canvas.width/2 + this.canvas.offsetLeft, this.canvas.height/2 + this.canvas.offsetTop, 'gold');
                     
-                    const userRef = doc(db, 'users', currentUser.id);
-                    await updateDoc(userRef, {
-                        unclaimedDailyPg: increment(this.parent.SCRATCH_REWARD),
-                        scratchPlaysToday: increment(1)
-                    });
+                    await grantReward({ pgCoin: this.parent.SCRATCH_REWARD }, { type: 'Game Reward', details: 'Scratch Game Win' });
+                    await updateDoc(doc(db, 'users', currentUser.id), { scratchPlaysToday: increment(1) });
                     await fetchAndUpdateCurrentUser();
-                    updateDailyClaimUI();
 
-                    this.messageDisplay.textContent = `আপনি ${this.parent.SCRATCH_REWARD} PG Coin জিতেছেন! Daily Loot Box-এ যোগ করা হয়েছে।`;
+                    this.messageDisplay.textContent = `আপনি ${this.parent.SCRATCH_REWARD} PG Coin জিতেছেন! আপনার ব্যালেন্সে যোগ করা হয়েছে।`;
                     this.playsLeftDisplay.textContent = `আজকের জন্য বাকি আছে: ${this.parent.SCRATCH_PLAYS_PER_DAY - currentUser.scratchPlaysToday} বার`;
 
                     if (currentUser.scratchPlaysToday % 2 === 0) { await this.parent.showAd(); }
@@ -2356,14 +2124,11 @@
                 checkAnswer() { this.handleAnswer(parseInt(this.answerInput.value) === this.correctAnswer, false); },
                 async handleAnswer(isCorrect, isTimeout) {
                     clearInterval(this.timerInterval);
-                    const userRef = doc(db, 'users', currentUser.id);
                     if (isCorrect && (currentUser.mathPlaysToday || 0) < this.parent.MATH_PLAYS_PER_DAY) {
-                        await updateDoc(userRef, {
-                            unclaimedDailyPg: increment(this.parent.MATH_REWARD),
-                            mathPlaysToday: increment(1)
-                        });
+                        await grantReward({ pgCoin: this.parent.MATH_REWARD }, { type: 'Game Reward', details: 'Math Game Win' });
+                        await updateDoc(doc(db, 'users', currentUser.id), { mathPlaysToday: increment(1) });
                         await fetchAndUpdateCurrentUser();
-                        updateDailyClaimUI();
+                        
                         this.feedback.textContent = `সঠিক! ${this.parent.MATH_REWARD} PG যোগ করা হয়েছে।`; this.feedback.style.color = 'var(--success-color)';
                         this.updatePlaysLeft();
                         if (currentUser.mathPlaysToday % 2 === 0) { await this.parent.showAd(); }
@@ -2418,13 +2183,11 @@
                         wonAmount = Math.random() * (0.1 - 0.001) + 0.001;
                     }
                     
-                    const userRef = doc(db, 'users', currentUser.id);
-                    await updateDoc(userRef, {
-                        unclaimedDailyPg: increment(wonAmount),
-                        quickChoicePlayedToday: true
-                    });
+                    if (wonAmount > 0) {
+                        await grantReward({ pgCoin: wonAmount }, { type: 'Game Reward', details: 'Quick Choice Win' });
+                    }
+                    await updateDoc(doc(db, 'users', currentUser.id), { quickChoicePlayedToday: true });
                     await fetchAndUpdateCurrentUser();
-                    updateDailyClaimUI();
 
                     allBoxes.forEach((box, index) => {
                         setTimeout(() => {
@@ -2489,7 +2252,6 @@
                 showDailyNoticePopup();
                 renderReferralStats();
                 renderDailyTasks();
-                updateDailyClaimUI();
 
             } catch (error) {
                 console.error("Initialization failed:", error);
