@@ -1,6 +1,3 @@
-
----
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -30,31 +27,34 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;600;700&family=Roboto+Mono:wght@700&family=Orbitron:wght@400;700&family=Hind+Siliguri:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto+Mono:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <style>
         :root {
-            --primary-accent-color: #FFC107; /* UPDATED: Yellow */
-            --primary-accent-hover-color: #E0A800; /* UPDATED: Darker Yellow */
-            --dark-bg: #141414; 
-            --card-bg: #1F1F1F; 
-            --header-bg: #1F1F1F; 
-            --text-light: #FFFFFF; 
-            --text-muted: #A0A0A0; 
-            --border-color: #303030; 
+            /* --- UPDATE 6: THEME REDESIGN (WHITE & YELLOW) --- */
+            --primary-accent-color: #FFC107; /* Yellow */
+            --primary-accent-hover-color: #E0A800; /* Darker Yellow */
+            --light-bg: #F4F4F9; /* Light base background */
+            --card-bg: #FFFFFF; /* White for cards, headers */
+            --header-bg: #FFFFFF;
+            --text-dark: #1F1F1F; /* Dark text color */
+            --text-muted: #6c757d; /* Muted gray text */
+            --border-color: #E0E0E0; /* Light gray for borders */
             --success-color: #28a745;
-            --disabled-color: #404040;
-            --pg-coin-color: #FFC107; /* UPDATED: Match accent */
+            --disabled-color: #E9ECEF;
+            --disabled-text-color: #6c757d;
         }
         body { 
-            background-color: var(--dark-bg); 
-            color: var(--text-light); 
-            font-family: 'Inter', 'Hind Siliguri', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            background-color: var(--light-bg); 
+            color: var(--text-dark); 
+            font-family: 'Poppins', sans-serif;
             margin: 0; 
             padding: 70px 0 90px;
         }
         .container { max-width: 1200px; margin: 0 auto; padding: 0 15px; }
+        
+        /* --- UPDATE 1: HEADER REWORK --- */
         .main-header { 
             background-color: var(--header-bg); 
             padding: 10px 15px; 
@@ -62,38 +62,45 @@
             position: fixed; top: 0; left: 0; right: 0; z-index: 1000; 
             display: flex; justify-content: space-between; align-items: center; 
             height: 50px; 
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
         }
         .header-left { display: flex; align-items: center; gap: 10px; }
         .site-branding { display: flex; flex-direction: column; align-items: flex-start; }
-        .site-title { font-size: 1.4em; color: var(--primary-accent-color); font-weight: 700; margin: 0; line-height: 1; }
+        .site-title { font-size: 1.4em; color: var(--primary-accent-color); font-weight: 700; margin: 0; line-height: 1; text-shadow: 1px 1px 2px rgba(0,0,0,0.1); }
         .user-id-display { font-size: 0.65em; color: var(--text-muted); font-family: 'Roboto Mono', monospace; cursor: pointer; display: flex; align-items: center; gap: 4px; padding: 2px 4px; border-radius: 4px; transition: background-color .2s;}
-        .user-id-display:hover { background-color: #303030; }
+        .user-id-display:hover { background-color: #f0f0f0; }
         .user-id-display .copy-icon { width: 12px; height: 12px; }
-        .header-right { display: flex; align-items: center; gap: 5px; }
         
-        .header-icon-btn { position: relative; cursor: pointer; background: none; border: none; color: var(--text-light); padding: 5px; }
+        .header-right { display: flex; align-items: center; gap: 15px; }
+        .balance-display { background-color: rgba(255, 193, 7, 0.15); color: var(--text-dark); padding: 6px 12px; border-radius: 20px; font-weight: 600; font-size: 0.9em; }
+        .balance-display .usdt-label { color: var(--primary-accent-color); font-weight: 700; }
+        .header-icon-btn { position: relative; cursor: pointer; background: none; border: none; color: var(--text-dark); padding: 5px; }
         .header-icon-btn svg { width: 26px; height: 26px; }
-        
-        .referral-button-vfx {
-            background-color: var(--success-color);
-            color: #ffffff;
-            border-radius: 50%;
-            width: 36px;
-            height: 36px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0;
-            animation: referral-glow 2s infinite ease-in-out;
-        }
-        @keyframes referral-glow {
-            0%, 100% { box-shadow: 0 0 5px rgba(40, 167, 69, 0.6); }
-            50% { box-shadow: 0 0 12px rgba(40, 167, 69, 1), 0 0 18px rgba(40, 167, 69, 0.9); }
-        }
 
-        .balance-display { background-color: rgba(255,255,255,0.08); color: var(--text-light); padding: 6px 12px; border-radius: 20px; font-weight: 600; font-size: 0.85em; }
-        .balance-display .pg-label { color: var(--pg-coin-color); }
+        .profile-popover {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.15);
+            padding: 15px;
+            width: 300px;
+            z-index: 1001;
+            border: 1px solid var(--border-color);
+            display: none; /* Toggled by JS */
+            flex-direction: column;
+            gap: 12px;
+            animation: fadeInDown 0.3s ease-out;
+        }
+        .profile-popover.show { display: flex; }
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .profile-popover-item { font-size: 0.9em; }
+        .profile-popover-item strong { font-weight: 600; color: var(--text-dark); display: block; margin-bottom: 2px; }
+        .profile-popover-item span, .profile-popover-item input { font-family: 'Roboto Mono', monospace; color: var(--text-muted); }
+        .popover-ref-link { display: flex; gap: 8px; }
+        .popover-ref-link input { flex-grow: 1; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px 8px; font-size: 0.9em; background-color: var(--light-bg); }
+        .popover-ref-link button { padding: 6px 10px; border: none; border-radius: 6px; background-color: var(--primary-accent-color); color: #000; font-weight: 600; cursor: pointer; font-size: 0.8em; }
 
         .bottom-nav {
             position: fixed; bottom: 0; left: 0; right: 0;
@@ -103,6 +110,7 @@
             justify-content: space-around;
             padding: 8px 0;
             z-index: 1000;
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.06);
         }
         .bottom-nav-item {
             display: flex; flex-direction: column; align-items: center;
@@ -119,98 +127,77 @@
         .content-section.active { display: block; animation: fadeIn 0.3s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        .section-title { font-size: 1.6em; margin-bottom: 25px; padding-bottom: 10px; color: var(--text-light); border-bottom: 2px solid var(--border-color); font-weight: 600; }
+        .section-title { font-size: 1.6em; margin-bottom: 25px; padding-bottom: 10px; color: var(--text-dark); border-bottom: 2px solid var(--border-color); font-weight: 600; }
         .sub-section-title { font-size: 1.2em; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-top: 40px; margin-bottom: 20px; font-weight: 500; }
         .search-container { display: flex; gap: 10px; margin-bottom: 20px; }
-        .search-container input { flex-grow: 1; padding: 12px; box-sizing: border-box; border-radius: 8px; border: 1px solid #444; background-color: #333; color: var(--text-light); font-size: 1em; }
+        .search-container input { flex-grow: 1; padding: 12px; box-sizing: border-box; border-radius: 8px; border: 1px solid var(--border-color); background-color: var(--card-bg); color: var(--text-dark); font-size: 1em; }
         .search-container button { padding: 12px 18px; border: none; border-radius: 8px; background-color: var(--primary-accent-color); color: #000; font-weight: bold; cursor: pointer; }
         .search-container button#clearSearchBtn { background-color: #6c757d; color: #fff; }
         .item-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
         
-        .movie-item, .ad-task-card, .task-card, .ad-package-card, .user-ad-item, .withdraw-package-card { background-color: var(--card-bg); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; border: 1px solid var(--border-color); transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+        .movie-item, .ad-task-card, .task-card, .ad-package-card, .user-ad-item, .withdraw-package-card { background-color: var(--card-bg); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; border: 1px solid var(--border-color); transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
         .movie-item { cursor: pointer; } 
-        .movie-item:hover{ transform: scale(1.03); box-shadow: 0 8px 25px rgba(0,0,0,0.3); }
-        .thumbnail-container { width: 100%; aspect-ratio: 16/9; background-color: #333; position: relative; }
+        .movie-item:hover{ transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
+        .thumbnail-container { width: 100%; aspect-ratio: 16/9; background-color: #e0e0e0; position: relative; }
         .thumbnail-container img { width: 100%; height: 100%; object-fit: cover; }
         .player-container { width: 100%; aspect-ratio: 16/9; background: #000; }
         .player-container iframe { width: 100%; height: 100%; border: none; }
         .movie-item-info, .ad-task-card-info { padding: 15px; flex-grow: 1; text-align:center;}
-        .movie-item-info h4, .ad-task-card h4, .ad-package-card h4, .user-ad-item h4, .withdraw-package-card h4 { margin: 0 0 8px; font-size: 1.1em; line-height: 1.3; }
-        .movie-reward { color: var(--pg-coin-color); font-weight: bold; font-size: 0.9em; margin: 0; }
+        .movie-item-info h4, .ad-task-card h4, .ad-package-card h4, .user-ad-item h4 { margin: 0 0 8px; font-size: 1.1em; line-height: 1.3; }
+        .movie-reward { color: var(--success-color); font-weight: bold; font-size: 0.9em; margin: 0; }
         
         .ad-task-card p { margin: 8px 0 15px; color: var(--text-muted); font-weight: bold; }
-        .task-reward-pg { color: var(--pg-coin-color); }
         .task-reward-usdt { color: var(--success-color); }
         .ad-task-button { width: 100%; padding: 12px; border: none; border-radius: 0 0 10px 10px; font-weight: bold; cursor: pointer; background-color: var(--primary-accent-color); color: #000; transition: background-color .2s; margin-top: auto; font-size: 1em;}
         .task-button, .daily-task-button { width: auto; flex-shrink: 0; padding: 10px 20px; font-size: 0.9em; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; background-color: var(--primary-accent-color); color: #000; transition: background-color .2s; margin-top: 0; }
-        .task-button:disabled, .ad-task-button:disabled, .daily-task-button:disabled { background-color: var(--disabled-color); color: #aaa; cursor: not-allowed; }
+        .task-button:disabled, .ad-task-button:disabled, .daily-task-button:disabled { background-color: var(--disabled-color); color: var(--disabled-text-color); cursor: not-allowed; }
         
-        .card { max-width: 500px; margin: 20px auto; background-color: var(--card-bg); padding: 30px; border-radius: 12px; border: 1px solid var(--border-color); text-align: center; }
+        .card { max-width: 500px; margin: 20px auto; background-color: var(--card-bg); padding: 30px; border-radius: 12px; border: 1px solid var(--border-color); text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
         .card-icon { width: 50px; height: 50px; margin: 0 auto 15px; color: var(--primary-accent-color); }
         .card h3 { margin-top: 0; font-size: 1.4em; } .card p { color: var(--text-muted); line-height: 1.6; }
         .form-group { margin-bottom: 20px; text-align: left; }
         .form-group label { display: block; margin-bottom: 8px; font-weight: 500; color: var(--text-muted); }
-        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px; box-sizing: border-box; border-radius: 8px; border: 1px solid #444; background-color: #333; color: var(--text-light); font-size: 1em; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px; box-sizing: border-box; border-radius: 8px; border: 1px solid var(--border-color); background-color: var(--light-bg); color: var(--text-dark); font-size: 1em; }
         .form-button { width: 100%; padding: 14px; border: none; border-radius: 8px; background-color: var(--primary-accent-color); color: #000; font-weight: bold; font-size: 1em; cursor: pointer; transition: background-color 0.2s; }
         .form-button:hover:not(:disabled) { background-color: var(--primary-accent-hover-color); }
-        .form-button:disabled { background-color: var(--disabled-color); cursor: not-allowed; color: #aaa; }
-        
-        .referral-link-wrapper { display: flex; gap: 10px; margin-top: 20px; }
-        .referral-link-wrapper input { flex-grow: 1; text-align: center; }
-        .referral-link-wrapper button { width: auto; flex-shrink: 0; padding: 0 15px; }
+        .form-button:disabled { background-color: var(--disabled-color); cursor: not-allowed; color: var(--disabled-text-color); }
         
         .loader { border: 4px solid var(--border-color); border-top: 4px solid var(--primary-accent-color); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 50px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 2000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
         .modal-overlay.show { display: flex; }
-        .modal-content { background-color: var(--card-bg); color: var(--text-light); padding: 30px 40px; border-radius: 15px; text-align: center; transform: scale(0.9); opacity: 0; animation: modal-pop-in 0.3s forwards; max-width: 90%; width: 450px; border: 1px solid var(--border-color); }
+        .modal-content { background-color: var(--card-bg); color: var(--text-dark); padding: 30px 40px; border-radius: 15px; text-align: center; transform: scale(0.9); opacity: 0; animation: modal-pop-in 0.3s forwards; max-width: 90%; width: 450px; border: 1px solid var(--border-color); }
         @keyframes modal-pop-in { to { transform: scale(1); opacity: 1; } }
         .success-modal-icon { width: 70px; height: 70px; border-radius: 50%; background-color: var(--success-color); display: flex; justify-content: center; align-items: center; font-size: 40px; font-weight: bold; color: white; margin: 0 auto 20px; animation: icon-pop-in 0.5s 0.2s backwards; }
         @keyframes icon-pop-in { 0% { transform: scale(0); } 70% { transform: scale(1.1); } 100% { transform: scale(1); } }
         .modal-content h3 { margin: 0 0 10px; font-size: 1.6em; }
         .modal-content p { margin: 0; color: var(--text-muted); font-size: 1em; white-space: pre-wrap;}
-        .history-modal, .task-modal, .welcome-modal, .task-confirm-modal, .notice-modal { background-color: var(--card-bg); color: var(--text-light); padding: 20px; border-radius: 15px; text-align: left; width: 90%; max-height: 90vh; display: flex; flex-direction: column; }
+        .history-modal, .task-modal, .notice-modal, .task-confirm-modal { background-color: var(--card-bg); color: var(--text-dark); padding: 20px; border-radius: 15px; text-align: left; width: 90%; max-height: 90vh; display: flex; flex-direction: column; }
         .notice-modal { max-width: 400px; }
-        .history-modal, .task-modal, .welcome-modal, .task-confirm-modal { max-width: 500px; }
-
-        .history-modal h3, .task-modal h3, .welcome-modal h3, .task-confirm-modal h3, .notice-modal h3 { text-align: center; margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
-        #combined-history-list, .task-modal .modal-body, .welcome-modal .modal-body, .task-confirm-modal .modal-body, .notice-modal .modal-body { overflow-y: auto; flex-grow: 1; margin-bottom: 15px; }
+        .history-modal, .task-modal, .task-confirm-modal { max-width: 500px; }
+        .history-modal h3, .task-modal h3, .notice-modal h3, .task-confirm-modal h3 { text-align: center; margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
+        #combined-history-list, .task-modal .modal-body, .notice-modal .modal-body, .task-confirm-modal .modal-body { overflow-y: auto; flex-grow: 1; margin-bottom: 15px; }
         .task-confirm-modal .modal-body { text-align: center; }
         .task-confirm-modal-buttons { display: flex; gap: 10px; margin-top: 20px; }
         .task-confirm-modal-buttons button { flex: 1; }
         .notice-modal .modal-body ul { padding-left: 20px; list-style-type: '✓ '; }
         .notice-modal .modal-body li { margin-bottom: 10px; line-height: 1.6; }
         
-        .sub-card { background-color: #2a2a2a; padding: 20px; border-radius: 10px; margin-bottom: 25px; }
         .info-text { font-size: 0.9em; color: var(--text-muted); margin-top: 10px; line-height: 1.5; }
         
-        .task-card, .daily-reward-card { background-color: var(--card-bg); border-radius: 8px; display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 15px; transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; border: 1px solid var(--border-color); }
-        .task-card:hover, .daily-reward-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(255, 193, 7, 0.15); }
-        #ad-task-list.item-grid, #task-list.item-grid, #my-ads-list.item-grid, #daily-tasks-grid { grid-template-columns: 1fr; gap: 15px; display: grid;} 
-        .task-card-info, .daily-reward-card-info { padding: 0; flex-grow: 1; text-align: left; }
-        .task-card-info h4, .daily-reward-card-info h4 { margin: 0 0 5px; font-size: 1em;}
-        .task-card-info p, .daily-reward-card-info p { margin: 5px 0 0; font-size: 0.9em; }
-
-        @keyframes task-pulse {
-            0% { box-shadow: 0 4px 12px rgba(255, 193, 7, 0.15); }
-            50% { box-shadow: 0 6px 18px rgba(255, 193, 7, 0.25); }
-            100% { box-shadow: 0 4px 12px rgba(255, 193, 7, 0.15); }
-        }
-
-        #referral-stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
-        .profile-stat-item { background-color: var(--dark-bg); padding: 20px; border-radius: 10px; border: 1px solid var(--border-color); }
-        .profile-stat-item h4 { margin: 0 0 8px; font-size: 1em; color: var(--text-muted); font-weight: 500;}
-        .profile-stat-item p { margin: 0; font-size: 1.5em; font-weight: bold; word-break: break-all; }
-        .profile-stat-item .usdt-val { color: var(--success-color); }
-        .profile-stat-item .pg-val { color: var(--pg-coin-color); }
-        .profile-stat-item .ref-val { color: var(--primary-accent-color); }
+        .task-card { background-color: var(--card-bg); border-radius: 8px; display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 15px; transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; border: 1px solid var(--border-color); }
+        .task-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(255, 193, 7, 0.15); }
+        #ad-task-list.item-grid, #task-list.item-grid, #my-ads-list.item-grid { grid-template-columns: 1fr; gap: 15px; display: grid;} 
+        .task-card-info { padding: 0; flex-grow: 1; text-align: left; }
+        .task-card-info h4 { margin: 0 0 5px; font-size: 1em;}
+        .task-card-info p { margin: 5px 0 0; font-size: 0.9em; }
 
         .history-list-container { display: flex; flex-direction: column; gap: 0; }
         .history-date-header { padding: 15px 5px 5px; color: var(--text-muted); font-weight: 600; font-size: 0.9em; }
         .history-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 5px; border-bottom: 1px solid var(--border-color); }
         .history-list-container .history-item:last-child { border-bottom: none; }
-        .history-item-left strong { font-size: 1em; font-weight: 500; color: var(--text-light); }
+        .history-item-left strong { font-size: 1em; font-weight: 500; color: var(--text-dark); }
         .history-item-left small { font-size: 0.85em; color: var(--text-muted); display: block; margin-top: 4px; }
         .history-item-right { text-align: right; }
         .history-item-right strong { font-size: 1em; font-weight: bold; }
@@ -224,63 +211,47 @@
         .ad-package-card { padding: 15px; text-align: center; cursor: pointer; border: 2px solid var(--border-color); transition: all 0.2s ease-in-out; }
         .ad-package-card h4 { font-size: 1.1em; margin-bottom: 5px; }
         .ad-package-card p { margin: 0; font-weight: 600; color: var(--primary-accent-color); }
-        .ad-package-card.selected { border-color: var(--primary-accent-color); background-color: rgba(255, 193, 7, 0.15); transform: translateY(-3px); box-shadow: 0 4px 12px rgba(255, 193, 7, 0.2); }
+        .ad-package-card.selected { border-color: var(--primary-accent-color); background-color: rgba(255, 193, 7, 0.1); transform: translateY(-3px); box-shadow: 0 4px 12px rgba(255, 193, 7, 0.2); }
         .user-ad-item { padding: 20px; text-align: left; }
         .user-ad-item .progress-text { font-weight: bold; color: var(--primary-accent-color); margin-top: 10px; display: block; }
         .user-ad-item .status-text { font-weight: 600; margin-top: 5px; display: block; }
         .user-ad-item .status-text.completed { color: var(--success-color); }
-        .user-ad-item .status-text.active { color: var(--pg-coin-color); }
+        .user-ad-item .status-text.active { color: var(--primary-accent-color); }
         #ad-package-grid { grid-template-columns: repeat(3, 1fr); gap: 15px; }
         @media (max-width: 600px) { #ad-package-grid { grid-template-columns: repeat(2, 1fr); } }
         
-        #withdraw-package-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; }
-        .withdraw-package-card { padding: 20px 15px; text-align: center; cursor: pointer; border: 2px solid var(--border-color); transition: all 0.2s ease-in-out; }
-        .withdraw-package-card h4 { font-size: 1.3em; margin: 0; font-weight: 700; color: var(--pg-coin-color); }
-        .withdraw-package-card p { margin: 5px 0 0; color: var(--text-muted); font-size: 0.9em; }
-        .withdraw-package-card:hover:not(.disabled) { transform: translateY(-3px); border-color: var(--primary-accent-color); }
-        .withdraw-package-card.selected { border-color: var(--primary-accent-color); background-color: rgba(255, 193, 7, 0.1); transform: translateY(-3px); }
-        .withdraw-package-card.disabled { background-color: var(--disabled-color); cursor: not-allowed; opacity: 0.6; }
-
-        .daily-reward-card-info .progress-bar { height: 6px; background-color: #333; border-radius: 3px; margin-top: 8px; overflow: hidden; }
-        .daily-reward-card-info .progress-bar-inner { height: 100%; width: 0%; background-color: var(--primary-accent-color); border-radius: 3px; transition: width 0.3s; }
-        .daily-reward-card-info .progress-text { font-size: 0.8em; color: var(--text-muted); font-weight: 500; }
-        .welcome-modal .modal-body ul { padding-left: 20px; }
-        .welcome-modal .modal-body li { margin-bottom: 10px; }
-        #welcome-agree-container { margin-top: 20px; display: flex; align-items: center; gap: 10px; }
-
-        #video-claim-box {
+        /* --- UPDATE 3: LOOT BOX STYLES --- */
+        #video-loot-box {
             position: fixed;
             bottom: 100px;
             right: 15px;
-            background-color: rgba(31, 31, 31, 0.95);
+            background-color: rgba(255, 255, 255, 0.95);
             border: 1px solid var(--border-color);
             border-radius: 12px;
             padding: 10px 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             text-align: center;
             z-index: 1001;
             transform: scale(0);
             transition: transform 0.3s ease-in-out;
         }
-        #video-claim-box.visible { transform: scale(1); }
-        #video-claim-box.pulsate { animation: pulsate-animation 1.5s infinite; }
-
+        #video-loot-box.visible { transform: scale(1); }
+        #video-loot-box.pulsate { animation: pulsate-animation 1.5s infinite; }
         @keyframes pulsate-animation {
             0% { transform: scale(1); box-shadow: 0 5px 15px rgba(255, 193, 7, 0.2); }
             50% { transform: scale(1.05); box-shadow: 0 8px 25px rgba(255, 193, 7, 0.4); }
             100% { transform: scale(1); box-shadow: 0 5px 15px rgba(255, 193, 7, 0.2); }
         }
-
-        #video-claim-box #video-unclaimed-balance-box { 
-            font-size: 1em; font-weight: 700; color: var(--pg-coin-color); display: block; margin-bottom: 8px; 
+        #video-loot-box #video-unclaimed-balance-box { 
+            font-size: 1em; font-weight: 700; color: var(--primary-accent-color); display: block; margin-bottom: 8px; 
         }
-        #video-claim-button-box { 
+        #video-loot-box #video-claim-button-box { 
             width: 100%; padding: 6px 12px; font-size: 0.9em; 
         }
 
         .coin-vfx {
             position: absolute;
-            background-color: var(--pg-coin-color);
+            background-color: var(--primary-accent-color);
             width: 10px;
             height: 10px;
             border-radius: 50%;
@@ -291,77 +262,18 @@
             0% { transform: translate(0, 0) scale(1); opacity: 0.8; }
             100% { transform: translate(var(--end-x), var(--end-y)) scale(0); opacity: 0; }
         }
-        
-        /* --- START: GAME ZONE STYLES --- */
-        #game-content {
-            --game-primary-color: #4a00e0;
-            --game-secondary-color: #8e2de2;
-            --game-accent-color: #ffc107;
-            --game-coin-color: #ffd700;
-        }
 
-        .game-wrapper {
-            display: flex; justify-content: center; align-items: center;
-            background: linear-gradient(135deg, var(--game-primary-color), var(--game-secondary-color));
-            background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
-            border-radius: 15px; padding: 20px;
-        }
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; }
-        }
-        .game-container {
-            width: 100%; max-width: 500px;
-            background: rgba(0, 0, 0, 0.4); border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            position: relative; overflow: hidden;
-        }
-        .game-screen { display: none; flex-direction: column; align-items: center; text-align: center; animation: fadeIn 0.5s ease; }
-        .game-screen.active { display: flex; }
-        .game-container h1, .game-container h2 { margin-bottom: 25px; text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5); }
-        .menu-buttons { display: flex; flex-wrap: wrap; justify-content: center; }
-        .btn {
-            background: linear-gradient(45deg, var(--game-accent-color), #ff9800); color: #333; border: none; padding: 15px 30px;
-            border-radius: 50px; font-size: 18px; font-weight: bold; cursor: pointer; transition: all 0.3s ease;
-            margin: 10px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); text-transform: uppercase; letter-spacing: 1px;
-        }
-        .btn:hover { transform: translateY(-5px) scale(1.05); box-shadow: 0 8px 25px rgba(255, 193, 7, 0.5); }
-        .btn:disabled { background: #888; cursor: not-allowed; transform: none; box-shadow: none; }
-        .btn-secondary { background: linear-gradient(45deg, #8e9eab, #eef2f3); color: #333; }
-        .btn-secondary:hover { box-shadow: 0 8px 25px rgba(142, 158, 171, 0.5); }
-        .plays-left { margin-top: 15px; margin-bottom: 10px; font-size: 16px; color: var(--game-accent-color); font-weight: bold; }
-        .scratch-card-container { position: relative; width: 300px; height: 180px; margin: 20px auto; border-radius: 15px; overflow: hidden; }
-        #prize-result { width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; font-size: 28px; font-weight: bold; color: var(--game-accent-color); background: #2c2c2c; user-select: none; }
-        #scratch-canvas { position: absolute; top: 0; left: 0; cursor: grab; touch-action: none; }
-        #timer-container { width: 100%; height: 10px; background-color: rgba(255,255,255,0.2); border-radius: 5px; margin-bottom: 20px; overflow: hidden; }
-        #timer-bar { height: 100%; width: 100%; background: linear-gradient(90deg, var(--success-color), var(--game-accent-color)); border-radius: 5px; transition: width 0.1s linear; }
-        #math-problem { font-size: 40px; margin-bottom: 20px; letter-spacing: 5px; }
-        #answer-input { width: 150px; padding: 10px; font-size: 24px; text-align: center; border: 2px solid var(--game-accent-color); background: transparent; color: var(--text-light); border-radius: 10px; margin-bottom: 20px; }
-        #feedback { font-size: 18px; height: 30px; font-weight: bold; transition: all 0.3s ease; }
-        .shake { animation: shake 0.5s; }
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); } 20%, 40%, 60%, 80% { transform: translateX(10px); } }
-        #choice-container { display: flex; justify-content: center; gap: 20px; margin: 20px 0; perspective: 1000px; }
-        .choice-box { width: 100px; height: 140px; cursor: pointer; position: relative; transform-style: preserve-3d; transition: transform 0.6s; }
-        .choice-box.flipped { transform: rotateY(180deg); cursor: default; }
-        .box-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; justify-content: center; align-items: center; border-radius: 10px; font-size: 20px; font-weight: bold; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
-        .box-front { background: linear-gradient(135deg, #ffc107, #ff9800); color: #333; font-size: 48px; }
-        .box-back { background: #444; color: white; transform: rotateY(180deg); padding: 5px; text-align: center; }
-        .box-back.win { background: var(--success-color); } .box-back.lose { background: #dc3545; }
-        #choice-result { font-size: 22px; margin-top: 20px; min-height: 30px; }
-        #ad-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8); z-index: 9999; display: none;
-            justify-content: center; align-items: center; flex-direction: column;
-            color: white; font-size: 24px; backdrop-filter: blur(5px);
-        }
-        #ad-overlay p { margin-bottom: 20px; }
-        .spinner { border: 4px solid rgba(255,255,255,0.3); border-radius: 50%; border-top: 4px solid white; width: 40px; height: 40px; animation: spin 1s linear infinite; }
-        .particle { position: absolute; background-color: var(--game-accent-color); border-radius: 50%; opacity: 0; pointer-events: none; animation: explode 0.7s ease-out forwards; z-index: 10; }
-        @keyframes explode { 0% { transform: translate(0, 0) scale(1); opacity: 1; } 100% { transform: translate(var(--x), var(--y)) scale(0); opacity: 0; } }
-        /* --- END: GAME ZONE STYLES --- */
+        /* --- UPDATE 7: WITHDRAWAL SECTION STYLES --- */
+        #withdraw-content .card { max-width: 600px; }
+        .withdraw-summary { margin-top: 20px; padding: 15px; background-color: var(--light-bg); border-radius: 8px; text-align: left; font-size: 0.9em; }
+        .withdraw-summary p { margin: 8px 0; display: flex; justify-content: space-between; }
+        .withdraw-summary strong { color: var(--text-dark); }
+        
+        /* --- UPDATE 8: SUPPORT SECTION STYLES --- */
+        #support-content .card { text-align: left; max-width: 700px; }
+        #support-content ul { padding-left: 20px; list-style-type: '✓ '; color: var(--text-muted); }
+        #support-content li { margin-bottom: 10px; line-height: 1.6; }
+        #support-content .admin-contact { font-weight: 600; color: var(--primary-accent-color); }
 
     </style>
 </head>
@@ -376,68 +288,54 @@
                     <svg class="copy-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
                 </div>
             </div>
-            <button class="header-icon-btn" id="history-btn" title="History">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M0 0h24v24H0z" fill="none"/>
-                    <path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
-                </svg>
-            </button>
+            <!-- UPDATE 1: Profile Icon with Popover -->
+            <div id="profile-icon-wrapper" style="position: relative;">
+                <button class="header-icon-btn" id="profile-info-btn" title="My Info">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                </button>
+                <div id="profile-popover" class="profile-popover">
+                    <div class="profile-popover-item">
+                        <strong>Referral Link</strong>
+                        <div class="popover-ref-link">
+                            <input type="text" id="popoverReferralLinkInput" readonly value="Loading...">
+                            <button id="popoverCopyRefLinkBtn">Copy</button>
+                        </div>
+                    </div>
+                    <div class="profile-popover-item">
+                        <strong>Total Referrals</strong>
+                        <span id="popover-total-referrals">0</span>
+                    </div>
+                    <div class="profile-popover-item">
+                        <strong>Total USDT Earned</strong>
+                        <span id="popover-total-usdt-earned">$0.0000</span>
+                    </div>
+                    <div class="profile-popover-item">
+                        <strong>Total Tasks Done ✅</strong>
+                        <span id="popover-total-tasks-done">0</span>
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="header-right">
-            <div class="balance-display">$: <span id="userUSDTBalanceDisplay">0.0000</span></div>
-            <div class="balance-display"><span class="pg-label">PG:</span> <span id="userPgCoinDisplay">0.000</span></div>
-             <button class="header-icon-btn bottom-nav-item referral-button-vfx" data-tab-target="#profile-content" title="Profile & Referral">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+            <div class="balance-display"><span class="usdt-label">$</span> <span id="userUSDTBalanceDisplay">0.0000</span></div>
+            <button class="header-icon-btn" id="history-btn" title="History">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/><path d="M12.5 7H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
             </button>
         </div>
     </header>
 
     <main class="container">
-        <!-- Profile / Referral Section -->
-        <section id="profile-content" class="content-section active">
-            <div class="card">
-                <svg class="card-icon" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
-                <h3>Referral Program</h3>
-                <p style="text-align: left; line-height: 1.8;">
-                    Invite friends to get amazing rewards!
-                    <br><br>
-                    <strong>Your Rewards:</strong><br>
-                    &nbsp;&nbsp;&nbsp;- <strong>Lifetime Commission:</strong> Earn 10% from all PG Coin your friends earn, forever!
-                </p>
-                <div class="referral-link-wrapper"><input type="text" id="referralLinkInput" readonly value="Generating link..."><button id="copyReferralLinkBtn" class="form-button">Copy</button></div>
-                
-                <div id="referral-stats-grid" style="margin-top: 30px;">
-                    <div class="profile-stat-item">
-                        <h4>User ID</h4>
-                        <p id="referral-userid" style="font-size: 1.1em; color: var(--text-muted); cursor: pointer;">Loading...</p>
-                    </div>
-                    <div class="profile-stat-item">
-                        <h4>Lifetime Referrals</h4>
-                        <p id="referral-lifetime-referrals" class="ref-val">0</p>
-                    </div>
-                    <div class="profile-stat-item">
-                        <h4>USDT Balance</h4>
-                        <p id="referral-usdt-balance" class="usdt-val">0.0000</p>
-                    </div>
-                     <div class="profile-stat-item">
-                        <h4>Commission Earned (PG)</h4>
-                        <p id="referral-commission-pg" class="pg-val">0.000</p>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Daily Tasks Section -->
-            <div id="daily-tasks-section" style="margin-top: 30px;">
-                <h3 class="sub-section-title">Daily Rewards</h3>
-                <div id="daily-tasks-grid" class="item-grid">
-                    <!-- Daily tasks will be rendered here by JS -->
-                </div>
-            </div>
+        <!-- Home / Main Section -->
+        <section id="home-content" class="content-section active">
+             <h3 class="section-title">Daily Rewards</h3>
+             <div id="daily-tasks-grid" class="item-grid" style="grid-template-columns: 1fr; gap: 15px;">
+                 <!-- Daily tasks will be rendered here by JS -->
+             </div>
         </section>
         
         <section id="ads-content" class="content-section">
              <h3 class="section-title">Watch Ads, Earn Rewards</h3>
-             <div id="ad-task-list" class="item-grid"></div>
+             <div id="ad-task-list" class="item-grid" style="grid-template-columns: 1fr; gap: 15px;"></div>
              <!-- Adextra Banner Ad Block -->
              <div id="fa6b30e404e1046793d70db4a424966f97960abe" style="margin-top: 25px;"></div>
         </section>
@@ -452,57 +350,6 @@
             <div class="item-grid" id="video-grid"></div>
         </section>
 
-        <section id="game-content" class="content-section">
-            <div class="game-wrapper">
-                <div class="game-container">
-                    <!-- Menu Screen -->
-                    <div id="menu-screen" class="game-screen active">
-                        <h1>গেম জোন</h1>
-                        <p style="margin-bottom: 20px;">আপনার পছন্দের গেমটি বেছে নিন</p>
-                        <div class="menu-buttons">
-                            <button id="play-scratch-btn" class="btn">স্ক্র্যাচ খেলুন</button>
-                            <button id="play-math-btn" class="btn">অঙ্ক খেলুন</button>
-                            <button id="play-choice-btn" class="btn">দ্রুত বাছাই</button>
-                        </div>
-                    </div>
-            
-                    <!-- Scratch Game Screen -->
-                    <div id="scratch-game-screen" class="game-screen">
-                        <h2>স্ক্র্যাচ কার্ড</h2>
-                        <div class="scratch-card-container">
-                            <div id="prize-result"></div>
-                            <canvas id="scratch-canvas" width="300" height="180"></canvas>
-                        </div>
-                        <p id="scratch-message"></p>
-                        <div id="scratch-plays-left" class="plays-left"></div>
-                        <button id="play-again-scratch-btn" class="btn" style="display:none;">আবার খেলুন</button>
-                        <button class="btn btn-secondary back-to-menu">মেনুতে ফিরুন</button>
-                    </div>
-            
-                    <!-- Math Game Screen -->
-                    <div id="math-game-screen" class="game-screen">
-                        <h2>অঙ্কের খেলা</h2>
-                        <div id="math-plays-left" class="plays-left"></div>
-                        <div id="timer-container"><div id="timer-bar"></div></div>
-                        <div id="math-problem">5 + 3 = ?</div>
-                        <input type="number" id="answer-input" autofocus>
-                        <button id="submit-answer-btn" class="btn">উত্তর দিন</button>
-                        <div id="feedback"></div>
-                        <button class="btn btn-secondary back-to-menu">মেনুতে ফিরুন</button>
-                    </div>
-            
-                    <!-- Quick Choice Game Screen -->
-                    <div id="choice-game-screen" class="game-screen">
-                        <h2>দ্রুত বাছাই</h2>
-                        <p>একটি বক্স বেছে নিন এবং আপনার ভাগ্য পরীক্ষা করুন!</p>
-                        <div id="choice-container"></div>
-                        <div id="choice-result"></div>
-                        <button class="btn btn-secondary back-to-menu">মেনুতে ফিরুন</button>
-                    </div>
-                </div>
-            </div>
-        </section>
-        
         <section id="task-content" class="content-section">
             <h3 class="section-title">Complete Tasks to Earn</h3>
             
@@ -520,49 +367,75 @@
             </div>
         </section>
         
+        <!-- UPDATE 7: NEW WITHDRAWAL SECTION -->
         <section id="withdraw-content" class="content-section">
-             <div class="card" style="max-width: none;">
-                <p class="info-text" style="text-align: center; margin-bottom: 25px;">
-                    For any promotion or payment-related issues, please contact our support: 
-                    <a href="https://t.me/newtube12_Admin" target="_blank" style="color: var(--primary-accent-color); font-weight: bold;">@newtube12_Admin</a>
-                </p>
-                <h3 class="section-title" style="border: none; margin-bottom: 10px; text-align: center;">Withdraw PG Coin</h3>
-                <p>Your PG Coin Balance: <strong id="withdrawPgCoinBalance">0.000</strong></p>
+             <div class="card">
+                <h3 class="section-title" style="border: none; margin-bottom: 10px; text-align: center;">Withdraw Funds</h3>
+                <p>Your Balance: <strong id="withdrawUsdtBalance" style="color: var(--success-color); font-size: 1.2em;">$0.0000</strong></p>
                 <p class="info-text" style="text-align: center; margin-bottom: 25px;">
                     Withdrawals are processed within 1-5 hours.
-                    <br><strong style="color: var(--pg-coin-color);">Note: Each withdrawal requires 2 total referrals. For example, to make 5 withdrawals, you need 10 referrals.</strong>
                 </p>
                 
-                <h4 style="text-align: left; margin-bottom: 15px; font-size: 1.1em; color: var(--text-muted);">1. Choose an amount to withdraw</h4>
-                <div id="withdraw-package-grid" class="item-grid">
-                    <!-- JS will generate boxes here -->
-                </div>
-
-                <form id="pgWithdrawalDetailsForm" style="margin-top: 30px;">
+                <form id="withdrawalForm" style="margin-top: 20px;">
                      <div class="form-group">
-                        <label for="pgWithdrawalMethod">2. Select Payment Method</label>
-                        <select id="pgWithdrawalMethod" required>
+                        <label for="withdrawalMethod">1. Select Payment Method</label>
+                        <select id="withdrawalMethod" required>
                             <option value="Bkash">Bkash</option>
+                            <option value="Nagad">Nagad</option>
                             <option value="Binance">Binance ID</option>
                         </select>
                      </div>
                      <div class="form-group">
-                        <label for="pgAccountDetails">3. Enter Account Details</label>
-                        <input type="text" id="pgAccountDetails" placeholder="Your Bkash Number or Binance ID" required>
+                        <label for="withdrawalAmount">2. Enter Amount (USDT)</label>
+                        <input type="number" id="withdrawalAmount" step="0.01" placeholder="e.g., 0.50" required>
+                     </div>
+                     <div class="form-group">
+                        <label for="accountDetails">3. Enter Account Details</label>
+                        <input type="text" id="accountDetails" placeholder="Your Bkash/Nagad Number or Binance ID" required>
+                     </div>
+
+                     <div id="withdraw-summary" class="withdraw-summary" style="display: none;">
+                        <p><span>Minimum Withdrawal:</span> <strong id="summary-min"></strong></p>
+                        <p><span>Withdrawal Fee:</span> <strong id="summary-fee"></strong></p>
+                        <p><span>You Will Receive:</span> <strong id="summary-receive"></strong></p>
                      </div>
                 </form>
 
-                <button id="submitWithdrawalBtn" class="form-button" style="margin-top: 10px;">Submit Withdrawal Request</button>
-                <p class="info-text" style="text-align: center; margin-top: 20px; font-weight: bold;">1 PG coin = 2 Taka (BDT)</p>
+                <button id="submitWithdrawalBtn" class="form-button" style="margin-top: 20px;">Submit Withdrawal Request</button>
              </div>
+        </section>
+
+        <!-- UPDATE 8: NEW SUPPORT SECTION -->
+        <section id="support-content" class="content-section">
+            <div class="card">
+                <h3>Support & Guidelines</h3>
+                <p>
+                    Welcome to our support center. We are here to help you with any issues or questions you may have. For the fastest response, please contact our administrator directly on Telegram.
+                </p>
+                
+                <h4 class="sub-section-title" style="margin-top: 30px;">Admin Contact</h4>
+                <p>
+                    For any promotion, payment-related issues, or general inquiries, please contact:
+                    <a href="https://t.me/newtube12_Admin" target="_blank" class="admin-contact">@newtube12_Admin</a>
+                </p>
+                
+                <h4 class="sub-section-title" style="margin-top: 30px;">Rules and Guidelines</h4>
+                <ul>
+                    <li>Please work honestly and with integrity.</li>
+                    <li>Submitting fake or incomplete tasks will lead to account suspension without warning.</li>
+                    <li>The use of VPNs, proxies, or any other methods to fake your location is strictly prohibited and will result in a permanent ban.</li>
+                    <li>You can only request a withdrawal after reaching the minimum required amount for your chosen method.</li>
+                    <li>For business promotions or manual deposits, please contact the administrator directly.</li>
+                </ul>
+            </div>
         </section>
         
     </main>
 
     <nav class="bottom-nav">
-        <a href="#" class="bottom-nav-item active" data-tab-target="#profile-content">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-            Profile
+        <a href="#" class="bottom-nav-item active" data-tab-target="#home-content">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+            Home
         </a>
         <a href="#" class="bottom-nav-item" data-tab-target="#ads-content">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zM8 11H6V9h2v2zm4 0h-2V9h2v2zm4 0h-2V9h2v2z"/></svg>
@@ -572,26 +445,26 @@
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M10 16.5v-9l6 4.5-6 4.5zM20 4.44v15.12c0 1.1-.9 2-2 2H6c-1.1 0-2-.9-2-2V4.44c0-1.1.9-2 2-2h12c1.1 0 2 .9 2 2z"/></svg>
             Video
         </a>
-        <a href="#" class="bottom-nav-item" data-tab-target="#game-content">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M21.58 16.09l-1.09-7.66C20.21 6.46 18.52 5 16.53 5H7.47C5.48 5 3.79 6.46 3.51 8.43l-1.09 7.66C2.2 17.63 3.39 19 4.94 19h0c.68 0 1.32-.27 1.76-.75L9 15.58V11h6v4.58l2.3 2.67c.44.48 1.08.75 1.76.75h0c1.55 0 2.74-1.37 2.52-2.91zM11 11H9v2h2v-2zm4 0h-2v2h2v-2z"/></svg>
-            Games
-        </a>
         <a href="#" class="bottom-nav-item" data-tab-target="#task-content">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M22 7h-9v-2h9v2zm0 4h-9v-2h9v2zm0 4h-9v-2h9v2zm-11-8H4v6h7V7zM3 5h9v14H3V5z"/></svg>
             Tasks
         </a>
         <a href="#" class="bottom-nav-item" data-tab-target="#withdraw-content">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M21 8H3V6h18v2zm0 6H3v-2h18v2zM5 18h14v-2H5v2zM3 20h18c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2H3c-1.1 0-2 .9 2 2v12c0 1.1.9 2 2z"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M4 10h12v2H4zm0-4h12v2H4zm0 8h8v2H4zm14 0v-2h-2v2h-2v2h2v2h2v-2h2v-2zM2 18h18V6H2v12zm20-14v16H0V4h22z"/></svg>
             Withdraw
+        </a>
+        <!-- UPDATE 8: Support Nav Item -->
+        <a href="#" class="bottom-nav-item" data-tab-target="#support-content">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+            Support
         </a>
     </nav>
     
-    <!-- Video Claim Box -->
-    <div id="video-claim-box">
-        <span id="video-unclaimed-balance-box">0.000 / 1.000 PG</span>
+    <!-- UPDATE 3: Video Loot Box -->
+    <div id="video-loot-box">
+        <span id="video-unclaimed-balance-box">$0.0000 / $0.0200</span>
         <button id="video-claim-button-box" class="form-button" disabled>Claim</button>
     </div>
-
 
     <div id="successModalOverlay" class="modal-overlay"><div class="modal-content"><div class="success-modal-icon">✓</div><h3 id="successModalTitle">Success!</h3><p id="successModalMessage">Your request has been sent.</p></div></div>
     
@@ -604,7 +477,6 @@
             <h3>Create New Task Advertisement</h3>
             <div class="modal-body">
                 <p class="info-text" style="text-align: center; margin-bottom: 20px;">
-                    Easily promote your social media at a low cost! Get real users for your Facebook, YouTube, TikTok, Telegram channels or bots.<br><br>
                     Purchase tasks using your USDT balance. Your task will be shown to thousands of our active users.<br>
                     <strong>For manual deposits or promotions, contact admin: <a href="https://t.me/NEWTUBE12_admin" target="_blank" style="color: var(--primary-accent-color);">@NEWTUBE12_admin</a></strong>
                 </p>
@@ -628,7 +500,6 @@
         </div>
     </div>
 
-    <!-- 24-Hour Notice Modal -->
     <div id="noticeModalOverlay" class="modal-overlay">
         <div class="notice-modal">
             <h3>Welcome to NEWTUBE! 🤗</h3>
@@ -636,7 +507,7 @@
                 <p>Here’s what you can do on our platform:</p>
                 <ul>
                     <li>Run your own advertisements starting from just 60 Taka.</li>
-                    <li>Earn PG Coins by watching videos and withdraw your earnings instantly.</li>
+                    <li>Earn USDT by watching videos and withdraw your earnings instantly.</li>
                     <li>Receive a 10% lifetime commission for every friend you refer.</li>
                     <li>Withdrawals are processed within 1-5 hours.</li>
                     <li>Using a VPN is strictly prohibited. You will not receive any payment if you do.</li>
@@ -648,13 +519,12 @@
         </div>
     </div>
 
-
     <div id="taskConfirmModalOverlay" class="modal-overlay">
         <div class="task-confirm-modal">
             <h3>Confirm Task Completion</h3>
             <div class="modal-body">
                 <p>Have you completed the task correctly? If not, please go back and complete it now.</p>
-                <p class="info-text">Note: Your submission may be reviewed by an administrator. Failure to complete tasks honestly can result in account suspension.</p>
+                <p class="info-text">Note: Your submission may be reviewed. Failure to complete tasks honestly can result in account suspension.</p>
                 <div class="task-confirm-modal-buttons">
                     <button id="taskConfirmGoBackBtn" class="form-button" style="background-color: var(--text-muted);">Go Back to Task</button>
                     <button id="taskConfirmSubmitBtn" class="form-button">Yes, I Completed It</button>
@@ -667,7 +537,7 @@
         <div class="task-confirm-modal">
             <h3>Confirm Withdrawal</h3>
             <div class="modal-body">
-                <p id="withdrawConfirmText">Are you sure you want to withdraw X PG?</p>
+                <p id="withdrawConfirmText">Are you sure you want to withdraw X USDT?</p>
                 <p class="info-text">The amount will be sent to the account details you provided. This action cannot be undone.</p>
                 <div class="task-confirm-modal-buttons">
                     <button id="withdrawConfirmCancelBtn" class="form-button" style="background-color: var(--text-muted);">Cancel</button>
@@ -676,13 +546,6 @@
             </div>
         </div>
     </div>
-
-    <!-- Ad Simulation Overlay for Games -->
-    <div id="ad-overlay">
-        <p id="ad-text">বিজ্ঞাপন দেখানো হচ্ছে...</p>
-        <div class="spinner"></div>
-    </div>
-
 
     <script src="https://www.youtube.com/iframe_api" async></script>
     
@@ -711,26 +574,35 @@
         let videoSyncTimer = null;
         let isSubmittingWithdrawal = false; 
         let selectedAdPackage = null;
-        let selectedWithdrawalPackage = null;
-        let dailyBrowseTimer = null;
-
-        const VIDEO_CLAIM_THRESHOLD = 1.0;
         
-        const AD_TASK_VIEWS_REQUIRED = 5;
-        const AD_TASK_REWARD = 0.2;
-        const DAILY_LOGIN_PG_REWARD = 0.02;
-        const USER_CREATED_TASK_REWARD_PG = 0.07;
-        const VIDEO_REWARD_PER_SECOND_PG = 1 / 86400;
-        const MAX_DAILY_VIDEO_REWARD_SECONDS = 86400;
-        const REFERRAL_COMMISSION_RATE = 0.06;
+        // --- UPDATED CONSTANTS ---
+        // UPDATE 3: Video Mining/Loot Box System
+        const LOOT_BOX_THRESHOLD = 0.02; // USDT
+        const DAILY_VIDEO_EARNING_LIMIT = 0.04; // USDT
+        const VIDEO_REWARD_PER_SECOND = DAILY_VIDEO_EARNING_LIMIT / 86400; // USDT per second
+
+        // UPDATE 5: Ads Section Upgrade
+        const AD_REWARD_USDT = 0.0007;
+        const ADS_PER_SET = 15;
+        const MAX_DAILY_ADS = ADS_PER_SET * 2;
+        
+        // UPDATE 2: Remove PG Coin, all rewards in USDT
+        const DAILY_LOGIN_USDT_REWARD = 0.002;
+        const USER_CREATED_TASK_REWARD_USDT = 0.005;
+        const REFERRAL_COMMISSION_RATE = 0.10; // 10% commission
+
+        // UPDATE 7: Withdrawal Config
+        const WITHDRAWAL_CONFIG = {
+            'Bkash': { min: 0.10, fee: 0.02 },
+            'Nagad': { min: 0.10, fee: 0.02 },
+            'Binance': { min: 0.30, fee: 0.05 },
+        };
 
         const adPackages = [
             { id: 1, tasks: 100, price: 0.30 }, { id: 2, tasks: 200, price: 0.50 },
             { id: 3, tasks: 500, price: 1.10 }, { id: 4, tasks: 1000, price: 2.00 },
             { id: 5, tasks: 2000, price: 3.50 }, { id: 6, tasks: 5000, price: 7.00 }
         ];
-        
-        const pgWithdrawalPackages = [10, 20, 50, 100, 200, 500];
 
         function showBanScreen() { document.body.innerHTML = `<div style="display: flex; justify-content: center; align-items: center; height: 100vh; padding: 20px; text-align: center;"><div class="card"><h3>Account Banned</h3><p style="color: #ffc107;">Your account has been banned due to a violation of our terms of service.</p></div></div>`; }
         
@@ -747,7 +619,7 @@
                 const updatedUser = await cleanupAndGetUser(currentUser.id);
                 if (updatedUser) {
                     currentUser = updatedUser;
-                    updateBalanceUI(currentUser.usdtBalance, currentUser.pgCoin);
+                    updateBalanceUI(currentUser.usdtBalance);
                 }
             } catch (error) { console.error("Error fetching/cleaning current user:", error); }
         }
@@ -762,22 +634,14 @@
             if (!lastDailyReset || lastDailyResetTime < today) {
                 const updates = { 
                     'lastDailyReset': serverTimestamp(), 
-                    'dailyReferralCount': 0,
-                    'dailyTasksCompletedCount': 0,
-                    'dailyRewardsClaimed': [],
                     'claimedDailyRewards': [],
                     'dailyTelegramVisit1Completed': false,
                     'dailyTelegramVisit2Completed': false,
                     'dailyBrowseVisit1Completed': false,
                     'dailyBrowseVisit2Completed': false,
-                    'dailyAdViews_1': 0, 
-                    'dailyAdViews_2': 0,
-                    'dailyAdViews_3': 0,
+                    'dailyAdViews_set1': 0, 
+                    'dailyAdViews_set2': 0,
                     'totalVideoWatchSecondsToday': 0,
-                    // Game Resets
-                    'scratchPlaysToday': 0,
-                    'mathPlaysToday': 0,
-                    'quickChoicePlayedToday': false
                 };
                 try {
                     const userRef = doc(db, 'users', currentUser.id);
@@ -787,24 +651,24 @@
             }
         }
 
-        async function grantCommission(rewardPg) {
-            if (!currentUser.referredBy || !rewardPg || rewardPg <= 0) return;
+        async function grantCommission(rewardUsdt) {
+            if (!currentUser.referredBy || !rewardUsdt || rewardUsdt <= 0) return;
             const referrerId = currentUser.referredBy;
-            const commissionAmount = rewardPg * REFERRAL_COMMISSION_RATE;
+            const commissionAmount = rewardUsdt * REFERRAL_COMMISSION_RATE;
 
             if (commissionAmount > 0) {
                 try {
                     const referrerRef = doc(db, 'users', referrerId);
                     await runTransaction(db, async (t) => {
                          t.update(referrerRef, {
-                            pgCoin: increment(commissionAmount),
-                            lifetimeCommissionPg: increment(commissionAmount)
+                            usdtBalance: increment(commissionAmount),
+                            lifetimeCommissionUsdt: increment(commissionAmount)
                         });
                         const transactionData = {
                             userId: referrerId,
                             type: 'Commission',
                             details: `Commission from user ${currentUser.id}`,
-                            pgAmount: commissionAmount,
+                            usdAmount: commissionAmount,
                             status: 'Completed',
                             createdAt: serverTimestamp()
                         };
@@ -823,37 +687,26 @@
             if (!userSnap.exists()) {
                 isNewUser = true;
                 const defaultUserData = {
-                    usdtBalance: 0, pgCoin: 0, lifetimePgCoinEarned: 0, referralCount: 0,
-                    lifetimeCommissionPg: 0,
+                    usdtBalance: 0, lifetimeUsdtEarned: 0, referralCount: 0,
+                    lifetimeCommissionUsdt: 0,
                     completedTasks: [], 
-                    lastDailyReset: serverTimestamp(), lastDailyLoginClaim: null,
+                    lastDailyReset: serverTimestamp(),
                     lastNoticeShown: null,
-                    withdrawalCount: 0, 
                     createdAt: serverTimestamp(), telegramUsername: tgUser.username || 'N/A',
                     isBanned: false,
-                    isActivated: false,
-                    dailyReferralCount: 0, dailyTasksCompletedCount: 0, 
-                    dailyRewardsClaimed: [], 
                     claimedDailyRewards: [],
                     dailyTelegramVisit1Completed: false, dailyTelegramVisit2Completed: false,
                     dailyBrowseVisit1Completed: false, dailyBrowseVisit2Completed: false,
-                    dailyAdViews_1: 0, dailyAdViews_2: 0, dailyAdViews_3: 0,
+                    dailyAdViews_set1: 0, dailyAdViews_set2: 0,
                     totalVideoWatchSecondsToday: 0,
-                    unclaimedVideoPg: 0, unclaimedVideoPgLastUpdated: null,
-                    // Game Fields
-                    scratchPlaysToday: 0, mathPlaysToday: 0, quickChoicePlayedToday: false,
+                    unclaimedVideoUsdt: 0,
                 };
                 if (referrerCode && referrerCode !== userId) { 
                     defaultUserData.referredBy = referrerCode; 
                     try {
                         const referrerRef = doc(db, 'users', referrerCode);
-                        await updateDoc(referrerRef, {
-                            referralCount: increment(1),
-                            dailyReferralCount: increment(1),
-                        });
-                    } catch (e) {
-                        console.error("Failed to update referrer stats on new user creation", e);
-                    }
+                        await updateDoc(referrerRef, { referralCount: increment(1) });
+                    } catch (e) { console.error("Failed to update referrer stats", e); }
                 }
                 await setDoc(userRef, defaultUserData);
                 userSnap = await getDoc(userRef);
@@ -862,37 +715,14 @@
             const userData = userSnap.data();
             if (userData?.isBanned === true) { showBanScreen(); return null; }
             
+            // --- Field migration/check logic ---
             const updates = {};
-            if (userData.isActivated === undefined) updates.isActivated = true;
-            if (userData.dailyReferralCount === undefined) updates.dailyReferralCount = 0;
-            if (userData.dailyTasksCompletedCount === undefined) updates.dailyTasksCompletedCount = 0;
-            if (userData.dailyRewardsClaimed === undefined) updates.dailyRewardsClaimed = [];
-            if (userData.claimedDailyRewards === undefined) updates.claimedDailyRewards = [];
-            if (userData.dailyTelegramVisit1Completed === undefined) {
-                 updates.dailyTelegramVisit1Completed = false;
-                 updates.dailyTelegramVisit2Completed = false;
-            }
-            if (userData.dailyBrowseVisit1Completed === undefined) {
-                 updates.dailyBrowseVisit1Completed = false;
-                 updates.dailyBrowseVisit2Completed = false;
-            }
-            if (userData.dailyAdViews_1 === undefined) {
-                updates.dailyAdViews_1 = 0;
-                updates.dailyAdViews_2 = 0;
-                updates.dailyAdViews_3 = 0;
-            }
-            if (userData.totalVideoWatchSecondsToday === undefined) updates.totalVideoWatchSecondsToday = 0;
-            if (userData.lastNoticeShown === undefined) updates.lastNoticeShown = null;
-            if (userData.unclaimedVideoPg === undefined) {
-                updates.unclaimedVideoPg = 0;
-                updates.unclaimedVideoPgLastUpdated = null;
-            }
-            if (userData.withdrawalCount === undefined) updates.withdrawalCount = 0;
-            // Game field checks
-            if (userData.scratchPlaysToday === undefined) updates.scratchPlaysToday = 0;
-            if (userData.mathPlaysToday === undefined) updates.mathPlaysToday = 0;
-            if (userData.quickChoicePlayedToday === undefined) updates.quickChoicePlayedToday = false;
-
+            if (userData.lifetimeUsdtEarned === undefined) updates.lifetimeUsdtEarned = userData.lifetimePgCoinEarned || 0;
+            if (userData.lifetimeCommissionUsdt === undefined) updates.lifetimeCommissionUsdt = userData.lifetimeCommissionPg || 0;
+            if (userData.unclaimedVideoUsdt === undefined) updates.unclaimedVideoUsdt = userData.unclaimedVideoPg || 0;
+            // Add new fields if they don't exist for old users
+            if (userData.dailyAdViews_set1 === undefined) updates.dailyAdViews_set1 = 0;
+            if (userData.dailyAdViews_set2 === undefined) updates.dailyAdViews_set2 = 0;
 
             if (Object.keys(updates).length > 0) { await updateDoc(userRef, updates); }
             
@@ -902,40 +732,29 @@
             await checkAndResetDailies();
             generateReferralLink(currentUser.id);
             
-            return { isNewUser, isActivated: currentUser.isActivated };
+            return { isNewUser };
         }
 
-        function updateBalanceUI(usdtBalance, pgCoinBalance) {
+        function updateBalanceUI(usdtBalance) {
             document.getElementById('userUSDTBalanceDisplay').textContent = parseFloat(usdtBalance || 0).toFixed(4);
-            document.getElementById('userPgCoinDisplay').textContent = parseFloat(pgCoinBalance || 0).toFixed(3);
         }
         
         function generateReferralLink(userId) {
             const botUsername = "NewTube12_bot";
             const webAppShortName = "newtubecash";
             const referralLink = `https://t.me/${botUsername}/${webAppShortName}?startapp=${userId}`;
-            document.getElementById('referralLinkInput').value = referralLink;
+            document.getElementById('popoverReferralLinkInput').value = referralLink;
         }
-        
-        document.getElementById('copyReferralLinkBtn').addEventListener('click', () => {
-            const copyButton = document.getElementById('copyReferralLinkBtn');
-            navigator.clipboard.writeText(copyButton.previousElementSibling.value).then(() => {
-                copyButton.textContent = 'Copied!';
-                if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-                setTimeout(() => { copyButton.textContent = 'Copy'; }, 2000);
-            });
-        });
         
         async function grantReward(rewards, transactionInfo = {}) {
              if (!currentUser) return;
              const userRef = doc(db, 'users', currentUser.id);
              const updates = {};
              
-             if (rewards.pgCoin && rewards.pgCoin > 0) {
-                 updates.pgCoin = increment(rewards.pgCoin);
-                 updates.lifetimePgCoinEarned = increment(rewards.pgCoin);
+             if (rewards.usdt && rewards.usdt > 0) { 
+                 updates.usdtBalance = increment(rewards.usdt); 
+                 updates.lifetimeUsdtEarned = increment(rewards.usdt);
              }
-             if (rewards.usdt && rewards.usdt > 0) { updates.usdtBalance = increment(rewards.usdt); }
              
              if (Object.keys(updates).length > 0) { 
                 await updateDoc(userRef, updates); 
@@ -944,15 +763,13 @@
              if (transactionInfo.type) {
                  const transactionData = {
                     userId: currentUser.id, type: transactionInfo.type, details: transactionInfo.details || '',
-                    status: 'Completed', createdAt: serverTimestamp()
+                    status: 'Completed', createdAt: serverTimestamp(), usdAmount: rewards.usdt
                 };
-                if (rewards.pgCoin) transactionData.pgAmount = rewards.pgCoin;
-                if (rewards.usdt) transactionData.usdAmount = rewards.usdt;
                 await addDoc(collection(db, 'transactions'), transactionData);
              }
              // Grant commission AFTER main reward is granted
-             if (rewards.pgCoin && rewards.pgCoin > 0) {
-                 await grantCommission(rewards.pgCoin);
+             if (rewards.usdt && rewards.usdt > 0) {
+                 await grantCommission(rewards.usdt);
              }
              await fetchAndUpdateCurrentUser();
         }
@@ -980,7 +797,7 @@
                 item.className = 'movie-item';
                 item.dataset.youtubeId = video.youtubeId;
                 item.dataset.videoId = docSnap.id;
-                item.originalContent = `<div class="thumbnail-container"><img src="${video.thumbnailUrl}" alt="${video.title}" loading="lazy"></div><div class="movie-item-info"><h4>${video.title}</h4><p class="movie-reward">Watch to Earn PG Coin</p></div>`;
+                item.originalContent = `<div class="thumbnail-container"><img src="${video.thumbnailUrl}" alt="${video.title}" loading="lazy"></div><div class="movie-item-info"><h4>${video.title}</h4><p class="movie-reward">Watch to Earn USDT</p></div>`;
                 item.innerHTML = item.originalContent;
                 item.addEventListener('click', handleVideoClick);
                 grid.appendChild(item);
@@ -1005,103 +822,85 @@
             });
         }
         
-        function updateVideoClaimUI() {
-            const claimBox = document.getElementById('video-claim-box');
+        // --- UPDATE 3: Video Loot Box Logic ---
+        function updateVideoLootBoxUI() {
+            const lootBox = document.getElementById('video-loot-box');
             const unclaimedBalanceEl = document.getElementById('video-unclaimed-balance-box');
             const claimButton = document.getElementById('video-claim-button-box');
 
-            const unclaimedBalance = currentUser?.unclaimedVideoPg || 0;
+            const unclaimedBalance = currentUser?.unclaimedVideoUsdt || 0;
 
-            unclaimedBalanceEl.textContent = `${unclaimedBalance.toFixed(4)} / ${VIDEO_CLAIM_THRESHOLD.toFixed(3)} PG`;
+            unclaimedBalanceEl.textContent = `$${unclaimedBalance.toFixed(4)} / $${LOOT_BOX_THRESHOLD.toFixed(4)}`;
 
-            if (unclaimedBalance > 0 && !claimBox.classList.contains('visible')) {
-                claimBox.classList.add('visible');
+            if (unclaimedBalance > 0 && !lootBox.classList.contains('visible')) {
+                lootBox.classList.add('visible');
             } else if (unclaimedBalance <= 0) {
-                 claimBox.classList.remove('visible');
+                 lootBox.classList.remove('visible');
             }
 
-            if (unclaimedBalance >= VIDEO_CLAIM_THRESHOLD) {
+            if (unclaimedBalance >= LOOT_BOX_THRESHOLD) {
                 claimButton.disabled = false;
-                if (!claimBox.classList.contains('pulsate')) {
-                    claimBox.classList.add('pulsate');
+                if (!lootBox.classList.contains('pulsate')) {
+                    lootBox.classList.add('pulsate');
                 }
             } else {
                 claimButton.disabled = true;
-                claimBox.classList.remove('pulsate');
+                lootBox.classList.remove('pulsate');
             }
         }
         
-        async function syncUnclaimedVideoPg() {
+        async function syncUnclaimedVideoBalance() {
             if (!currentUser) return;
             try {
                 const userRef = doc(db, 'users', currentUser.id);
                 await updateDoc(userRef, {
-                    unclaimedVideoPg: currentUser.unclaimedVideoPg,
-                    unclaimedVideoPgLastUpdated: serverTimestamp()
+                    unclaimedVideoUsdt: currentUser.unclaimedVideoUsdt,
+                    totalVideoWatchSecondsToday: currentUser.totalVideoWatchSecondsToday
                 });
-            } catch (error) {
-                console.error("Failed to sync unclaimed video PG:", error);
-            }
+            } catch (error) { console.error("Failed to sync unclaimed video balance:", error); }
         }
 
         async function claimVideoRewards() {
             const claimButton = document.getElementById('video-claim-button-box');
-            if (currentUser.unclaimedVideoPg < VIDEO_CLAIM_THRESHOLD) return;
+            if (currentUser.unclaimedVideoUsdt < LOOT_BOX_THRESHOLD) return;
 
             claimButton.disabled = true;
             claimButton.textContent = 'Claiming...';
             
-            const amountToClaim = Math.floor(currentUser.unclaimedVideoPg / VIDEO_CLAIM_THRESHOLD) * VIDEO_CLAIM_THRESHOLD;
+            const amountToClaim = Math.floor(currentUser.unclaimedVideoUsdt / LOOT_BOX_THRESHOLD) * LOOT_BOX_THRESHOLD;
             if (amountToClaim <= 0) {
                 claimButton.textContent = 'Claim';
-                updateVideoClaimUI();
+                updateVideoLootBoxUI();
                 return;
             }
 
             try {
-                await runTransaction(db, async (t) => {
-                    const userRef = doc(db, 'users', currentUser.id);
-                    const userDoc = await t.get(userRef);
-                    if (!userDoc.exists()) throw new Error("User not found");
-
-                    const currentUnclaimed = userDoc.data().unclaimedVideoPg || 0;
-                    if (currentUnclaimed < amountToClaim) throw new Error("Inconsistent balance");
-                    
-                    t.update(userRef, {
-                        pgCoin: increment(amountToClaim),
-                        lifetimePgCoinEarned: increment(amountToClaim),
-                        unclaimedVideoPg: increment(-amountToClaim)
-                    });
+                await grantReward({ usdt: amountToClaim }, { type: 'Video Reward', details: 'Claimed from Video Loot Box' });
+                
+                await updateDoc(doc(db, 'users', currentUser.id), {
+                    unclaimedVideoUsdt: increment(-amountToClaim)
                 });
                 
-                await grantCommission(amountToClaim);
-
-                await addDoc(collection(db, 'transactions'), {
-                    userId: currentUser.id, type: 'Video Reward',
-                    details: 'Claimed from Video Loot Box',
-                    pgAmount: amountToClaim, status: 'Completed', createdAt: serverTimestamp()
-                });
-
-                showSuccessModal("Reward Claimed!", `You claimed ${amountToClaim.toFixed(3)} PG from watching videos.`);
+                showSuccessModal("Reward Claimed!", `You claimed $${amountToClaim.toFixed(4)} from watching videos.`);
                 await fetchAndUpdateCurrentUser();
-                updateVideoClaimUI();
+                updateVideoLootBoxUI();
 
             } catch(error) {
                 console.error("Error claiming video rewards:", error);
                 alert("Failed to claim rewards. Please try again.");
             } finally {
                 claimButton.textContent = 'Claim';
-                updateVideoClaimUI();
+                updateVideoLootBoxUI();
             }
         }
         document.getElementById('video-claim-button-box').addEventListener('click', claimVideoRewards);
 
         function triggerCoinVFX(playerElement) {
-            const claimBox = document.getElementById('video-claim-box');
-            if (!claimBox || !playerElement) return;
+            const lootBox = document.getElementById('video-loot-box');
+            if (!lootBox || !playerElement) return;
 
             const playerRect = playerElement.getBoundingClientRect();
-            const boxRect = claimBox.getBoundingClientRect();
+            const boxRect = lootBox.getBoundingClientRect();
 
             const coin = document.createElement('div');
             coin.className = 'coin-vfx';
@@ -1109,15 +908,12 @@
             
             const startX = playerRect.left + playerRect.width / 2;
             const startY = playerRect.top + playerRect.height / 2;
-            
             const endX = boxRect.left + boxRect.width / 2;
             const endY = boxRect.top + boxRect.height / 2;
 
-            coin.style.left = `${startX}px`;
-            coin.style.top = `${startY}px`;
+            coin.style.left = `${startX}px`; coin.style.top = `${startY}px`;
             coin.style.setProperty('--end-x', `${endX - startX}px`);
             coin.style.setProperty('--end-y', `${endY - startY}px`);
-
             setTimeout(() => coin.remove(), 700);
         }
 
@@ -1126,96 +922,77 @@
                 if (videoWatchTimer) clearInterval(videoWatchTimer);
                 if (videoSyncTimer) clearInterval(videoSyncTimer);
 
-                videoWatchTimer = setInterval(async () => {
+                videoWatchTimer = setInterval(() => {
                     if (!currentUser) return;
                     
-                    let watchTimeToday = currentUser.totalVideoWatchSecondsToday || 0;
-                    if (watchTimeToday >= MAX_DAILY_VIDEO_REWARD_SECONDS) {
+                    let earnedToday = (currentUser.totalVideoWatchSecondsToday || 0) * VIDEO_REWARD_PER_SECOND;
+                    if (earnedToday >= DAILY_VIDEO_EARNING_LIMIT) {
                         clearInterval(videoWatchTimer);
                         return;
                     }
                     
-                    currentUser.totalVideoWatchSecondsToday++;
-                    currentUser.unclaimedVideoPg = (currentUser.unclaimedVideoPg || 0) + VIDEO_REWARD_PER_SECOND_PG;
+                    currentUser.totalVideoWatchSecondsToday = (currentUser.totalVideoWatchSecondsToday || 0) + 1;
+                    currentUser.unclaimedVideoUsdt = (currentUser.unclaimedVideoUsdt || 0) + VIDEO_REWARD_PER_SECOND;
                     
                     if (currentUser.totalVideoWatchSecondsToday % 5 === 0) {
                         triggerCoinVFX(event.target.getIframe());
                     }
-
-                    updateVideoClaimUI();
+                    updateVideoLootBoxUI();
                 }, 1000);
                 
-                videoSyncTimer = setInterval(async () => {
-                    await syncUnclaimedVideoPg();
-                    await updateDoc(doc(db, 'users', currentUser.id), { totalVideoWatchSecondsToday: currentUser.totalVideoWatchSecondsToday });
-                }, 15000);
+                videoSyncTimer = setInterval(syncUnclaimedVideoBalance, 20000); // Sync less frequently
 
             } else {
                 if (videoWatchTimer) clearInterval(videoWatchTimer);
                 if (videoSyncTimer) {
                     clearInterval(videoSyncTimer);
-                    syncUnclaimedVideoPg();
+                    syncUnclaimedVideoBalance(); // Sync on pause/stop
                 }
             }
         }
         
         function hideAllFloatingElements() {
-            document.getElementById('video-claim-box').classList.remove('visible', 'pulsate');
+            document.getElementById('video-loot-box').classList.remove('visible', 'pulsate');
         }
 
         function stopAllSectionActivity() {
             if(videoWatchTimer) clearInterval(videoWatchTimer);
             if(videoSyncTimer) {
                 clearInterval(videoSyncTimer);
-                syncUnclaimedVideoPg();
+                syncUnclaimedVideoBalance(); // Final sync before leaving section
             }
-            videoWatchTimer = null;
-            videoSyncTimer = null;
-            if (currentPlayingItem?.originalContent) {
-                try { currentPlayingItem.innerHTML = currentPlayingItem.originalContent; } catch(e) {}
-            }
+            videoWatchTimer = null; videoSyncTimer = null;
+            if (currentPlayingItem?.originalContent) { try { currentPlayingItem.innerHTML = currentPlayingItem.originalContent; } catch(e) {} }
             if (player) { try { player.destroy(); } catch (e) {} player = null; }
             currentPlayingItem = null;
-
-            // Stop any game timers
-            if (GameZone.mathGame.timerInterval) {
-                clearInterval(GameZone.mathGame.timerInterval);
-            }
             hideAllFloatingElements();
         }
         
+        // --- UPDATE 5: Ads Section Logic ---
         function setupAdsToEarn() {
             const container = document.getElementById('ad-task-list');
             container.innerHTML = '';
             if (!currentUser) return;
 
-            const adTasks = [
-                { id: '1', title: 'Watch Ads & Earn PG', viewsToday: currentUser.dailyAdViews_1 || 0 },
-                { id: '2', title: 'Watch Ads & Earn PG', viewsToday: currentUser.dailyAdViews_2 || 0 },
-                { id: '3', title: 'Watch Ads & Earn PG', viewsToday: currentUser.dailyAdViews_3 || 0 },
+            const adSets = [
+                { id: '1', title: 'View Ads (Set 1)', viewsToday: currentUser.dailyAdViews_set1 || 0 },
+                { id: '2', title: 'View Ads (Set 2)', viewsToday: currentUser.dailyAdViews_set2 || 0 },
             ];
 
-            adTasks.forEach(task => {
-                const viewsLeft = AD_TASK_VIEWS_REQUIRED - task.viewsToday;
+            adSets.forEach(task => {
+                const viewsLeft = ADS_PER_SET - task.viewsToday;
                 const isCompleted = viewsLeft <= 0;
-                let buttonText = isCompleted ? 'Claimed Today' : `Watch Ad (${viewsLeft} left)`;
-                let buttonAction = 'watch';
-
-                if (isCompleted && !currentUser.dailyRewardsClaimed?.includes(`ad_task_${task.id}`)) {
-                    buttonText = 'Claim Reward';
-                    buttonAction = 'claim';
-                }
-
+                
                 const card = document.createElement('div');
                 card.className = 'ad-task-card';
                 card.innerHTML = `
                     <div class="ad-task-card-info">
-                        <h4>${task.title} #${task.id}</h4>
-                        <p>Reward: <span class="task-reward-pg">${AD_TASK_REWARD} PG</span> (after 5 ads)</p>
-                        <p>Progress: ${task.viewsToday} / ${AD_TASK_VIEWS_REQUIRED} ads watched</p>
+                        <h4>${task.title}</h4>
+                        <p>Reward: <span class="task-reward-usdt">$${AD_REWARD_USDT.toFixed(4)}</span> per ad</p>
+                        <p>Progress: ${task.viewsToday} / ${ADS_PER_SET} ads watched</p>
                     </div>
-                    <button class="ad-task-button" data-task-id="${task.id}" data-action="${buttonAction}" ${isCompleted && buttonAction !== 'claim' ? 'disabled' : ''}>
-                        ${buttonText}
+                    <button class="ad-task-button" data-task-id="${task.id}" ${isCompleted ? 'disabled' : ''}>
+                        ${isCompleted ? 'Completed Today' : `View Ad (${viewsLeft} left)`}
                     </button>`;
                 container.appendChild(card);
             });
@@ -1225,52 +1002,23 @@
             const button = e.target.closest('.ad-task-button');
             if (!button || button.disabled) return;
             
-            const taskId = button.dataset.taskId;
-            const action = button.dataset.action;
-
-            if (action === 'claim') {
-                button.disabled = true; button.textContent = 'Claiming...';
-                try {
-                    await grantReward({ pgCoin: AD_TASK_REWARD }, { type: 'Ad Task Reward', details: `Claimed for ad task set ${taskId}` });
-                    await updateDoc(doc(db, 'users', currentUser.id), { dailyRewardsClaimed: arrayUnion(`ad_task_${taskId}`) });
-                    showSuccessModal('Reward Claimed!', `${AD_TASK_REWARD} PG has been added to your balance.`);
-                    await fetchAndUpdateCurrentUser();
-                    setupAdsToEarn();
-                } catch(err) {
-                    alert('Failed to claim reward.');
-                    button.disabled = false;
-                }
-                return;
-            }
-
-            button.disabled = true;
-            button.textContent = 'Loading Ad...';
+            const setId = button.dataset.taskId;
+            button.disabled = true; button.textContent = 'Loading Ad...';
             
-            let adTimer = null;
-            let adSuccess = false;
-            let countdown = 10;
+            let adTimer = null; let adSuccess = false; let countdown = 10;
 
-            const handleVisibilityChange = () => {
-                if (document.hidden) {
-                    if (adTimer) clearInterval(adTimer);
-                } else {
-                    if (countdown > 0) startTimer();
-                }
-            };
-            
             const startTimer = () => {
                 if (adTimer) clearInterval(adTimer);
                 adTimer = setInterval(async () => {
                     countdown--;
                     button.textContent = `Wait ${countdown}s`;
                     if (countdown <= 0) {
-                        adSuccess = true;
-                        clearInterval(adTimer);
-                        document.removeEventListener("visibilitychange", handleVisibilityChange);
+                        adSuccess = true; clearInterval(adTimer);
                         button.textContent = 'Processing...';
                         
                         try {
-                            const updateField = `dailyAdViews_${taskId}`;
+                            const updateField = `dailyAdViews_set${setId}`;
+                            await grantReward({ usdt: AD_REWARD_USDT }, { type: 'Ad Reward', details: `Watched Ad from Set ${setId}`});
                             await updateDoc(doc(db, 'users', currentUser.id), { [updateField]: increment(1) });
                             await fetchAndUpdateCurrentUser();
                             setupAdsToEarn(); 
@@ -1286,22 +1034,17 @@
             try {
                 window.onAdClosed = () => {
                     clearInterval(adTimer);
-                    document.removeEventListener("visibilitychange", handleVisibilityChange);
                     if (!adSuccess) {
                         alert('Ad closed too early. No reward given.');
                         setupAdsToEarn(); 
                     }
                 };
-
-                await showRandomAdForTask(); 
+                await showRandomAd(); 
                 button.textContent = `Wait ${countdown}s`;
                 startTimer();
-                document.addEventListener("visibilitychange", handleVisibilityChange);
-
             } catch (err) {
                 console.error("Ad failed to load:", err);
                 clearInterval(adTimer);
-                document.removeEventListener("visibilitychange", handleVisibilityChange);
                 alert('Ad failed to load or was closed. Please try again.');
                 setupAdsToEarn();
             }
@@ -1325,7 +1068,7 @@
 
                     const card = document.createElement('div');
                     card.className = 'task-card';
-                    card.innerHTML = `<div class="task-card-info"><h4>${task.title}</h4><p>Reward: <span class="task-reward-pg">${task.rewardPg || 0} PG</span></p></div><button class="task-button" data-task-id="${docSnap.id}" data-task-url="${task.url}" data-task-creator="${task.creatorId || 'admin'}" data-state="start">Go</button>`;
+                    card.innerHTML = `<div class="task-card-info"><h4>${task.title}</h4><p>Reward: <span class="task-reward-usdt">$${(task.rewardUsdt || 0).toFixed(4)} USDT</span></p></div><button class="task-button" data-task-id="${docSnap.id}" data-task-url="${task.url}" data-state="start">Go</button>`;
                     taskListContainer.appendChild(card);
                     tasksRendered++;
                 });
@@ -1340,7 +1083,7 @@
             }
         }
         
-        async function handleTaskButtonClick(e) {
+        document.getElementById('task-list').addEventListener('click', async (e) => {
             const button = e.target.closest('.task-button');
             if (!button || button.disabled) return;
             
@@ -1348,24 +1091,19 @@
 
             if (state === 'start') {
                 tg.openLink(taskUrl);
-                button.disabled = true;
-                let countdown = 6;
+                button.disabled = true; let countdown = 6;
                 button.textContent = `Claim in ${countdown}s`;
                 const timer = setInterval(() => {
-                    countdown--;
-                    button.textContent = `Claim in ${countdown}s`;
+                    countdown--; button.textContent = `Claim in ${countdown}s`;
                     if (countdown <= 0) {
-                        clearInterval(timer);
-                        button.disabled = false;
-                        button.textContent = 'Claim Reward';
-                        button.dataset.state = 'claim';
+                        clearInterval(timer); button.disabled = false;
+                        button.textContent = 'Claim Reward'; button.dataset.state = 'claim';
                     }
                 }, 1000);
             } else if (state === 'claim') {
                 showTaskConfirmationModal(taskId, taskUrl, button);
             }
-        }
-        document.getElementById('task-list').addEventListener('click', handleTaskButtonClick);
+        });
 
         function showTaskConfirmationModal(taskId, taskUrl, buttonElement) {
             const modal = document.getElementById('taskConfirmModalOverlay');
@@ -1378,133 +1116,67 @@
                 modal.classList.remove('show');
                 await processTaskClaim(taskId, buttonElement);
             };
-
             modal.classList.add('show');
         }
 
         async function processTaskClaim(taskId, button) {
             const taskCard = button.closest('.task-card');
-            button.disabled = true;
+            button.disabled = true; button.textContent = 'Verifying...';
             
-            let countdown = 10;
-            button.textContent = `Verifying... ${countdown}s`;
-            const timer = setInterval(() => {
-                countdown--;
-                if(countdown > 0) {
-                    button.textContent = `Verifying... ${countdown}s`;
-                }
-            }, 1000);
-
-            await new Promise(resolve => setTimeout(resolve, 10000));
-            clearInterval(timer);
-            button.textContent = 'Processing...';
-
             try {
                 const taskDocSnap = await getDoc(doc(db, 'tasks', taskId));
                 if (!taskDocSnap.exists()) throw new Error("Task not found.");
                 const taskData = taskDocSnap.data();
-                const rewardAmount = taskData.rewardPg || 0;
-                
+                const rewardAmount = taskData.rewardUsdt || 0;
                 if (rewardAmount <= 0) throw new Error("Task has no reward.");
 
                 await runTransaction(db, async (t) => {
                     const userRef = doc(db, 'users', currentUser.id);
                     const taskRef = doc(db, 'tasks', taskId);
                     const userDoc = await t.get(userRef);
-                    const taskDoc = await t.get(taskRef);
-
-                    if (!userDoc.exists() || !taskDoc.exists()) throw "USER_OR_TASK_NOT_FOUND";
                     if (userDoc.data().completedTasks?.includes(taskId)) throw "ALREADY_COMPLETED";
-                    
-                    const currentTaskData = taskDoc.data();
-                    if ((currentTaskData.limit || 0) > 0 && (currentTaskData.completionCount || 0) >= currentTaskData.limit) throw "TASK_LIMIT_REACHED";
-                    
-                    t.update(userRef, { 
-                        completedTasks: arrayUnion(taskId), 
-                        dailyTasksCompletedCount: increment(1),
-                        pgCoin: increment(rewardAmount),
-                        lifetimePgCoinEarned: increment(rewardAmount)
-                    });
+                    t.update(userRef, { completedTasks: arrayUnion(taskId) });
                     t.update(taskRef, { completionCount: increment(1) });
                 });
-
-                await grantCommission(rewardAmount);
-                await addDoc(collection(db, 'transactions'), {
-                    userId: currentUser.id,
-                    type: 'Task Reward',
-                    details: 'Completed user-created task',
-                    pgAmount: rewardAmount,
-                    status: 'Completed',
-                    createdAt: serverTimestamp()
-                });
-
-                showSuccessModal("Task Verified!", `${rewardAmount.toFixed(3)} PG has been added to your balance.`);
+                
+                await grantReward({ usdt: rewardAmount }, { type: 'Task Reward', details: 'Completed user-created task' });
+                showSuccessModal("Task Verified!", `$${rewardAmount.toFixed(4)} has been added to your balance.`);
                 
                 if (taskCard) taskCard.remove();
                 await fetchAndUpdateCurrentUser();
 
             } catch (error) {
-                const errorMessages = { "ALREADY_COMPLETED": "You have already completed this task.", "TASK_LIMIT_REACHED": "This task has reached its completion limit."};
-                alert(errorMessages[error] || 'Failed to claim reward. ' + error.message);
-                if (error === "ALREADY_COMPLETED" || error === "TASK_LIMIT_REACHED") {
-                     if (taskCard) taskCard.remove();
-                } else {
-                    button.disabled = false; button.textContent = 'Claim Reward';
-                }
+                alert('Failed to claim reward. ' + (error.message || error));
+                button.disabled = false; button.textContent = 'Claim Reward';
             }
         }
         
-        // --- NEW DAILY REWARDS LOGIC ---
-
         function renderDailyTasks() {
             const container = document.getElementById('daily-tasks-grid');
             if (!currentUser) { container.innerHTML = ''; return; }
             
-            const dailyReferralCount = currentUser.dailyReferralCount || 0;
             const claimedDaily = currentUser.claimedDailyRewards || [];
-
             const tasks = [
-                // Referral Tasks
-                { id: 'ref_1', title: 'Refer 1 Friend Today', required: 1, reward: 0.050, condition: dailyReferralCount >= 1 },
-                { id: 'ref_3', title: 'Refer 3 Friends Today', required: 3, reward: 0.200, condition: dailyReferralCount >= 3 },
-                { id: 'ref_5', title: 'Refer 5 Friends Today', required: 5, reward: 0.600, condition: dailyReferralCount >= 5 },
-                { id: 'ref_10', title: 'Refer 10 Friends Today', required: 10, reward: 1.000, condition: dailyReferralCount >= 10 },
-                { id: 'ref_20', title: 'Refer 20+ Friends Today', required: 20, reward: 2.500, condition: dailyReferralCount >= 20 },
-                // Telegram Tasks
-                { id: 'tg_1', type: 'visit', title: 'Visit Official Channel', reward: 0.01, url: 'https://t.me/tech_and_touch', completed: currentUser.dailyTelegramVisit1Completed, visitTime: 5 },
-                { id: 'tg_2', type: 'visit', title: 'Visit Payment Channel', reward: 0.01, url: 'https://t.me/newtube12', completed: currentUser.dailyTelegramVisit2Completed, visitTime: 5 },
-                // Website Visit Tasks
-                { id: 'web_1', type: 'visit', title: 'Visit Website 1', reward: 0.03, url: 'https://suggestbingo.com/qr4ys636p?key=0098a30fe6a07c76104029fc8045e1bd', completed: currentUser.dailyBrowseVisit1Completed, visitTime: 15 },
-                { id: 'web_2', type: 'visit', title: 'Visit Website 2', reward: 0.03, url: 'https://suggestbingo.com/qr4ys636p?key=0098a30fe6a07c76104029fc8045e1bd', completed: currentUser.dailyBrowseVisit2Completed, visitTime: 15 },
+                { id: 'tg_1', type: 'visit', title: 'Visit Official Channel', reward: 0.001, url: 'https://t.me/tech_and_touch', completed: currentUser.dailyTelegramVisit1Completed, visitTime: 5 },
+                { id: 'tg_2', type: 'visit', title: 'Visit Payment Channel', reward: 0.001, url: 'https://t.me/newtube12', completed: currentUser.dailyTelegramVisit2Completed, visitTime: 5 },
+                { id: 'web_1', type: 'visit', title: 'Visit Website 1', reward: 0.003, url: 'https://suggestbingo.com/qr4ys636p?key=0098a30fe6a07c76104029fc8045e1bd', completed: currentUser.dailyBrowseVisit1Completed, visitTime: 15 },
+                { id: 'web_2', type: 'visit', title: 'Visit Website 2', reward: 0.003, url: 'https://suggestbingo.com/qr4ys636p?key=0098a30fe6a07c76104029fc8045e1bd', completed: currentUser.dailyBrowseVisit2Completed, visitTime: 15 },
             ];
 
             container.innerHTML = tasks.map(task => {
                 let buttonHtml = '';
-                const isClaimed = claimedDaily.includes(task.id);
-                if (isClaimed) {
+                if (claimedDaily.includes(task.id)) {
                     buttonHtml = `<button class="daily-task-button" disabled>Claimed</button>`;
-                } else if (task.type === 'visit') {
-                    if (task.completed) {
-                         buttonHtml = `<button class="daily-task-button" data-task-id="${task.id}" data-reward="${task.reward}" data-action="claim-visit">Claim</button>`;
-                    } else {
-                        buttonHtml = `<button class="daily-task-button" data-task-id="${task.id}" data-url="${task.url}" data-time="${task.visitTime}" data-action="visit">Go</button>`;
-                    }
-                } else { // Referral task
-                    if (task.condition) {
-                         buttonHtml = `<button class="daily-task-button" data-task-id="${task.id}" data-reward="${task.reward}" data-action="claim-ref">Claim</button>`;
-                    } else {
-                        buttonHtml = `<button class="daily-task-button" disabled>Invite</button>`;
-                    }
+                } else if (task.completed) {
+                     buttonHtml = `<button class="daily-task-button" data-task-id="${task.id}" data-reward="${task.reward}" data-action="claim-visit">Claim</button>`;
+                } else {
+                    buttonHtml = `<button class="daily-task-button" data-task-id="${task.id}" data-url="${task.url}" data-time="${task.visitTime}" data-action="visit">Go</button>`;
                 }
-                
-                const progressText = task.required ? `<p>Progress: ${dailyReferralCount} / ${task.required}</p>` : `<p>Visit to claim reward.</p>`;
-
                 return `
-                    <div class="daily-reward-card">
-                        <div class="daily-reward-card-info">
+                    <div class="task-card">
+                        <div class="task-card-info">
                             <h4>${task.title}</h4>
-                            ${progressText}
-                            <p>Reward: <span class="task-reward-pg">${task.reward.toFixed(3)} PG</span></p>
+                            <p>Reward: <span class="task-reward-usdt">$${task.reward.toFixed(4)} USDT</span></p>
                         </div>
                         ${buttonHtml}
                     </div>`;
@@ -1518,57 +1190,42 @@
             const { taskId, reward, action, url, time } = button.dataset;
             const userRef = doc(db, 'users', currentUser.id);
 
-            if (action === 'claim-ref' || action === 'claim-visit') {
+            if (action === 'claim-visit') {
                 button.disabled = true; button.textContent = "Claiming...";
                 try {
-                    await grantReward({ pgCoin: parseFloat(reward) }, { type: 'Daily Reward', details: `Claimed for daily task ${taskId}` });
-                    await updateDoc(userRef, {
-                        claimedDailyRewards: arrayUnion(taskId)
-                    });
-                    showSuccessModal("Reward Claimed!", `+${reward} PG added to your balance.`);
+                    await grantReward({ usdt: parseFloat(reward) }, { type: 'Daily Reward', details: `Claimed for daily task ${taskId}` });
+                    await updateDoc(userRef, { claimedDailyRewards: arrayUnion(taskId) });
+                    showSuccessModal("Reward Claimed!", `+$${reward} added to your balance.`);
                     renderDailyTasks();
-                } catch (err) {
-                    alert('Failed to claim reward.');
-                    button.disabled = false; button.textContent = "Claim";
-                }
+                } catch (err) { alert('Failed to claim reward.'); button.disabled = false; button.textContent = "Claim"; }
             } else if (action === 'visit') {
                 tg.openLink(url);
-                button.disabled = true;
-                let countdown = parseInt(time, 10);
+                button.disabled = true; let countdown = parseInt(time, 10);
                 button.textContent = `Wait ${countdown}s`;
                 const timer = setInterval(async () => {
-                    countdown--;
-                    button.textContent = `Wait ${countdown}s`;
+                    countdown--; button.textContent = `Wait ${countdown}s`;
                     if (countdown <= 0) {
-                        clearInterval(timer);
-                        button.textContent = `Processing...`;
+                        clearInterval(timer); button.textContent = `Processing...`;
                         const updateField = {
                             'tg_1': 'dailyTelegramVisit1Completed', 'tg_2': 'dailyTelegramVisit2Completed',
                             'web_1': 'dailyBrowseVisit1Completed', 'web_2': 'dailyBrowseVisit2Completed'
                         }[taskId];
                         if (updateField) {
                             await updateDoc(userRef, { [updateField]: true });
-                            await fetchAndUpdateCurrentUser();
-                            renderDailyTasks();
+                            await fetchAndUpdateCurrentUser(); renderDailyTasks();
                         }
                     }
                 }, 1000);
             }
         });
 
-        // --- END DAILY REWARDS LOGIC ---
-
-
         function renderTaskPackages() {
             const grid = document.getElementById('ad-package-grid');
-            grid.innerHTML = '';
-            adPackages.forEach(pkg => {
-                const card = document.createElement('div');
-                card.className = 'ad-package-card';
-                card.dataset.packageId = pkg.id;
-                card.innerHTML = `<h4>${pkg.tasks} Tasks</h4><p>${pkg.price.toFixed(2)} USDT</p>`;
-                grid.appendChild(card);
-            });
+            grid.innerHTML = adPackages.map(pkg => `
+                <div class="ad-package-card" data-package-id="${pkg.id}">
+                    <h4>${pkg.tasks} Tasks</h4>
+                    <p>${pkg.price.toFixed(2)} USDT</p>
+                </div>`).join('');
         }
         
         document.getElementById('ad-package-grid').addEventListener('click', (e) => {
@@ -1576,8 +1233,7 @@
             if (!card) return;
             document.querySelectorAll('#ad-package-grid .ad-package-card').forEach(c => c.classList.remove('selected'));
             card.classList.add('selected');
-            const packageId = parseInt(card.dataset.packageId, 10);
-            selectedAdPackage = adPackages.find(p => p.id === packageId);
+            selectedAdPackage = adPackages.find(p => p.id === parseInt(card.dataset.packageId, 10));
         });
 
         async function renderMyAds() {
@@ -1588,20 +1244,19 @@
                 const q = query(collection(db, 'tasks'), where("creatorId", "==", currentUser.id), orderBy("createdAt", "desc"));
                 const snapshot = await getDocs(q);
                 if (snapshot.empty) { container.innerHTML = '<p style="text-align:center;">You have not created any task advertisements yet.</p>'; return; }
-                container.innerHTML = '';
-                snapshot.forEach(docSnap => {
+                container.innerHTML = snapshot.docs.map(docSnap => {
                     const ad = docSnap.data();
                     const isCompleted = (ad.completionCount || 0) >= (ad.limit || 0);
-                    const card = document.createElement('div');
-                    card.className = 'user-ad-item';
-                    card.innerHTML = `
-                        <h4>${ad.title}</h4>
-                        <p class="info-text" style="word-break: break-all;">URL: ${ad.url}</p>
-                        <p class="progress-text">Progress: ${(ad.completionCount || 0)} / ${ad.limit}</p>
-                        <p class="status-text ${isCompleted ? 'completed' : 'active'}">Status: ${isCompleted ? 'Completed ✅' : 'Active'}</p>
-                    `;
-                    container.appendChild(card);
-                });
+                    return `
+                    <div class="user-ad-item task-card">
+                        <div>
+                           <h4>${ad.title}</h4>
+                           <p class="info-text" style="word-break: break-all;">URL: ${ad.url}</p>
+                           <p class="progress-text">Progress: ${(ad.completionCount || 0)} / ${ad.limit}</p>
+                        </div>
+                        <p class="status-text ${isCompleted ? 'completed' : 'active'}">${isCompleted ? 'Completed ✅' : 'Active'}</p>
+                    </div>`;
+                }).join('');
             } catch (error) {
                 console.error("Error fetching my ads:", error);
                 container.innerHTML = '<p style="text-align:center; color: red;">Could not load your ads.</p>';
@@ -1621,10 +1276,8 @@
             try {
                 await runTransaction(db, async (t) => {
                     const userRef = doc(db, 'users', currentUser.id);
-                    const userDoc = await t.get(userRef);
-                    if (!userDoc.exists() || (userDoc.data().usdtBalance || 0) < selectedAdPackage.price) throw new Error("Insufficient balance.");
                     t.update(userRef, { usdtBalance: increment(-selectedAdPackage.price) });
-                    const newTaskData = { title, url, rewardPg: USER_CREATED_TASK_REWARD_PG, limit: selectedAdPackage.tasks, completionCount: 0, creatorId: currentUser.id, isApproved: true, createdAt: serverTimestamp() };
+                    const newTaskData = { title, url, rewardUsdt: USER_CREATED_TASK_REWARD_USDT, limit: selectedAdPackage.tasks, completionCount: 0, creatorId: currentUser.id, isApproved: true, createdAt: serverTimestamp() };
                     t.set(doc(collection(db, 'tasks')), newTaskData);
                 });
                 showSuccessModal("Task Created!", "Your new task is now live for other users to complete.");
@@ -1635,7 +1288,6 @@
                 await fetchAndUpdateCurrentUser();
                 await renderMyAds();
             } catch (error) {
-                console.error("Error creating task:", error);
                 alert(`Failed to create task: ${error.message}`);
             } finally {
                 submitBtn.disabled = false; submitBtn.textContent = 'Create Task';
@@ -1643,130 +1295,99 @@
         });
 
         function showSuccessModal(title, message) {
-            const modal = document.getElementById('successModalOverlay');
             document.getElementById('successModalTitle').textContent = title;
             document.getElementById('successModalMessage').innerHTML = message;
-            modal.classList.add('show');
+            document.getElementById('successModalOverlay').classList.add('show');
             if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-            setTimeout(() => { modal.classList.remove('show'); }, 4000);
+            setTimeout(() => { document.getElementById('successModalOverlay').classList.remove('show'); }, 4000);
         }
         
-        function renderPgWithdrawalUI() {
+        // --- UPDATE 7: New Withdrawal Logic ---
+        function setupWithdrawalUI() {
             if (!currentUser) return;
-            const balance = currentUser.pgCoin || 0;
-            document.getElementById('withdrawPgCoinBalance').textContent = balance.toFixed(3);
-            const grid = document.getElementById('withdraw-package-grid');
-            grid.innerHTML = '';
-            pgWithdrawalPackages.forEach(amount => {
-                const card = document.createElement('div');
-                card.className = 'withdraw-package-card';
-                card.dataset.amount = amount;
-                if (balance < amount) {
-                    card.classList.add('disabled');
+            const balance = currentUser.usdtBalance || 0;
+            document.getElementById('withdrawUsdtBalance').textContent = `$${balance.toFixed(4)}`;
+            const methodSelect = document.getElementById('withdrawalMethod');
+            const amountInput = document.getElementById('withdrawalAmount');
+
+            const updateSummary = () => {
+                const method = methodSelect.value;
+                const amount = parseFloat(amountInput.value);
+                const config = WITHDRAWAL_CONFIG[method];
+                const summaryBox = document.getElementById('withdraw-summary');
+
+                if (!config) { summaryBox.style.display = 'none'; return; }
+                
+                document.getElementById('summary-min').textContent = `$${config.min.toFixed(2)}`;
+                document.getElementById('summary-fee').textContent = `$${config.fee.toFixed(2)}`;
+                
+                if (!isNaN(amount) && amount > 0) {
+                    const receiveAmount = amount - config.fee;
+                    document.getElementById('summary-receive').textContent = `$${receiveAmount > 0 ? receiveAmount.toFixed(4) : '0.0000'}`;
+                } else {
+                    document.getElementById('summary-receive').textContent = '$0.0000';
                 }
-                card.innerHTML = `<h4>${amount} PG</h4>`;
-                grid.appendChild(card);
-            });
-            // Reset selection
-            selectedWithdrawalPackage = null;
-        }
-        
-        document.getElementById('withdraw-package-grid').addEventListener('click', (e) => {
-            const card = e.target.closest('.withdraw-package-card');
-            if (!card || card.classList.contains('disabled')) return;
+                summaryBox.style.display = 'block';
+            };
             
-            // Toggle selection
-            document.querySelectorAll('#withdraw-package-grid .withdraw-package-card').forEach(c => c.classList.remove('selected'));
-            card.classList.add('selected');
-            selectedWithdrawalPackage = parseFloat(card.dataset.amount);
-        });
+            methodSelect.addEventListener('change', updateSummary);
+            amountInput.addEventListener('input', updateSummary);
+            updateSummary(); // Initial call
+        }
 
         document.getElementById('submitWithdrawalBtn').addEventListener('click', () => {
-            if (!selectedWithdrawalPackage) {
-                alert('Please select a withdrawal package first.');
-                return;
-            }
-            const amount = selectedWithdrawalPackage;
-            const method = document.getElementById('pgWithdrawalMethod').value;
-            const details = document.getElementById('pgAccountDetails').value.trim();
+            if(isSubmittingWithdrawal) return;
 
-            if (!details) {
-                alert('Please enter your account details.');
-                document.getElementById('pgAccountDetails').focus();
-                return;
-            }
-            
-            const totalReferrals = currentUser.referralCount || 0;
-            const withdrawalsMade = currentUser.withdrawalCount || 0;
-            const allowedWithdrawals = Math.floor(totalReferrals / 2);
+            const method = document.getElementById('withdrawalMethod').value;
+            const amount = parseFloat(document.getElementById('withdrawalAmount').value);
+            const details = document.getElementById('accountDetails').value.trim();
+            const config = WITHDRAWAL_CONFIG[method];
 
-            if (allowedWithdrawals <= withdrawalsMade) {
-                alert(`Withdrawal Failed: You need more referrals. You have made ${withdrawalsMade} withdrawals and have ${totalReferrals} referrals. Each withdrawal requires 2 total referrals.`);
-                return;
-            }
+            if (!details) { alert('Please enter your account details.'); return; }
+            if (isNaN(amount) || amount <= 0) { alert('Please enter a valid amount.'); return; }
+            if (amount < config.min) { alert(`Minimum withdrawal for ${method} is $${config.min.toFixed(2)}.`); return; }
+            if ((currentUser.usdtBalance || 0) < amount) { alert('Insufficient balance.'); return; }
 
-            showWithdrawalConfirmationModal(amount, method, details);
+            showWithdrawalConfirmationModal(amount, method, details, config.fee);
         });
 
-        function showWithdrawalConfirmationModal(amount, method, details) {
+        function showWithdrawalConfirmationModal(amount, method, details, fee) {
             const modal = document.getElementById('withdrawConfirmModalOverlay');
-            document.getElementById('withdrawConfirmText').textContent = `Are you sure you want to withdraw ${amount} PG to your ${method} account (${details})?`;
+            document.getElementById('withdrawConfirmText').textContent = `Withdraw $${amount.toFixed(4)} to ${method} (${details})? A fee of $${fee.toFixed(2)} will be applied.`;
             
             const cancelBtn = document.getElementById('withdrawConfirmCancelBtn');
             const confirmBtn = document.getElementById('withdrawConfirmSubmitBtn');
-
             const close = () => modal.classList.remove('show');
 
-            const handleConfirm = async () => {
-                close();
-                await processPgWithdrawal(amount, method, details);
-            };
-
-            cancelBtn.onclick = close;
-            confirmBtn.onclick = handleConfirm;
-
+            const handleConfirm = async () => { close(); await processUsdtWithdrawal(amount, method, details, fee); };
+            cancelBtn.onclick = close; confirmBtn.onclick = handleConfirm;
             modal.classList.add('show');
         }
 
-        async function processPgWithdrawal(amount, method, details) {
-            if (isSubmittingWithdrawal) return;
+        async function processUsdtWithdrawal(amount, method, details, fee) {
             isSubmittingWithdrawal = true;
-
             try {
-                if (isNaN(amount) || amount <= 0) throw new Error(`Invalid withdrawal amount.`);
-                
                 await runTransaction(db, async (t) => {
                     const userRef = doc(db, 'users', currentUser.id);
                     const userDoc = await t.get(userRef);
-                    if (!userDoc.exists()) throw new Error(`User not found.`);
-                    const userData = userDoc.data();
-
-                    if ((userData.pgCoin || 0) < amount) throw new Error(`Insufficient balance.`);
-                    
-                    const totalReferrals = userData.referralCount || 0;
-                    const withdrawalsMade = userData.withdrawalCount || 0;
-                    if (Math.floor(totalReferrals / 2) <= withdrawalsMade) {
-                        throw new Error(`Referral requirement not met. You have ${totalReferrals} referrals and have made ${withdrawalsMade} withdrawals.`);
-                    }
+                    if ((userDoc.data().usdtBalance || 0) < amount) throw new Error(`Insufficient balance.`);
                     
                     const requestData = { 
                         userId: currentUser.id, telegramUsername: currentUser.telegramUsername, 
                         method, details, status: 'pending', createdAt: serverTimestamp(), 
-                        withdrawType: 'pg', fee: 0, totalDeducted: amount, pgAmount: amount 
+                        withdrawType: 'usdt', fee, totalDeducted: amount, usdAmount: amount - fee 
                     };
-                    
                     t.set(doc(collection(db, 'withdrawals')), requestData);
-                    t.update(userRef, { pgCoin: increment(-amount), withdrawalCount: increment(1) });
+                    t.update(userRef, { usdtBalance: increment(-amount) });
                 });
-
                 await fetchAndUpdateCurrentUser();
-                document.getElementById('pgWithdrawalDetailsForm').reset();
-                showSuccessModal("Request Sent!", `Your withdrawal request for ${amount} PG is pending. Check status in the History tab.`);
+                document.getElementById('withdrawalForm').reset();
+                showSuccessModal("Request Sent!", `Your withdrawal request is pending. Check status in the History tab.`);
             } catch (error) { 
                 alert(`Error: ${error.message}`); 
             } finally { 
                 isSubmittingWithdrawal = false;
-                renderPgWithdrawalUI(); 
+                setupWithdrawalUI();
             }
         }
         
@@ -1779,73 +1400,43 @@
                 const withdrawalsQuery = query(collection(db, "withdrawals"), where("userId", "==", currentUser.id), orderBy("createdAt", "desc"), limit(25));
                 const transactionsQuery = query(collection(db, "transactions"), where("userId", "==", currentUser.id), orderBy("createdAt", "desc"), limit(25));
                 
-                const [withdrawalsSnap, transactionsSnap] = await Promise.all([
-                    getDocs(withdrawalsQuery), getDocs(transactionsQuery)
-                ]);
-
+                const [withdrawalsSnap, transactionsSnap] = await Promise.all([ getDocs(withdrawalsQuery), getDocs(transactionsQuery) ]);
                 let combinedList = [];
 
-                withdrawalsSnap.forEach(doc => {
-                    const data = doc.data();
-                    combinedList.push({ ...data, type: 'Withdrawal', timestamp: data.createdAt });
-                });
-                transactionsSnap.forEach(doc => {
-                    const data = doc.data();
-                    combinedList.push({ ...data, timestamp: data.createdAt });
-                });
-
+                withdrawalsSnap.forEach(doc => combinedList.push({ ...doc.data(), type: 'Withdrawal', timestamp: doc.data().createdAt }));
+                transactionsSnap.forEach(doc => combinedList.push({ ...doc.data(), timestamp: doc.data().createdAt }));
                 combinedList.sort((a, b) => (b.timestamp?.toMillis() || 0) - (a.timestamp?.toMillis() || 0));
 
                 if (combinedList.length === 0) { historyContainer.innerHTML = '<p style="text-align:center;">No history found.</p>'; return; }
                 
-                historyContainer.innerHTML = '';
                 let lastDate = null;
-
-                combinedList.forEach(data => {
-                    if (!data.timestamp) return;
-                    
+                historyContainer.innerHTML = combinedList.map(data => {
+                    if (!data.timestamp) return '';
                     const date = data.timestamp.toDate();
                     const formattedDate = date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
                     const formattedTime = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
-
+                    
+                    let dateHeaderHtml = '';
                     if (formattedDate !== lastDate) {
-                        const dateHeader = document.createElement('div');
-                        dateHeader.className = 'history-date-header';
-                        dateHeader.textContent = formattedDate;
-                        historyContainer.appendChild(dateHeader);
+                        dateHeaderHtml = `<div class="history-date-header">${formattedDate}</div>`;
                         lastDate = formattedDate;
                     }
-
-                    let title = data.type;
-                    let amountStr = '';
-                    let amountClass = '';
-                    let status = data.status || 'Completed';
-                    let statusClass = `status-${status.toLowerCase()}`;
+                    
+                    let title = data.type; let amountStr = ''; let amountClass = '';
+                    let status = data.status || 'Completed'; let statusClass = `status-${status.toLowerCase()}`;
                     
                     if (title === 'Withdrawal') {
-                        amountStr = `- ${(data.totalDeducted || 0).toFixed(data.withdrawType === 'usdt' ? 4 : 3)} ${data.withdrawType.toUpperCase()}`;
-                        amountClass = 'amount-negative';
-                    } else if (data.pgAmount) {
-                        amountStr = `+ ${data.pgAmount.toFixed(3)} PG`;
-                        amountClass = 'amount-positive';
+                        amountStr = `- $${(data.totalDeducted || 0).toFixed(4)} USDT`; amountClass = 'amount-negative';
                     } else if (data.usdAmount) {
-                        amountStr = `+ ${data.usdAmount.toFixed(4)} USDT`;
-                        amountClass = 'amount-positive';
+                        amountStr = `+ $${data.usdAmount.toFixed(4)} USDT`; amountClass = 'amount-positive';
                     }
 
-                    const item = document.createElement('div');
-                    item.className = 'history-item';
-                    item.innerHTML = `
-                        <div class="history-item-left">
-                            <strong>${title}</strong>
-                            <small>${data.details || formattedTime}</small>
-                        </div>
-                        <div class="history-item-right">
-                            <strong class="${amountClass}">${amountStr}</strong>
-                            <small class="${statusClass}">${status}</small>
+                    return `${dateHeaderHtml}
+                        <div class="history-item">
+                            <div class="history-item-left"><strong>${title}</strong><small>${data.details || formattedTime}</small></div>
+                            <div class="history-item-right"><strong class="${amountClass}">${amountStr}</strong><small class="${statusClass}">${status}</small></div>
                         </div>`;
-                    historyContainer.appendChild(item);
-                });
+                }).join('');
 
             } catch (error) {
                 console.error("Error fetching combined history:", error);
@@ -1853,31 +1444,11 @@
             }
         }
         
-        function renderReferralStats() {
-            if (!currentUser) return;
-            document.getElementById('referral-userid').textContent = currentUser.id;
-            document.getElementById('referral-lifetime-referrals').textContent = currentUser.referralCount || 0;
-            document.getElementById('referral-usdt-balance').textContent = (currentUser.usdtBalance || 0).toFixed(4);
-            document.getElementById('referral-commission-pg').textContent = (currentUser.lifetimeCommissionPg || 0).toFixed(3);
-        }
-        
-        const showMonetagAd = () => new Promise((res, rej) => {
-            if (typeof show_9442539 === 'function') {
-                show_9442539().then(res).catch(rej);
-            } else { rej('Monetag SDK missing'); }
-        });
-        const showGigaPubAd = () => new Promise((res, rej) => {
-             if(typeof window.showGiga === 'function') {
-                window.showGiga("main").then(res).catch(rej);
-             } else { rej('GigaPub SDK missing'); }
-        });
-        const showAdextraAd = () => new Promise((res, rej) => {
-            if(typeof p_adextra === 'function') {
-                p_adextra({ onSuccess: res, onError: (e) => rej(new Error("Adextra ad failed: " + e)) });
-            } else { rej('Adextra SDK missing'); }
-        });
+        const showMonetagAd = () => new Promise((res, rej) => typeof show_9442539 === 'function' ? show_9442539().then(res).catch(rej) : rej('Monetag SDK missing'));
+        const showGigaPubAd = () => new Promise((res, rej) => typeof window.showGiga === 'function' ? window.showGiga("main").then(res).catch(rej) : rej('GigaPub SDK missing'));
+        const showAdextraAd = () => new Promise((res, rej) => typeof p_adextra === 'function' ? p_adextra({ onSuccess: res, onError: (e) => rej(new Error("Adextra ad failed: " + e)) }) : rej('Adextra SDK missing'));
 
-        async function showRandomAdForTask() {
+        async function showRandomAd() {
             const adProviders = [showMonetagAd, showGigaPubAd, showAdextraAd];
             const randomAdProvider = adProviders[Math.floor(Math.random() * adProviders.length)];
             try { await randomAdProvider(); } 
@@ -1895,40 +1466,29 @@
         document.getElementById('show-create-task-btn').addEventListener('click', () => document.getElementById('createTaskModalOverlay').classList.add('show'));
         document.getElementById('closeTaskModalBtn').addEventListener('click', () => document.getElementById('createTaskModalOverlay').classList.remove('show'));
 
-        document.querySelectorAll('.bottom-nav-item, .header-icon-btn').forEach(link => {
-            if(!link.dataset.tabTarget) return;
+        document.querySelectorAll('.bottom-nav-item').forEach(link => {
             link.addEventListener('click', async (e) => {
                 e.preventDefault();
                 const targetId = link.dataset.tabTarget;
                 if (!currentUser || document.querySelector(targetId)?.classList.contains('active')) return;
                 
                 stopAllSectionActivity();
-                document.querySelectorAll('.bottom-nav-item.active, .header-icon-btn.active, .content-section.active').forEach(el => el.classList.remove('active'));
+                document.querySelectorAll('.bottom-nav-item.active, .content-section.active').forEach(el => el.classList.remove('active'));
                 
-                document.querySelectorAll(`[data-tab-target="${targetId}"]`).forEach(l => l.classList.add('active'));
+                link.classList.add('active');
                 document.querySelector(targetId).classList.add('active');
 
                 switch(targetId) {
-                    case '#profile-content': 
-                        renderReferralStats(); 
-                        renderDailyTasks();
-                        break;
+                    case '#home-content': renderDailyTasks(); break;
                     case '#ads-content': setupAdsToEarn(); break;
-                    case '#video-content': 
-                        await fetchContent();
-                        updateVideoClaimUI();
-                        break;
-                    case '#game-content':
-                        GameZone.initialize();
-                        break;
+                    case '#video-content': await fetchContent(); updateVideoLootBoxUI(); break;
                     case '#task-content': 
                         renderTaskPackages();
                         await renderMyAds(); 
                         await fetchAndRenderTasks('task-list', 50);
                         break;
-                    case '#withdraw-content': 
-                        renderPgWithdrawalUI();
-                        break;
+                    case '#withdraw-content': setupWithdrawalUI(); break;
+                    case '#support-content': /* No action needed */ break;
                 }
             });
         });
@@ -1947,9 +1507,7 @@
         async function showDailyNoticePopup() {
             const lastShown = currentUser.lastNoticeShown?.toDate();
             const now = new Date();
-            if (lastShown && (now.getTime() - lastShown.getTime()) < 24 * 60 * 60 * 1000) {
-                return;
-            }
+            if (lastShown && (now.getTime() - lastShown.getTime()) < 24 * 60 * 60 * 1000) return;
             
             const overlay = document.getElementById('noticeModalOverlay');
             overlay.classList.add('show');
@@ -1959,278 +1517,35 @@
             }, { once: true });
         }
 
+        // --- UPDATE 1: Profile Popover Logic ---
+        function updateProfilePopover() {
+            if (!currentUser) return;
+            document.getElementById('popover-total-referrals').textContent = currentUser.referralCount || 0;
+            document.getElementById('popover-total-usdt-earned').textContent = `$${(currentUser.lifetimeUsdtEarned || 0).toFixed(4)}`;
+            document.getElementById('popover-total-tasks-done').textContent = currentUser.completedTasks?.length || 0;
+        }
 
-        // --- GAME ZONE LOGIC ---
-        const GameZone = {
-            // Game Constants
-            SCRATCH_PLAYS_PER_DAY: 5,
-            MATH_PLAYS_PER_DAY: 5,
-            SCRATCH_REWARD: 0.002,
-            MATH_REWARD: 0.002,
-
-            // Elements
-            menuScreen: document.getElementById('menu-screen'),
-            adOverlay: document.getElementById('ad-overlay'),
-            adText: document.getElementById('ad-text'),
-            
-            initialize() {
-                if (!currentUser) return;
-                this.switchScreen(this.menuScreen);
-                if(this.mathGame.timerInterval) clearInterval(this.mathGame.timerInterval);
-            },
-            
-            switchScreen(activeScreen) { 
-                document.querySelectorAll('.game-screen').forEach(s => s.classList.remove('active')); 
-                activeScreen.classList.add('active'); 
-            },
-
-            async showAd() {
-                this.adText.textContent = `Loading Advertisement...`;
-                this.adOverlay.style.display = 'flex';
-                try {
-                    await showRandomAdForTask();
-                } catch(e) {
-                    console.error("Game Ad failed to load", e);
-                } finally {
-                    this.adOverlay.style.display = 'none';
-                }
-            },
-            
-            createParticles(x, y, color) {
-                const particleCount = 20;
-                const container = document.querySelector('.game-container');
-                for (let i = 0; i < particleCount; i++) {
-                    const particle = document.createElement('div');
-                    particle.classList.add('particle');
-                    container.appendChild(particle);
-                    const size = Math.random() * 10 + 5;
-                    particle.style.width = `${size}px`; particle.style.height = `${size}px`;
-                    particle.style.background = color;
-                    const angle = Math.random() * 360; const radius = Math.random() * 150 + 50;
-                    const finalX = Math.cos(angle * Math.PI / 180) * radius; const finalY = Math.sin(angle * Math.PI / 180) * radius;
-                    particle.style.setProperty('--x', `${finalX}px`); particle.style.setProperty('--y', `${finalY}px`);
-                    particle.style.top = `${y}px`; particle.style.left = `${x}px`;
-                    particle.addEventListener('animationend', () => particle.remove());
-                }
-            },
-
-            // --- Sub-game objects ---
-            scratchGame: {
-                parent: null, isDrawing: false, isScratched: false,
-                init() {
-                    if(!this.parent) this.parent = GameZone;
-                    this.canvas = document.getElementById('scratch-canvas');
-                    this.ctx = this.canvas.getContext('2d');
-                    this.prizeResult = document.getElementById('prize-result');
-                    this.playAgainBtn = document.getElementById('play-again-scratch-btn');
-                    this.playsLeftDisplay = document.getElementById('scratch-plays-left');
-                    this.messageDisplay = document.getElementById('scratch-message');
-                    
-                    this.isScratched = false;
-                    this.playAgainBtn.style.display = 'none';
-                    this.messageDisplay.textContent = '';
-                    this.playsLeftDisplay.textContent = `আজকের জন্য বাকি আছে: ${this.parent.SCRATCH_PLAYS_PER_DAY - (currentUser.scratchPlaysToday || 0)} বার`;
-
-                    if ((currentUser.scratchPlaysToday || 0) >= this.parent.SCRATCH_PLAYS_PER_DAY) {
-                        this.prizeResult.textContent = "আজ শেষ";
-                        this.messageDisplay.textContent = 'খেলার সীমা শেষ। আগামীকাল আবার চেষ্টা করুন।';
-                        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-                        return;
-                    }
-
-                    this.prizeResult.textContent = `🎁 ${this.parent.SCRATCH_REWARD} PG`;
-                    const gradient = this.ctx.createLinearGradient(0, 0, this.canvas.width, this.canvas.height);
-                    gradient.addColorStop(0, '#c0c0c0'); gradient.addColorStop(1, '#a9a9a9');
-                    this.ctx.fillStyle = gradient; this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-                    this.ctx.globalCompositeOperation = 'source-over';
-                },
-                getPos(evt) {
-                    const rect = this.canvas.getBoundingClientRect();
-                    const clientX = evt.clientX || (evt.touches && evt.touches[0].clientX);
-                    const clientY = evt.clientY || (evt.touches && evt.touches[0].clientY);
-                    return { x: (clientX - rect.left) * (this.canvas.width / rect.width), y: (clientY - rect.top) * (this.canvas.height / rect.height) };
-                },
-                scratch(e) {
-                    if (!this.isDrawing) return; e.preventDefault();
-                    const pos = this.getPos(e);
-                    this.ctx.globalCompositeOperation = 'destination-out';
-                    this.ctx.beginPath(); this.ctx.arc(pos.x, pos.y, 20, 0, Math.PI * 2); this.ctx.fill();
-                },
-                async revealPrize() {
-                    if (this.isScratched || (currentUser.scratchPlaysToday || 0) >= this.parent.SCRATCH_PLAYS_PER_DAY) return;
-                    this.isScratched = true;
-
-                    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-                    this.parent.createParticles(this.canvas.width/2 + this.canvas.offsetLeft, this.canvas.height/2 + this.canvas.offsetTop, 'gold');
-                    
-                    await grantReward({ pgCoin: this.parent.SCRATCH_REWARD }, { type: 'Game Reward', details: 'Scratch Game Win' });
-                    await updateDoc(doc(db, 'users', currentUser.id), { scratchPlaysToday: increment(1) });
-                    await fetchAndUpdateCurrentUser();
-
-                    this.messageDisplay.textContent = `আপনি ${this.parent.SCRATCH_REWARD} PG Coin জিতেছেন! আপনার ব্যালেন্সে যোগ করা হয়েছে।`;
-                    this.playsLeftDisplay.textContent = `আজকের জন্য বাকি আছে: ${this.parent.SCRATCH_PLAYS_PER_DAY - currentUser.scratchPlaysToday} বার`;
-
-                    if (currentUser.scratchPlaysToday % 2 === 0) { await this.parent.showAd(); }
-                    
-                    this.playAgainBtn.style.display = 'inline-block';
-                },
-                checkComplete() {
-                    const pixels = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height).data;
-                    let transparentPixels = 0;
-                    for (let i = 3; i < pixels.length; i += 4) { if (pixels[i] === 0) transparentPixels++; }
-                    if ((transparentPixels / (this.canvas.width * this.canvas.height)) * 100 > 70) { this.revealPrize(); }
-                }
-            },
-
-            mathGame: {
-                parent: null, correctAnswer: 0, timerInterval: null, TIME_LIMIT: 10,
-                start() {
-                    if(!this.parent) this.parent = GameZone;
-                    this.problemDisplay = document.getElementById('math-problem'); this.answerInput = document.getElementById('answer-input');
-                    this.submitBtn = document.getElementById('submit-answer-btn'); this.feedback = document.getElementById('feedback');
-                    this.timerBar = document.getElementById('timer-bar'); this.playsLeftDisplay = document.getElementById('math-plays-left');
-
-                    this.feedback.textContent = ''; this.updatePlaysLeft();
-                    if ((currentUser.mathPlaysToday || 0) >= this.parent.MATH_PLAYS_PER_DAY) {
-                        this.problemDisplay.textContent = "আজ শেষ";
-                        this.feedback.textContent = 'খেলার সীমা শেষ। আগামীকাল আসুন।';
-                        this.answerInput.style.display = 'none'; this.submitBtn.style.display = 'none';
-                        return;
-                    }
-                    this.answerInput.style.display = 'block'; this.submitBtn.style.display = 'inline-block';
-                    this.generateProblem();
-                },
-                updatePlaysLeft() { this.playsLeftDisplay.textContent = `আজকের জন্য বাকি আছে: ${this.parent.MATH_PLAYS_PER_DAY - (currentUser.mathPlaysToday || 0)} টি অঙ্ক`; },
-                generateProblem() {
-                    let num1 = Math.floor(Math.random() * 25) + 1, num2 = Math.floor(Math.random() * 25) + 1;
-                    const operator = ['+', '-', '*'][Math.floor(Math.random() * 3)];
-                    switch (operator) {
-                        case '+': this.correctAnswer = num1 + num2; break;
-                        case '-': if (num1 < num2) [num1, num2] = [num2, num1]; this.correctAnswer = num1 - num2; break;
-                        case '*': num1 = Math.floor(Math.random() * 10)+2; num2 = Math.floor(Math.random()*10)+2; this.correctAnswer = num1 * num2; break;
-                    }
-                    this.problemDisplay.textContent = `${num1} ${operator} ${num2} = ?`;
-                    this.answerInput.value = ''; this.answerInput.focus(); this.resetTimer();
-                },
-                resetTimer() {
-                    clearInterval(this.timerInterval);
-                    this.timerBar.style.transition = 'none'; this.timerBar.style.width = '100%';
-                    setTimeout(() => {
-                        this.timerBar.style.transition = `width ${this.TIME_LIMIT}s linear`;
-                        this.timerBar.style.width = '0%';
-                    }, 10);
-                    this.timerInterval = setInterval(() => { this.handleAnswer(false, true); }, this.TIME_LIMIT * 1000);
-                },
-                checkAnswer() { this.handleAnswer(parseInt(this.answerInput.value) === this.correctAnswer, false); },
-                async handleAnswer(isCorrect, isTimeout) {
-                    clearInterval(this.timerInterval);
-                    if (isCorrect && (currentUser.mathPlaysToday || 0) < this.parent.MATH_PLAYS_PER_DAY) {
-                        await grantReward({ pgCoin: this.parent.MATH_REWARD }, { type: 'Game Reward', details: 'Math Game Win' });
-                        await updateDoc(doc(db, 'users', currentUser.id), { mathPlaysToday: increment(1) });
-                        await fetchAndUpdateCurrentUser();
-                        
-                        this.feedback.textContent = `সঠিক! ${this.parent.MATH_REWARD} PG যোগ করা হয়েছে।`; this.feedback.style.color = 'var(--success-color)';
-                        this.updatePlaysLeft();
-                        if (currentUser.mathPlaysToday % 2 === 0) { await this.parent.showAd(); }
-                    } else if (!isCorrect) {
-                        this.feedback.textContent = isTimeout ? `সময় শেষ!` : `ভুল! সঠিক উত্তর: ${this.correctAnswer}`;
-                        this.feedback.style.color = '#dc3545';
-                        document.getElementById('math-game-screen').classList.add('shake');
-                        setTimeout(() => document.getElementById('math-game-screen').classList.remove('shake'), 500);
-                    }
-
-                    if ((currentUser.mathPlaysToday || 0) >= this.parent.MATH_PLAYS_PER_DAY) {
-                        setTimeout(() => this.start(), 1500);
-                    } else {
-                        setTimeout(() => this.generateProblem(), 1500);
-                    }
-                }
-            },
-
-            choiceGame: {
-                parent: null,
-                init() {
-                    if(!this.parent) this.parent = GameZone;
-                    this.container = document.getElementById('choice-container');
-                    this.resultDisplay = document.getElementById('choice-result');
-                    
-                    this.container.innerHTML = ''; this.resultDisplay.textContent = '';
-                    if (currentUser.quickChoicePlayedToday) {
-                        this.resultDisplay.textContent = 'আপনি আজ খেলে ফেলেছেন। আগামীকাল আবার চেষ্টা করুন।';
-                        return;
-                    }
-
-                    const prizes = ['win', 'lose', 'lose'];
-                    for (let i = prizes.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [prizes[i], prizes[j]] = [prizes[j], prizes[i]]; }
-
-                    prizes.forEach(type => {
-                        const box = document.createElement('div');
-                        box.className = 'choice-box';
-                        box.dataset.type = type;
-                        box.innerHTML = `<div class="box-face box-front">?</div><div class="box-face box-back"></div>`;
-                        box.addEventListener('click', () => this.reveal(box), { once: true });
-                        this.container.appendChild(box);
-                    });
-                },
-                async reveal(chosenBox) {
-                    if (currentUser.quickChoicePlayedToday) return;
-
-                    const allBoxes = this.container.querySelectorAll('.choice-box');
-                    allBoxes.forEach(box => box.style.pointerEvents = 'none');
-
-                    let wonAmount = 0;
-                    if (chosenBox.dataset.type === 'win') {
-                        wonAmount = Math.random() * (0.1 - 0.001) + 0.001;
-                    }
-                    
-                    if (wonAmount > 0) {
-                        await grantReward({ pgCoin: wonAmount }, { type: 'Game Reward', details: 'Quick Choice Win' });
-                    }
-                    await updateDoc(doc(db, 'users', currentUser.id), { quickChoicePlayedToday: true });
-                    await fetchAndUpdateCurrentUser();
-
-                    allBoxes.forEach((box, index) => {
-                        setTimeout(() => {
-                            box.classList.add('flipped');
-                            const backFace = box.querySelector('.box-back');
-                            if (box.dataset.type === 'win') {
-                                backFace.classList.add('win');
-                                backFace.innerHTML = `🎁<br>${wonAmount.toFixed(5)} PG`;
-                            } else {
-                                backFace.classList.add('lose');
-                                backFace.textContent = '❌ খালি';
-                            }
-                        }, index * 200);
-                    });
-                    
-                    setTimeout(async () => {
-                        if (wonAmount > 0) {
-                            this.resultDisplay.textContent = `অভিনন্দন! আপনি ${wonAmount.toFixed(5)} PG জিতেছেন!`;
-                            this.resultDisplay.style.color = 'var(--success-color)';
-                            const gameScreen = document.getElementById('choice-game-screen');
-                            this.parent.createParticles(gameScreen.offsetWidth / 2, chosenBox.offsetTop + chosenBox.offsetHeight / 2, 'gold');
-                        } else {
-                            this.resultDisplay.textContent = 'দুঃখিত! পরের বার আবার চেষ্টা করুন।';
-                            this.resultDisplay.style.color = '#dc3545';
-                        }
-                        await this.parent.showAd();
-                    }, allBoxes.length * 200 + 500);
-                }
+        const profileBtn = document.getElementById('profile-info-btn');
+        const popover = document.getElementById('profile-popover');
+        profileBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            updateProfilePopover();
+            popover.classList.toggle('show');
+        });
+        document.addEventListener('click', (e) => {
+            if (!popover.contains(e.target) && !profileBtn.contains(e.target)) {
+                popover.classList.remove('show');
             }
-        };
-
-        // Event listeners for Game Zone
-        document.getElementById('play-scratch-btn').addEventListener('click', () => { GameZone.switchScreen(document.getElementById('scratch-game-screen')); GameZone.scratchGame.init(); });
-        document.getElementById('play-math-btn').addEventListener('click', () => { GameZone.switchScreen(document.getElementById('math-game-screen')); GameZone.mathGame.start(); });
-        document.getElementById('play-choice-btn').addEventListener('click', () => { GameZone.switchScreen(document.getElementById('choice-game-screen')); GameZone.choiceGame.init(); });
-        document.querySelectorAll('.back-to-menu').forEach(btn => btn.addEventListener('click', () => GameZone.initialize()));
-        document.getElementById('play-again-scratch-btn').addEventListener('click', () => GameZone.scratchGame.init());
-        ['mousedown', 'touchstart'].forEach(evt => document.getElementById('scratch-canvas').addEventListener(evt, e => { e.preventDefault(); GameZone.scratchGame.isDrawing = true; }, { passive: false }));
-        ['mouseup', 'touchend'].forEach(evt => document.getElementById('scratch-canvas').addEventListener(evt, () => { GameZone.scratchGame.isDrawing = false; GameZone.scratchGame.checkComplete(); }));
-        ['mousemove', 'touchmove'].forEach(evt => document.getElementById('scratch-canvas').addEventListener(evt, e => { GameZone.scratchGame.scratch(e); }, { passive: false }));
-        document.getElementById('submit-answer-btn').addEventListener('click', () => GameZone.mathGame.checkAnswer());
-        document.getElementById('answer-input').addEventListener('keydown', e => { if (e.key === 'Enter') GameZone.mathGame.checkAnswer(); });
-
+        });
+        document.getElementById('popoverCopyRefLinkBtn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            const copyButton = e.target;
+            navigator.clipboard.writeText(copyButton.previousElementSibling.value).then(() => {
+                copyButton.textContent = 'Copied!';
+                if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+                setTimeout(() => { copyButton.textContent = 'Copy'; }, 2000);
+            });
+        });
 
         async function main() {
             try {
@@ -2241,18 +1556,8 @@
                 if (!initStatus) return;
 
                 setupUserIdDisplay(currentUser.id);
-
-                document.getElementById('referral-userid').addEventListener('click', () => {
-                    if (currentUser?.id) navigator.clipboard.writeText(currentUser.id).then(() => {
-                        if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-                        showSuccessModal("Copied!", `User ID ${currentUser.id} copied to clipboard.`);
-                    });
-                });
-                
                 showDailyNoticePopup();
-                renderReferralStats();
                 renderDailyTasks();
-
             } catch (error) {
                 console.error("Initialization failed:", error);
                 document.body.innerHTML = `<div class="card"><h3>Application Error</h3><p>Could not initialize. Please restart.</p><p style="font-size: 0.8em; color: #888;">Error: ${error.message}</p></div>`;
@@ -2263,4 +1568,3 @@
 
 </body>
 </html>
-```
